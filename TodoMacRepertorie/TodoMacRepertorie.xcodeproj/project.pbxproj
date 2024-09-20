@@ -7,6 +7,21 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		185C3F5B2C4F915B00FDDC39 /* LoginRuleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 185C3F5A2C4F915B00FDDC39 /* LoginRuleView.swift */; };
+		185C3F5D2C4F91A100FDDC39 /* TDBridTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 185C3F5C2C4F91A100FDDC39 /* TDBridTextField.swift */; };
+		1862A6202C3BD962000ECBAE /* UserInfoDataModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1862A61F2C3BD961000ECBAE /* UserInfoDataModel.swift */; };
+		1862A6222C3BD973000ECBAE /* LoginAndRegistrationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1862A6212C3BD973000ECBAE /* LoginAndRegistrationView.swift */; };
+		1862A6252C3CDE51000ECBAE /* TodoEventDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1862A6242C3CDE51000ECBAE /* TodoEventDetails.swift */; };
+		1862A65F2C465531000ECBAE /* SettingDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1862A65E2C465531000ECBAE /* SettingDataManager.swift */; };
+		1862A6652C465B85000ECBAE /* Color-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1862A6642C465B85000ECBAE /* Color-Extension.swift */; };
+		1862A6672C4669FA000ECBAE /* DynamicColor in Frameworks */ = {isa = PBXBuildFile; productRef = 1862A6662C4669FA000ECBAE /* DynamicColor */; };
+		186B06A52C91852B0097DD97 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 186B06A42C91852B0097DD97 /* Alamofire */; };
+		186B06AD2C9427450097DD97 /* HWAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186B06A72C9427450097DD97 /* HWAPI.swift */; };
+		186B06AE2C9427450097DD97 /* HWMultipartData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186B06A82C9427450097DD97 /* HWMultipartData.swift */; };
+		186B06AF2C9427450097DD97 /* HWNetworking.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186B06A92C9427450097DD97 /* HWNetworking.swift */; };
+		186B06B02C9427450097DD97 /* HWNetworkingError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186B06AA2C9427450097DD97 /* HWNetworkingError.swift */; };
+		186B06B12C9427450097DD97 /* HWNetworkingOC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186B06AB2C9427450097DD97 /* HWNetworkingOC.swift */; };
+		186B06B32C942ADE0097DD97 /* TDAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186B06B22C942ADE0097DD97 /* TDAPI.swift */; };
 		18859B212C0877A300783F61 /* TodoMacRepertorieApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18859B202C0877A300783F61 /* TodoMacRepertorieApp.swift */; };
 		18859B232C0877A300783F61 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18859B222C0877A300783F61 /* ContentView.swift */; };
 		18859B252C0877A300783F61 /* Item.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18859B242C0877A300783F61 /* Item.swift */; };
@@ -35,6 +50,19 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		185C3F5A2C4F915B00FDDC39 /* LoginRuleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginRuleView.swift; sourceTree = "<group>"; };
+		185C3F5C2C4F91A100FDDC39 /* TDBridTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDBridTextField.swift; sourceTree = "<group>"; };
+		1862A61F2C3BD961000ECBAE /* UserInfoDataModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserInfoDataModel.swift; sourceTree = "<group>"; };
+		1862A6212C3BD973000ECBAE /* LoginAndRegistrationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginAndRegistrationView.swift; sourceTree = "<group>"; };
+		1862A6242C3CDE51000ECBAE /* TodoEventDetails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoEventDetails.swift; sourceTree = "<group>"; };
+		1862A65E2C465531000ECBAE /* SettingDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingDataManager.swift; sourceTree = "<group>"; };
+		1862A6642C465B85000ECBAE /* Color-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color-Extension.swift"; sourceTree = "<group>"; };
+		186B06A72C9427450097DD97 /* HWAPI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HWAPI.swift; sourceTree = "<group>"; };
+		186B06A82C9427450097DD97 /* HWMultipartData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HWMultipartData.swift; sourceTree = "<group>"; };
+		186B06A92C9427450097DD97 /* HWNetworking.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HWNetworking.swift; sourceTree = "<group>"; };
+		186B06AA2C9427450097DD97 /* HWNetworkingError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HWNetworkingError.swift; sourceTree = "<group>"; };
+		186B06AB2C9427450097DD97 /* HWNetworkingOC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HWNetworkingOC.swift; sourceTree = "<group>"; };
+		186B06B22C942ADE0097DD97 /* TDAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDAPI.swift; sourceTree = "<group>"; };
 		18859B1D2C0877A300783F61 /* TodoMacRepertorie.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TodoMacRepertorie.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		18859B202C0877A300783F61 /* TodoMacRepertorieApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoMacRepertorieApp.swift; sourceTree = "<group>"; };
 		18859B222C0877A300783F61 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -54,6 +82,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1862A6672C4669FA000ECBAE /* DynamicColor in Frameworks */,
+				186B06A52C91852B0097DD97 /* Alamofire in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -74,6 +104,62 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1862A61A2C3BD8F7000ECBAE /* LoginAndRegistration(登录注册) */ = {
+			isa = PBXGroup;
+			children = (
+				1862A61F2C3BD961000ECBAE /* UserInfoDataModel.swift */,
+				1862A6212C3BD973000ECBAE /* LoginAndRegistrationView.swift */,
+				185C3F5A2C4F915B00FDDC39 /* LoginRuleView.swift */,
+				185C3F5C2C4F91A100FDDC39 /* TDBridTextField.swift */,
+			);
+			path = "LoginAndRegistration(登录注册)";
+			sourceTree = "<group>";
+		};
+		1862A6232C3CDC5D000ECBAE /* 最右边事件信息 */ = {
+			isa = PBXGroup;
+			children = (
+				1862A6242C3CDE51000ECBAE /* TodoEventDetails.swift */,
+			);
+			path = "最右边事件信息";
+			sourceTree = "<group>";
+		};
+		1862A65D2C4654A3000ECBAE /* Setting(设置) */ = {
+			isa = PBXGroup;
+			children = (
+				1862A65E2C465531000ECBAE /* SettingDataManager.swift */,
+			);
+			path = "Setting(设置)";
+			sourceTree = "<group>";
+		};
+		1862A6602C465818000ECBAE /* 类的扩展 */ = {
+			isa = PBXGroup;
+			children = (
+				1862A6642C465B85000ECBAE /* Color-Extension.swift */,
+			);
+			path = "类的扩展";
+			sourceTree = "<group>";
+		};
+		186B06A62C92DD490097DD97 /* TDRequestTool(网络请求) */ = {
+			isa = PBXGroup;
+			children = (
+				186B06AC2C9427450097DD97 /* HWNetworking */,
+			);
+			path = "TDRequestTool(网络请求)";
+			sourceTree = "<group>";
+		};
+		186B06AC2C9427450097DD97 /* HWNetworking */ = {
+			isa = PBXGroup;
+			children = (
+				186B06A72C9427450097DD97 /* HWAPI.swift */,
+				186B06A82C9427450097DD97 /* HWMultipartData.swift */,
+				186B06A92C9427450097DD97 /* HWNetworking.swift */,
+				186B06AA2C9427450097DD97 /* HWNetworkingError.swift */,
+				186B06AB2C9427450097DD97 /* HWNetworkingOC.swift */,
+				186B06B22C942ADE0097DD97 /* TDAPI.swift */,
+			);
+			path = HWNetworking;
+			sourceTree = "<group>";
+		};
 		18859B142C0877A300783F61 = {
 			isa = PBXGroup;
 			children = (
@@ -100,7 +186,12 @@
 				18859B202C0877A300783F61 /* TodoMacRepertorieApp.swift */,
 				18859B222C0877A300783F61 /* ContentView.swift */,
 				18859B242C0877A300783F61 /* Item.swift */,
+				186B06A62C92DD490097DD97 /* TDRequestTool(网络请求) */,
+				1862A61A2C3BD8F7000ECBAE /* LoginAndRegistration(登录注册) */,
+				1862A6232C3CDC5D000ECBAE /* 最右边事件信息 */,
+				1862A65D2C4654A3000ECBAE /* Setting(设置) */,
 				18859B262C0877A600783F61 /* Assets.xcassets */,
+				1862A6602C465818000ECBAE /* 类的扩展 */,
 				18859B2B2C0877A600783F61 /* TodoMacRepertorie.entitlements */,
 				18859B282C0877A600783F61 /* Preview Content */,
 			);
@@ -148,6 +239,10 @@
 			dependencies = (
 			);
 			name = TodoMacRepertorie;
+			packageProductDependencies = (
+				1862A6662C4669FA000ECBAE /* DynamicColor */,
+				186B06A42C91852B0097DD97 /* Alamofire */,
+			);
 			productName = TodoMacRepertorie;
 			productReference = 18859B1D2C0877A300783F61 /* TodoMacRepertorie.app */;
 			productType = "com.apple.product-type.application";
@@ -220,6 +315,10 @@
 				Base,
 			);
 			mainGroup = 18859B142C0877A300783F61;
+			packageReferences = (
+				1862A6612C465A8E000ECBAE /* XCRemoteSwiftPackageReference "DynamicColor" */,
+				186B06A32C91852B0097DD97 /* XCRemoteSwiftPackageReference "Alamofire" */,
+			);
 			productRefGroup = 18859B1E2C0877A300783F61 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -263,8 +362,21 @@
 			buildActionMask = 2147483647;
 			files = (
 				18859B232C0877A300783F61 /* ContentView.swift in Sources */,
+				1862A6652C465B85000ECBAE /* Color-Extension.swift in Sources */,
+				185C3F5B2C4F915B00FDDC39 /* LoginRuleView.swift in Sources */,
+				186B06AE2C9427450097DD97 /* HWMultipartData.swift in Sources */,
+				186B06AF2C9427450097DD97 /* HWNetworking.swift in Sources */,
+				186B06B12C9427450097DD97 /* HWNetworkingOC.swift in Sources */,
+				186B06B02C9427450097DD97 /* HWNetworkingError.swift in Sources */,
 				18859B252C0877A300783F61 /* Item.swift in Sources */,
+				186B06B32C942ADE0097DD97 /* TDAPI.swift in Sources */,
+				185C3F5D2C4F91A100FDDC39 /* TDBridTextField.swift in Sources */,
+				1862A65F2C465531000ECBAE /* SettingDataManager.swift in Sources */,
 				18859B212C0877A300783F61 /* TodoMacRepertorieApp.swift in Sources */,
+				1862A6252C3CDE51000ECBAE /* TodoEventDetails.swift in Sources */,
+				1862A6222C3BD973000ECBAE /* LoginAndRegistrationView.swift in Sources */,
+				1862A6202C3BD962000ECBAE /* UserInfoDataModel.swift in Sources */,
+				186B06AD2C9427450097DD97 /* HWAPI.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -427,7 +539,7 @@
 				CODE_SIGN_ENTITLEMENTS = TodoMacRepertorie/TodoMacRepertorie.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_ASSET_PATHS = "\"TodoMacRepertorie/Preview Content\"";
 				DEVELOPMENT_TEAM = ARQ4QZ8Q3D;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -439,7 +551,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.5;
 				PRODUCT_BUNDLE_IDENTIFIER = com.Mac.Todolist.TodoMacRepertorie;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -455,7 +567,7 @@
 				CODE_SIGN_ENTITLEMENTS = TodoMacRepertorie/TodoMacRepertorie.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_ASSET_PATHS = "\"TodoMacRepertorie/Preview Content\"";
 				DEVELOPMENT_TEAM = ARQ4QZ8Q3D;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -467,7 +579,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.5;
 				PRODUCT_BUNDLE_IDENTIFIER = com.Mac.Todolist.TodoMacRepertorie;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -587,6 +699,38 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		1862A6612C465A8E000ECBAE /* XCRemoteSwiftPackageReference "DynamicColor" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/yannickl/DynamicColor.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.0.1;
+			};
+		};
+		186B06A32C91852B0097DD97 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Alamofire/Alamofire.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.9.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		1862A6662C4669FA000ECBAE /* DynamicColor */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1862A6612C465A8E000ECBAE /* XCRemoteSwiftPackageReference "DynamicColor" */;
+			productName = DynamicColor;
+		};
+		186B06A42C91852B0097DD97 /* Alamofire */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 186B06A32C91852B0097DD97 /* XCRemoteSwiftPackageReference "Alamofire" */;
+			productName = Alamofire;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 18859B152C0877A300783F61 /* Project object */;
 }

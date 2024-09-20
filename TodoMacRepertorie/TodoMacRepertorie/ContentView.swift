@@ -11,9 +11,11 @@ import SwiftData
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var items: [Item]
+    @State private var columnVisibility = NavigationSplitViewVisibility.all
+    @State private var isShowingInspector = false
 
     var body: some View {
-        NavigationSplitView {
+        NavigationSplitView(columnVisibility: $columnVisibility) {
             List {
                 ForEach(items) { item in
                     NavigationLink {
@@ -32,15 +34,39 @@ struct ContentView: View {
                     }
                 }
             }
+        } content: {
+            List {
+                ForEach(0..<5) { i in
+                    HStack {
+                        Text("Select an item \(i)")
+                            
+                        if isShowingInspector {
+                            Image(systemName: "plus")
+                        }
+                            
+                    }
+                    .onHover(perform: { hovering in
+                        isShowingInspector = hovering
+                    })
+                    
+                }
+                
+                
+            }
+            
+            .navigationSplitViewColumnWidth(min: 700, ideal: 250)
+            .toolbar {
+                ToolbarItem {
+                    Button(action: addItem) {
+                        Label("Add Item", systemImage: "plus")
+                    }
+                }
+            }
+
         } detail: {
-            Text("Select an item")
-            Text("Select an item")
-            Text("Select an item")
-            Text("Select an item")
-            Text("Select an item")
-            Text("Select an item")
-            Text("Select an item")
+            Text("Detail")
         }
+
     }
 
     private func addItem() {
