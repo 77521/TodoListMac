@@ -1,0 +1,372 @@
+//
+//  TDLoginViewModel.swift
+//  TodoMacRepertorie
+//
+//  Created by apple on 2024/11/6.
+//
+
+import Foundation
+import SwiftUI
+
+
+@MainActor
+class TDLoginViewModel: ObservableObject {
+    // MARK: - 登录类型枚举
+    enum TDLoginType: Int, CaseIterable {
+        case account   // 账号密码登录
+        case phone      // 手机验证码登录
+        case qrcode     // 扫码登录
+    }
+    //  注册或者登录
+    enum TDLoginState {
+        case login
+        case register
+    }
+    
+    @Published var currentType: TDLoginType = .account
+    // 视图状态
+    @Published var loginState: TDLoginState = .login
+    
+    // 账号密码登录注册
+    @AppStorage("LoninViewUserAccount") var userAccount = ""
+    @Published var password = ""
+    
+    // 手机号登录
+    @Published var phone = ""
+    @Published var smsCode = ""
+    @Published var countDown: Int = 0
+    private var countDownTimer: Timer?
+    private let countDownDuration = 60  // 固定60秒
+    
+    // 二维码登录
+    @Published var qrCodeImage: NSImage?
+    @Published var qrStatus: TDQRCodeStatus = .waiting
+    
+    private var qrCode: String?
+    private var statusTimer: Timer?
+    private let pollingInterval: TimeInterval = 2.0
+
+    
+    @Published private var hasSentCode = false  // 添加一个标记，记录是否发送过验证码
+    // 底部是否点击同意协议按钮
+    @AppStorage("LoninViewAgreedToTerms") var agreedToTerms = false
+    
+    // 输入字段错误提示
+    @Published var accountError = ""
+    @Published var passwordError = ""
+    @Published var phoneError = ""
+    @Published var smsCodeError = ""
+    @Published var qrCodeError = ""
+
+    // 网络请求错误提示
+    @Published var showErrorToast = false
+    @Published var toastMessage = ""
+    
+    // 区分不同的 loading 状态
+    @Published var isLoginLoading = false      // 登录loading
+    @Published var isSendingSms = false        // 发送验证码loading
+    @Published var isQRLoading = false         // 二维码loading
+
+    // MARK: - 输入验证
+    // 提取协议检查方法
+    private func checkProtocol() -> Bool {
+        guard agreedToTerms else {
+            toastMessage = "请阅读并同意用户协议"
+            showErrorToast = true
+            return false
+        }
+        return true
+    }
+    // 验证账号
+    private func validateAccount() -> Bool {
+        if userAccount.isEmpty {
+            accountError = "请输入账号"
+            return false
+        }
+        if userAccount.count < 6 {
+            accountError = "账号长度不能少于6位"
+            return false
+        }
+        accountError = ""
+        return true
+    }
+    
+    // 验证密码
+    private func validatePassword() -> Bool {
+        if password.isEmpty {
+            passwordError = "请输入密码"
+            return false
+        }
+        if password.count < 6 {
+            passwordError = "密码长度不能少于6位"
+            return false
+        }
+        passwordError = ""
+        return true
+    }
+    
+    // 验证手机号
+    private func validatePhone() -> Bool {
+        if phone.isEmpty {
+            phoneError = "请输入手机号"
+            return false
+        }
+        if phone.count != 11 {
+            phoneError = "请输入11位手机号"
+            return false
+        }
+        // 可以添加更严格的手机号格式验证
+        let phoneRegex = "^1[3-9]\\d{9}$"
+        if !NSPredicate(format: "SELF MATCHES %@", phoneRegex).evaluate(with: phone) {
+            phoneError = "请输入正确的手机号"
+            return false
+        }
+        phoneError = ""
+        return true
+    }
+    
+    // 验证验证码
+    private func validateSmsCode() -> Bool {
+        if smsCode.isEmpty {
+            smsCodeError = "请输入验证码"
+            return false
+        }
+        if smsCode.count != 6 {
+            smsCodeError = "请输入6位验证码"
+            return false
+        }
+        smsCodeError = ""
+        return true
+    }
+    
+    // MARK: - 登录方法
+    
+    // 账号密码登录
+    func loginWithAccount() {
+        // 检查协议
+        guard checkProtocol() else { return }
+        // 验证输入
+        guard validateAccount() && validatePassword() else { return }
+        Task {
+            isLoginLoading = true
+            do {
+                let user = try await TDLoginAPI.login(account: userAccount, password: password, url: loginState == .login ? "loginByAccount" : "signUpAccount")
+                handleLoginSuccess(user)
+            } catch {
+                showErrorToast = true
+                toastMessage = error.localizedDescription
+            }
+            isLoginLoading = false
+        }
+    }
+    
+    // 手机号登录
+    func loginWithPhone() {
+        // 检查协议
+        guard checkProtocol() else { return }
+        // 验证输入
+        guard validatePhone() && validateSmsCode() else { return }
+        
+        Task {
+            isLoginLoading = true
+            do {
+                let user = try await TDLoginAPI.login(phone: phone, smsCode: smsCode)
+                handleLoginSuccess(user)
+            } catch {
+                showErrorToast = true
+                toastMessage = error.localizedDescription
+            }
+            isLoginLoading = false
+        }
+    }
+    // 发送验证码
+    func sendSmsCode() {
+        // 先验证手机号
+        guard validatePhone() else { return }
+        Task {
+            isSendingSms = true
+            do {
+                _ = try await TDLoginAPI.sendSmsCode(to: phone, url: "getSmsCodeByLogin")
+                startCountDown()  // 不再使用服务器返回的时间
+                // 发送成功提示
+                showErrorToast = true
+                hasSentCode = true  // 设置已发送标记
+                toastMessage = "验证码已发送"
+            } catch {
+                showErrorToast = true
+                toastMessage = error.localizedDescription
+            }
+            isSendingSms = false
+        }
+    }
+    
+    
+    
+    /// 获取二维码
+    func startQRCodeLogin() {
+        Task {
+            do {
+                // 1. 获取二维码
+                qrCode = try await TDLoginAPI.getQRCode()
+                await MainActor.run {
+                    // 生成二维码图片
+                    qrCodeImage = generateQRCode(from: qrCode ?? "")
+                    // 开始轮询状态
+                    startPollingStatus()
+                }
+            } catch {
+                await MainActor.run {
+                    qrCodeError = error.localizedDescription
+                }
+            }
+        }
+    }
+    
+    /// 开始检测二维码生效时间
+    @MainActor
+    private func startPollingStatus() {
+        stopPollingStatus()
+        statusTimer = Timer.scheduledTimer(withTimeInterval: pollingInterval, repeats: true) { [weak self] _ in
+            Task { @MainActor in
+                await self?.checkStatus()
+            }
+        }
+    }
+    
+    /// 检测二维码状态
+    @MainActor
+    private func checkStatus() async {
+        guard let qrCode = qrCode else { return }
+        
+        do {
+            let status = try await TDLoginAPI.checkQRCodeStatus(qrCode: qrCode)
+            self.qrStatus = status
+            
+            switch status {
+            case .confirmed:
+                // 登录成功，停止轮询
+                stopPollingStatus()
+                await qrPhoneSureBtnSucess()
+            case .invalid, .cancelled:
+                // 二维码失效或取消，停止轮询
+                stopPollingStatus()
+            default:
+                break
+            }
+        } catch {
+            qrCodeError = error.localizedDescription
+        }
+    }
+    
+    
+    /// 手机确认二维码登录成功
+    private func qrPhoneSureBtnSucess() async{
+        guard let qrCode = qrCode else { return }
+        Task {
+            isLoginLoading = true
+            do {
+                let user = try await TDLoginAPI.confirmQRCodeLogin(qrCode: qrCode)
+                handleLoginSuccess(user)
+            } catch {
+                showErrorToast = true
+                toastMessage = error.localizedDescription
+            }
+            isLoginLoading = true
+        }
+    }
+    
+    @MainActor
+    private func stopPollingStatus() {
+        statusTimer?.invalidate()
+        statusTimer = nil
+    }
+
+    
+    // MARK: - Private Methods
+    private func handleLoginSuccess(_ user: TDUserModel) {
+        TDCategoryManager.shared.fetchCategories()
+        // 保存用户信息
+        TDUserManager.shared.saveUser(user)
+        // 保存 token
+        TDKeychainManager.shared.saveToken(user.token)
+        // 清理状态
+        clearInputs()
+    }
+    private func clearInputs() {
+        password = ""
+        phone = ""
+        smsCode = ""
+//        qrToken = ""
+        qrCodeImage = nil
+        qrStatus = .waiting
+    }
+    
+    // 验证码按钮是否可点击
+    var canSendSms: Bool {
+        if countDown > 0 { return false }
+        if isSendingSms { return false }
+        return true
+    }
+    // 登录按钮是否可点击
+    var canLogin: Bool {
+        !isLoginLoading
+    }
+    // 验证码按钮文案
+    var smsButtonTitle: String {
+        if isSendingSms {
+            return ""  // loading 状态下不显示文字
+        }
+        if countDown > 0 {
+            return "\(countDown)s"
+        }
+        return hasSentCode ? "重新获取验证码" : "获取验证码"
+    }
+    private func startCountDown() {
+        // 先清除可能存在的计时器
+        countDownTimer?.invalidate()
+        countDown = countDownDuration  // 使用固定的60秒
+        
+        countDownTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                guard let self = self else { return }
+                if self.countDown > 0 {
+                    self.countDown -= 1
+                } else {
+                    self.countDownTimer?.invalidate()
+                }
+            }
+        }
+    }
+    
+    
+    /// 生成二维码图片
+    /// - Parameter string: 二维码链接
+    /// - Returns: 返回生成的二维码图片
+    private func generateQRCode(from string: String) -> NSImage? {
+        guard let data = string.data(using: .utf8) else { return nil }
+        
+        if let filter = CIFilter(name: "CIQRCodeGenerator") {
+            filter.setValue(data, forKey: "inputMessage")
+            filter.setValue("H", forKey: "inputCorrectionLevel")
+            
+            if let output = filter.outputImage {
+                let transform = CGAffineTransform(scaleX: 10, y: 10)
+                let scaledOutput = output.transformed(by: transform)
+                
+                let rep = NSCIImageRep(ciImage: scaledOutput)
+                let nsImage = NSImage(size: rep.size)
+                nsImage.addRepresentation(rep)
+                return nsImage
+            }
+        }
+        return nil
+    }
+    
+    deinit {
+        countDownTimer?.invalidate()
+        //二维码失效或取消，停止轮询
+        statusTimer?.invalidate()
+        statusTimer = nil
+    }
+    
+}

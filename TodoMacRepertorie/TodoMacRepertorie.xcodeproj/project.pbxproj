@@ -7,21 +7,36 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1808AC882CD8C7BE0032485F /* SwiftDate in Frameworks */ = {isa = PBXBuildFile; productRef = 1808AC872CD8C7BE0032485F /* SwiftDate */; };
+		1808ACC42CDA0AD10032485F /* TDThemeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1808ACC32CDA0AD10032485F /* TDThemeManager.swift */; };
+		1808ACC62CDA0D2D0032485F /* TDSettingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1808ACC52CDA0D2D0032485F /* TDSettingManager.swift */; };
+		1808ACC92CDA21C60032485F /* TDLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1808ACC82CDA21C60032485F /* TDLoginView.swift */; };
+		1808ACCB2CDA21CF0032485F /* TDMainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1808ACCA2CDA21CF0032485F /* TDMainView.swift */; };
+		1808ACCD2CDA24BC0032485F /* TDUserManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1808ACCC2CDA24BC0032485F /* TDUserManager.swift */; };
+		1808ACCF2CDA25350032485F /* TDNetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1808ACCE2CDA25350032485F /* TDNetworkManager.swift */; };
+		1808ACD12CDA27B80032485F /* TDUserModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1808ACD02CDA27B80032485F /* TDUserModel.swift */; };
+		1808ACD32CDB0C6F0032485F /* TDKeychainManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1808ACD22CDB0C6F0032485F /* TDKeychainManager.swift */; };
+		1808ACD52CDB0E220032485F /* TDLoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1808ACD42CDB0E220032485F /* TDLoginViewModel.swift */; };
+		1808ACD92CDB51BD0032485F /* TDLoginAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1808ACD82CDB51BD0032485F /* TDLoginAPI.swift */; };
+		1808ACDB2CDB57300032485F /* Notification-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1808ACDA2CDB57300032485F /* Notification-Extension.swift */; };
+		1808ACDD2CDB5D3D0032485F /* TDDeviceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1808ACDC2CDB5D3D0032485F /* TDDeviceManager.swift */; };
+		1808ACDF2CDB5D6C0032485F /* String-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1808ACDE2CDB5D6C0032485F /* String-Extension.swift */; };
+		1808ACE32CDB748D0032485F /* View-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1808ACE22CDB748D0032485F /* View-Extension.swift */; };
+		1808ACF02CE4D68E0032485F /* TDSliderBarModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1808ACEF2CE4D68E0032485F /* TDSliderBarModel.swift */; };
+		1808ACF22CE4EFE70032485F /* TDCategoryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1808ACF12CE4EFE70032485F /* TDCategoryManager.swift */; };
+		1808ACF42CE4F0F50032485F /* TDCategoryAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1808ACF32CE4F0F50032485F /* TDCategoryAPI.swift */; };
+		1808ACF62CE4FAB60032485F /* TDSliderBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1808ACF52CE4FAB60032485F /* TDSliderBarView.swift */; };
+		1808ACF82CE4FB3B0032485F /* TDCategoryRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1808ACF72CE4FB3B0032485F /* TDCategoryRowView.swift */; };
+		1808ACFB2CE4FC000032485F /* TDCategoryGroupHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1808ACFA2CE4FC000032485F /* TDCategoryGroupHeaderView.swift */; };
+		1808ACFD2CE4FC920032485F /* TDTagGroupHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1808ACFC2CE4FC920032485F /* TDTagGroupHeaderView.swift */; };
+		1827EC0C2CB633EF00A30813 /* TDLeftListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1827EC0B2CB633EF00A30813 /* TDLeftListView.swift */; };
 		185C3F5B2C4F915B00FDDC39 /* LoginRuleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 185C3F5A2C4F915B00FDDC39 /* LoginRuleView.swift */; };
 		185C3F5D2C4F91A100FDDC39 /* TDBridTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 185C3F5C2C4F91A100FDDC39 /* TDBridTextField.swift */; };
-		1862A6202C3BD962000ECBAE /* UserInfoDataModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1862A61F2C3BD961000ECBAE /* UserInfoDataModel.swift */; };
-		1862A6222C3BD973000ECBAE /* LoginAndRegistrationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1862A6212C3BD973000ECBAE /* LoginAndRegistrationView.swift */; };
 		1862A6252C3CDE51000ECBAE /* TodoEventDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1862A6242C3CDE51000ECBAE /* TodoEventDetails.swift */; };
 		1862A65F2C465531000ECBAE /* SettingDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1862A65E2C465531000ECBAE /* SettingDataManager.swift */; };
 		1862A6652C465B85000ECBAE /* Color-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1862A6642C465B85000ECBAE /* Color-Extension.swift */; };
 		1862A6672C4669FA000ECBAE /* DynamicColor in Frameworks */ = {isa = PBXBuildFile; productRef = 1862A6662C4669FA000ECBAE /* DynamicColor */; };
 		186B06A52C91852B0097DD97 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 186B06A42C91852B0097DD97 /* Alamofire */; };
-		186B06AD2C9427450097DD97 /* HWAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186B06A72C9427450097DD97 /* HWAPI.swift */; };
-		186B06AE2C9427450097DD97 /* HWMultipartData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186B06A82C9427450097DD97 /* HWMultipartData.swift */; };
-		186B06AF2C9427450097DD97 /* HWNetworking.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186B06A92C9427450097DD97 /* HWNetworking.swift */; };
-		186B06B02C9427450097DD97 /* HWNetworkingError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186B06AA2C9427450097DD97 /* HWNetworkingError.swift */; };
-		186B06B12C9427450097DD97 /* HWNetworkingOC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186B06AB2C9427450097DD97 /* HWNetworkingOC.swift */; };
-		186B06B32C942ADE0097DD97 /* TDAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186B06B22C942ADE0097DD97 /* TDAPI.swift */; };
 		18859B212C0877A300783F61 /* TodoMacRepertorieApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18859B202C0877A300783F61 /* TodoMacRepertorieApp.swift */; };
 		18859B232C0877A300783F61 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18859B222C0877A300783F61 /* ContentView.swift */; };
 		18859B252C0877A300783F61 /* Item.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18859B242C0877A300783F61 /* Item.swift */; };
@@ -30,6 +45,10 @@
 		18859B352C0877A700783F61 /* TodoMacRepertorieTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18859B342C0877A700783F61 /* TodoMacRepertorieTests.swift */; };
 		18859B3F2C0877A700783F61 /* TodoMacRepertorieUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18859B3E2C0877A700783F61 /* TodoMacRepertorieUITests.swift */; };
 		18859B412C0877A700783F61 /* TodoMacRepertorieUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18859B402C0877A700783F61 /* TodoMacRepertorieUITestsLaunchTests.swift */; };
+		18A3374D2CA8EC3700430B67 /* AlertToast in Frameworks */ = {isa = PBXBuildFile; productRef = 18A3374C2CA8EC3700430B67 /* AlertToast */; };
+		18A337502CA900C200430B67 /* HandyJSON in Frameworks */ = {isa = PBXBuildFile; productRef = 18A3374F2CA900C200430B67 /* HandyJSON */; };
+		18A337522CA9470200430B67 /* TDJsonModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18A337512CA9470200430B67 /* TDJsonModel.swift */; };
+		18FD90CE2CB8BFD60061A1EA /* TDLeftDataModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18FD90CD2CB8BFD50061A1EA /* TDLeftDataModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -50,19 +69,34 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		1808ACC32CDA0AD10032485F /* TDThemeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDThemeManager.swift; sourceTree = "<group>"; };
+		1808ACC52CDA0D2D0032485F /* TDSettingManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDSettingManager.swift; sourceTree = "<group>"; };
+		1808ACC82CDA21C60032485F /* TDLoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDLoginView.swift; sourceTree = "<group>"; };
+		1808ACCA2CDA21CF0032485F /* TDMainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDMainView.swift; sourceTree = "<group>"; };
+		1808ACCC2CDA24BC0032485F /* TDUserManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDUserManager.swift; sourceTree = "<group>"; };
+		1808ACCE2CDA25350032485F /* TDNetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDNetworkManager.swift; sourceTree = "<group>"; };
+		1808ACD02CDA27B80032485F /* TDUserModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDUserModel.swift; sourceTree = "<group>"; };
+		1808ACD22CDB0C6F0032485F /* TDKeychainManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDKeychainManager.swift; sourceTree = "<group>"; };
+		1808ACD42CDB0E220032485F /* TDLoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDLoginViewModel.swift; sourceTree = "<group>"; };
+		1808ACD82CDB51BD0032485F /* TDLoginAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDLoginAPI.swift; sourceTree = "<group>"; };
+		1808ACDA2CDB57300032485F /* Notification-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Notification-Extension.swift"; sourceTree = "<group>"; };
+		1808ACDC2CDB5D3D0032485F /* TDDeviceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDDeviceManager.swift; sourceTree = "<group>"; };
+		1808ACDE2CDB5D6C0032485F /* String-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String-Extension.swift"; sourceTree = "<group>"; };
+		1808ACE22CDB748D0032485F /* View-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View-Extension.swift"; sourceTree = "<group>"; };
+		1808ACEC2CDE1A090032485F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		1808ACEF2CE4D68E0032485F /* TDSliderBarModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDSliderBarModel.swift; sourceTree = "<group>"; };
+		1808ACF12CE4EFE70032485F /* TDCategoryManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDCategoryManager.swift; sourceTree = "<group>"; };
+		1808ACF32CE4F0F50032485F /* TDCategoryAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDCategoryAPI.swift; sourceTree = "<group>"; };
+		1808ACF52CE4FAB60032485F /* TDSliderBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDSliderBarView.swift; sourceTree = "<group>"; };
+		1808ACF72CE4FB3B0032485F /* TDCategoryRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDCategoryRowView.swift; sourceTree = "<group>"; };
+		1808ACFA2CE4FC000032485F /* TDCategoryGroupHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDCategoryGroupHeaderView.swift; sourceTree = "<group>"; };
+		1808ACFC2CE4FC920032485F /* TDTagGroupHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDTagGroupHeaderView.swift; sourceTree = "<group>"; };
+		1827EC0B2CB633EF00A30813 /* TDLeftListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDLeftListView.swift; sourceTree = "<group>"; };
 		185C3F5A2C4F915B00FDDC39 /* LoginRuleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginRuleView.swift; sourceTree = "<group>"; };
 		185C3F5C2C4F91A100FDDC39 /* TDBridTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDBridTextField.swift; sourceTree = "<group>"; };
-		1862A61F2C3BD961000ECBAE /* UserInfoDataModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserInfoDataModel.swift; sourceTree = "<group>"; };
-		1862A6212C3BD973000ECBAE /* LoginAndRegistrationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginAndRegistrationView.swift; sourceTree = "<group>"; };
 		1862A6242C3CDE51000ECBAE /* TodoEventDetails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoEventDetails.swift; sourceTree = "<group>"; };
 		1862A65E2C465531000ECBAE /* SettingDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingDataManager.swift; sourceTree = "<group>"; };
 		1862A6642C465B85000ECBAE /* Color-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color-Extension.swift"; sourceTree = "<group>"; };
-		186B06A72C9427450097DD97 /* HWAPI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HWAPI.swift; sourceTree = "<group>"; };
-		186B06A82C9427450097DD97 /* HWMultipartData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HWMultipartData.swift; sourceTree = "<group>"; };
-		186B06A92C9427450097DD97 /* HWNetworking.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HWNetworking.swift; sourceTree = "<group>"; };
-		186B06AA2C9427450097DD97 /* HWNetworkingError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HWNetworkingError.swift; sourceTree = "<group>"; };
-		186B06AB2C9427450097DD97 /* HWNetworkingOC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HWNetworkingOC.swift; sourceTree = "<group>"; };
-		186B06B22C942ADE0097DD97 /* TDAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDAPI.swift; sourceTree = "<group>"; };
 		18859B1D2C0877A300783F61 /* TodoMacRepertorie.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TodoMacRepertorie.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		18859B202C0877A300783F61 /* TodoMacRepertorieApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoMacRepertorieApp.swift; sourceTree = "<group>"; };
 		18859B222C0877A300783F61 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -75,6 +109,8 @@
 		18859B3A2C0877A700783F61 /* TodoMacRepertorieUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TodoMacRepertorieUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		18859B3E2C0877A700783F61 /* TodoMacRepertorieUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoMacRepertorieUITests.swift; sourceTree = "<group>"; };
 		18859B402C0877A700783F61 /* TodoMacRepertorieUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoMacRepertorieUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		18A337512CA9470200430B67 /* TDJsonModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDJsonModel.swift; sourceTree = "<group>"; };
+		18FD90CD2CB8BFD50061A1EA /* TDLeftDataModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDLeftDataModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -82,8 +118,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				18A3374D2CA8EC3700430B67 /* AlertToast in Frameworks */,
 				1862A6672C4669FA000ECBAE /* DynamicColor in Frameworks */,
+				1808AC882CD8C7BE0032485F /* SwiftDate in Frameworks */,
 				186B06A52C91852B0097DD97 /* Alamofire in Frameworks */,
+				18A337502CA900C200430B67 /* HandyJSON in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -104,13 +143,60 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1808AC7D2CCF98FF0032485F /* 中间列表 */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = "中间列表";
+			sourceTree = "<group>";
+		};
+		1808ACF92CE4FBB90032485F /* view */ = {
+			isa = PBXGroup;
+			children = (
+				1808ACF52CE4FAB60032485F /* TDSliderBarView.swift */,
+				1808ACF72CE4FB3B0032485F /* TDCategoryRowView.swift */,
+				1808ACFA2CE4FC000032485F /* TDCategoryGroupHeaderView.swift */,
+				1808ACFC2CE4FC920032485F /* TDTagGroupHeaderView.swift */,
+			);
+			path = view;
+			sourceTree = "<group>";
+		};
+		18152DA32CA6B521006D7E08 /* Unit(共用内容) */ = {
+			isa = PBXGroup;
+			children = (
+				18A337512CA9470200430B67 /* TDJsonModel.swift */,
+				1808ACC32CDA0AD10032485F /* TDThemeManager.swift */,
+				1808ACC52CDA0D2D0032485F /* TDSettingManager.swift */,
+				1808ACCC2CDA24BC0032485F /* TDUserManager.swift */,
+				1808ACD02CDA27B80032485F /* TDUserModel.swift */,
+				1808ACDC2CDB5D3D0032485F /* TDDeviceManager.swift */,
+				1808ACD22CDB0C6F0032485F /* TDKeychainManager.swift */,
+			);
+			path = "Unit(共用内容)";
+			sourceTree = "<group>";
+		};
+		1827EC0A2CB633C800A30813 /* 第一列 */ = {
+			isa = PBXGroup;
+			children = (
+				1808ACF92CE4FBB90032485F /* view */,
+				1827EC0B2CB633EF00A30813 /* TDLeftListView.swift */,
+				1808ACEF2CE4D68E0032485F /* TDSliderBarModel.swift */,
+				18FD90CD2CB8BFD50061A1EA /* TDLeftDataModel.swift */,
+				1808ACF12CE4EFE70032485F /* TDCategoryManager.swift */,
+				1808ACF32CE4F0F50032485F /* TDCategoryAPI.swift */,
+			);
+			path = "第一列";
+			sourceTree = "<group>";
+		};
 		1862A61A2C3BD8F7000ECBAE /* LoginAndRegistration(登录注册) */ = {
 			isa = PBXGroup;
 			children = (
-				1862A61F2C3BD961000ECBAE /* UserInfoDataModel.swift */,
-				1862A6212C3BD973000ECBAE /* LoginAndRegistrationView.swift */,
+				1808ACC82CDA21C60032485F /* TDLoginView.swift */,
+				1808ACCA2CDA21CF0032485F /* TDMainView.swift */,
 				185C3F5A2C4F915B00FDDC39 /* LoginRuleView.swift */,
 				185C3F5C2C4F91A100FDDC39 /* TDBridTextField.swift */,
+				1808ACD42CDB0E220032485F /* TDLoginViewModel.swift */,
+				1808ACD82CDB51BD0032485F /* TDLoginAPI.swift */,
 			);
 			path = "LoginAndRegistration(登录注册)";
 			sourceTree = "<group>";
@@ -135,6 +221,9 @@
 			isa = PBXGroup;
 			children = (
 				1862A6642C465B85000ECBAE /* Color-Extension.swift */,
+				1808ACDA2CDB57300032485F /* Notification-Extension.swift */,
+				1808ACDE2CDB5D6C0032485F /* String-Extension.swift */,
+				1808ACE22CDB748D0032485F /* View-Extension.swift */,
 			);
 			path = "类的扩展";
 			sourceTree = "<group>";
@@ -142,22 +231,9 @@
 		186B06A62C92DD490097DD97 /* TDRequestTool(网络请求) */ = {
 			isa = PBXGroup;
 			children = (
-				186B06AC2C9427450097DD97 /* HWNetworking */,
+				1808ACCE2CDA25350032485F /* TDNetworkManager.swift */,
 			);
 			path = "TDRequestTool(网络请求)";
-			sourceTree = "<group>";
-		};
-		186B06AC2C9427450097DD97 /* HWNetworking */ = {
-			isa = PBXGroup;
-			children = (
-				186B06A72C9427450097DD97 /* HWAPI.swift */,
-				186B06A82C9427450097DD97 /* HWMultipartData.swift */,
-				186B06A92C9427450097DD97 /* HWNetworking.swift */,
-				186B06AA2C9427450097DD97 /* HWNetworkingError.swift */,
-				186B06AB2C9427450097DD97 /* HWNetworkingOC.swift */,
-				186B06B22C942ADE0097DD97 /* TDAPI.swift */,
-			);
-			path = HWNetworking;
 			sourceTree = "<group>";
 		};
 		18859B142C0877A300783F61 = {
@@ -166,6 +242,7 @@
 				18859B1F2C0877A300783F61 /* TodoMacRepertorie */,
 				18859B332C0877A700783F61 /* TodoMacRepertorieTests */,
 				18859B3D2C0877A700783F61 /* TodoMacRepertorieUITests */,
+				18A337452CA8E78D00430B67 /* Frameworks */,
 				18859B1E2C0877A300783F61 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -183,15 +260,19 @@
 		18859B1F2C0877A300783F61 /* TodoMacRepertorie */ = {
 			isa = PBXGroup;
 			children = (
+				1808ACEC2CDE1A090032485F /* Info.plist */,
 				18859B202C0877A300783F61 /* TodoMacRepertorieApp.swift */,
 				18859B222C0877A300783F61 /* ContentView.swift */,
 				18859B242C0877A300783F61 /* Item.swift */,
-				186B06A62C92DD490097DD97 /* TDRequestTool(网络请求) */,
 				1862A61A2C3BD8F7000ECBAE /* LoginAndRegistration(登录注册) */,
+				1827EC0A2CB633C800A30813 /* 第一列 */,
+				1808AC7D2CCF98FF0032485F /* 中间列表 */,
 				1862A6232C3CDC5D000ECBAE /* 最右边事件信息 */,
 				1862A65D2C4654A3000ECBAE /* Setting(设置) */,
-				18859B262C0877A600783F61 /* Assets.xcassets */,
+				186B06A62C92DD490097DD97 /* TDRequestTool(网络请求) */,
 				1862A6602C465818000ECBAE /* 类的扩展 */,
+				18152DA32CA6B521006D7E08 /* Unit(共用内容) */,
+				18859B262C0877A600783F61 /* Assets.xcassets */,
 				18859B2B2C0877A600783F61 /* TodoMacRepertorie.entitlements */,
 				18859B282C0877A600783F61 /* Preview Content */,
 			);
@@ -223,6 +304,13 @@
 			path = TodoMacRepertorieUITests;
 			sourceTree = "<group>";
 		};
+		18A337452CA8E78D00430B67 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -242,6 +330,9 @@
 			packageProductDependencies = (
 				1862A6662C4669FA000ECBAE /* DynamicColor */,
 				186B06A42C91852B0097DD97 /* Alamofire */,
+				18A3374C2CA8EC3700430B67 /* AlertToast */,
+				18A3374F2CA900C200430B67 /* HandyJSON */,
+				1808AC872CD8C7BE0032485F /* SwiftDate */,
 			);
 			productName = TodoMacRepertorie;
 			productReference = 18859B1D2C0877A300783F61 /* TodoMacRepertorie.app */;
@@ -318,6 +409,9 @@
 			packageReferences = (
 				1862A6612C465A8E000ECBAE /* XCRemoteSwiftPackageReference "DynamicColor" */,
 				186B06A32C91852B0097DD97 /* XCRemoteSwiftPackageReference "Alamofire" */,
+				18A3374B2CA8EC3700430B67 /* XCRemoteSwiftPackageReference "AlertToast" */,
+				18A3374E2CA900C200430B67 /* XCRemoteSwiftPackageReference "HandyJSON" */,
+				1808AC862CD8C7BE0032485F /* XCRemoteSwiftPackageReference "SwiftDate" */,
 			);
 			productRefGroup = 18859B1E2C0877A300783F61 /* Products */;
 			projectDirPath = "";
@@ -361,22 +455,38 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1808ACCD2CDA24BC0032485F /* TDUserManager.swift in Sources */,
 				18859B232C0877A300783F61 /* ContentView.swift in Sources */,
 				1862A6652C465B85000ECBAE /* Color-Extension.swift in Sources */,
+				1808ACC92CDA21C60032485F /* TDLoginView.swift in Sources */,
+				1808ACF62CE4FAB60032485F /* TDSliderBarView.swift in Sources */,
 				185C3F5B2C4F915B00FDDC39 /* LoginRuleView.swift in Sources */,
-				186B06AE2C9427450097DD97 /* HWMultipartData.swift in Sources */,
-				186B06AF2C9427450097DD97 /* HWNetworking.swift in Sources */,
-				186B06B12C9427450097DD97 /* HWNetworkingOC.swift in Sources */,
-				186B06B02C9427450097DD97 /* HWNetworkingError.swift in Sources */,
+				1808ACDB2CDB57300032485F /* Notification-Extension.swift in Sources */,
+				1808ACF02CE4D68E0032485F /* TDSliderBarModel.swift in Sources */,
+				1808ACD92CDB51BD0032485F /* TDLoginAPI.swift in Sources */,
+				1808ACD52CDB0E220032485F /* TDLoginViewModel.swift in Sources */,
+				1808ACDD2CDB5D3D0032485F /* TDDeviceManager.swift in Sources */,
+				18FD90CE2CB8BFD60061A1EA /* TDLeftDataModel.swift in Sources */,
 				18859B252C0877A300783F61 /* Item.swift in Sources */,
-				186B06B32C942ADE0097DD97 /* TDAPI.swift in Sources */,
+				1808ACC42CDA0AD10032485F /* TDThemeManager.swift in Sources */,
+				1808ACE32CDB748D0032485F /* View-Extension.swift in Sources */,
 				185C3F5D2C4F91A100FDDC39 /* TDBridTextField.swift in Sources */,
+				1808ACCB2CDA21CF0032485F /* TDMainView.swift in Sources */,
+				1808ACD12CDA27B80032485F /* TDUserModel.swift in Sources */,
 				1862A65F2C465531000ECBAE /* SettingDataManager.swift in Sources */,
 				18859B212C0877A300783F61 /* TodoMacRepertorieApp.swift in Sources */,
+				1827EC0C2CB633EF00A30813 /* TDLeftListView.swift in Sources */,
+				18A337522CA9470200430B67 /* TDJsonModel.swift in Sources */,
 				1862A6252C3CDE51000ECBAE /* TodoEventDetails.swift in Sources */,
-				1862A6222C3BD973000ECBAE /* LoginAndRegistrationView.swift in Sources */,
-				1862A6202C3BD962000ECBAE /* UserInfoDataModel.swift in Sources */,
-				186B06AD2C9427450097DD97 /* HWAPI.swift in Sources */,
+				1808ACCF2CDA25350032485F /* TDNetworkManager.swift in Sources */,
+				1808ACD32CDB0C6F0032485F /* TDKeychainManager.swift in Sources */,
+				1808ACF42CE4F0F50032485F /* TDCategoryAPI.swift in Sources */,
+				1808ACDF2CDB5D6C0032485F /* String-Extension.swift in Sources */,
+				1808ACF82CE4FB3B0032485F /* TDCategoryRowView.swift in Sources */,
+				1808ACF22CE4EFE70032485F /* TDCategoryManager.swift in Sources */,
+				1808ACFD2CE4FC920032485F /* TDTagGroupHeaderView.swift in Sources */,
+				1808ACC62CDA0D2D0032485F /* TDSettingManager.swift in Sources */,
+				1808ACFB2CE4FC000032485F /* TDCategoryGroupHeaderView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -545,6 +655,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = TodoMacRepertorie/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -573,6 +684,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = TodoMacRepertorie/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -701,6 +813,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		1808AC862CD8C7BE0032485F /* XCRemoteSwiftPackageReference "SwiftDate" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/malcommac/SwiftDate.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 7.0.0;
+			};
+		};
 		1862A6612C465A8E000ECBAE /* XCRemoteSwiftPackageReference "DynamicColor" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/yannickl/DynamicColor.git";
@@ -717,9 +837,30 @@
 				minimumVersion = 5.9.1;
 			};
 		};
+		18A3374B2CA8EC3700430B67 /* XCRemoteSwiftPackageReference "AlertToast" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/elai950/AlertToast.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.3.9;
+			};
+		};
+		18A3374E2CA900C200430B67 /* XCRemoteSwiftPackageReference "HandyJSON" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/alibaba/HandyJSON.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.0.2;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		1808AC872CD8C7BE0032485F /* SwiftDate */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1808AC862CD8C7BE0032485F /* XCRemoteSwiftPackageReference "SwiftDate" */;
+			productName = SwiftDate;
+		};
 		1862A6662C4669FA000ECBAE /* DynamicColor */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 1862A6612C465A8E000ECBAE /* XCRemoteSwiftPackageReference "DynamicColor" */;
@@ -729,6 +870,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 186B06A32C91852B0097DD97 /* XCRemoteSwiftPackageReference "Alamofire" */;
 			productName = Alamofire;
+		};
+		18A3374C2CA8EC3700430B67 /* AlertToast */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 18A3374B2CA8EC3700430B67 /* XCRemoteSwiftPackageReference "AlertToast" */;
+			productName = AlertToast;
+		};
+		18A3374F2CA900C200430B67 /* HandyJSON */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 18A3374E2CA900C200430B67 /* XCRemoteSwiftPackageReference "HandyJSON" */;
+			productName = HandyJSON;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

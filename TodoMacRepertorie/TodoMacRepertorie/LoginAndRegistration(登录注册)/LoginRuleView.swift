@@ -8,14 +8,14 @@
 import SwiftUI
 
 struct LoginRuleView: View {
-    @Binding var isClickReadRule : Bool
-    
+    @ObservedObject var viewModel: TDLoginViewModel
+
     var body: some View {
         HStack(spacing:0) {
             Button {
-                isClickReadRule.toggle()
+                viewModel.agreedToTerms.toggle()
             } label: {
-                Image(systemName: isClickReadRule ? "checkmark.circle.fill" : "circle")
+                Image(systemName: viewModel.agreedToTerms ? "checkmark.circle.fill" : "circle")
                     .foregroundStyle(Color.marrsGreenColor4)
                     .font(.system(size: 12))
             }
@@ -54,5 +54,5 @@ struct LoginRuleView: View {
 }
 
 #Preview {
-    LoginRuleView(isClickReadRule: .constant(false))
+    LoginRuleView(viewModel: TDLoginViewModel())
 }
