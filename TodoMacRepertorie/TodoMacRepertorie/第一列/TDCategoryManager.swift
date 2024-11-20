@@ -6,51 +6,29 @@
 //
 
 import Foundation
+import SwiftUI
 
 class TDCategoryManager: ObservableObject {
     // MARK: - 属性
     static let shared = TDCategoryManager()
     
-    @Published private(set) var menuData: [TDSliderBarModel] = []
+    @Published private(set) var menuData: [TDSliderBarModel] = []{
+        didSet {
+            print("菜单数据已更新: \(menuData.map { $0.categoryName })")
+        }
+    }
     @Published var selectedCategory: TDSliderBarModel?
     @Published var draggedCategory: TDSliderBarModel?
     
     private let userDefaults = UserDefaults.standard
     private let storageKey = "MenuData"
     
-    // 监听登录状态变化
-    NotificationCenter.default.addObserver(
-        self,
-        selector: #selector(handleLoginSuccess),
-        name: .userDidLogin,
-        object: nil
-    )
-    
-    NotificationCenter.default.addObserver(
-        self,
-        selector: #selector(handleLogout),
-        name: .userDidLogout, .userTokenExpired,
-        object: nil
-    )
-    
-    
-    // MARK: - 登录状态处理
-    
-    @objc private func handleLoginSuccess() {
-        Task { @MainActor in
-            await fetchCategories()
-        }
-    }
-    
-    @objc private func handleLogout() {
-        clearLocalData()
-        loadDefaultData()
-    }
     
     
     // MARK: - 初始化
     private init() {
         loadDefaultData()
+        print("初始菜单数据: \(menuData)")  // 添加这行来调试
         Task {
             await fetchCategories()
         }
@@ -61,18 +39,18 @@ class TDCategoryManager: ObservableObject {
     /// 获取分类清单数据
     @MainActor
     func fetchCategories() async {
-        do {
-            // 先尝试从本地加载
-            if let localData = loadFromLocal() {
-                // 找到分类清单组
-                if let index = localData.firstIndex(where: { $0.categoryId == -104 }),
-                   !localData[index].categoryDatas.isEmpty {
-                    self.menuData = localData
-                    return
-                }
+        // 1. 先加载本地数据
+        if let localData = loadFromLocal() {
+            // 找到分类清单组
+            if let index = localData.firstIndex(where: { $0.categoryId == -104 }),
+               !localData[index].categoryDatas.isEmpty {
+                self.menuData = localData
+                setupDefaultStates()
             }
-            
-            // 本地没有数据，从网络获取
+        }
+        
+        // 2. 再请求网络数据
+        do {
             let categories = try await TDCategoryAPI.getCategories()
             
             // 确保未分类存在且在第一位
@@ -81,7 +59,8 @@ class TDCategoryManager: ObservableObject {
                 let uncategorized = TDSliderBarModel(
                     categoryId: 0,
                     categoryName: "未分类",
-                    listSort: 0, headerIcon: "tray"
+                    listSort: 0,
+                    headerIcon: "tray"
                 )
                 finalCategories.insert(uncategorized, at: 0)
             }
@@ -93,19 +72,37 @@ class TDCategoryManager: ObservableObject {
             
             // 更新分类清单组数据
             if let index = menuData.firstIndex(where: { $0.categoryId == -104 }) {
-                menuData[index].categoryDatas = finalCategories
-                // 保存到本地
-                saveToLocal()
+                // 如果数据有变化才更新
+                if menuData[index].categoryDatas != finalCategories {
+                    menuData[index].categoryDatas = finalCategories
+                    // 保存到本地
+                    saveToLocal()
+                    setupDefaultStates()
+
+                }
             }
         } catch {
             print("获取分类失败: \(error.localizedDescription)")
-            // 加载失败时尝试使用本地数据
-            if let localData = loadFromLocal() {
-                self.menuData = localData
-            }
+            // 网络请求失败时已经使用了本地数据，不需要额外处理
         }
     }
-    
+    private func setupDefaultStates() {
+        // 默认选中 DayTodo
+        if let dayTodo = menuData.first(where: { $0.categoryId == -100 }) {
+            selectedCategory = dayTodo
+        }
+        
+        // 分类清单默认展开
+        if let categoryIndex = menuData.firstIndex(where: { $0.categoryId == -104 }) {
+            menuData[categoryIndex].isSelect = true
+        }
+        
+        // 标签组根据是否有数据决定展开状态
+        if let tagIndex = menuData.firstIndex(where: { $0.categoryId == -105 }) {
+            menuData[tagIndex].isSelect = !menuData[tagIndex].categoryDatas.isEmpty
+        }
+    }
+
     /// 更新分类
     @MainActor
     func updateCategory(_ category: TDSliderBarModel) async throws {
@@ -175,14 +172,13 @@ class TDCategoryManager: ObservableObject {
             menuData = updatedMenu
         }
     }
-    /// 切换分组展开状态
+    // 在 TDCategoryManager 中修改 toggleGroup 方法
     func toggleGroup(_ categoryId: Int) {
         if let index = menuData.firstIndex(where: { $0.categoryId == categoryId }) {
             menuData[index].isSelect.toggle()
             saveToLocal()
         }
     }
-    
     /// 根据ID获取分类
     func category(for categoryId: Int) -> TDSliderBarModel? {
         for group in menuData {
@@ -232,5 +228,50 @@ class TDCategoryManager: ObservableObject {
             TDSliderBarModel(categoryId: -107, categoryName: "最近已完成", headerIcon: "checkmark.square"),
             TDSliderBarModel(categoryId: -108, categoryName: "回收站", headerIcon: "trash")
         ]
+    }
+    
+    
+    /// 清除所有分类数据
+    func clearData() {
+        Task { @MainActor in
+            // 重置为默认数据
+            loadDefaultData()
+            // 清除选中状态
+            selectedCategory = nil
+            draggedCategory = nil
+            // 清除本地存储的数据
+            userDefaults.removeObject(forKey: storageKey)
+            // 确保分类清单组是空的
+            if let index = menuData.firstIndex(where: { $0.categoryId == -104 }) {
+                menuData[index].categoryDatas = []
+            }
+        }
+    }
+}
+
+
+extension TDCategoryManager {
+    // 固定组项目 (DayTodo,最近待办，日程概览，待办箱)
+    var fixedItems: [TDSliderBarModel] {
+        menuData.filter { item in
+            (-103...(-100)).contains(item.categoryId)
+        }.sorted { $0.categoryId > $1.categoryId }
+    }
+    
+    // 分类清单组
+    var categoryGroup: TDSliderBarModel? {
+        menuData.first { $0.categoryId == -104 }
+    }
+    
+    // 标签组
+    var tagGroup: TDSliderBarModel? {
+        menuData.first { $0.categoryId == -105 }
+    }
+    
+    // 统计组项目 (数据统计，最近已完成，回收站)
+    var statsItems: [TDSliderBarModel] {
+        menuData.filter { item in
+            (-108...(-106)).contains(item.categoryId)
+        }.sorted { $0.categoryId > $1.categoryId }
     }
 }

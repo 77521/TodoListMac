@@ -8,44 +8,83 @@
 import Foundation
 import SwiftUI
 import SwiftDate
-
+import DynamicColor
 
 /// 主题颜色
 extension Color {
     
     
-    /// 主题颜色
-    /// - Parameter i: 主题颜色色号
-    /// - Returns: 返回的主题颜色
-    static func themeColor(i: Int) -> Color {
-        Color("\(SettingDataManager.themeColor)\(i)")
+    /// 16进制颜色调整 带透明度的 透明度参数 在前后 都可以
+    /// - Parameter hexString: 传进来的颜色字符串
+    /// - Returns: 返回的颜色
+    static func fromHex(_ hexString: String) -> Color {
+        let hex = hexString.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
+        var int: UInt64 = 0
+        Scanner(string: hex).scanHexInt64(&int)
+        
+        switch hex.count {
+        case 8:
+            // 先尝试按 AARRGGBB 格式解析
+            let alpha = CGFloat((int & 0xFF000000) >> 24) / 255
+            let red = CGFloat((int & 0x00FF0000) >> 16) / 255
+            let green = CGFloat((int & 0x0000FF00) >> 8) / 255
+            let blue = CGFloat(int & 0x000000FF) / 255
+            
+            // 如果解析出的颜色值看起来合理，就使用 AARRGGBB 格式
+            if alpha <= 1.0 && red <= 1.0 && green <= 1.0 && blue <= 1.0 {
+                return Color(.sRGB, red: red, green: green, blue: blue, opacity: alpha)
+            }
+            
+            // 否则尝试 RRGGBBAA 格式
+            let r = CGFloat((int & 0xFF000000) >> 24) / 255
+            let g = CGFloat((int & 0x00FF0000) >> 16) / 255
+            let b = CGFloat((int & 0x0000FF00) >> 8) / 255
+            let a = CGFloat(int & 0x000000FF) / 255
+            return Color(.sRGB, red: r, green: g, blue: b, opacity: a)
+            
+        case 6: // RRGGBB
+            let red = CGFloat((int & 0xFF0000) >> 16) / 255
+            let green = CGFloat((int & 0x00FF00) >> 8) / 255
+            let blue = CGFloat(int & 0x0000FF) / 255
+            return Color(.sRGB, red: red, green: green, blue: blue, opacity: 1)
+            
+        default:
+            return Color.gray
+        }
     }
     
-    
-    
-    /// 主题颜色 手动填充颜色名字
-    /// - Parameters:
-    ///   - themeString: 主题颜色名字
-    ///   - i: 主题颜色 色号
-    /// - Returns: 返回的主题颜色
-    static func themeColor(themeString: String , i: Int) -> Color {
-        Color("\(themeString)\(i)")
-    }
-    
-    
-    /// 字体颜色
-    /// - Parameter i: 字体颜色 色号
-    /// - Returns: 返回的字体颜色
-    static func themeLabelColor(i: Int) -> Color {
-        Color("LabelColor\(i)")
-    }
-    
-    /// 背景颜色
-    /// - Parameter i: 背景颜色 色号
-    /// - Returns: 返回的背景颜色
-    static func themeBackGroundColor(i: Int) -> Color {
-        Color("backgroundColor\(i)")
-    }
+//    /// 主题颜色
+//    /// - Parameter i: 主题颜色色号
+//    /// - Returns: 返回的主题颜色
+//    static func themeColor(i: Int) -> Color {
+//        Color("\(SettingDataManager.themeColor)\(i)")
+//    }
+//    
+//    
+//    
+//    /// 主题颜色 手动填充颜色名字
+//    /// - Parameters:
+//    ///   - themeString: 主题颜色名字
+//    ///   - i: 主题颜色 色号
+//    /// - Returns: 返回的主题颜色
+//    static func themeColor(themeString: String , i: Int) -> Color {
+//        Color("\(themeString)\(i)")
+//    }
+//    
+//    
+//    /// 字体颜色
+//    /// - Parameter i: 字体颜色 色号
+//    /// - Returns: 返回的字体颜色
+//    static func themeLabelColor(i: Int) -> Color {
+//        Color("LabelColor\(i)")
+//    }
+//    
+//    /// 背景颜色
+//    /// - Parameter i: 背景颜色 色号
+//    /// - Returns: 返回的背景颜色
+//    static func themeBackGroundColor(i: Int) -> Color {
+//        Color("backgroundColor\(i)")
+//    }
 }
 
 

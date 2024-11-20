@@ -45,10 +45,18 @@
 		18859B352C0877A700783F61 /* TodoMacRepertorieTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18859B342C0877A700783F61 /* TodoMacRepertorieTests.swift */; };
 		18859B3F2C0877A700783F61 /* TodoMacRepertorieUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18859B3E2C0877A700783F61 /* TodoMacRepertorieUITests.swift */; };
 		18859B412C0877A700783F61 /* TodoMacRepertorieUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18859B402C0877A700783F61 /* TodoMacRepertorieUITestsLaunchTests.swift */; };
+		189691282CE5E6D200191EAE /* TDDetailListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 189691272CE5E6D200191EAE /* TDDetailListView.swift */; };
+		1896912A2CEAE50700191EAE /* TDAvatarManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 189691292CEAE50700191EAE /* TDAvatarManager.swift */; };
+		1896912C2CEB186300191EAE /* TDHeaderImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1896912B2CEB186300191EAE /* TDHeaderImageView.swift */; };
+		1896912E2CEB193000191EAE /* TDUserInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1896912D2CEB193000191EAE /* TDUserInfoView.swift */; };
+		189691312CEDC44900191EAE /* TDDetailDateModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 189691302CEDC44900191EAE /* TDDetailDateModel.swift */; };
+		189691332CEDC66B00191EAE /* TDDetailToobarModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 189691322CEDC66B00191EAE /* TDDetailToobarModel.swift */; };
+		189691352CEDCAEC00191EAE /* TDDetailToobarDateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 189691342CEDCAEC00191EAE /* TDDetailToobarDateView.swift */; };
+		189691382CEDD66400191EAE /* TDCalendarPopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 189691372CEDD66400191EAE /* TDCalendarPopView.swift */; };
+		1896913A2CEDD6FC00191EAE /* TDLunarCalendar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 189691392CEDD6FC00191EAE /* TDLunarCalendar.swift */; };
 		18A3374D2CA8EC3700430B67 /* AlertToast in Frameworks */ = {isa = PBXBuildFile; productRef = 18A3374C2CA8EC3700430B67 /* AlertToast */; };
 		18A337502CA900C200430B67 /* HandyJSON in Frameworks */ = {isa = PBXBuildFile; productRef = 18A3374F2CA900C200430B67 /* HandyJSON */; };
 		18A337522CA9470200430B67 /* TDJsonModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18A337512CA9470200430B67 /* TDJsonModel.swift */; };
-		18FD90CE2CB8BFD60061A1EA /* TDLeftDataModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18FD90CD2CB8BFD50061A1EA /* TDLeftDataModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -109,8 +117,16 @@
 		18859B3A2C0877A700783F61 /* TodoMacRepertorieUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TodoMacRepertorieUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		18859B3E2C0877A700783F61 /* TodoMacRepertorieUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoMacRepertorieUITests.swift; sourceTree = "<group>"; };
 		18859B402C0877A700783F61 /* TodoMacRepertorieUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoMacRepertorieUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		189691272CE5E6D200191EAE /* TDDetailListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDDetailListView.swift; sourceTree = "<group>"; };
+		189691292CEAE50700191EAE /* TDAvatarManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDAvatarManager.swift; sourceTree = "<group>"; };
+		1896912B2CEB186300191EAE /* TDHeaderImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDHeaderImageView.swift; sourceTree = "<group>"; };
+		1896912D2CEB193000191EAE /* TDUserInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDUserInfoView.swift; sourceTree = "<group>"; };
+		189691302CEDC44900191EAE /* TDDetailDateModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDDetailDateModel.swift; sourceTree = "<group>"; };
+		189691322CEDC66B00191EAE /* TDDetailToobarModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDDetailToobarModel.swift; sourceTree = "<group>"; };
+		189691342CEDCAEC00191EAE /* TDDetailToobarDateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDDetailToobarDateView.swift; sourceTree = "<group>"; };
+		189691372CEDD66400191EAE /* TDCalendarPopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDCalendarPopView.swift; sourceTree = "<group>"; };
+		189691392CEDD6FC00191EAE /* TDLunarCalendar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDLunarCalendar.swift; sourceTree = "<group>"; };
 		18A337512CA9470200430B67 /* TDJsonModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDJsonModel.swift; sourceTree = "<group>"; };
-		18FD90CD2CB8BFD50061A1EA /* TDLeftDataModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDLeftDataModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -146,6 +162,8 @@
 		1808AC7D2CCF98FF0032485F /* 中间列表 */ = {
 			isa = PBXGroup;
 			children = (
+				189691362CEDCBC700191EAE /* view */,
+				1896912F2CEDC42500191EAE /* model */,
 			);
 			path = "中间列表";
 			sourceTree = "<group>";
@@ -157,6 +175,8 @@
 				1808ACF72CE4FB3B0032485F /* TDCategoryRowView.swift */,
 				1808ACFA2CE4FC000032485F /* TDCategoryGroupHeaderView.swift */,
 				1808ACFC2CE4FC920032485F /* TDTagGroupHeaderView.swift */,
+				1896912B2CEB186300191EAE /* TDHeaderImageView.swift */,
+				1896912D2CEB193000191EAE /* TDUserInfoView.swift */,
 			);
 			path = view;
 			sourceTree = "<group>";
@@ -171,6 +191,7 @@
 				1808ACD02CDA27B80032485F /* TDUserModel.swift */,
 				1808ACDC2CDB5D3D0032485F /* TDDeviceManager.swift */,
 				1808ACD22CDB0C6F0032485F /* TDKeychainManager.swift */,
+				189691292CEAE50700191EAE /* TDAvatarManager.swift */,
 			);
 			path = "Unit(共用内容)";
 			sourceTree = "<group>";
@@ -181,7 +202,6 @@
 				1808ACF92CE4FBB90032485F /* view */,
 				1827EC0B2CB633EF00A30813 /* TDLeftListView.swift */,
 				1808ACEF2CE4D68E0032485F /* TDSliderBarModel.swift */,
-				18FD90CD2CB8BFD50061A1EA /* TDLeftDataModel.swift */,
 				1808ACF12CE4EFE70032485F /* TDCategoryManager.swift */,
 				1808ACF32CE4F0F50032485F /* TDCategoryAPI.swift */,
 			);
@@ -302,6 +322,26 @@
 				18859B402C0877A700783F61 /* TodoMacRepertorieUITestsLaunchTests.swift */,
 			);
 			path = TodoMacRepertorieUITests;
+			sourceTree = "<group>";
+		};
+		1896912F2CEDC42500191EAE /* model */ = {
+			isa = PBXGroup;
+			children = (
+				189691302CEDC44900191EAE /* TDDetailDateModel.swift */,
+				189691322CEDC66B00191EAE /* TDDetailToobarModel.swift */,
+				189691392CEDD6FC00191EAE /* TDLunarCalendar.swift */,
+			);
+			path = model;
+			sourceTree = "<group>";
+		};
+		189691362CEDCBC700191EAE /* view */ = {
+			isa = PBXGroup;
+			children = (
+				189691272CE5E6D200191EAE /* TDDetailListView.swift */,
+				189691342CEDCAEC00191EAE /* TDDetailToobarDateView.swift */,
+				189691372CEDD66400191EAE /* TDCalendarPopView.swift */,
+			);
+			path = view;
 			sourceTree = "<group>";
 		};
 		18A337452CA8E78D00430B67 /* Frameworks */ = {
@@ -459,23 +499,29 @@
 				18859B232C0877A300783F61 /* ContentView.swift in Sources */,
 				1862A6652C465B85000ECBAE /* Color-Extension.swift in Sources */,
 				1808ACC92CDA21C60032485F /* TDLoginView.swift in Sources */,
+				189691332CEDC66B00191EAE /* TDDetailToobarModel.swift in Sources */,
 				1808ACF62CE4FAB60032485F /* TDSliderBarView.swift in Sources */,
 				185C3F5B2C4F915B00FDDC39 /* LoginRuleView.swift in Sources */,
 				1808ACDB2CDB57300032485F /* Notification-Extension.swift in Sources */,
 				1808ACF02CE4D68E0032485F /* TDSliderBarModel.swift in Sources */,
+				189691312CEDC44900191EAE /* TDDetailDateModel.swift in Sources */,
 				1808ACD92CDB51BD0032485F /* TDLoginAPI.swift in Sources */,
 				1808ACD52CDB0E220032485F /* TDLoginViewModel.swift in Sources */,
 				1808ACDD2CDB5D3D0032485F /* TDDeviceManager.swift in Sources */,
-				18FD90CE2CB8BFD60061A1EA /* TDLeftDataModel.swift in Sources */,
 				18859B252C0877A300783F61 /* Item.swift in Sources */,
+				1896912E2CEB193000191EAE /* TDUserInfoView.swift in Sources */,
 				1808ACC42CDA0AD10032485F /* TDThemeManager.swift in Sources */,
+				189691352CEDCAEC00191EAE /* TDDetailToobarDateView.swift in Sources */,
 				1808ACE32CDB748D0032485F /* View-Extension.swift in Sources */,
 				185C3F5D2C4F91A100FDDC39 /* TDBridTextField.swift in Sources */,
 				1808ACCB2CDA21CF0032485F /* TDMainView.swift in Sources */,
+				1896913A2CEDD6FC00191EAE /* TDLunarCalendar.swift in Sources */,
 				1808ACD12CDA27B80032485F /* TDUserModel.swift in Sources */,
 				1862A65F2C465531000ECBAE /* SettingDataManager.swift in Sources */,
 				18859B212C0877A300783F61 /* TodoMacRepertorieApp.swift in Sources */,
+				189691282CE5E6D200191EAE /* TDDetailListView.swift in Sources */,
 				1827EC0C2CB633EF00A30813 /* TDLeftListView.swift in Sources */,
+				1896912C2CEB186300191EAE /* TDHeaderImageView.swift in Sources */,
 				18A337522CA9470200430B67 /* TDJsonModel.swift in Sources */,
 				1862A6252C3CDE51000ECBAE /* TodoEventDetails.swift in Sources */,
 				1808ACCF2CDA25350032485F /* TDNetworkManager.swift in Sources */,
@@ -485,6 +531,8 @@
 				1808ACF82CE4FB3B0032485F /* TDCategoryRowView.swift in Sources */,
 				1808ACF22CE4EFE70032485F /* TDCategoryManager.swift in Sources */,
 				1808ACFD2CE4FC920032485F /* TDTagGroupHeaderView.swift in Sources */,
+				1896912A2CEAE50700191EAE /* TDAvatarManager.swift in Sources */,
+				189691382CEDD66400191EAE /* TDCalendarPopView.swift in Sources */,
 				1808ACC62CDA0D2D0032485F /* TDSettingManager.swift in Sources */,
 				1808ACFB2CE4FC000032485F /* TDCategoryGroupHeaderView.swift in Sources */,
 			);

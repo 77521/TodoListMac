@@ -13,98 +13,7 @@ class TDLoginAPI {
     
     static let shared = TDLoginAPI()
     private let network = TDNetworkManager.shared
-    
-    // MARK: - 获取用户信息
-    //    func getUserInfo() async throws -> TDUserModel {
-    //        let response: TDBaseResponse<TDUserModel> = try await network.post(
-    //            "getDetailUser"  // 使用你的实际API路径
-    //        )
-    //
-    //        guard response.isSuccess, let userInfo = response.data else {
-    //            throw TDNetworkError.serverError(
-    //                code: response.code,
-    //                message: response.message
-    //            )
-    //        }
-    //
-    //        return userInfo
-    //    }
-    
-    //    // MARK: - 发送验证码
-    //    func sendCode(phone: String) async throws -> Bool {
-    //        let params: Parameters = [
-    //            "phoneNumber": phone,
-    //        ]
-    //
-    //        let _: TDEmptyResponse = try await network.request(
-    //            "getSmsCodeByLogin",
-    //            parameters: params,
-    //            requiresData: false
-    //        )
-    //        return true
-    //    }
-    //
-    //
-    //    /// 手机号登录
-    //    /// - Parameters:
-    //    ///   - phone: 手机号
-    //    ///   - code: 验证码
-    //    /// - Returns: 返回的数据
-    //    func phoneLogin(phone: String, code: String) async throws -> TDLoginResponse {
-    //        let params: Parameters = [
-    //            "phoneNumber": phone,
-    //            "code": code
-    //        ]
-    //
-    //        return try await network.request(
-    //            "loginByPhoneNumber",
-    //            parameters: params
-    //        )
-    //    }
-    //
-    //
-    //    /// 账号密码登录
-    //    /// - Parameters:
-    //    ///   - username: 账号
-    //    ///   - password: 密码
-    //    /// - Returns: 返回
-    //    func passwordLogin(username: String, password: String) async throws -> TDLoginResponse {
-    //        let params: Parameters = [
-    //            "userAccount": username,
-    //            "userPassword": password,
-    //        ]
-    //
-    //        return try await network.request(
-    //            "loginByAccount",
-    //            parameters: params
-    //        )
-    //    }
-    //
-    //    func register(username: String, password: String, phone: String) async throws -> TDLoginResponse {
-    //        let params: Parameters = [
-    //            "username": username,
-    //            "phone": phone
-    //        ]
-    //
-    //        return try await network.request(
-    //            "/api/register",
-    //            parameters: params
-    //        )
-    //    }
-    //
-    //    func getQRCode() async throws -> String {
-    //        let response: TDQRCodeResponse = try await network.request("/api/qrcode/generate")
-    //        return response.qrcode
-    //    }
-    //
-    //    func checkQRCode(_ code: String) async throws -> TDLoginResponse {
-    //        let params: Parameters = ["code": code]
-    //        return try await network.request("/api/qrcode/check", parameters: params)
-    //    }
-    
-    
-    
-    
+        
     enum TDLoginType: String {
         case account = "account"
         case phone = "phone"
@@ -240,6 +149,23 @@ class TDLoginAPI {
                     } else {
                         continuation.resume(throwing: TDNetworkManager.TDNetworkError.server("登录失败"))
                     }
+                case .failure(let error):
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
+    }
+    
+    /// 退出登录
+    static func logout() async throws {
+        return try await withCheckedThrowingContinuation { continuation in
+            TDNetworkManager.shared.request(
+                "user/logout",
+                method: .post
+            ) { (result: Result<TDEmptyResponse?, TDNetworkManager.TDNetworkError>) in
+                switch result {
+                case .success:
+                    continuation.resume()
                 case .failure(let error):
                     continuation.resume(throwing: error)
                 }

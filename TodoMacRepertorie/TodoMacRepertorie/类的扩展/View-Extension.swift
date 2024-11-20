@@ -81,7 +81,30 @@ struct WindowAccessor: NSViewRepresentable {
         }
     }
 }
-
+// 添加一个 NSViewRepresentable 来处理分割线
+struct MainWindowAccessor: NSViewRepresentable {
+    func makeNSView(context: Context) -> NSView {
+            let view = NSView()
+            DispatchQueue.main.async {
+                if let window = view.window {
+                    // 禁用所有分割线的拖动
+                    window.contentView?.subviews.forEach { subview in
+                        if let splitView = subview as? NSSplitView {
+                            splitView.autoresizesSubviews = false
+                            splitView.dividerStyle = .thin
+                            // 设置分割线不可调整
+                            for i in 0..<splitView.arrangedSubviews.count - 1 {
+                                splitView.setHoldingPriority(.defaultHigh, forSubviewAt: i)
+                            }
+                        }
+                    }
+                }
+            }
+            return view
+        }
+    
+    func updateNSView(_ nsView: NSView, context: Context) {}
+}
 
 // Views/BlurView.swift
 struct BlurView: NSViewRepresentable {

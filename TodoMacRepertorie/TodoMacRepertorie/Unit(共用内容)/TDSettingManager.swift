@@ -7,35 +7,37 @@
 
 import Foundation
 import SwiftUI
-
+import SwiftDate
+import Combine
 
 class TDAppSettings: ObservableObject {
     static let shared = TDAppSettings()
     
     //  主题颜色模式是否跟随系统
-    @AppStorage("themeFollowSystem") var followSystem: Bool = true 
-//    
-//    // 当前外观模式
-//    @AppStorage("isDarkMode") var isDarkMode: Bool = false {
-//        didSet {
-//            if !followSystem {
-//                updateAppearance()
-//            }
-//        }
-//    }
+    @AppStorage("themeFollowSystem") var followSystem: Bool = true
     
-//    private init() {
-//        // 初始化时设置外观
-//        updateAppearance()
-//    }
-//    
-//    // 更新应用外观
-//    private func updateAppearance() {
-//        if followSystem {
-//            NSApp.appearance = nil // 跟随系统
-//        } else {
-//            NSApp.appearance = NSAppearance(named: isDarkMode ? .darkAqua : .aqua)
-//        }
-//    }
+    @AppStorage("weekStartsOnMonday") var weekStartsOnMonday: Bool = true {
+        didSet {
+            configureCalendar()
+        }
+    }
+    
+    private init() {
+        configureCalendar()
+    }
+    
+    var firstWeekday: Int {
+        weekStartsOnMonday ? 2 : 1  // 1 = 周日, 2 = 周一
+    }
+    
+    private func configureCalendar() {
+        var calendar = Calendar.current
+        calendar.firstWeekday = firstWeekday
+        SwiftDate.defaultRegion = Region(
+            calendar: calendar,
+            zone: TimeZone.current,
+            locale: Locale(identifier: "zh_CN")
+        )
+    }
 }
 

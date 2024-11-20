@@ -9,97 +9,150 @@ import SwiftUI
 
 struct TDSliderBarView: View {
     @StateObject private var categoryManager = TDCategoryManager.shared
-    @State private var draggedCategory: TDSliderBarModel?
-    @State private var hoveredCategoryId: Int?
-    @State private var showAddCategorySheet = false
-    @State private var showCategorySettings = false
+    @Binding var selection: TDSliderBarModel?
+    @State private var hoveredGroupId: Int?
+    @State private var showingAddCategorySheet = false
+    @State private var showingEditCategorySheet = false
     
     var body: some View {
+        TDUserInfoView()
+            .frame(height: 30)
+
         List {
-            ForEach(categoryManager.menuData) { item in
-                Group {
-                    if item.type == .category {
-                        // 分类清单组（可折叠）
-                        DisclosureGroup(
-                            isExpanded: Binding(
-                                get: { item.isSelect },
-                                set: { _ in categoryManager.toggleGroup(item.categoryId) }
-                            )
-                        ) {
-                            // 子分类列表
-                            ForEach(item.categoryDatas) { category in
-                                TDCategoryRowView(category: category,
-                                            isHovered: hoveredCategoryId == category.categoryId,
-                                            isSelected: categoryManager.selectedCategory?.categoryId == category.categoryId)
-                                .onTapGesture {
-                                    categoryManager.selectedCategory = category
-                                }
-                                .onDrag {
-                                    if category.categoryId != 0 {
-                                        self.draggedCategory = category
-                                        return NSItemProvider(object: String(category.categoryId) as NSString)
-                                    }
-                                    return NSItemProvider()
-                                }
-                                .onDrop(of: [.text], delegate: CategoryDropDelegate(
-                                    item: category,
-                                    draggedItem: $draggedCategory,
-                                    categoryManager: categoryManager)
-                                )
-                            }
-                        } label: {
-                            TDCategoryGroupHeaderView(
-                                item: item,
-                                isHovered: hoveredCategoryId == item.categoryId,
-                                onAddTap: { showAddCategorySheet = true },
-                                onSettingsTap: { showCategorySettings = true }
-                            )
-                        }
-                    } else if item.type == .tag {
-                        // 标签组（可折叠）
-                        DisclosureGroup(
-                            isExpanded: Binding(
-                                get: { item.isSelect },
-                                set: { _ in categoryManager.toggleGroup(item.categoryId) }
-                            )
-                        ) {
-                            // 标签列表内容
-                        } label: {
-                            TDTagGroupHeaderView(
-                                item: item,
-                                isHovered: hoveredCategoryId == item.categoryId
-                            )
-                        }
-                    } else {
-                        // 其他固定组
-                        TDCategoryRowView(category: item,
-                                    isHovered: hoveredCategoryId == item.categoryId,
-                                    isSelected: categoryManager.selectedCategory?.categoryId == item.categoryId)
-                        .onTapGesture {
-                            categoryManager.selectedCategory = item
-                        }
+            // 同步状态
+            HStack {
+                Image(systemName: "checkmark.circle")
+                    .foregroundColor(.green)
+                Text("同步完成")
+                    .foregroundColor(.secondary)
+                Spacer()
+                Button(action: {}) {
+                    Image(systemName: "arrow.clockwise")
+                        .foregroundColor(.secondary)
+                }
+                .buttonStyle(.borderless)
+            }
+            .padding(.vertical, 2)
+            
+            // 固定组
+            ForEach(categoryManager.fixedItems, id: \.categoryId) { item in
+                TDCategoryRowView(item: item, selection: $selection)
+                    .tag(item)
+            }
+            .listRowInsets(EdgeInsets(top: 5, leading: 0, bottom: 0, trailing: 0))  // 移除行内边距
+            .listRowSeparator(.hidden)    // 隐藏分割线
+            
+            // 分类清单组
+            if let categoryGroup = categoryManager.categoryGroup {
+                Section {
+                    ForEach(categoryGroup.categoryDatas, id: \.categoryId) { category in
+                        TDCategoryRowView(item: category, selection: $selection)
+                            .tag(category)
                     }
+                    .listRowInsets(EdgeInsets(top: 5, leading: 8, bottom: 0, trailing: 0))  // 移除行内边距
+                    .listRowSeparator(.hidden)    // 隐藏分割线
+
+                } header: {
+                    TDCategoryGroupHeaderView(
+                        group: categoryGroup,
+                        isHovered: hoveredGroupId == categoryGroup.categoryId,
+                        onAddCategory: { showingAddCategorySheet = true },
+                        onEditCategory: { showingEditCategorySheet = true }
+                    )
                 }
                 .onHover { isHovered in
-                    hoveredCategoryId = isHovered ? item.categoryId : nil
+                    hoveredGroupId = isHovered ? categoryGroup.categoryId : nil
                 }
             }
+            
+            // 标签组
+            if let tagGroup = categoryManager.tagGroup {
+                Section {
+                    VStack(alignment: .leading, spacing: 4) {
+                        ForEach(tagGroup.categoryDatas, id: \.categoryId) { tag in
+                            Text(tag.categoryName)
+                                .padding(.vertical, 4)
+                                .padding(.horizontal, 8)
+                                .background(Color.secondary.opacity(0.2))
+                                .cornerRadius(4)
+                        }
+                    }
+                } header: {
+                    TDTagGroupHeaderView(group: tagGroup, isHovered: hoveredGroupId == tagGroup.categoryId)
+                }
+            }
+
+            // 统计组
+            ForEach(categoryManager.statsItems, id: \.categoryId) { item in
+                TDCategoryRowView(item: item, selection: $selection)
+                    .tag(item)
+            }
+            .listRowInsets(EdgeInsets(top: 5, leading: 0, bottom: 0, trailing: 0))  // 移除行内边距
+            .listRowSeparator(.hidden)    // 隐藏分割线
+
         }
-        .listStyle(.sidebar)
-        .frame(minWidth: 200, maxWidth: 300)
-        .task {
-            await categoryManager.fetchCategories()
+        .listStyle(.sidebar) // 指定为Source List样式
+        .onChange(of: categoryManager.selectedCategory) { oldValue, newValue in
+            selection = newValue
         }
-        .sheet(isPresented: $showAddCategorySheet) {
-//            AddCategoryView()
-        }
-        .sheet(isPresented: $showCategorySettings) {
-//            CategorySettingsView()
-        }
+
     }
 }
 
+struct GroupButton: Identifiable {
+    let id = UUID()
+    let icon: String
+    let action: () -> Void
+}
 
+
+// MARK: - 同步按钮
+struct SyncButton: View {
+    @StateObject private var categoryManager = TDCategoryManager.shared
+    @State private var isSyncing = false
+    
+    var body: some View {
+        Button(action: sync) {
+            HStack {
+                Spacer()
+                if isSyncing {
+                    ProgressView()
+                        .scaleEffect(0.7)
+                        .frame(width: 16, height: 16)
+                } else {
+                    Image(systemName: "arrow.triangle.2.circlepath")
+                }
+                Text("同步")
+            }
+        }
+        .padding(.horizontal)
+        .listStyle(.sidebar)
+        .background(NoSelectionStyle()) // 使用这个来移除默认的选中效果
+    }
+    
+    private func sync() {
+        guard !isSyncing else { return }
+        isSyncing = true
+        
+        Task {
+            await categoryManager.fetchCategories()
+            isSyncing = false
+        }
+    }
+}
+struct NoSelectionStyle: NSViewRepresentable {
+    func makeNSView(context: Context) -> NSView {
+        let view = NSView()
+        DispatchQueue.main.async {
+            if let tableView = view.enclosingScrollView?.documentView as? NSTableView {
+                tableView.selectionHighlightStyle = .none
+            }
+        }
+        return view
+    }
+    
+    func updateNSView(_ nsView: NSView, context: Context) {}
+}
 // MARK: - 拖拽代理
 struct CategoryDropDelegate: DropDelegate {
     let item: TDSliderBarModel
@@ -123,7 +176,7 @@ struct CategoryDropDelegate: DropDelegate {
                     
                     // 移动分类
                     categories.move(fromOffsets: IndexSet(integer: fromIndex),
-                                 toOffset: toIndex > fromIndex ? toIndex + 1 : toIndex)
+                                    toOffset: toIndex > fromIndex ? toIndex + 1 : toIndex)
                     
                     // 更新排序值
                     for (index, var category) in categories.enumerated() where category.categoryId != 0 {
@@ -160,15 +213,15 @@ struct CategoryDropDelegate: DropDelegate {
                 // 临时更新UI显示顺序
                 withAnimation(.easeInOut(duration: 0.2)) {
                     categories.move(fromOffsets: IndexSet(integer: fromIndex),
-                                 toOffset: toIndex > fromIndex ? toIndex + 1 : toIndex)
+                                    toOffset: toIndex > fromIndex ? toIndex + 1 : toIndex)
                     
                     // 通过 Manager 更新数据
                     categoryManager.updateCategoriesOrder(categories)
                 }
             }
         }
-
-
+        
+        
     }
     
     func dropUpdated(info: DropInfo) -> DropProposal? {
@@ -183,5 +236,5 @@ struct CategoryDropDelegate: DropDelegate {
 }
 
 #Preview {
-    TDSliderBarView()
+    TDSliderBarView(selection: .constant(TDSliderBarModel()))
 }

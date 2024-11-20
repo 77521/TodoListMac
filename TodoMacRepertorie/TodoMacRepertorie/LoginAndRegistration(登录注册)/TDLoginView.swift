@@ -35,7 +35,7 @@ struct TDLoginView: View {
                         }
                         Text("深受百万企业管理者与各界精英青睐\n强大的跨平台待办事项软件")
                             .font(.system(size: 12))
-                            .foregroundStyle(Color.themeLabelColor(i: 1))
+                            .foregroundStyle(Color.greyColor6)
                             .multilineTextAlignment(.center)
                             .lineSpacing(6.0)
                             .fixedSize(horizontal: false, vertical: true)

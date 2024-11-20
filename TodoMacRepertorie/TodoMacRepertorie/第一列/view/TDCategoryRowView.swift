@@ -10,65 +10,90 @@ import DynamicColor
 
 // MARK: - 分类行
 struct TDCategoryRowView: View {
-    let category: TDSliderBarModel
-    let isHovered: Bool
-    let isSelected: Bool
+    let item: TDSliderBarModel
+    @Binding var selection: TDSliderBarModel?
+    @State private var isHovered = false
     
     var body: some View {
-        HStack(spacing: 8) {
-            Image(systemName: category.displayIcon)
-                .foregroundColor(foregroundColor)
-                .frame(width: 16)
-            
-            Text(category.categoryName)
-                .lineLimit(1)
-                .foregroundColor(foregroundColor)
-            
-            Spacer()
-            
-            if category.dayTodoNoFinishNumber > 0 {
-                Text("\(category.dayTodoNoFinishNumber)")
-                    .foregroundColor(isSelected ? .white.opacity(0.8) : .secondary)
-                    .font(.caption)
+        Button(action: {
+            // 只在未选中时进行选中操作
+            if selection?.categoryId != item.categoryId {
+                selection = item
+            }
+            // 如果已经选中，不做任何处理
+
+        }) {
+            HStack(spacing: 2) {
+                Label {
+                    Text(item.categoryName)
+                        .font(.system(size: 13))
+                    if item.dayTodoNoFinishNumber > 0 && item.categoryId == -100{
+                        Spacer()
+                        Text("\(item.dayTodoNoFinishNumber)")
+                            .foregroundColor(isSelected ? .white : .greyColor6)
+                            .font(.caption)
+                    }
+                } icon: {
+                    
+                    if item.categoryId <= 0 {
+                        // 未分类使用普通图标
+                        Image(systemName: item.headerIcon)
+                            .foregroundColor(isSelected ? .white : .marrsGreenColor6)
+                    } else {
+                        // 其他分类使用彩色圆点
+                        Image(systemName: "circle.fill")
+                            .foregroundColor(Color.fromHex(item.categoryColor).opacity(0.7))
+                    }
+
+                    
+                }
+                Spacer()
+            }
+            .padding(.leading,9)
+            .frame(height: 25)
+//            .padding(.horizontal, 8)
+//            .padding(.vertical, 2)
+        }
+        .buttonStyle(SidebarButtonStyle(isSelected: isSelected, isHovered: isHovered))
+        .onHover { hovering in
+            withAnimation(.easeInOut(duration: 0.15)) {
+                isHovered = hovering
             }
         }
-        .padding(.vertical, 4)
-        .padding(.horizontal, 8)
-        .background(
-            RoundedRectangle(cornerRadius: 4)
-                .fill(backgroundColor)
-        )
     }
     
-    // 前景色（图标和文字）
-    private var foregroundColor: Color {
-        if isSelected {
-            return .white
-        } else {
-            return category.categoryId == 0 ? .primary : (category.categoryColor.isEmpty ? .primary : Color(category.categoryColor))
-        }
+    private var isSelected: Bool {
+        selection?.categoryId == item.categoryId
+    }
+
+}
+// 自定义按钮样式
+struct SidebarButtonStyle: ButtonStyle {
+    let isSelected: Bool
+    let isHovered: Bool
+    
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .frame(maxWidth: .infinity)
+            .background(
+                RoundedRectangle(cornerRadius: 6)
+                    .fill(backgroundColor(configuration.isPressed))
+            )
+            .foregroundColor(isSelected ? .white : .greyColor6)
     }
     
-    // 背景色
-    private var backgroundColor: Color {
+    private func backgroundColor(_ isPressed: Bool) -> Color {
         if isSelected {
-            // 未分类使用主题色，其他使用自己的分类颜色
-            if category.categoryId == 0 {
-                return Color.accentColor
-            } else {
-                // 如果没有设置颜色，使用默认主题色
-                let baseColor = category.categoryColor.isEmpty ? Color.accentColor : Color(hexString: category.categoryColor)
-                return baseColor.opacity(0.8)
-            }
+            return .marrsGreenColor6
+        } else if isPressed {
+            return .greyColor1
         } else if isHovered {
-            return Color.gray.opacity(0.1)
-        } else {
-            return Color.clear
+            return .greyColor1
         }
+        return .clear
     }
 }
 
-
 #Preview {
-    TDCategoryRowView(category: TDSliderBarModel(), isHovered: false, isSelected: false)
+    TDCategoryRowView(item: TDSliderBarModel(), selection: .constant(TDSliderBarModel()))
 }

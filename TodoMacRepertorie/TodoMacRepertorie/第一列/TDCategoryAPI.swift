@@ -11,7 +11,7 @@ class TDCategoryAPI {
     /// 获取分类列表
     static func getCategories() async throws -> [TDSliderBarModel] {
         return try await withCheckedThrowingContinuation { continuation in
-            TDNetworkManager.shared.requestList("category/list") { (result: Result<[TDSliderBarModel], TDNetworkManager.TDNetworkError>) in
+            TDNetworkManager.shared.requestList("getCategoryList") { (result: Result<[TDSliderBarModel], TDNetworkManager.TDNetworkError>) in
                 switch result {
                 case .success(let categories):
                     continuation.resume(returning: categories)

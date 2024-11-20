@@ -137,17 +137,83 @@ class TDNetworkManager {
                                   parameters: Parameters? = nil,
                                   completion: @escaping (Result<[T], TDNetworkError>) -> Void) -> DataRequest? {
         
-        request(path, method: method, parameters: parameters) { (result: Result<TDListWrapper<T>?, TDNetworkError>) in
-            switch result {
-            case .success(let wrapper):
-                // 直接从 wrapper 中获取 list 数据
-                let list = wrapper?.data?.list ?? []
-                completion(.success(list))
-                
-            case .failure(let error):
-                completion(.failure(error))
-            }
+        // 合并参数
+        var finalParameters = defaultParameters
+        if let customParameters = parameters {
+            finalParameters.merge(customParameters) { _, new in new }
         }
+
+        let request = AF.request(baseURL + path,
+                               method: method,
+                               parameters: finalParameters,
+                               encoding: URLEncoding.default)
+            .validate()
+            .responseData(queue: .global(qos: .userInitiated)) { [weak self] response in
+                guard let self = self else { return }
+                
+                DispatchQueue.main.async {
+                    switch response.result {
+                    case .success(let data):
+                        guard let jsonString = String(data: data, encoding: .utf8) else {
+                            completion(.failure(.parseError))
+                            return
+                        }
+                        
+                        #if DEBUG
+                        print("原始 JSON: \(jsonString)")
+                        #endif
+                        
+                        // 检查空数据情况
+                        if jsonString.contains("\"data\":null") ||
+                            jsonString.contains("\"data\":{}") {
+                            completion(.success([]))
+                            return
+                        }
+                        
+                        // 直接解析为正确的结构
+                        guard let baseResponse = TDBaseResponse<TDListData<T>>.deserialize(from: jsonString) else {
+                            completion(.failure(.parseError))
+                            return
+                        }
+                        
+                        #if DEBUG
+                        print("解析后的数据: \(baseResponse)")
+                        #endif
+                        
+                        // 检查业务状态
+                        if baseResponse.ret && baseResponse.code == 0 {
+                            if baseResponse.data == nil {
+                                completion(.success([]))
+                            } else {
+                                let list = baseResponse.data?.list ?? []
+                                completion(.success(list))
+                            }
+                        } else {
+                            completion(.failure(.server(baseResponse.msg)))
+                        }
+                        
+                    case .failure(let error):
+                        let message = error.isTimeout ? "请求超时" :
+                                     error.isCancelled ? "请求已取消" :
+                                     error.localizedDescription
+                        completion(.failure(.network(message)))
+                    }
+                }
+            }
+        
+        return request
+        // 直接使用 request 方法，它内部会调用 handleResponse
+//            return request(path, method: method, parameters: parameters) { (result: Result<TDListResponse<T>?, TDNetworkError>) in
+//                switch result {
+//                case .success(let response):
+//                    // 从 response 中提取列表数据
+//                    let list = response?.data?.list ?? []
+//                    completion(.success(list))
+//                    
+//                case .failure(let error):
+//                    completion(.failure(error))
+//                }
+//            }
     }
     // MARK: - 响应处理
     private func handleResponse<T: HandyJSON>(_ response: AFDataResponse<Data>,
@@ -164,20 +230,29 @@ class TDNetworkManager {
                 completion(.failure(.parseError))
                 return
             }
-            
+#if DEBUG
+            print("原始 JSON 字符串: \(jsonString)")
+#endif
+
             // 解析基础响应
             guard let baseResponse = TDBaseResponse<T>.deserialize(from: jsonString) else {
                 completion(.failure(.parseError))
                 return
             }
             
+#if DEBUG
+print("解析后的 baseResponse: \(baseResponse)")
+print("ret 值: \(baseResponse.ret)")
+print("data 值: \(String(describing: baseResponse.data))")
+#endif
+
+
             // 处理状态码
             switch StatusCode(rawValue: baseResponse.code) {
             case .success:
-                
                 // 处理空数据的情况
                 if baseResponse.ret {
-                    if T.self == EmptyResponse.self {
+                    if T.self == TDEmptyResponse.self {
                         // 如果是 EmptyResponse 类型，直接返回成功
                         completion(.success(nil))
                     } else if jsonString.contains("\"data\":null") ||
@@ -229,7 +304,7 @@ class TDNetworkManager {
         isHandlingTokenExpired = true
         DispatchQueue.main.async { [weak self] in
             // 清除用户数据
-            TDUserManager.shared.logout()
+            TDUserManager.shared.clearUser()
             // 发送通知
             NotificationCenter.default.post(name: .userTokenExpired, object: nil)
             // 重置标志
@@ -265,27 +340,17 @@ struct TDBaseResponse<T: HandyJSON>: HandyJSON {
     
     init() {}
 }
+// 简化后的数据模型，只包含 list 数组
+struct TDListData<T: HandyJSON>: HandyJSON {
+    var list: [T]?              // 实际的数据数组
+    init() {}
+}
 // 空响应模型
 struct TDEmptyResponse: HandyJSON {
     init() {}  // HandyJSON 需要空初始化器
 }
-// MARK: - 基础模型定义
-/// 数组包装模型 - 用于处理 ["data"]["list"] 格式
-struct TDListWrapper<T: HandyJSON>: HandyJSON {
-    var data: TDDataWrapper<T>?
-    
-    init() {}
-}
 
-struct TDDataWrapper<T: HandyJSON>: HandyJSON {
-    var list: [T]?
-    var total: Int?
-    var pageSize: Int?
-    var currentPage: Int?
-    var totalPages: Int?
-    
-    init() {}
-}
+
 
 // MARK: - 扩展
 private extension DateFormatter {

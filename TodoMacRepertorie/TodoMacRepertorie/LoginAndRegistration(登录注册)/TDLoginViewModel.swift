@@ -275,6 +275,36 @@ class TDLoginViewModel: ObservableObject {
         }
     }
     
+    // MARK: - 退出登录
+    func logout() async {
+        do {
+            isLoginLoading = true
+            
+            // 调用退出登录接口
+            try await TDLoginAPI.logout()
+            
+            // 清除用户信息
+            TDUserManager.shared.clearUser()
+            
+            
+            
+            // 重置输入和状态
+            clearInputs()
+            resetLoginState()
+            
+        } catch {
+            if let networkError = error as? TDNetworkManager.TDNetworkError {
+                showErrorToast = true
+                toastMessage = networkError.errorDescription ?? "退出失败"
+            } else {
+                showErrorToast = true
+                toastMessage = error.localizedDescription
+            }
+        }
+        
+        isLoginLoading = false
+    }
+
     @MainActor
     private func stopPollingStatus() {
         statusTimer?.invalidate()
@@ -284,22 +314,45 @@ class TDLoginViewModel: ObservableObject {
     
     // MARK: - Private Methods
     private func handleLoginSuccess(_ user: TDUserModel) {
-        TDCategoryManager.shared.fetchCategories()
         // 保存用户信息
         TDUserManager.shared.saveUser(user)
         // 保存 token
-        TDKeychainManager.shared.saveToken(user.token)
+        TDKeychainManager.shared.saveToken(user.token ?? "")
+        // 登录成 功后获取分类数据
+        Task {
+            await TDCategoryManager.shared.fetchCategories()
+        }
         // 清理状态
         clearInputs()
     }
+    
+    // 重置登录状态
+    private func resetLoginState() {
+        currentType = .account
+        loginState = .login
+        accountError = ""
+        passwordError = ""
+        phoneError = ""
+        smsCodeError = ""
+        qrCodeError = ""
+        showErrorToast = false
+        toastMessage = ""
+        stopPollingStatus()
+    }
+
     private func clearInputs() {
         password = ""
         phone = ""
         smsCode = ""
-//        qrToken = ""
+        qrCode = nil
         qrCodeImage = nil
         qrStatus = .waiting
+        countDown = 0
+        hasSentCode = false
+        countDownTimer?.invalidate()
+        countDownTimer = nil
     }
+    
     
     // 验证码按钮是否可点击
     var canSendSms: Bool {

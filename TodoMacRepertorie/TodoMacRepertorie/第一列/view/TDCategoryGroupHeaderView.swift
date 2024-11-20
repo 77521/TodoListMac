@@ -8,56 +8,84 @@
 import SwiftUI
 
 struct TDCategoryGroupHeaderView: View {
-    let item: TDSliderBarModel
-    let isHovered: Bool
-    let onAddTap: () -> Void
-    let onSettingsTap: () -> Void
+    let group: TDSliderBarModel
+    var isHovered: Bool
+    let onAddCategory: () -> Void
+    let onEditCategory: () -> Void
+    @StateObject private var categoryManager = TDCategoryManager.shared
     
     var body: some View {
-        HStack(spacing: 8) {
-            Image(systemName: item.displayIcon)
-                .foregroundColor(.primary)
-                .frame(width: 16)
+        
+        HStack {
             
-            Text(item.categoryName)
-                .lineLimit(1)
-                .font(.headline)  // 加粗显示组标题
-            
+            Label {
+                Text(group.categoryName)
+                    .font(.system(size: 13))
+                    .foregroundStyle(.greyColor6)
+
+            } icon: {
+                Image(systemName: group.headerIcon)
+                    .font(.system(size: 13))
+                    .foregroundColor(.marrsGreenColor6)
+            }
             Spacer()
-            
             if isHovered {
-                HStack(spacing: 12) {
-                    Button(action: onAddTap) {
+                HStack(spacing: 8) {
+                    Button(action: onAddCategory) {
                         Image(systemName: "plus")
-                            .foregroundColor(.secondary)
+                            .font(.system(size: 13))
                     }
-                    .buttonStyle(.plain)
-                    .help("新增分类")  // 添加提示
-                    
-                    Button(action: onSettingsTap) {
-                        Image(systemName: "gearshape")
-                            .foregroundColor(.secondary)
+                    Button(action: onEditCategory) {
+                        Image(systemName: "gear")
+                            .font(.system(size: 13))
                     }
-                    .buttonStyle(.plain)
-                    .help("分类设置")  // 添加提示
                     
-                    Image(systemName: item.isSelect ? "chevron.down" : "chevron.right")
-                        .foregroundColor(.secondary)
-                        .frame(width: 12)  // 固定宽度，避免切换时抖动
                 }
-            } else {
-                // 不悬停时也显示箭头，保持布局稳定
-                Image(systemName: item.isSelect ? "chevron.down" : "chevron.right")
-                    .foregroundColor(.secondary)
-                    .frame(width: 12)
+                .buttonStyle(.plain)
+                
             }
         }
-        .padding(.vertical, 4)
-        .contentShape(Rectangle())
+        .padding(.leading,10)
+        
+//        Button(action: {}) {
+//            HStack {
+//                Label {
+//                    Text(group.categoryName)
+//                        .font(.system(size: 13))
+//                        .foregroundStyle(.greyColor6)
+//
+//                } icon: {
+//                    Image(systemName: group.headerIcon)
+//                        .font(.system(size: 13))
+//                        .foregroundStyle(.marrsGreenColor6)
+//
+//                }
+//                Spacer()
+//                if isHovered {
+//                    HStack(spacing: 8) {
+//                        Button(action: onAddCategory) {
+//                            Image(systemName: "plus")
+//                                .font(.system(size: 13))
+//                        }
+//                        Button(action: onEditCategory) {
+//                            Image(systemName: "gear")
+//                                .font(.system(size: 13))
+//                        }
+//                        
+//                    }
+//                    .buttonStyle(.borderless)
+//                }
+//            }
+//            .frame(height: 28)
+//        }
+//        .buttonStyle(SidebarButtonStyle(isSelected: false, isHovered: false))
+//        .background(.red)
+        
     }
-
 }
 
-#Preview {
-    TDCategoryGroupHeaderView(item: TDSliderBarModel(), isHovered: false, onAddTap: {}, onSettingsTap: {})
-}
+
+//
+//#Preview {
+//    TDCategoryGroupHeaderView(item: TDSliderBarModel(), isHovered: false, onAddTap: {}, onSettingsTap: {})
+//}

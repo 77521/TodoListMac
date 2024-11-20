@@ -104,11 +104,13 @@ struct TodoMacRepertorieApp: App {
                 if userManager.isLoggedIn {
                     TDMainView()
                         .frame(minWidth: 800, minHeight: 600)
-                        .customWindow(
-                            title: "应用名称",
-                            isResizable: true,
-                            showTitleBar: true
-                        )
+                        .navigationTitle("")
+
+//                        .customWindow(
+//                            title: "应用名称",
+//                            isResizable: true,
+//                            showTitleBar: true
+//                        )
 
                 } else {
                     TDLoginView()
@@ -122,9 +124,8 @@ struct TodoMacRepertorieApp: App {
 
                 }
             }
-            .animation(.easeInOut, value: userManager.isLoggedIn)
         }
-        .windowStyle(.hiddenTitleBar) // 默认隐藏标题栏
+//        .windowStyle(.hiddenTitleBar) // 默认隐藏标题栏
         .windowResizability(.contentSize) // 默认允许调整大小
     }
 }

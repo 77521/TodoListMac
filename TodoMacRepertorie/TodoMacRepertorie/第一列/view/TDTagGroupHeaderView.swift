@@ -8,50 +8,41 @@
 import SwiftUI
 
 struct TDTagGroupHeaderView: View {
-    let item: TDSliderBarModel
+    let group: TDSliderBarModel
     let isHovered: Bool
-    @State private var showTagFilter = false
+    @StateObject private var categoryManager = TDCategoryManager.shared
     
     var body: some View {
-        HStack(spacing: 8) {
-            Image(systemName: item.displayIcon)
-                .foregroundColor(.primary)
-                .frame(width: 16)
+        HStack {
             
-            Text(item.categoryName)
-                .lineLimit(1)
-                .font(.headline)  // 加粗显示组标题
-            
+            Label {
+                Text(group.categoryName)
+                    .font(.system(size: 13))
+                    .foregroundStyle(.greyColor6)
+
+            } icon: {
+                Image(systemName: group.headerIcon)
+                    .font(.system(size: 13))
+                    .foregroundColor(.marrsGreenColor6)
+            }            
             Spacer()
-            
             if isHovered {
-                HStack(spacing: 12) {
-                    Button(action: { showTagFilter.toggle() }) {
-                        Image(systemName: "line.3.horizontal.decrease.circle")
-                            .foregroundColor(.secondary)
+                HStack(spacing: 8) {
+                    Button(action: {}) {
+                        Image(systemName: "line.3.horizontal.decrease")
                     }
-                    .buttonStyle(.plain)
-                    .help("标签筛选")  // 添加提示
-                    .popover(isPresented: $showTagFilter) {
-//                        TagFilterView()
+                    Button(action: { categoryManager.toggleGroup(group.categoryId) }) {
+                        Image(systemName: group.isSelect ? "chevron.down" : "chevron.right")
                     }
-                    
-                    Image(systemName: item.isSelect ? "chevron.down" : "chevron.right")
-                        .foregroundColor(.secondary)
-                        .frame(width: 12)
                 }
-            } else {
-                // 不悬停时也显示箭头，保持布局稳定
-                Image(systemName: item.isSelect ? "chevron.down" : "chevron.right")
-                    .foregroundColor(.secondary)
-                    .frame(width: 12)
+                .buttonStyle(.plain)
             }
         }
-        .padding(.vertical, 4)
-        .contentShape(Rectangle())
+        .padding(.leading,10)
+        .frame(height: 28)
     }
 }
 
 #Preview {
-    TDTagGroupHeaderView(item: TDSliderBarModel(), isHovered: false)
+    TDTagGroupHeaderView(group: TDSliderBarModel(), isHovered: false)
 }
