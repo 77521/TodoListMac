@@ -10,9 +10,9 @@ import SwiftDate
 import SwiftUI
 import Combine
 
-class DateNavigationViewModel: ObservableObject {
+class TDDetailToobarModel: ObservableObject {
     @Published var selectedDate: DateInRegion
-    @ObservedObject private var settings = TDAppSettings.shared
+    @ObservedObject private var settings = TDSettingManager.shared
     private var cancellables = Set<AnyCancellable>()
     
     private var today: DateInRegion {

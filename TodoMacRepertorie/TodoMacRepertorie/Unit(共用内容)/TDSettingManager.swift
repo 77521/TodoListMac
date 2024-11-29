@@ -10,8 +10,8 @@ import SwiftUI
 import SwiftDate
 import Combine
 
-class TDAppSettings: ObservableObject {
-    static let shared = TDAppSettings()
+class TDSettingManager: ObservableObject {
+    static let shared = TDSettingManager()
     
     //  主题颜色模式是否跟随系统
     @AppStorage("themeFollowSystem") var followSystem: Bool = true

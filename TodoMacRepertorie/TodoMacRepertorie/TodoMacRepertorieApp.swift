@@ -97,7 +97,10 @@ import AppKit
 struct TodoMacRepertorieApp: App {
     @StateObject private var userManager = TDUserManager.shared
     
-    
+//    init() {
+//        // 启动数据加载
+//        TDCalendarManager.shared.startLoadingData()
+//    }
     var body: some Scene {
         WindowGroup {
             Group {
@@ -105,6 +108,10 @@ struct TodoMacRepertorieApp: App {
                     TDMainView()
                         .frame(minWidth: 800, minHeight: 600)
                         .navigationTitle("")
+                        .task {
+                            // 应用启动时开始加载数据
+//                            await TDCalendarDataManager.shared.initialize()
+                        }
 
 //                        .customWindow(
 //                            title: "应用名称",

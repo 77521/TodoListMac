@@ -26,4 +26,9 @@ extension Notification.Name {
     static let dataSyncStarted = Notification.Name("dataSyncStarted")
     static let dataSyncCompleted = Notification.Name("dataSyncCompleted")
     static let dataSyncFailed = Notification.Name("dataSyncFailed")
+
+    // 日历切换
+    static let tdFrequentCalendarDataLoaded = Notification.Name("tdFrequentCalendarDataLoaded")
+    static let tdFullCalendarDataLoaded = Notification.Name("tdFullCalendarDataLoaded")
+
 }

@@ -32,4 +32,9 @@ extension String {
             .compactMap { String(format: "%02x", $0) }
             .joined()
     }
+    
+//    // MARK: - 字符串工具扩展
+//    func localized(bundle: Bundle = .main, tableName: String = "Calendar") -> String {
+//        return NSLocalizedString(self, tableName: tableName, bundle: bundle, value: "", comment: "")
+//    }
 }

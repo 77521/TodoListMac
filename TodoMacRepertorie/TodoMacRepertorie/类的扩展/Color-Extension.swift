@@ -140,7 +140,7 @@ struct TDDynamicColor: Codable, Equatable {
     var dark: String
     
     func color(for scheme: ColorScheme) -> Color {
-        Color(TDAppSettings.shared.followSystem ? scheme == .dark ? dark : light : light)
+        Color(TDSettingManager.shared.followSystem ? scheme == .dark ? dark : light : light)
     }
 }
 

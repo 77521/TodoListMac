@@ -6,12 +6,17 @@
 //
 
 import SwiftUI
+import SwiftDate
 
 struct TDDetailToobarDateView: View {
-    @StateObject private var viewModel = DateNavigationViewModel()
-    @StateObject private var settings = TDAppSettings.shared
+    @StateObject private var viewModel = TDDetailToobarModel()
+    @StateObject private var settings = TDSettingManager.shared
     @State private var showCalendarPopover = false
 
+//    init(date: DateInRegion? = nil) {
+//        _viewModel = StateObject(wrappedValue: TDDetailToobarModel(date: date))
+//    }
+    
     var body: some View {
         HStack(spacing: 8) {
             // 左箭头按钮
@@ -47,12 +52,29 @@ struct TDDetailToobarDateView: View {
                 .foregroundStyle(.white)
             }
             .buttonStyle(.borderless)
-            .popover(isPresented: $showCalendarPopover) {
-//                TDCalendarView(
-//                    selectedDate: $viewModel.selectedDate,
-//                    isPresented: $showCalendarPopover
-//                )
-//                .frame(width: 300, height: 320)
+            .popover(
+                
+                            isPresented: $showCalendarPopover,
+                            attachmentAnchor: .point(.bottom),
+                            arrowEdge: .top
+                                    ) {
+                TDCalendarPopView(
+                    selectedDate: $viewModel.selectedDate,  // 使用当前选中的日期
+                    isPresented: $showCalendarPopover,
+                    initialDate: viewModel.selectedDate,    // 添加这一行，传入初始日期
+                    
+                    configuration: TDCalendarPopView.TDCalendarConfiguration(
+                        showLunar: true,
+                        showFestival: true,
+                        showWeekend: true,
+                        firstWeekday: 2,  // 1 = 周日, 2 = 周一
+                        monthDisplayFormat: "yyyy年 MM月",
+                        theme: .default
+                    )
+                )
+                .frame(width: 300) // 只指定宽度，让高度自适应
+                .transition(.opacity)
+
             }
 
             
