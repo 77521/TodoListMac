@@ -59,6 +59,7 @@ class TDCategoryManager: ObservableObject {
                 let uncategorized = TDSliderBarModel(
                     categoryId: 0,
                     categoryName: "未分类",
+                    categoryColor : "#c3c3c3",
                     listSort: 0,
                     headerIcon: "tray"
                 )

@@ -25,14 +25,9 @@ struct TDUserInfoView: View {
                     .font(.system(size: 12))
                     .lineLimit(1)
             }
-            
-//            Spacer()
+            Spacer()
         }
-//        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
-        .frame(height: 48)
-//        .frame(width: 100,height: 48)
-//        .background(Color(NSColor.controlBackgroundColor))
+        .padding(.vertical, 8)  // 添加垂直内边距
     }
 }
 

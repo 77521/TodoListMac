@@ -1,13 +1,13 @@
 {
-  "originHash" : "eee690e92575a9e6b9da683c693877885b8369b0ffef7603815f67b06e164b1c",
+  "originHash" : "87fe95e2f78532ff39c3fbc5bed6208a50a8bb60807fc004fdcbffd664aa4d28",
   "pins" : [
     {
       "identity" : "alamofire",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Alamofire/Alamofire.git",
       "state" : {
-        "revision" : "f455c2975872ccd2d9c81594c658af65716e9b9a",
-        "version" : "5.9.1"
+        "revision" : "513364f870f6bfc468f9d2ff0a95caccc10044c5",
+        "version" : "5.10.2"
       }
     },
     {
@@ -44,6 +44,15 @@
       "state" : {
         "revision" : "10985d1a5dcaf57450540b867ad3d12380075bd2",
         "version" : "1.0.11"
+      }
+    },
+    {
+      "identity" : "schedule",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/luoxiu/Schedule",
+      "state" : {
+        "revision" : "e388fcab1d870f32c0359a414fda81b8e81b98c9",
+        "version" : "2.1.1"
       }
     },
     {

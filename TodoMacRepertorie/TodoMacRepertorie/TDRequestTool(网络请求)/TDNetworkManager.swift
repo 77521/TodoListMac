@@ -23,7 +23,7 @@ class TDNetworkManager {
     enum StatusCode: Int {
         case success = 0
         case unregistered = 204
-        case tokenExpired = 401
+        case tokenExpired = 100
         case serverError = 500
         case parameterError = 400
         case forbidden = 403
@@ -162,33 +162,60 @@ class TDNetworkManager {
                         #if DEBUG
                         print("原始 JSON: \(jsonString)")
                         #endif
-                        
-                        // 检查空数据情况
-                        if jsonString.contains("\"data\":null") ||
-                            jsonString.contains("\"data\":{}") {
-                            completion(.success([]))
-                            return
-                        }
-                        
                         // 直接解析为正确的结构
                         guard let baseResponse = TDBaseResponse<TDListData<T>>.deserialize(from: jsonString) else {
                             completion(.failure(.parseError))
                             return
                         }
+                       
+                        
+                        
                         
                         #if DEBUG
                         print("解析后的数据: \(baseResponse)")
                         #endif
                         
-                        // 检查业务状态
-                        if baseResponse.ret && baseResponse.code == 0 {
-                            if baseResponse.data == nil {
-                                completion(.success([]))
+                        // 处理状态码
+                        switch StatusCode(rawValue: baseResponse.code) {
+                        case .success:
+                            // 处理空数据的情况
+                            if baseResponse.ret {
+                                if T.self == TDEmptyResponse.self {
+                                    // 如果是 EmptyResponse 类型，直接返回成功
+                                    completion(.success([]))
+                                } else if jsonString.contains("\"data\":null") ||
+                                            jsonString.contains("\"data\":{}") ||
+                                            baseResponse.data == nil {
+                                    // 数据为空的情况
+                                    completion(.success([]))
+                                } else {
+                                    // 有数据的情况
+                                    let list = baseResponse.data?.list ?? []
+                                    completion(.success(list))
+                                }
                             } else {
-                                let list = baseResponse.data?.list ?? []
-                                completion(.success(list))
+                                completion(.failure(.server(baseResponse.msg)))
                             }
-                        } else {
+                        case .unregistered:
+                            completion(.failure(.unregistered))
+                            
+                        case .tokenExpired:
+                            self.handleTokenExpired()
+                            completion(.failure(.tokenExpired))
+                            
+                        case .parameterError:
+                            completion(.failure(.parameterError))
+                            
+                        case .forbidden:
+                            completion(.failure(.server("无权访问")))
+                            
+                        case .notFound:
+                            completion(.failure(.server("接口不存在")))
+                            
+                        case .serverError:
+                            completion(.failure(.server("服务器内部错误")))
+                            
+                        default:
                             completion(.failure(.server(baseResponse.msg)))
                         }
                         
@@ -202,18 +229,6 @@ class TDNetworkManager {
             }
         
         return request
-        // 直接使用 request 方法，它内部会调用 handleResponse
-//            return request(path, method: method, parameters: parameters) { (result: Result<TDListResponse<T>?, TDNetworkError>) in
-//                switch result {
-//                case .success(let response):
-//                    // 从 response 中提取列表数据
-//                    let list = response?.data?.list ?? []
-//                    completion(.success(list))
-//                    
-//                case .failure(let error):
-//                    completion(.failure(error))
-//                }
-//            }
     }
     // MARK: - 响应处理
     private func handleResponse<T: HandyJSON>(_ response: AFDataResponse<Data>,

@@ -15,9 +15,8 @@ struct TDSliderBarView: View {
     @State private var showingEditCategorySheet = false
     
     var body: some View {
-        TDUserInfoView()
-            .frame(height: 30)
-
+//        TDUserInfoView()
+//            .frame(height: 30)
         List {
             // 同步状态
             HStack {

@@ -52,30 +52,17 @@ struct TDDetailToobarDateView: View {
                 .foregroundStyle(.white)
             }
             .buttonStyle(.borderless)
-            .popover(
-                
-                            isPresented: $showCalendarPopover,
-                            attachmentAnchor: .point(.bottom),
-                            arrowEdge: .top
-                                    ) {
+            .popover(isPresented: $showCalendarPopover) {
                 TDCalendarPopView(
-                    selectedDate: $viewModel.selectedDate,  // 使用当前选中的日期
                     isPresented: $showCalendarPopover,
-                    initialDate: viewModel.selectedDate,    // 添加这一行，传入初始日期
-                    
-                    configuration: TDCalendarPopView.TDCalendarConfiguration(
-                        showLunar: true,
-                        showFestival: true,
-                        showWeekend: true,
-                        firstWeekday: 2,  // 1 = 周日, 2 = 周一
-                        monthDisplayFormat: "yyyy年 MM月",
-                        theme: .default
-                    )
-                )
-                .frame(width: 300) // 只指定宽度，让高度自适应
-                .transition(.opacity)
-
+                    selectedDate: viewModel.selectedDate
+                ) { date in
+                    viewModel.selectedDate = date
+                    // 在这里处理日期选择
+                    print("选择的日期：\(date)")
+                }
             }
+
 
             
             Spacer()

@@ -106,15 +106,15 @@ struct TodoMacRepertorieApp: App {
             Group {
                 if userManager.isLoggedIn {
                     TDMainView()
-                        .frame(minWidth: 800, minHeight: 600)
-                        .navigationTitle("")
-                        .task {
-                            // 应用启动时开始加载数据
-//                            await TDCalendarDataManager.shared.initialize()
-                        }
+                        .frame(minWidth: 1050, minHeight: 700)
+                        .customWindow(
+                            title: "主页",
+                            isResizable: true,
+                            showTitleBar: false
+                        )
 
 //                        .customWindow(
-//                            title: "应用名称",
+//                            title: "",
 //                            isResizable: true,
 //                            showTitleBar: true
 //                        )
@@ -132,7 +132,7 @@ struct TodoMacRepertorieApp: App {
                 }
             }
         }
-//        .windowStyle(.hiddenTitleBar) // 默认隐藏标题栏
+        .windowStyle(.hiddenTitleBar) // 默认隐藏标题栏
         .windowResizability(.contentSize) // 默认允许调整大小
     }
 }

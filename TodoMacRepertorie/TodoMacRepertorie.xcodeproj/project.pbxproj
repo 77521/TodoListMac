@@ -36,7 +36,6 @@
 		1862A65F2C465531000ECBAE /* SettingDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1862A65E2C465531000ECBAE /* SettingDataManager.swift */; };
 		1862A6652C465B85000ECBAE /* Color-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1862A6642C465B85000ECBAE /* Color-Extension.swift */; };
 		1862A6672C4669FA000ECBAE /* DynamicColor in Frameworks */ = {isa = PBXBuildFile; productRef = 1862A6662C4669FA000ECBAE /* DynamicColor */; };
-		186B06A52C91852B0097DD97 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 186B06A42C91852B0097DD97 /* Alamofire */; };
 		18859B212C0877A300783F61 /* TodoMacRepertorieApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18859B202C0877A300783F61 /* TodoMacRepertorieApp.swift */; };
 		18859B232C0877A300783F61 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18859B222C0877A300783F61 /* ContentView.swift */; };
 		18859B252C0877A300783F61 /* Item.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18859B242C0877A300783F61 /* Item.swift */; };
@@ -53,19 +52,30 @@
 		189691332CEDC66B00191EAE /* TDDetailToobarModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 189691322CEDC66B00191EAE /* TDDetailToobarModel.swift */; };
 		189691352CEDCAEC00191EAE /* TDDetailToobarDateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 189691342CEDCAEC00191EAE /* TDDetailToobarDateView.swift */; };
 		189691382CEDD66400191EAE /* TDCalendarPopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 189691372CEDD66400191EAE /* TDCalendarPopView.swift */; };
-		1896913A2CEDD6FC00191EAE /* TDFestivalData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 189691392CEDD6FC00191EAE /* TDFestivalData.swift */; };
 		1896913D2CEDDE2600191EAE /* LunarSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 1896913C2CEDDE2600191EAE /* LunarSwift */; };
-		1896913F2CEEC85700191EAE /* TDCalendarManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1896913E2CEEC85700191EAE /* TDCalendarManager.swift */; };
-		189691412CF6FCC200191EAE /* TDCalendarCacheManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 189691402CF6FCC200191EAE /* TDCalendarCacheManager.swift */; };
-		189691432CF6FE0100191EAE /* TDCalendarDay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 189691422CF6FE0000191EAE /* TDCalendarDay.swift */; };
-		189691452CF6FF2100191EAE /* TDCalendarDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 189691442CF6FF2100191EAE /* TDCalendarDataManager.swift */; };
 		189691472CF705CC00191EAE /* Logger-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 189691462CF705CC00191EAE /* Logger-Extension.swift */; };
 		189691492CF7063E00191EAE /* Date-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 189691482CF7063E00191EAE /* Date-Extension.swift */; };
 		1896914B2CF70C6C00191EAE /* Lunar-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1896914A2CF70C6C00191EAE /* Lunar-Extension.swift */; };
-		1896914D2CF71BD000191EAE /* TDCalendarViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1896914C2CF71BD000191EAE /* TDCalendarViewModel.swift */; };
 		18A3374D2CA8EC3700430B67 /* AlertToast in Frameworks */ = {isa = PBXBuildFile; productRef = 18A3374C2CA8EC3700430B67 /* AlertToast */; };
 		18A337502CA900C200430B67 /* HandyJSON in Frameworks */ = {isa = PBXBuildFile; productRef = 18A3374F2CA900C200430B67 /* HandyJSON */; };
 		18A337522CA9470200430B67 /* TDJsonModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18A337512CA9470200430B67 /* TDJsonModel.swift */; };
+		AF0F37DD2D07D598001A2CAB /* Schedule in Frameworks */ = {isa = PBXBuildFile; productRef = AF0F37DC2D07D598001A2CAB /* Schedule */; };
+		AF0F37DF2D083891001A2CAB /* TDCalendarDayCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF0F37DE2D083891001A2CAB /* TDCalendarDayCell.swift */; };
+		AF7061772CFD8F0600C3A5B4 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = AF7061762CFD8F0600C3A5B4 /* Alamofire */; };
+		AF7061792CFDA95300C3A5B4 /* TDCalendarDate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF7061782CFDA95300C3A5B4 /* TDCalendarDate.swift */; };
+		AF70617B2CFDAE2200C3A5B4 /* TDCalendarConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF70617A2CFDAE2200C3A5B4 /* TDCalendarConfig.swift */; };
+		AF70617D2CFDAE5400C3A5B4 /* TDCalendarState.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF70617C2CFDAE5400C3A5B4 /* TDCalendarState.swift */; };
+		AF70617F2CFDB02A00C3A5B4 /* TDCalendarHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF70617E2CFDB02A00C3A5B4 /* TDCalendarHeaderView.swift */; };
+		AFE9F58F2D13BF9F004C923C /* TDMacSwiftDataListModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFE9F58E2D13BF9F004C923C /* TDMacSwiftDataListModel.swift */; };
+		AFE9F5912D1963B5004C923C /* TDMacHandyJsonListModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFE9F5902D1963B5004C923C /* TDMacHandyJsonListModel.swift */; };
+		AFE9F5932D196EB4004C923C /* TDMacTaskService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFE9F5922D196EB4004C923C /* TDMacTaskService.swift */; };
+		AFE9F5952D197255004C923C /* TDMacListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFE9F5942D197255004C923C /* TDMacListViewModel.swift */; };
+		AFE9F5972D1A95ED004C923C /* TDMacTaskGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFE9F5962D1A95ED004C923C /* TDMacTaskGroup.swift */; };
+		AFE9F5992D1BA21B004C923C /* TDGetCurrentVersionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFE9F5982D1BA21B004C923C /* TDGetCurrentVersionModel.swift */; };
+		AFE9F59B2D1D0CBA004C923C /* TDCalendarService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFE9F59A2D1D0CBA004C923C /* TDCalendarService.swift */; };
+		AFEAE6C12D1E50ED00E69D44 /* TDModelContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFEAE6C02D1E50ED00E69D44 /* TDModelContainer.swift */; };
+		AFEAE6C32D1E5F3600E69D44 /* TDTaskAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFEAE6C22D1E5F3600E69D44 /* TDTaskAPI.swift */; };
+		AFEAE6C52D1E780F00E69D44 /* TDUserSyncManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFEAE6C42D1E780F00E69D44 /* TDUserSyncManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -134,16 +144,25 @@
 		189691322CEDC66B00191EAE /* TDDetailToobarModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDDetailToobarModel.swift; sourceTree = "<group>"; };
 		189691342CEDCAEC00191EAE /* TDDetailToobarDateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDDetailToobarDateView.swift; sourceTree = "<group>"; };
 		189691372CEDD66400191EAE /* TDCalendarPopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDCalendarPopView.swift; sourceTree = "<group>"; };
-		189691392CEDD6FC00191EAE /* TDFestivalData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDFestivalData.swift; sourceTree = "<group>"; };
-		1896913E2CEEC85700191EAE /* TDCalendarManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDCalendarManager.swift; sourceTree = "<group>"; };
-		189691402CF6FCC200191EAE /* TDCalendarCacheManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDCalendarCacheManager.swift; sourceTree = "<group>"; };
-		189691422CF6FE0000191EAE /* TDCalendarDay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDCalendarDay.swift; sourceTree = "<group>"; };
-		189691442CF6FF2100191EAE /* TDCalendarDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDCalendarDataManager.swift; sourceTree = "<group>"; };
 		189691462CF705CC00191EAE /* Logger-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Logger-Extension.swift"; sourceTree = "<group>"; };
 		189691482CF7063E00191EAE /* Date-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date-Extension.swift"; sourceTree = "<group>"; };
 		1896914A2CF70C6C00191EAE /* Lunar-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Lunar-Extension.swift"; sourceTree = "<group>"; };
-		1896914C2CF71BD000191EAE /* TDCalendarViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDCalendarViewModel.swift; sourceTree = "<group>"; };
 		18A337512CA9470200430B67 /* TDJsonModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDJsonModel.swift; sourceTree = "<group>"; };
+		AF0F37DE2D083891001A2CAB /* TDCalendarDayCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDCalendarDayCell.swift; sourceTree = "<group>"; };
+		AF7061782CFDA95300C3A5B4 /* TDCalendarDate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDCalendarDate.swift; sourceTree = "<group>"; };
+		AF70617A2CFDAE2200C3A5B4 /* TDCalendarConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDCalendarConfig.swift; sourceTree = "<group>"; };
+		AF70617C2CFDAE5400C3A5B4 /* TDCalendarState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDCalendarState.swift; sourceTree = "<group>"; };
+		AF70617E2CFDB02A00C3A5B4 /* TDCalendarHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDCalendarHeaderView.swift; sourceTree = "<group>"; };
+		AFE9F58E2D13BF9F004C923C /* TDMacSwiftDataListModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDMacSwiftDataListModel.swift; sourceTree = "<group>"; };
+		AFE9F5902D1963B5004C923C /* TDMacHandyJsonListModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDMacHandyJsonListModel.swift; sourceTree = "<group>"; };
+		AFE9F5922D196EB4004C923C /* TDMacTaskService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDMacTaskService.swift; sourceTree = "<group>"; };
+		AFE9F5942D197255004C923C /* TDMacListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDMacListViewModel.swift; sourceTree = "<group>"; };
+		AFE9F5962D1A95ED004C923C /* TDMacTaskGroup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDMacTaskGroup.swift; sourceTree = "<group>"; };
+		AFE9F5982D1BA21B004C923C /* TDGetCurrentVersionModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDGetCurrentVersionModel.swift; sourceTree = "<group>"; };
+		AFE9F59A2D1D0CBA004C923C /* TDCalendarService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDCalendarService.swift; sourceTree = "<group>"; };
+		AFEAE6C02D1E50ED00E69D44 /* TDModelContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDModelContainer.swift; sourceTree = "<group>"; };
+		AFEAE6C22D1E5F3600E69D44 /* TDTaskAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDTaskAPI.swift; sourceTree = "<group>"; };
+		AFEAE6C42D1E780F00E69D44 /* TDUserSyncManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDUserSyncManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -151,10 +170,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AF0F37DD2D07D598001A2CAB /* Schedule in Frameworks */,
 				18A3374D2CA8EC3700430B67 /* AlertToast in Frameworks */,
 				1862A6672C4669FA000ECBAE /* DynamicColor in Frameworks */,
 				1808AC882CD8C7BE0032485F /* SwiftDate in Frameworks */,
-				186B06A52C91852B0097DD97 /* Alamofire in Frameworks */,
+				AF7061772CFD8F0600C3A5B4 /* Alamofire in Frameworks */,
 				18A337502CA900C200430B67 /* HandyJSON in Frameworks */,
 				1896913D2CEDDE2600191EAE /* LunarSwift in Frameworks */,
 			);
@@ -182,6 +202,7 @@
 			children = (
 				189691362CEDCBC700191EAE /* view */,
 				1896912F2CEDC42500191EAE /* model */,
+				AFE9F58D2D13BEA4004C923C /* viewmodel */,
 			);
 			path = "中间列表";
 			sourceTree = "<group>";
@@ -209,7 +230,10 @@
 				1808ACD02CDA27B80032485F /* TDUserModel.swift */,
 				1808ACDC2CDB5D3D0032485F /* TDDeviceManager.swift */,
 				1808ACD22CDB0C6F0032485F /* TDKeychainManager.swift */,
+				AFEAE6C42D1E780F00E69D44 /* TDUserSyncManager.swift */,
 				189691292CEAE50700191EAE /* TDAvatarManager.swift */,
+				AFE9F59A2D1D0CBA004C923C /* TDCalendarService.swift */,
+				AFEAE6C02D1E50ED00E69D44 /* TDModelContainer.swift */,
 			);
 			path = "Unit(共用内容)";
 			sourceTree = "<group>";
@@ -350,12 +374,9 @@
 			children = (
 				189691302CEDC44900191EAE /* TDDetailDateModel.swift */,
 				189691322CEDC66B00191EAE /* TDDetailToobarModel.swift */,
-				189691392CEDD6FC00191EAE /* TDFestivalData.swift */,
-				1896913E2CEEC85700191EAE /* TDCalendarManager.swift */,
-				189691402CF6FCC200191EAE /* TDCalendarCacheManager.swift */,
-				189691422CF6FE0000191EAE /* TDCalendarDay.swift */,
-				189691442CF6FF2100191EAE /* TDCalendarDataManager.swift */,
-				1896914C2CF71BD000191EAE /* TDCalendarViewModel.swift */,
+				AF7061782CFDA95300C3A5B4 /* TDCalendarDate.swift */,
+				AF70617A2CFDAE2200C3A5B4 /* TDCalendarConfig.swift */,
+				AF70617C2CFDAE5400C3A5B4 /* TDCalendarState.swift */,
 			);
 			path = model;
 			sourceTree = "<group>";
@@ -366,6 +387,8 @@
 				189691272CE5E6D200191EAE /* TDDetailListView.swift */,
 				189691342CEDCAEC00191EAE /* TDDetailToobarDateView.swift */,
 				189691372CEDD66400191EAE /* TDCalendarPopView.swift */,
+				AF70617E2CFDB02A00C3A5B4 /* TDCalendarHeaderView.swift */,
+				AF0F37DE2D083891001A2CAB /* TDCalendarDayCell.swift */,
 			);
 			path = view;
 			sourceTree = "<group>";
@@ -375,6 +398,20 @@
 			children = (
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		AFE9F58D2D13BEA4004C923C /* viewmodel */ = {
+			isa = PBXGroup;
+			children = (
+				AFE9F58E2D13BF9F004C923C /* TDMacSwiftDataListModel.swift */,
+				AFE9F5902D1963B5004C923C /* TDMacHandyJsonListModel.swift */,
+				AFE9F5942D197255004C923C /* TDMacListViewModel.swift */,
+				AFE9F5962D1A95ED004C923C /* TDMacTaskGroup.swift */,
+				AFE9F5982D1BA21B004C923C /* TDGetCurrentVersionModel.swift */,
+				AFEAE6C22D1E5F3600E69D44 /* TDTaskAPI.swift */,
+				AFE9F5922D196EB4004C923C /* TDMacTaskService.swift */,
+			);
+			path = viewmodel;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -395,11 +432,12 @@
 			name = TodoMacRepertorie;
 			packageProductDependencies = (
 				1862A6662C4669FA000ECBAE /* DynamicColor */,
-				186B06A42C91852B0097DD97 /* Alamofire */,
 				18A3374C2CA8EC3700430B67 /* AlertToast */,
 				18A3374F2CA900C200430B67 /* HandyJSON */,
 				1808AC872CD8C7BE0032485F /* SwiftDate */,
 				1896913C2CEDDE2600191EAE /* LunarSwift */,
+				AF7061762CFD8F0600C3A5B4 /* Alamofire */,
+				AF0F37DC2D07D598001A2CAB /* Schedule */,
 			);
 			productName = TodoMacRepertorie;
 			productReference = 18859B1D2C0877A300783F61 /* TodoMacRepertorie.app */;
@@ -475,11 +513,12 @@
 			mainGroup = 18859B142C0877A300783F61;
 			packageReferences = (
 				1862A6612C465A8E000ECBAE /* XCRemoteSwiftPackageReference "DynamicColor" */,
-				186B06A32C91852B0097DD97 /* XCRemoteSwiftPackageReference "Alamofire" */,
 				18A3374B2CA8EC3700430B67 /* XCRemoteSwiftPackageReference "AlertToast" */,
 				18A3374E2CA900C200430B67 /* XCRemoteSwiftPackageReference "HandyJSON" */,
 				1808AC862CD8C7BE0032485F /* XCRemoteSwiftPackageReference "SwiftDate" */,
 				1896913B2CEDDE2600191EAE /* XCRemoteSwiftPackageReference "lunar-swift" */,
+				AF7061752CFD8F0600C3A5B4 /* XCRemoteSwiftPackageReference "Alamofire" */,
+				AF0F37DB2D07D598001A2CAB /* XCRemoteSwiftPackageReference "Schedule" */,
 			);
 			productRefGroup = 18859B1E2C0877A300783F61 /* Products */;
 			projectDirPath = "";
@@ -525,13 +564,18 @@
 			files = (
 				1808ACCD2CDA24BC0032485F /* TDUserManager.swift in Sources */,
 				18859B232C0877A300783F61 /* ContentView.swift in Sources */,
+				AF0F37DF2D083891001A2CAB /* TDCalendarDayCell.swift in Sources */,
+				AF70617D2CFDAE5400C3A5B4 /* TDCalendarState.swift in Sources */,
 				1862A6652C465B85000ECBAE /* Color-Extension.swift in Sources */,
 				1808ACC92CDA21C60032485F /* TDLoginView.swift in Sources */,
 				189691332CEDC66B00191EAE /* TDDetailToobarModel.swift in Sources */,
 				189691492CF7063E00191EAE /* Date-Extension.swift in Sources */,
-				1896913F2CEEC85700191EAE /* TDCalendarManager.swift in Sources */,
+				AFE9F5952D197255004C923C /* TDMacListViewModel.swift in Sources */,
+				AF7061792CFDA95300C3A5B4 /* TDCalendarDate.swift in Sources */,
 				1808ACF62CE4FAB60032485F /* TDSliderBarView.swift in Sources */,
 				185C3F5B2C4F915B00FDDC39 /* LoginRuleView.swift in Sources */,
+				AFE9F5972D1A95ED004C923C /* TDMacTaskGroup.swift in Sources */,
+				AFE9F59B2D1D0CBA004C923C /* TDCalendarService.swift in Sources */,
 				1808ACDB2CDB57300032485F /* Notification-Extension.swift in Sources */,
 				1808ACF02CE4D68E0032485F /* TDSliderBarModel.swift in Sources */,
 				189691312CEDC44900191EAE /* TDDetailDateModel.swift in Sources */,
@@ -541,36 +585,40 @@
 				18859B252C0877A300783F61 /* Item.swift in Sources */,
 				1896912E2CEB193000191EAE /* TDUserInfoView.swift in Sources */,
 				1808ACC42CDA0AD10032485F /* TDThemeManager.swift in Sources */,
-				1896914D2CF71BD000191EAE /* TDCalendarViewModel.swift in Sources */,
 				189691352CEDCAEC00191EAE /* TDDetailToobarDateView.swift in Sources */,
 				1808ACE32CDB748D0032485F /* View-Extension.swift in Sources */,
 				185C3F5D2C4F91A100FDDC39 /* TDBridTextField.swift in Sources */,
+				AFE9F5992D1BA21B004C923C /* TDGetCurrentVersionModel.swift in Sources */,
 				189691472CF705CC00191EAE /* Logger-Extension.swift in Sources */,
 				1808ACCB2CDA21CF0032485F /* TDMainView.swift in Sources */,
-				1896913A2CEDD6FC00191EAE /* TDFestivalData.swift in Sources */,
 				1808ACD12CDA27B80032485F /* TDUserModel.swift in Sources */,
 				1862A65F2C465531000ECBAE /* SettingDataManager.swift in Sources */,
+				AFEAE6C32D1E5F3600E69D44 /* TDTaskAPI.swift in Sources */,
 				18859B212C0877A300783F61 /* TodoMacRepertorieApp.swift in Sources */,
-				189691452CF6FF2100191EAE /* TDCalendarDataManager.swift in Sources */,
 				189691282CE5E6D200191EAE /* TDDetailListView.swift in Sources */,
 				1827EC0C2CB633EF00A30813 /* TDLeftListView.swift in Sources */,
 				1896912C2CEB186300191EAE /* TDHeaderImageView.swift in Sources */,
+				AF70617B2CFDAE2200C3A5B4 /* TDCalendarConfig.swift in Sources */,
 				18A337522CA9470200430B67 /* TDJsonModel.swift in Sources */,
 				1862A6252C3CDE51000ECBAE /* TodoEventDetails.swift in Sources */,
+				AFE9F5932D196EB4004C923C /* TDMacTaskService.swift in Sources */,
+				AFEAE6C12D1E50ED00E69D44 /* TDModelContainer.swift in Sources */,
 				1808ACCF2CDA25350032485F /* TDNetworkManager.swift in Sources */,
 				1808ACD32CDB0C6F0032485F /* TDKeychainManager.swift in Sources */,
-				189691412CF6FCC200191EAE /* TDCalendarCacheManager.swift in Sources */,
 				1808ACF42CE4F0F50032485F /* TDCategoryAPI.swift in Sources */,
+				AFE9F58F2D13BF9F004C923C /* TDMacSwiftDataListModel.swift in Sources */,
 				1808ACDF2CDB5D6C0032485F /* String-Extension.swift in Sources */,
 				1808ACF82CE4FB3B0032485F /* TDCategoryRowView.swift in Sources */,
 				1808ACF22CE4EFE70032485F /* TDCategoryManager.swift in Sources */,
 				1808ACFD2CE4FC920032485F /* TDTagGroupHeaderView.swift in Sources */,
 				1896912A2CEAE50700191EAE /* TDAvatarManager.swift in Sources */,
 				189691382CEDD66400191EAE /* TDCalendarPopView.swift in Sources */,
-				189691432CF6FE0100191EAE /* TDCalendarDay.swift in Sources */,
+				AFE9F5912D1963B5004C923C /* TDMacHandyJsonListModel.swift in Sources */,
 				1808ACC62CDA0D2D0032485F /* TDSettingManager.swift in Sources */,
 				1808ACFB2CE4FC000032485F /* TDCategoryGroupHeaderView.swift in Sources */,
+				AFEAE6C52D1E780F00E69D44 /* TDUserSyncManager.swift in Sources */,
 				1896914B2CF70C6C00191EAE /* Lunar-Extension.swift in Sources */,
+				AF70617F2CFDB02A00C3A5B4 /* TDCalendarHeaderView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -733,7 +781,7 @@
 				CODE_SIGN_ENTITLEMENTS = TodoMacRepertorie/TodoMacRepertorie.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"TodoMacRepertorie/Preview Content\"";
 				DEVELOPMENT_TEAM = ARQ4QZ8Q3D;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -746,7 +794,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.5;
+				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.Mac.Todolist.TodoMacRepertorie;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -762,7 +810,7 @@
 				CODE_SIGN_ENTITLEMENTS = TodoMacRepertorie/TodoMacRepertorie.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"TodoMacRepertorie/Preview Content\"";
 				DEVELOPMENT_TEAM = ARQ4QZ8Q3D;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -775,7 +823,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.5;
+				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.Mac.Todolist.TodoMacRepertorie;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -913,14 +961,6 @@
 				minimumVersion = 5.0.1;
 			};
 		};
-		186B06A32C91852B0097DD97 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/Alamofire/Alamofire.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 5.9.1;
-			};
-		};
 		1896913B2CEDDE2600191EAE /* XCRemoteSwiftPackageReference "lunar-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/6tail/lunar-swift.git";
@@ -945,6 +985,22 @@
 				minimumVersion = 5.0.2;
 			};
 		};
+		AF0F37DB2D07D598001A2CAB /* XCRemoteSwiftPackageReference "Schedule" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/luoxiu/Schedule";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.1.1;
+			};
+		};
+		AF7061752CFD8F0600C3A5B4 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Alamofire/Alamofire.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.10.2;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -957,11 +1013,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 1862A6612C465A8E000ECBAE /* XCRemoteSwiftPackageReference "DynamicColor" */;
 			productName = DynamicColor;
-		};
-		186B06A42C91852B0097DD97 /* Alamofire */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 186B06A32C91852B0097DD97 /* XCRemoteSwiftPackageReference "Alamofire" */;
-			productName = Alamofire;
 		};
 		1896913C2CEDDE2600191EAE /* LunarSwift */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -977,6 +1028,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 18A3374E2CA900C200430B67 /* XCRemoteSwiftPackageReference "HandyJSON" */;
 			productName = HandyJSON;
+		};
+		AF0F37DC2D07D598001A2CAB /* Schedule */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AF0F37DB2D07D598001A2CAB /* XCRemoteSwiftPackageReference "Schedule" */;
+			productName = Schedule;
+		};
+		AF7061762CFD8F0600C3A5B4 /* Alamofire */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AF7061752CFD8F0600C3A5B4 /* XCRemoteSwiftPackageReference "Alamofire" */;
+			productName = Alamofire;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

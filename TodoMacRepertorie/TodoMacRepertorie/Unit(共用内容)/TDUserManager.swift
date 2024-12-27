@@ -29,6 +29,14 @@ class TDUserManager: ObservableObject {
            let user = TDUserModel.deserialize(from: jsonString) {
             self.currentUser = user
             self.isLoggedIn = true
+            
+            // 检查是否是首次同步
+            if let userId = user.userId {
+                if TDUserSyncManager.shared.isFirstSync(userId: userId) {
+                    // 如果是首次同步，将在同步时处理
+                    print("用户 \(userId) 需要首次同步")
+                }
+            }
         }
     }
     
@@ -87,6 +95,10 @@ class TDUserManager: ObservableObject {
     /// 退出登录清空数据
     func clearUser() {
         // 清除内存中的用户信息
+        // 清除同步状态
+        TDUserSyncManager.shared.clearAllSyncStatus()
+        
+
         currentUser = nil
         isLoggedIn = false
         // 清除钥匙串
