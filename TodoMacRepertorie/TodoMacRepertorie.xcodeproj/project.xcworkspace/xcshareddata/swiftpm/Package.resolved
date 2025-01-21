@@ -1,5 +1,5 @@
 {
-  "originHash" : "87fe95e2f78532ff39c3fbc5bed6208a50a8bb60807fc004fdcbffd664aa4d28",
+  "originHash" : "7f518ba0c1b8eb977e21b8f4eb093e2c048e8b6451eb6f4326f39f62a075202a",
   "pins" : [
     {
       "identity" : "alamofire",
@@ -35,15 +35,6 @@
       "state" : {
         "revision" : "dcf39cf062680ffa4fd0acb7f9117a97755c113f",
         "version" : "5.0.2"
-      }
-    },
-    {
-      "identity" : "lunar-swift",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/6tail/lunar-swift.git",
-      "state" : {
-        "revision" : "10985d1a5dcaf57450540b867ad3d12380075bd2",
-        "version" : "1.0.11"
       }
     },
     {

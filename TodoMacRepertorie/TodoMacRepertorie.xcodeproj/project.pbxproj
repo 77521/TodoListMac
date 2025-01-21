@@ -3,552 +3,151 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 56;
+	objectVersion = 77;
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1808AC882CD8C7BE0032485F /* SwiftDate in Frameworks */ = {isa = PBXBuildFile; productRef = 1808AC872CD8C7BE0032485F /* SwiftDate */; };
-		1808ACC42CDA0AD10032485F /* TDThemeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1808ACC32CDA0AD10032485F /* TDThemeManager.swift */; };
-		1808ACC62CDA0D2D0032485F /* TDSettingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1808ACC52CDA0D2D0032485F /* TDSettingManager.swift */; };
-		1808ACC92CDA21C60032485F /* TDLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1808ACC82CDA21C60032485F /* TDLoginView.swift */; };
-		1808ACCB2CDA21CF0032485F /* TDMainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1808ACCA2CDA21CF0032485F /* TDMainView.swift */; };
-		1808ACCD2CDA24BC0032485F /* TDUserManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1808ACCC2CDA24BC0032485F /* TDUserManager.swift */; };
-		1808ACCF2CDA25350032485F /* TDNetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1808ACCE2CDA25350032485F /* TDNetworkManager.swift */; };
-		1808ACD12CDA27B80032485F /* TDUserModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1808ACD02CDA27B80032485F /* TDUserModel.swift */; };
-		1808ACD32CDB0C6F0032485F /* TDKeychainManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1808ACD22CDB0C6F0032485F /* TDKeychainManager.swift */; };
-		1808ACD52CDB0E220032485F /* TDLoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1808ACD42CDB0E220032485F /* TDLoginViewModel.swift */; };
-		1808ACD92CDB51BD0032485F /* TDLoginAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1808ACD82CDB51BD0032485F /* TDLoginAPI.swift */; };
-		1808ACDB2CDB57300032485F /* Notification-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1808ACDA2CDB57300032485F /* Notification-Extension.swift */; };
-		1808ACDD2CDB5D3D0032485F /* TDDeviceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1808ACDC2CDB5D3D0032485F /* TDDeviceManager.swift */; };
-		1808ACDF2CDB5D6C0032485F /* String-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1808ACDE2CDB5D6C0032485F /* String-Extension.swift */; };
-		1808ACE32CDB748D0032485F /* View-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1808ACE22CDB748D0032485F /* View-Extension.swift */; };
-		1808ACF02CE4D68E0032485F /* TDSliderBarModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1808ACEF2CE4D68E0032485F /* TDSliderBarModel.swift */; };
-		1808ACF22CE4EFE70032485F /* TDCategoryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1808ACF12CE4EFE70032485F /* TDCategoryManager.swift */; };
-		1808ACF42CE4F0F50032485F /* TDCategoryAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1808ACF32CE4F0F50032485F /* TDCategoryAPI.swift */; };
-		1808ACF62CE4FAB60032485F /* TDSliderBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1808ACF52CE4FAB60032485F /* TDSliderBarView.swift */; };
-		1808ACF82CE4FB3B0032485F /* TDCategoryRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1808ACF72CE4FB3B0032485F /* TDCategoryRowView.swift */; };
-		1808ACFB2CE4FC000032485F /* TDCategoryGroupHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1808ACFA2CE4FC000032485F /* TDCategoryGroupHeaderView.swift */; };
-		1808ACFD2CE4FC920032485F /* TDTagGroupHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1808ACFC2CE4FC920032485F /* TDTagGroupHeaderView.swift */; };
-		1827EC0C2CB633EF00A30813 /* TDLeftListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1827EC0B2CB633EF00A30813 /* TDLeftListView.swift */; };
-		185C3F5B2C4F915B00FDDC39 /* LoginRuleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 185C3F5A2C4F915B00FDDC39 /* LoginRuleView.swift */; };
-		185C3F5D2C4F91A100FDDC39 /* TDBridTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 185C3F5C2C4F91A100FDDC39 /* TDBridTextField.swift */; };
-		1862A6252C3CDE51000ECBAE /* TodoEventDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1862A6242C3CDE51000ECBAE /* TodoEventDetails.swift */; };
-		1862A65F2C465531000ECBAE /* SettingDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1862A65E2C465531000ECBAE /* SettingDataManager.swift */; };
-		1862A6652C465B85000ECBAE /* Color-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1862A6642C465B85000ECBAE /* Color-Extension.swift */; };
-		1862A6672C4669FA000ECBAE /* DynamicColor in Frameworks */ = {isa = PBXBuildFile; productRef = 1862A6662C4669FA000ECBAE /* DynamicColor */; };
-		18859B212C0877A300783F61 /* TodoMacRepertorieApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18859B202C0877A300783F61 /* TodoMacRepertorieApp.swift */; };
-		18859B232C0877A300783F61 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18859B222C0877A300783F61 /* ContentView.swift */; };
-		18859B252C0877A300783F61 /* Item.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18859B242C0877A300783F61 /* Item.swift */; };
-		18859B272C0877A600783F61 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 18859B262C0877A600783F61 /* Assets.xcassets */; };
-		18859B2A2C0877A600783F61 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 18859B292C0877A600783F61 /* Preview Assets.xcassets */; };
-		18859B352C0877A700783F61 /* TodoMacRepertorieTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18859B342C0877A700783F61 /* TodoMacRepertorieTests.swift */; };
-		18859B3F2C0877A700783F61 /* TodoMacRepertorieUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18859B3E2C0877A700783F61 /* TodoMacRepertorieUITests.swift */; };
-		18859B412C0877A700783F61 /* TodoMacRepertorieUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18859B402C0877A700783F61 /* TodoMacRepertorieUITestsLaunchTests.swift */; };
-		189691282CE5E6D200191EAE /* TDDetailListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 189691272CE5E6D200191EAE /* TDDetailListView.swift */; };
-		1896912A2CEAE50700191EAE /* TDAvatarManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 189691292CEAE50700191EAE /* TDAvatarManager.swift */; };
-		1896912C2CEB186300191EAE /* TDHeaderImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1896912B2CEB186300191EAE /* TDHeaderImageView.swift */; };
-		1896912E2CEB193000191EAE /* TDUserInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1896912D2CEB193000191EAE /* TDUserInfoView.swift */; };
-		189691312CEDC44900191EAE /* TDDetailDateModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 189691302CEDC44900191EAE /* TDDetailDateModel.swift */; };
-		189691332CEDC66B00191EAE /* TDDetailToobarModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 189691322CEDC66B00191EAE /* TDDetailToobarModel.swift */; };
-		189691352CEDCAEC00191EAE /* TDDetailToobarDateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 189691342CEDCAEC00191EAE /* TDDetailToobarDateView.swift */; };
-		189691382CEDD66400191EAE /* TDCalendarPopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 189691372CEDD66400191EAE /* TDCalendarPopView.swift */; };
-		1896913D2CEDDE2600191EAE /* LunarSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 1896913C2CEDDE2600191EAE /* LunarSwift */; };
-		189691472CF705CC00191EAE /* Logger-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 189691462CF705CC00191EAE /* Logger-Extension.swift */; };
-		189691492CF7063E00191EAE /* Date-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 189691482CF7063E00191EAE /* Date-Extension.swift */; };
-		1896914B2CF70C6C00191EAE /* Lunar-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1896914A2CF70C6C00191EAE /* Lunar-Extension.swift */; };
-		18A3374D2CA8EC3700430B67 /* AlertToast in Frameworks */ = {isa = PBXBuildFile; productRef = 18A3374C2CA8EC3700430B67 /* AlertToast */; };
-		18A337502CA900C200430B67 /* HandyJSON in Frameworks */ = {isa = PBXBuildFile; productRef = 18A3374F2CA900C200430B67 /* HandyJSON */; };
-		18A337522CA9470200430B67 /* TDJsonModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18A337512CA9470200430B67 /* TDJsonModel.swift */; };
-		AF0F37DD2D07D598001A2CAB /* Schedule in Frameworks */ = {isa = PBXBuildFile; productRef = AF0F37DC2D07D598001A2CAB /* Schedule */; };
-		AF0F37DF2D083891001A2CAB /* TDCalendarDayCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF0F37DE2D083891001A2CAB /* TDCalendarDayCell.swift */; };
-		AF7061772CFD8F0600C3A5B4 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = AF7061762CFD8F0600C3A5B4 /* Alamofire */; };
-		AF7061792CFDA95300C3A5B4 /* TDCalendarDate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF7061782CFDA95300C3A5B4 /* TDCalendarDate.swift */; };
-		AF70617B2CFDAE2200C3A5B4 /* TDCalendarConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF70617A2CFDAE2200C3A5B4 /* TDCalendarConfig.swift */; };
-		AF70617D2CFDAE5400C3A5B4 /* TDCalendarState.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF70617C2CFDAE5400C3A5B4 /* TDCalendarState.swift */; };
-		AF70617F2CFDB02A00C3A5B4 /* TDCalendarHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF70617E2CFDB02A00C3A5B4 /* TDCalendarHeaderView.swift */; };
-		AFE9F58F2D13BF9F004C923C /* TDMacSwiftDataListModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFE9F58E2D13BF9F004C923C /* TDMacSwiftDataListModel.swift */; };
-		AFE9F5912D1963B5004C923C /* TDMacHandyJsonListModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFE9F5902D1963B5004C923C /* TDMacHandyJsonListModel.swift */; };
-		AFE9F5932D196EB4004C923C /* TDMacTaskService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFE9F5922D196EB4004C923C /* TDMacTaskService.swift */; };
-		AFE9F5952D197255004C923C /* TDMacListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFE9F5942D197255004C923C /* TDMacListViewModel.swift */; };
-		AFE9F5972D1A95ED004C923C /* TDMacTaskGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFE9F5962D1A95ED004C923C /* TDMacTaskGroup.swift */; };
-		AFE9F5992D1BA21B004C923C /* TDGetCurrentVersionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFE9F5982D1BA21B004C923C /* TDGetCurrentVersionModel.swift */; };
-		AFE9F59B2D1D0CBA004C923C /* TDCalendarService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFE9F59A2D1D0CBA004C923C /* TDCalendarService.swift */; };
-		AFEAE6C12D1E50ED00E69D44 /* TDModelContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFEAE6C02D1E50ED00E69D44 /* TDModelContainer.swift */; };
-		AFEAE6C32D1E5F3600E69D44 /* TDTaskAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFEAE6C22D1E5F3600E69D44 /* TDTaskAPI.swift */; };
-		AFEAE6C52D1E780F00E69D44 /* TDUserSyncManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFEAE6C42D1E780F00E69D44 /* TDUserSyncManager.swift */; };
+		AF7D0F312D1F96A000F83EB9 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = AF7D0F302D1F96A000F83EB9 /* Alamofire */; };
+		AF7D0F362D1F96B200F83EB9 /* SwiftDate in Frameworks */ = {isa = PBXBuildFile; productRef = AF7D0F352D1F96B200F83EB9 /* SwiftDate */; };
+		AF7D0F392D1F971700F83EB9 /* DynamicColor in Frameworks */ = {isa = PBXBuildFile; productRef = AF7D0F382D1F971700F83EB9 /* DynamicColor */; };
+		AF7D0F3C2D1F99AA00F83EB9 /* HandyJSON in Frameworks */ = {isa = PBXBuildFile; productRef = AF7D0F3B2D1F99AA00F83EB9 /* HandyJSON */; };
+		AF7D0F3F2D1F9D6A00F83EB9 /* Schedule in Frameworks */ = {isa = PBXBuildFile; productRef = AF7D0F3E2D1F9D6A00F83EB9 /* Schedule */; };
+		AF7D0FD32D1FB8F200F83EB9 /* AlertToast in Frameworks */ = {isa = PBXBuildFile; productRef = AF7D0FD22D1FB8F200F83EB9 /* AlertToast */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXContainerItemProxy section */
-		18859B312C0877A700783F61 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 18859B152C0877A300783F61 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 18859B1C2C0877A300783F61;
-			remoteInfo = TodoMacRepertorie;
-		};
-		18859B3B2C0877A700783F61 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 18859B152C0877A300783F61 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 18859B1C2C0877A300783F61;
-			remoteInfo = TodoMacRepertorie;
-		};
-/* End PBXContainerItemProxy section */
-
 /* Begin PBXFileReference section */
-		1808ACC32CDA0AD10032485F /* TDThemeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDThemeManager.swift; sourceTree = "<group>"; };
-		1808ACC52CDA0D2D0032485F /* TDSettingManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDSettingManager.swift; sourceTree = "<group>"; };
-		1808ACC82CDA21C60032485F /* TDLoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDLoginView.swift; sourceTree = "<group>"; };
-		1808ACCA2CDA21CF0032485F /* TDMainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDMainView.swift; sourceTree = "<group>"; };
-		1808ACCC2CDA24BC0032485F /* TDUserManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDUserManager.swift; sourceTree = "<group>"; };
-		1808ACCE2CDA25350032485F /* TDNetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDNetworkManager.swift; sourceTree = "<group>"; };
-		1808ACD02CDA27B80032485F /* TDUserModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDUserModel.swift; sourceTree = "<group>"; };
-		1808ACD22CDB0C6F0032485F /* TDKeychainManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDKeychainManager.swift; sourceTree = "<group>"; };
-		1808ACD42CDB0E220032485F /* TDLoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDLoginViewModel.swift; sourceTree = "<group>"; };
-		1808ACD82CDB51BD0032485F /* TDLoginAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDLoginAPI.swift; sourceTree = "<group>"; };
-		1808ACDA2CDB57300032485F /* Notification-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Notification-Extension.swift"; sourceTree = "<group>"; };
-		1808ACDC2CDB5D3D0032485F /* TDDeviceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDDeviceManager.swift; sourceTree = "<group>"; };
-		1808ACDE2CDB5D6C0032485F /* String-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String-Extension.swift"; sourceTree = "<group>"; };
-		1808ACE22CDB748D0032485F /* View-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View-Extension.swift"; sourceTree = "<group>"; };
-		1808ACEC2CDE1A090032485F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
-		1808ACEF2CE4D68E0032485F /* TDSliderBarModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDSliderBarModel.swift; sourceTree = "<group>"; };
-		1808ACF12CE4EFE70032485F /* TDCategoryManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDCategoryManager.swift; sourceTree = "<group>"; };
-		1808ACF32CE4F0F50032485F /* TDCategoryAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDCategoryAPI.swift; sourceTree = "<group>"; };
-		1808ACF52CE4FAB60032485F /* TDSliderBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDSliderBarView.swift; sourceTree = "<group>"; };
-		1808ACF72CE4FB3B0032485F /* TDCategoryRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDCategoryRowView.swift; sourceTree = "<group>"; };
-		1808ACFA2CE4FC000032485F /* TDCategoryGroupHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDCategoryGroupHeaderView.swift; sourceTree = "<group>"; };
-		1808ACFC2CE4FC920032485F /* TDTagGroupHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDTagGroupHeaderView.swift; sourceTree = "<group>"; };
-		1827EC0B2CB633EF00A30813 /* TDLeftListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDLeftListView.swift; sourceTree = "<group>"; };
-		185C3F5A2C4F915B00FDDC39 /* LoginRuleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginRuleView.swift; sourceTree = "<group>"; };
-		185C3F5C2C4F91A100FDDC39 /* TDBridTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDBridTextField.swift; sourceTree = "<group>"; };
-		1862A6242C3CDE51000ECBAE /* TodoEventDetails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoEventDetails.swift; sourceTree = "<group>"; };
-		1862A65E2C465531000ECBAE /* SettingDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingDataManager.swift; sourceTree = "<group>"; };
-		1862A6642C465B85000ECBAE /* Color-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color-Extension.swift"; sourceTree = "<group>"; };
-		18859B1D2C0877A300783F61 /* TodoMacRepertorie.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TodoMacRepertorie.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		18859B202C0877A300783F61 /* TodoMacRepertorieApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoMacRepertorieApp.swift; sourceTree = "<group>"; };
-		18859B222C0877A300783F61 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		18859B242C0877A300783F61 /* Item.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Item.swift; sourceTree = "<group>"; };
-		18859B262C0877A600783F61 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		18859B292C0877A600783F61 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
-		18859B2B2C0877A600783F61 /* TodoMacRepertorie.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TodoMacRepertorie.entitlements; sourceTree = "<group>"; };
-		18859B302C0877A700783F61 /* TodoMacRepertorieTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TodoMacRepertorieTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		18859B342C0877A700783F61 /* TodoMacRepertorieTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoMacRepertorieTests.swift; sourceTree = "<group>"; };
-		18859B3A2C0877A700783F61 /* TodoMacRepertorieUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TodoMacRepertorieUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		18859B3E2C0877A700783F61 /* TodoMacRepertorieUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoMacRepertorieUITests.swift; sourceTree = "<group>"; };
-		18859B402C0877A700783F61 /* TodoMacRepertorieUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoMacRepertorieUITestsLaunchTests.swift; sourceTree = "<group>"; };
-		189691272CE5E6D200191EAE /* TDDetailListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDDetailListView.swift; sourceTree = "<group>"; };
-		189691292CEAE50700191EAE /* TDAvatarManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDAvatarManager.swift; sourceTree = "<group>"; };
-		1896912B2CEB186300191EAE /* TDHeaderImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDHeaderImageView.swift; sourceTree = "<group>"; };
-		1896912D2CEB193000191EAE /* TDUserInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDUserInfoView.swift; sourceTree = "<group>"; };
-		189691302CEDC44900191EAE /* TDDetailDateModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDDetailDateModel.swift; sourceTree = "<group>"; };
-		189691322CEDC66B00191EAE /* TDDetailToobarModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDDetailToobarModel.swift; sourceTree = "<group>"; };
-		189691342CEDCAEC00191EAE /* TDDetailToobarDateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDDetailToobarDateView.swift; sourceTree = "<group>"; };
-		189691372CEDD66400191EAE /* TDCalendarPopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDCalendarPopView.swift; sourceTree = "<group>"; };
-		189691462CF705CC00191EAE /* Logger-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Logger-Extension.swift"; sourceTree = "<group>"; };
-		189691482CF7063E00191EAE /* Date-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date-Extension.swift"; sourceTree = "<group>"; };
-		1896914A2CF70C6C00191EAE /* Lunar-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Lunar-Extension.swift"; sourceTree = "<group>"; };
-		18A337512CA9470200430B67 /* TDJsonModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDJsonModel.swift; sourceTree = "<group>"; };
-		AF0F37DE2D083891001A2CAB /* TDCalendarDayCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDCalendarDayCell.swift; sourceTree = "<group>"; };
-		AF7061782CFDA95300C3A5B4 /* TDCalendarDate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDCalendarDate.swift; sourceTree = "<group>"; };
-		AF70617A2CFDAE2200C3A5B4 /* TDCalendarConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDCalendarConfig.swift; sourceTree = "<group>"; };
-		AF70617C2CFDAE5400C3A5B4 /* TDCalendarState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDCalendarState.swift; sourceTree = "<group>"; };
-		AF70617E2CFDB02A00C3A5B4 /* TDCalendarHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDCalendarHeaderView.swift; sourceTree = "<group>"; };
-		AFE9F58E2D13BF9F004C923C /* TDMacSwiftDataListModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDMacSwiftDataListModel.swift; sourceTree = "<group>"; };
-		AFE9F5902D1963B5004C923C /* TDMacHandyJsonListModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDMacHandyJsonListModel.swift; sourceTree = "<group>"; };
-		AFE9F5922D196EB4004C923C /* TDMacTaskService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDMacTaskService.swift; sourceTree = "<group>"; };
-		AFE9F5942D197255004C923C /* TDMacListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDMacListViewModel.swift; sourceTree = "<group>"; };
-		AFE9F5962D1A95ED004C923C /* TDMacTaskGroup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDMacTaskGroup.swift; sourceTree = "<group>"; };
-		AFE9F5982D1BA21B004C923C /* TDGetCurrentVersionModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDGetCurrentVersionModel.swift; sourceTree = "<group>"; };
-		AFE9F59A2D1D0CBA004C923C /* TDCalendarService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDCalendarService.swift; sourceTree = "<group>"; };
-		AFEAE6C02D1E50ED00E69D44 /* TDModelContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDModelContainer.swift; sourceTree = "<group>"; };
-		AFEAE6C22D1E5F3600E69D44 /* TDTaskAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDTaskAPI.swift; sourceTree = "<group>"; };
-		AFEAE6C42D1E780F00E69D44 /* TDUserSyncManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDUserSyncManager.swift; sourceTree = "<group>"; };
+		AF7D0F1B2D1EC14D00F83EB9 /* TodoMacRepertorie.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TodoMacRepertorie.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		AF9055CA2D3E37030037A3A7 /* Exceptions for "TodoMacRepertorie" folder in "TodoMacRepertorie" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = AF7D0F1A2D1EC14D00F83EB9 /* TodoMacRepertorie */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		AF7D0F1D2D1EC14D00F83EB9 /* TodoMacRepertorie */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				AF9055CA2D3E37030037A3A7 /* Exceptions for "TodoMacRepertorie" folder in "TodoMacRepertorie" target */,
+			);
+			path = TodoMacRepertorie;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
 /* Begin PBXFrameworksBuildPhase section */
-		18859B1A2C0877A300783F61 /* Frameworks */ = {
+		AF7D0F182D1EC14D00F83EB9 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AF0F37DD2D07D598001A2CAB /* Schedule in Frameworks */,
-				18A3374D2CA8EC3700430B67 /* AlertToast in Frameworks */,
-				1862A6672C4669FA000ECBAE /* DynamicColor in Frameworks */,
-				1808AC882CD8C7BE0032485F /* SwiftDate in Frameworks */,
-				AF7061772CFD8F0600C3A5B4 /* Alamofire in Frameworks */,
-				18A337502CA900C200430B67 /* HandyJSON in Frameworks */,
-				1896913D2CEDDE2600191EAE /* LunarSwift in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		18859B2D2C0877A700783F61 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		18859B372C0877A700783F61 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
+				AF7D0F392D1F971700F83EB9 /* DynamicColor in Frameworks */,
+				AF7D0F3F2D1F9D6A00F83EB9 /* Schedule in Frameworks */,
+				AF7D0F312D1F96A000F83EB9 /* Alamofire in Frameworks */,
+				AF7D0FD32D1FB8F200F83EB9 /* AlertToast in Frameworks */,
+				AF7D0F3C2D1F99AA00F83EB9 /* HandyJSON in Frameworks */,
+				AF7D0F362D1F96B200F83EB9 /* SwiftDate in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		1808AC7D2CCF98FF0032485F /* 中间列表 */ = {
+		AF7D0F122D1EC14D00F83EB9 = {
 			isa = PBXGroup;
 			children = (
-				189691362CEDCBC700191EAE /* view */,
-				1896912F2CEDC42500191EAE /* model */,
-				AFE9F58D2D13BEA4004C923C /* viewmodel */,
-			);
-			path = "中间列表";
-			sourceTree = "<group>";
-		};
-		1808ACF92CE4FBB90032485F /* view */ = {
-			isa = PBXGroup;
-			children = (
-				1808ACF52CE4FAB60032485F /* TDSliderBarView.swift */,
-				1808ACF72CE4FB3B0032485F /* TDCategoryRowView.swift */,
-				1808ACFA2CE4FC000032485F /* TDCategoryGroupHeaderView.swift */,
-				1808ACFC2CE4FC920032485F /* TDTagGroupHeaderView.swift */,
-				1896912B2CEB186300191EAE /* TDHeaderImageView.swift */,
-				1896912D2CEB193000191EAE /* TDUserInfoView.swift */,
-			);
-			path = view;
-			sourceTree = "<group>";
-		};
-		18152DA32CA6B521006D7E08 /* Unit(共用内容) */ = {
-			isa = PBXGroup;
-			children = (
-				18A337512CA9470200430B67 /* TDJsonModel.swift */,
-				1808ACC32CDA0AD10032485F /* TDThemeManager.swift */,
-				1808ACC52CDA0D2D0032485F /* TDSettingManager.swift */,
-				1808ACCC2CDA24BC0032485F /* TDUserManager.swift */,
-				1808ACD02CDA27B80032485F /* TDUserModel.swift */,
-				1808ACDC2CDB5D3D0032485F /* TDDeviceManager.swift */,
-				1808ACD22CDB0C6F0032485F /* TDKeychainManager.swift */,
-				AFEAE6C42D1E780F00E69D44 /* TDUserSyncManager.swift */,
-				189691292CEAE50700191EAE /* TDAvatarManager.swift */,
-				AFE9F59A2D1D0CBA004C923C /* TDCalendarService.swift */,
-				AFEAE6C02D1E50ED00E69D44 /* TDModelContainer.swift */,
-			);
-			path = "Unit(共用内容)";
-			sourceTree = "<group>";
-		};
-		1827EC0A2CB633C800A30813 /* 第一列 */ = {
-			isa = PBXGroup;
-			children = (
-				1808ACF92CE4FBB90032485F /* view */,
-				1827EC0B2CB633EF00A30813 /* TDLeftListView.swift */,
-				1808ACEF2CE4D68E0032485F /* TDSliderBarModel.swift */,
-				1808ACF12CE4EFE70032485F /* TDCategoryManager.swift */,
-				1808ACF32CE4F0F50032485F /* TDCategoryAPI.swift */,
-			);
-			path = "第一列";
-			sourceTree = "<group>";
-		};
-		1862A61A2C3BD8F7000ECBAE /* LoginAndRegistration(登录注册) */ = {
-			isa = PBXGroup;
-			children = (
-				1808ACC82CDA21C60032485F /* TDLoginView.swift */,
-				1808ACCA2CDA21CF0032485F /* TDMainView.swift */,
-				185C3F5A2C4F915B00FDDC39 /* LoginRuleView.swift */,
-				185C3F5C2C4F91A100FDDC39 /* TDBridTextField.swift */,
-				1808ACD42CDB0E220032485F /* TDLoginViewModel.swift */,
-				1808ACD82CDB51BD0032485F /* TDLoginAPI.swift */,
-			);
-			path = "LoginAndRegistration(登录注册)";
-			sourceTree = "<group>";
-		};
-		1862A6232C3CDC5D000ECBAE /* 最右边事件信息 */ = {
-			isa = PBXGroup;
-			children = (
-				1862A6242C3CDE51000ECBAE /* TodoEventDetails.swift */,
-			);
-			path = "最右边事件信息";
-			sourceTree = "<group>";
-		};
-		1862A65D2C4654A3000ECBAE /* Setting(设置) */ = {
-			isa = PBXGroup;
-			children = (
-				1862A65E2C465531000ECBAE /* SettingDataManager.swift */,
-			);
-			path = "Setting(设置)";
-			sourceTree = "<group>";
-		};
-		1862A6602C465818000ECBAE /* 类的扩展 */ = {
-			isa = PBXGroup;
-			children = (
-				1862A6642C465B85000ECBAE /* Color-Extension.swift */,
-				1808ACDA2CDB57300032485F /* Notification-Extension.swift */,
-				1808ACDE2CDB5D6C0032485F /* String-Extension.swift */,
-				1808ACE22CDB748D0032485F /* View-Extension.swift */,
-				189691462CF705CC00191EAE /* Logger-Extension.swift */,
-				189691482CF7063E00191EAE /* Date-Extension.swift */,
-				1896914A2CF70C6C00191EAE /* Lunar-Extension.swift */,
-			);
-			path = "类的扩展";
-			sourceTree = "<group>";
-		};
-		186B06A62C92DD490097DD97 /* TDRequestTool(网络请求) */ = {
-			isa = PBXGroup;
-			children = (
-				1808ACCE2CDA25350032485F /* TDNetworkManager.swift */,
-			);
-			path = "TDRequestTool(网络请求)";
-			sourceTree = "<group>";
-		};
-		18859B142C0877A300783F61 = {
-			isa = PBXGroup;
-			children = (
-				18859B1F2C0877A300783F61 /* TodoMacRepertorie */,
-				18859B332C0877A700783F61 /* TodoMacRepertorieTests */,
-				18859B3D2C0877A700783F61 /* TodoMacRepertorieUITests */,
-				18A337452CA8E78D00430B67 /* Frameworks */,
-				18859B1E2C0877A300783F61 /* Products */,
+				AF7D0F1D2D1EC14D00F83EB9 /* TodoMacRepertorie */,
+				AF7D0F1C2D1EC14D00F83EB9 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		18859B1E2C0877A300783F61 /* Products */ = {
+		AF7D0F1C2D1EC14D00F83EB9 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				18859B1D2C0877A300783F61 /* TodoMacRepertorie.app */,
-				18859B302C0877A700783F61 /* TodoMacRepertorieTests.xctest */,
-				18859B3A2C0877A700783F61 /* TodoMacRepertorieUITests.xctest */,
+				AF7D0F1B2D1EC14D00F83EB9 /* TodoMacRepertorie.app */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		18859B1F2C0877A300783F61 /* TodoMacRepertorie */ = {
-			isa = PBXGroup;
-			children = (
-				1808ACEC2CDE1A090032485F /* Info.plist */,
-				18859B202C0877A300783F61 /* TodoMacRepertorieApp.swift */,
-				18859B222C0877A300783F61 /* ContentView.swift */,
-				18859B242C0877A300783F61 /* Item.swift */,
-				1862A61A2C3BD8F7000ECBAE /* LoginAndRegistration(登录注册) */,
-				1827EC0A2CB633C800A30813 /* 第一列 */,
-				1808AC7D2CCF98FF0032485F /* 中间列表 */,
-				1862A6232C3CDC5D000ECBAE /* 最右边事件信息 */,
-				1862A65D2C4654A3000ECBAE /* Setting(设置) */,
-				186B06A62C92DD490097DD97 /* TDRequestTool(网络请求) */,
-				1862A6602C465818000ECBAE /* 类的扩展 */,
-				18152DA32CA6B521006D7E08 /* Unit(共用内容) */,
-				18859B262C0877A600783F61 /* Assets.xcassets */,
-				18859B2B2C0877A600783F61 /* TodoMacRepertorie.entitlements */,
-				18859B282C0877A600783F61 /* Preview Content */,
-			);
-			path = TodoMacRepertorie;
-			sourceTree = "<group>";
-		};
-		18859B282C0877A600783F61 /* Preview Content */ = {
-			isa = PBXGroup;
-			children = (
-				18859B292C0877A600783F61 /* Preview Assets.xcassets */,
-			);
-			path = "Preview Content";
-			sourceTree = "<group>";
-		};
-		18859B332C0877A700783F61 /* TodoMacRepertorieTests */ = {
-			isa = PBXGroup;
-			children = (
-				18859B342C0877A700783F61 /* TodoMacRepertorieTests.swift */,
-			);
-			path = TodoMacRepertorieTests;
-			sourceTree = "<group>";
-		};
-		18859B3D2C0877A700783F61 /* TodoMacRepertorieUITests */ = {
-			isa = PBXGroup;
-			children = (
-				18859B3E2C0877A700783F61 /* TodoMacRepertorieUITests.swift */,
-				18859B402C0877A700783F61 /* TodoMacRepertorieUITestsLaunchTests.swift */,
-			);
-			path = TodoMacRepertorieUITests;
-			sourceTree = "<group>";
-		};
-		1896912F2CEDC42500191EAE /* model */ = {
-			isa = PBXGroup;
-			children = (
-				189691302CEDC44900191EAE /* TDDetailDateModel.swift */,
-				189691322CEDC66B00191EAE /* TDDetailToobarModel.swift */,
-				AF7061782CFDA95300C3A5B4 /* TDCalendarDate.swift */,
-				AF70617A2CFDAE2200C3A5B4 /* TDCalendarConfig.swift */,
-				AF70617C2CFDAE5400C3A5B4 /* TDCalendarState.swift */,
-			);
-			path = model;
-			sourceTree = "<group>";
-		};
-		189691362CEDCBC700191EAE /* view */ = {
-			isa = PBXGroup;
-			children = (
-				189691272CE5E6D200191EAE /* TDDetailListView.swift */,
-				189691342CEDCAEC00191EAE /* TDDetailToobarDateView.swift */,
-				189691372CEDD66400191EAE /* TDCalendarPopView.swift */,
-				AF70617E2CFDB02A00C3A5B4 /* TDCalendarHeaderView.swift */,
-				AF0F37DE2D083891001A2CAB /* TDCalendarDayCell.swift */,
-			);
-			path = view;
-			sourceTree = "<group>";
-		};
-		18A337452CA8E78D00430B67 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		AFE9F58D2D13BEA4004C923C /* viewmodel */ = {
-			isa = PBXGroup;
-			children = (
-				AFE9F58E2D13BF9F004C923C /* TDMacSwiftDataListModel.swift */,
-				AFE9F5902D1963B5004C923C /* TDMacHandyJsonListModel.swift */,
-				AFE9F5942D197255004C923C /* TDMacListViewModel.swift */,
-				AFE9F5962D1A95ED004C923C /* TDMacTaskGroup.swift */,
-				AFE9F5982D1BA21B004C923C /* TDGetCurrentVersionModel.swift */,
-				AFEAE6C22D1E5F3600E69D44 /* TDTaskAPI.swift */,
-				AFE9F5922D196EB4004C923C /* TDMacTaskService.swift */,
-			);
-			path = viewmodel;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		18859B1C2C0877A300783F61 /* TodoMacRepertorie */ = {
+		AF7D0F1A2D1EC14D00F83EB9 /* TodoMacRepertorie */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 18859B442C0877A700783F61 /* Build configuration list for PBXNativeTarget "TodoMacRepertorie" */;
+			buildConfigurationList = AF7D0F2C2D1EC15000F83EB9 /* Build configuration list for PBXNativeTarget "TodoMacRepertorie" */;
 			buildPhases = (
-				18859B192C0877A300783F61 /* Sources */,
-				18859B1A2C0877A300783F61 /* Frameworks */,
-				18859B1B2C0877A300783F61 /* Resources */,
+				AF7D0F172D1EC14D00F83EB9 /* Sources */,
+				AF7D0F182D1EC14D00F83EB9 /* Frameworks */,
+				AF7D0F192D1EC14D00F83EB9 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				AF7D0F1D2D1EC14D00F83EB9 /* TodoMacRepertorie */,
 			);
 			name = TodoMacRepertorie;
 			packageProductDependencies = (
-				1862A6662C4669FA000ECBAE /* DynamicColor */,
-				18A3374C2CA8EC3700430B67 /* AlertToast */,
-				18A3374F2CA900C200430B67 /* HandyJSON */,
-				1808AC872CD8C7BE0032485F /* SwiftDate */,
-				1896913C2CEDDE2600191EAE /* LunarSwift */,
-				AF7061762CFD8F0600C3A5B4 /* Alamofire */,
-				AF0F37DC2D07D598001A2CAB /* Schedule */,
+				AF7D0F302D1F96A000F83EB9 /* Alamofire */,
+				AF7D0F352D1F96B200F83EB9 /* SwiftDate */,
+				AF7D0F382D1F971700F83EB9 /* DynamicColor */,
+				AF7D0F3B2D1F99AA00F83EB9 /* HandyJSON */,
+				AF7D0F3E2D1F9D6A00F83EB9 /* Schedule */,
+				AF7D0FD22D1FB8F200F83EB9 /* AlertToast */,
 			);
 			productName = TodoMacRepertorie;
-			productReference = 18859B1D2C0877A300783F61 /* TodoMacRepertorie.app */;
+			productReference = AF7D0F1B2D1EC14D00F83EB9 /* TodoMacRepertorie.app */;
 			productType = "com.apple.product-type.application";
-		};
-		18859B2F2C0877A700783F61 /* TodoMacRepertorieTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 18859B472C0877A700783F61 /* Build configuration list for PBXNativeTarget "TodoMacRepertorieTests" */;
-			buildPhases = (
-				18859B2C2C0877A700783F61 /* Sources */,
-				18859B2D2C0877A700783F61 /* Frameworks */,
-				18859B2E2C0877A700783F61 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				18859B322C0877A700783F61 /* PBXTargetDependency */,
-			);
-			name = TodoMacRepertorieTests;
-			productName = TodoMacRepertorieTests;
-			productReference = 18859B302C0877A700783F61 /* TodoMacRepertorieTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
-		18859B392C0877A700783F61 /* TodoMacRepertorieUITests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 18859B4A2C0877A700783F61 /* Build configuration list for PBXNativeTarget "TodoMacRepertorieUITests" */;
-			buildPhases = (
-				18859B362C0877A700783F61 /* Sources */,
-				18859B372C0877A700783F61 /* Frameworks */,
-				18859B382C0877A700783F61 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				18859B3C2C0877A700783F61 /* PBXTargetDependency */,
-			);
-			name = TodoMacRepertorieUITests;
-			productName = TodoMacRepertorieUITests;
-			productReference = 18859B3A2C0877A700783F61 /* TodoMacRepertorieUITests.xctest */;
-			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		18859B152C0877A300783F61 /* Project object */ = {
+		AF7D0F132D1EC14D00F83EB9 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1540;
-				LastUpgradeCheck = 1540;
+				LastSwiftUpdateCheck = 1620;
+				LastUpgradeCheck = 1620;
 				TargetAttributes = {
-					18859B1C2C0877A300783F61 = {
-						CreatedOnToolsVersion = 15.4;
-					};
-					18859B2F2C0877A700783F61 = {
-						CreatedOnToolsVersion = 15.4;
-						TestTargetID = 18859B1C2C0877A300783F61;
-					};
-					18859B392C0877A700783F61 = {
-						CreatedOnToolsVersion = 15.4;
-						TestTargetID = 18859B1C2C0877A300783F61;
+					AF7D0F1A2D1EC14D00F83EB9 = {
+						CreatedOnToolsVersion = 16.2;
 					};
 				};
 			};
-			buildConfigurationList = 18859B182C0877A300783F61 /* Build configuration list for PBXProject "TodoMacRepertorie" */;
-			compatibilityVersion = "Xcode 14.0";
+			buildConfigurationList = AF7D0F162D1EC14D00F83EB9 /* Build configuration list for PBXProject "TodoMacRepertorie" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
 			);
-			mainGroup = 18859B142C0877A300783F61;
+			mainGroup = AF7D0F122D1EC14D00F83EB9;
+			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				1862A6612C465A8E000ECBAE /* XCRemoteSwiftPackageReference "DynamicColor" */,
-				18A3374B2CA8EC3700430B67 /* XCRemoteSwiftPackageReference "AlertToast" */,
-				18A3374E2CA900C200430B67 /* XCRemoteSwiftPackageReference "HandyJSON" */,
-				1808AC862CD8C7BE0032485F /* XCRemoteSwiftPackageReference "SwiftDate" */,
-				1896913B2CEDDE2600191EAE /* XCRemoteSwiftPackageReference "lunar-swift" */,
-				AF7061752CFD8F0600C3A5B4 /* XCRemoteSwiftPackageReference "Alamofire" */,
-				AF0F37DB2D07D598001A2CAB /* XCRemoteSwiftPackageReference "Schedule" */,
+				AF7D0F2F2D1F96A000F83EB9 /* XCRemoteSwiftPackageReference "Alamofire" */,
+				AF7D0F342D1F96B200F83EB9 /* XCRemoteSwiftPackageReference "SwiftDate" */,
+				AF7D0F372D1F971700F83EB9 /* XCRemoteSwiftPackageReference "DynamicColor" */,
+				AF7D0F3A2D1F99AA00F83EB9 /* XCRemoteSwiftPackageReference "HandyJSON" */,
+				AF7D0F3D2D1F9D6A00F83EB9 /* XCRemoteSwiftPackageReference "Schedule" */,
+				AF7D0FD12D1FB8F200F83EB9 /* XCRemoteSwiftPackageReference "AlertToast" */,
 			);
-			productRefGroup = 18859B1E2C0877A300783F61 /* Products */;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = AF7D0F1C2D1EC14D00F83EB9 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				18859B1C2C0877A300783F61 /* TodoMacRepertorie */,
-				18859B2F2C0877A700783F61 /* TodoMacRepertorieTests */,
-				18859B392C0877A700783F61 /* TodoMacRepertorieUITests */,
+				AF7D0F1A2D1EC14D00F83EB9 /* TodoMacRepertorie */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		18859B1B2C0877A300783F61 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				18859B2A2C0877A600783F61 /* Preview Assets.xcassets in Resources */,
-				18859B272C0877A600783F61 /* Assets.xcassets in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		18859B2E2C0877A700783F61 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		18859B382C0877A700783F61 /* Resources */ = {
+		AF7D0F192D1EC14D00F83EB9 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -558,104 +157,17 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		18859B192C0877A300783F61 /* Sources */ = {
+		AF7D0F172D1EC14D00F83EB9 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1808ACCD2CDA24BC0032485F /* TDUserManager.swift in Sources */,
-				18859B232C0877A300783F61 /* ContentView.swift in Sources */,
-				AF0F37DF2D083891001A2CAB /* TDCalendarDayCell.swift in Sources */,
-				AF70617D2CFDAE5400C3A5B4 /* TDCalendarState.swift in Sources */,
-				1862A6652C465B85000ECBAE /* Color-Extension.swift in Sources */,
-				1808ACC92CDA21C60032485F /* TDLoginView.swift in Sources */,
-				189691332CEDC66B00191EAE /* TDDetailToobarModel.swift in Sources */,
-				189691492CF7063E00191EAE /* Date-Extension.swift in Sources */,
-				AFE9F5952D197255004C923C /* TDMacListViewModel.swift in Sources */,
-				AF7061792CFDA95300C3A5B4 /* TDCalendarDate.swift in Sources */,
-				1808ACF62CE4FAB60032485F /* TDSliderBarView.swift in Sources */,
-				185C3F5B2C4F915B00FDDC39 /* LoginRuleView.swift in Sources */,
-				AFE9F5972D1A95ED004C923C /* TDMacTaskGroup.swift in Sources */,
-				AFE9F59B2D1D0CBA004C923C /* TDCalendarService.swift in Sources */,
-				1808ACDB2CDB57300032485F /* Notification-Extension.swift in Sources */,
-				1808ACF02CE4D68E0032485F /* TDSliderBarModel.swift in Sources */,
-				189691312CEDC44900191EAE /* TDDetailDateModel.swift in Sources */,
-				1808ACD92CDB51BD0032485F /* TDLoginAPI.swift in Sources */,
-				1808ACD52CDB0E220032485F /* TDLoginViewModel.swift in Sources */,
-				1808ACDD2CDB5D3D0032485F /* TDDeviceManager.swift in Sources */,
-				18859B252C0877A300783F61 /* Item.swift in Sources */,
-				1896912E2CEB193000191EAE /* TDUserInfoView.swift in Sources */,
-				1808ACC42CDA0AD10032485F /* TDThemeManager.swift in Sources */,
-				189691352CEDCAEC00191EAE /* TDDetailToobarDateView.swift in Sources */,
-				1808ACE32CDB748D0032485F /* View-Extension.swift in Sources */,
-				185C3F5D2C4F91A100FDDC39 /* TDBridTextField.swift in Sources */,
-				AFE9F5992D1BA21B004C923C /* TDGetCurrentVersionModel.swift in Sources */,
-				189691472CF705CC00191EAE /* Logger-Extension.swift in Sources */,
-				1808ACCB2CDA21CF0032485F /* TDMainView.swift in Sources */,
-				1808ACD12CDA27B80032485F /* TDUserModel.swift in Sources */,
-				1862A65F2C465531000ECBAE /* SettingDataManager.swift in Sources */,
-				AFEAE6C32D1E5F3600E69D44 /* TDTaskAPI.swift in Sources */,
-				18859B212C0877A300783F61 /* TodoMacRepertorieApp.swift in Sources */,
-				189691282CE5E6D200191EAE /* TDDetailListView.swift in Sources */,
-				1827EC0C2CB633EF00A30813 /* TDLeftListView.swift in Sources */,
-				1896912C2CEB186300191EAE /* TDHeaderImageView.swift in Sources */,
-				AF70617B2CFDAE2200C3A5B4 /* TDCalendarConfig.swift in Sources */,
-				18A337522CA9470200430B67 /* TDJsonModel.swift in Sources */,
-				1862A6252C3CDE51000ECBAE /* TodoEventDetails.swift in Sources */,
-				AFE9F5932D196EB4004C923C /* TDMacTaskService.swift in Sources */,
-				AFEAE6C12D1E50ED00E69D44 /* TDModelContainer.swift in Sources */,
-				1808ACCF2CDA25350032485F /* TDNetworkManager.swift in Sources */,
-				1808ACD32CDB0C6F0032485F /* TDKeychainManager.swift in Sources */,
-				1808ACF42CE4F0F50032485F /* TDCategoryAPI.swift in Sources */,
-				AFE9F58F2D13BF9F004C923C /* TDMacSwiftDataListModel.swift in Sources */,
-				1808ACDF2CDB5D6C0032485F /* String-Extension.swift in Sources */,
-				1808ACF82CE4FB3B0032485F /* TDCategoryRowView.swift in Sources */,
-				1808ACF22CE4EFE70032485F /* TDCategoryManager.swift in Sources */,
-				1808ACFD2CE4FC920032485F /* TDTagGroupHeaderView.swift in Sources */,
-				1896912A2CEAE50700191EAE /* TDAvatarManager.swift in Sources */,
-				189691382CEDD66400191EAE /* TDCalendarPopView.swift in Sources */,
-				AFE9F5912D1963B5004C923C /* TDMacHandyJsonListModel.swift in Sources */,
-				1808ACC62CDA0D2D0032485F /* TDSettingManager.swift in Sources */,
-				1808ACFB2CE4FC000032485F /* TDCategoryGroupHeaderView.swift in Sources */,
-				AFEAE6C52D1E780F00E69D44 /* TDUserSyncManager.swift in Sources */,
-				1896914B2CF70C6C00191EAE /* Lunar-Extension.swift in Sources */,
-				AF70617F2CFDB02A00C3A5B4 /* TDCalendarHeaderView.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		18859B2C2C0877A700783F61 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				18859B352C0877A700783F61 /* TodoMacRepertorieTests.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		18859B362C0877A700783F61 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				18859B3F2C0877A700783F61 /* TodoMacRepertorieUITests.swift in Sources */,
-				18859B412C0877A700783F61 /* TodoMacRepertorieUITestsLaunchTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
-/* Begin PBXTargetDependency section */
-		18859B322C0877A700783F61 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 18859B1C2C0877A300783F61 /* TodoMacRepertorie */;
-			targetProxy = 18859B312C0877A700783F61 /* PBXContainerItemProxy */;
-		};
-		18859B3C2C0877A700783F61 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 18859B1C2C0877A300783F61 /* TodoMacRepertorie */;
-			targetProxy = 18859B3B2C0877A700783F61 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
-
 /* Begin XCBuildConfiguration section */
-		18859B422C0877A700783F61 /* Debug */ = {
+		AF7D0F2A2D1EC15000F83EB9 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -708,7 +220,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MACOSX_DEPLOYMENT_TARGET = 14.5;
+				MACOSX_DEPLOYMENT_TARGET = 15.1;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -718,7 +230,7 @@
 			};
 			name = Debug;
 		};
-		18859B432C0877A700783F61 /* Release */ = {
+		AF7D0F2B2D1EC15000F83EB9 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -765,7 +277,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MACOSX_DEPLOYMENT_TARGET = 14.5;
+				MACOSX_DEPLOYMENT_TARGET = 15.1;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = macosx;
@@ -773,21 +285,23 @@
 			};
 			name = Release;
 		};
-		18859B452C0877A700783F61 /* Debug */ = {
+		AF7D0F2D2D1EC15000F83EB9 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = TodoMacRepertorie/TodoMacRepertorie.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"TodoMacRepertorie/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"/Users/naonao/Documents/TodoListMac/TodoMacRepertorie/TodoMacRepertorie/SupportingFiles(源文件)/Preview Content\"";
 				DEVELOPMENT_TEAM = ARQ4QZ8Q3D;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TodoMacRepertorie/Info.plist;
+				INFOPLIST_KEY_NSCalendarsUsageDescription = "需要访问日历以添加任务提醒";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -797,26 +311,29 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.Mac.Todolist.TodoMacRepertorie;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
-		18859B462C0877A700783F61 /* Release */ = {
+		AF7D0F2E2D1EC15000F83EB9 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = TodoMacRepertorie/TodoMacRepertorie.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"TodoMacRepertorie/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"/Users/naonao/Documents/TodoListMac/TodoMacRepertorie/TodoMacRepertorie/SupportingFiles(源文件)/Preview Content\"";
 				DEVELOPMENT_TEAM = ARQ4QZ8Q3D;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TodoMacRepertorie/Info.plist;
+				INFOPLIST_KEY_NSCalendarsUsageDescription = "需要访问日历以添加任务提醒";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -826,118 +343,29 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.Mac.Todolist.TodoMacRepertorie;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-			};
-			name = Release;
-		};
-		18859B482C0877A700783F61 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = ARQ4QZ8Q3D;
-				GENERATE_INFOPLIST_FILE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.Mac.Todolist.TodoMacRepertorieTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TodoMacRepertorie.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/TodoMacRepertorie";
-			};
-			name = Debug;
-		};
-		18859B492C0877A700783F61 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = ARQ4QZ8Q3D;
-				GENERATE_INFOPLIST_FILE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.Mac.Todolist.TodoMacRepertorieTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TodoMacRepertorie.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/TodoMacRepertorie";
-			};
-			name = Release;
-		};
-		18859B4B2C0877A700783F61 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = ARQ4QZ8Q3D;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.Mac.Todolist.TodoMacRepertorieUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TEST_TARGET_NAME = TodoMacRepertorie;
-			};
-			name = Debug;
-		};
-		18859B4C2C0877A700783F61 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = ARQ4QZ8Q3D;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.Mac.Todolist.TodoMacRepertorieUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TEST_TARGET_NAME = TodoMacRepertorie;
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		18859B182C0877A300783F61 /* Build configuration list for PBXProject "TodoMacRepertorie" */ = {
+		AF7D0F162D1EC14D00F83EB9 /* Build configuration list for PBXProject "TodoMacRepertorie" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				18859B422C0877A700783F61 /* Debug */,
-				18859B432C0877A700783F61 /* Release */,
+				AF7D0F2A2D1EC15000F83EB9 /* Debug */,
+				AF7D0F2B2D1EC15000F83EB9 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		18859B442C0877A700783F61 /* Build configuration list for PBXNativeTarget "TodoMacRepertorie" */ = {
+		AF7D0F2C2D1EC15000F83EB9 /* Build configuration list for PBXNativeTarget "TodoMacRepertorie" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				18859B452C0877A700783F61 /* Debug */,
-				18859B462C0877A700783F61 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		18859B472C0877A700783F61 /* Build configuration list for PBXNativeTarget "TodoMacRepertorieTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				18859B482C0877A700783F61 /* Debug */,
-				18859B492C0877A700783F61 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		18859B4A2C0877A700783F61 /* Build configuration list for PBXNativeTarget "TodoMacRepertorieUITests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				18859B4B2C0877A700783F61 /* Debug */,
-				18859B4C2C0877A700783F61 /* Release */,
+				AF7D0F2D2D1EC15000F83EB9 /* Debug */,
+				AF7D0F2E2D1EC15000F83EB9 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -945,55 +373,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		1808AC862CD8C7BE0032485F /* XCRemoteSwiftPackageReference "SwiftDate" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/malcommac/SwiftDate.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 7.0.0;
-			};
-		};
-		1862A6612C465A8E000ECBAE /* XCRemoteSwiftPackageReference "DynamicColor" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/yannickl/DynamicColor.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 5.0.1;
-			};
-		};
-		1896913B2CEDDE2600191EAE /* XCRemoteSwiftPackageReference "lunar-swift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/6tail/lunar-swift.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.11;
-			};
-		};
-		18A3374B2CA8EC3700430B67 /* XCRemoteSwiftPackageReference "AlertToast" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/elai950/AlertToast.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.3.9;
-			};
-		};
-		18A3374E2CA900C200430B67 /* XCRemoteSwiftPackageReference "HandyJSON" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/alibaba/HandyJSON.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 5.0.2;
-			};
-		};
-		AF0F37DB2D07D598001A2CAB /* XCRemoteSwiftPackageReference "Schedule" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/luoxiu/Schedule";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.1.1;
-			};
-		};
-		AF7061752CFD8F0600C3A5B4 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
+		AF7D0F2F2D1F96A000F83EB9 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Alamofire/Alamofire.git";
 			requirement = {
@@ -1001,45 +381,80 @@
 				minimumVersion = 5.10.2;
 			};
 		};
+		AF7D0F342D1F96B200F83EB9 /* XCRemoteSwiftPackageReference "SwiftDate" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/malcommac/SwiftDate.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 7.0.0;
+			};
+		};
+		AF7D0F372D1F971700F83EB9 /* XCRemoteSwiftPackageReference "DynamicColor" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/yannickl/DynamicColor.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.0.1;
+			};
+		};
+		AF7D0F3A2D1F99AA00F83EB9 /* XCRemoteSwiftPackageReference "HandyJSON" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/alibaba/HandyJSON";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.0.2;
+			};
+		};
+		AF7D0F3D2D1F9D6A00F83EB9 /* XCRemoteSwiftPackageReference "Schedule" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/luoxiu/Schedule";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.1.1;
+			};
+		};
+		AF7D0FD12D1FB8F200F83EB9 /* XCRemoteSwiftPackageReference "AlertToast" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/elai950/AlertToast";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.3.9;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		1808AC872CD8C7BE0032485F /* SwiftDate */ = {
+		AF7D0F302D1F96A000F83EB9 /* Alamofire */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 1808AC862CD8C7BE0032485F /* XCRemoteSwiftPackageReference "SwiftDate" */;
+			package = AF7D0F2F2D1F96A000F83EB9 /* XCRemoteSwiftPackageReference "Alamofire" */;
+			productName = Alamofire;
+		};
+		AF7D0F352D1F96B200F83EB9 /* SwiftDate */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AF7D0F342D1F96B200F83EB9 /* XCRemoteSwiftPackageReference "SwiftDate" */;
 			productName = SwiftDate;
 		};
-		1862A6662C4669FA000ECBAE /* DynamicColor */ = {
+		AF7D0F382D1F971700F83EB9 /* DynamicColor */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 1862A6612C465A8E000ECBAE /* XCRemoteSwiftPackageReference "DynamicColor" */;
+			package = AF7D0F372D1F971700F83EB9 /* XCRemoteSwiftPackageReference "DynamicColor" */;
 			productName = DynamicColor;
 		};
-		1896913C2CEDDE2600191EAE /* LunarSwift */ = {
+		AF7D0F3B2D1F99AA00F83EB9 /* HandyJSON */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 1896913B2CEDDE2600191EAE /* XCRemoteSwiftPackageReference "lunar-swift" */;
-			productName = LunarSwift;
-		};
-		18A3374C2CA8EC3700430B67 /* AlertToast */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 18A3374B2CA8EC3700430B67 /* XCRemoteSwiftPackageReference "AlertToast" */;
-			productName = AlertToast;
-		};
-		18A3374F2CA900C200430B67 /* HandyJSON */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 18A3374E2CA900C200430B67 /* XCRemoteSwiftPackageReference "HandyJSON" */;
+			package = AF7D0F3A2D1F99AA00F83EB9 /* XCRemoteSwiftPackageReference "HandyJSON" */;
 			productName = HandyJSON;
 		};
-		AF0F37DC2D07D598001A2CAB /* Schedule */ = {
+		AF7D0F3E2D1F9D6A00F83EB9 /* Schedule */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = AF0F37DB2D07D598001A2CAB /* XCRemoteSwiftPackageReference "Schedule" */;
+			package = AF7D0F3D2D1F9D6A00F83EB9 /* XCRemoteSwiftPackageReference "Schedule" */;
 			productName = Schedule;
 		};
-		AF7061762CFD8F0600C3A5B4 /* Alamofire */ = {
+		AF7D0FD22D1FB8F200F83EB9 /* AlertToast */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = AF7061752CFD8F0600C3A5B4 /* XCRemoteSwiftPackageReference "Alamofire" */;
-			productName = Alamofire;
+			package = AF7D0FD12D1FB8F200F83EB9 /* XCRemoteSwiftPackageReference "AlertToast" */;
+			productName = AlertToast;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
-	rootObject = 18859B152C0877A300783F61 /* Project object */;
+	rootObject = AF7D0F132D1EC14D00F83EB9 /* Project object */;
 }

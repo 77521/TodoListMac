@@ -1,6 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Bucket
-   uuid = "DBD86434-CD78-4B70-B779-A6C2EB9BFB09"
+   uuid = "38EC210B-2D00-46BD-B78C-ABAD5AC28DA7"
    type = "1"
    version = "2.0">
+   <Breakpoints>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.ExceptionBreakpoint">
+         <BreakpointContent
+            uuid = "841C1EAA-5C34-44F1-9FCD-F87F375532AA"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            breakpointStackSelectionBehavior = "1"
+            scope = "1"
+            stopOnStyle = "0">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "053CCF2A-321E-4FF2-AA07-8F47685A0733"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "TodoMacRepertorie/TDManager(&#x5171;&#x7528;)/TDModelContainer(swiftData&#x5bb9;&#x5668;&#x5171;&#x7528;)/TDModelContainer.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "50"
+            endingLineNumber = "50"
+            landmarkName = "init()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+   </Breakpoints>
 </Bucket>
