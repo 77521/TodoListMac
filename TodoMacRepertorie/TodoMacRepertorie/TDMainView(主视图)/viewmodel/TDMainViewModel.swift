@@ -31,9 +31,13 @@ final class TDMainViewModel: ObservableObject {
     /// 分类列表
     @Published var categories: [TDSliderBarModel] = []
     
-    /// 任务列表
-    @Published var tasks: [TDMacSwiftDataListModel] = []
-    
+    @Published private(set) var groupedTasks: [TDTaskGroup: [TDMacSwiftDataListModel]] = [:]
+
+    // MARK: - 私有属性
+    private let dateManager = TDDateManager.shared
+    private let settingManager = TDSettingManager.shared
+    private let queryManager = TDQueryConditionManager.shared
+
     // MARK: - 初始化方法
     
     private init() {
@@ -41,6 +45,11 @@ final class TDMainViewModel: ObservableObject {
         categories = TDSliderBarModel.defaultItems
         // 默认选中 DayTodo
         selectDefaultCategory()
+        // 初始化当前周
+//        updateCurrentWeek()
+        
+        
+
     }
     
     // MARK: - 公共方法
@@ -179,7 +188,10 @@ final class TDMainViewModel: ObservableObject {
             await updateTasksForSelectedCategory()
         }
     }
-    
+    /// 更新选中分类的任务列表（公开方法）
+    func refreshTasks() async {
+        await updateTasksForSelectedCategory()
+    }
     // MARK: - 私有方法
     
     /// 更新分类数据
@@ -210,20 +222,74 @@ final class TDMainViewModel: ObservableObject {
             selectCategory(dayTodo)
         }
     }
-    /// 更新选中分类的任务列表
-    private func updateTasksForSelectedCategory() async {
-        guard selectedCategory != nil else { return }
-        
-        // 根据选中的分类更新任务列表
-        // TODO: 实现任务列表更新逻辑
+    private func fetchTasks(for category: TDSliderBarModel) async throws -> [TDMacSwiftDataListModel] {
+        // TODO: 从数据库获取任务
+        // 这里先返回一个空数组，后续实现真正的数据获取逻辑
+        return try await queryManager.queryTasksByDate(timestamp: dateManager.selectedDate.startOfDayTimestamp)
     }
-    
+
+    /// 更新任务列表
+    private func updateTasksForSelectedCategory() async {
+        guard let category = selectedCategory else { return }
+        
+        do {
+            let tasks = try await fetchTasks(for: category)
+            await MainActor.run {
+                if category.categoryId == -100 {
+                    // DayTodo 模式：只显示选中日期的任务，不需要分组标题
+                    self.groupedTasks = [.today: tasks]
+                } else {
+                    // 其他模式：按日期状态分组
+//                    self.groupedTasks = groupTasks(tasks)
+                }
+            }
+        } catch {
+            print("Error fetching tasks: \(error)")
+        }
+    }
+    /// 对任务进行分组
+//    private func groupTasks(_ tasks: [TDMacSwiftDataListModel]) -> [TDTaskGroup: [TDMacSwiftDataListModel]] {
+//        var grouped: [TDTaskGroup: [TDMacSwiftDataListModel]] = [:]
+//        let calendar = Calendar.current
+//        let now = Date()
+//        
+//        for task in tasks {
+//            guard let dueDate = task.dueDate else {
+//                // 无日期任务
+//                grouped[.noDate, default: []].append(task)
+//                continue
+//            }
+//            
+//            if dueDate.isOverdue {
+//                // 过期任务
+//                if task.isCompleted {
+//                    grouped[.overdueCompleted, default: []].append(task)
+//                } else {
+//                    grouped[.overdueIncomplete, default: []].append(task)
+//                }
+//            } else if dueDate.isToday {
+//                // 今天的任务
+//                grouped[.today, default: []].append(task)
+//            } else if dueDate.isTomorrow {
+//                // 明天的任务
+//                grouped[.tomorrow, default: []].append(task)
+//            } else if dueDate.isDayAfterTomorrow {
+//                // 后天的任务
+//                grouped[.dayAfterTomorrow, default: []].append(task)
+//            } else {
+//                // 后续日程
+//                grouped[.future, default: []].append(task)
+//            }
+//        }
+//        
+//        return grouped
+//    }
     /// 同步服务器数据到本地数据库
     private func syncServerDataToLocal() async {
         // TODO: 实现数据同步
         do {
             // 1. 获取本地最大同步时间戳（只考虑已同步的记录）
-            let maxVersion = await TDQueryConditionManager.shared.getMaxSyncVersion()
+            let maxVersion = try await TDQueryConditionManager.shared.getMaxSyncVersion()
             print("本地最大同步值戳: \(maxVersion)")
             // 2. 获取服务器最大版本号
             let serverMaxVersion = try await TDTaskAPI.shared.getCurrentVersion()

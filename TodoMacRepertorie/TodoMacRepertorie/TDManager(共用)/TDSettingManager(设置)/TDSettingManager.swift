@@ -21,8 +21,17 @@ class TDSettingManager: ObservableObject {
         static let fontSize = "td_font_size"
         /// 语言
         static let language = "td_language"
-    }
+        /// 每周第一天
+        static let firstDayOfWeek = "td_first_day_of_week"
+        /// 是否显示已完成任务
+        static let showCompletedTasks = "td_show_completed_tasks"
+        /// 数据展示排序
+        static let taskSortOrder = "td_task_sort_order"
+        /// 是否显示本地日历数据
+        static let showLocalCalendarEvents = "td_show_local_calendar_events"
 
+    }
+    
     /// 主题模式
     @AppStorage(Keys.themeMode) private var themeModeRawValue: Int = TDThemeMode.light.rawValue {
         didSet { objectWillChange.send() }
@@ -37,7 +46,25 @@ class TDSettingManager: ObservableObject {
     @AppStorage(Keys.language) private var languageRawValue: Int = TDLanguage.system.rawValue {
         didSet { objectWillChange.send() }
     }
-    
+    /// 每周第一天（0: 周日，1: 周一）
+    @AppStorage(Keys.firstDayOfWeek) private var firstDayOfWeekValue: Int = 1 {
+        didSet { objectWillChange.send() }
+    }
+
+    /// 是否显示已完成任务
+    @AppStorage(Keys.showCompletedTasks) private var showCompletedTasksValue: Bool = false {
+        didSet { objectWillChange.send() }
+    }
+    /// 数据展示排序
+    @AppStorage(Keys.taskSortOrder) private var taskSortOrderValue: Bool = true {
+        didSet { objectWillChange.send() }
+    }
+    /// 是否显示本地日历数据
+    @AppStorage(Keys.showLocalCalendarEvents) private var showLocalCalendarEventsValue: Bool = false {
+        didSet { objectWillChange.send() }
+    }
+
+
     // MARK: - 计算属性
     
     /// 当前主题模式
@@ -69,11 +96,33 @@ class TDSettingManager: ObservableObject {
             return true
         }
     }
+    /// 每周第一天是否为周一
+    var isFirstDayMonday: Bool {
+        get { firstDayOfWeekValue == 1 }
+        set { firstDayOfWeekValue = newValue ? 1 : 0 }
+    }
+
+    /// 是否显示已完成任务
+    var showCompletedTasks: Bool {
+        get { showCompletedTasksValue }
+        set { showCompletedTasksValue = newValue }
+    }
+    
+    /// 数据展示排序
+    var isTaskSortAscending: Bool {
+        get { taskSortOrderValue }
+        set { taskSortOrderValue = newValue }
+    }
+    /// 是否显示本地日历数据
+    var showLocalCalendarEvents: Bool {
+        get { showLocalCalendarEventsValue }
+        set { showLocalCalendarEventsValue = newValue }
+    }
     
     // MARK: - 初始化
     private init() {}
-
     
+}
     // 主题颜色模式是否跟随系统
 //    @AppStorage("themeFollowSystem") var followSystem: Bool = true
 //    
@@ -134,4 +183,4 @@ class TDSettingManager: ObservableObject {
 //            locale: Locale(identifier: "zh_CN")
 //        )
 //    }
-}
+//}

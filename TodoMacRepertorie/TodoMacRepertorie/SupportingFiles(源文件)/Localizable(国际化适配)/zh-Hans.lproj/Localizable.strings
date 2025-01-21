@@ -1,0 +1,29 @@
+/* 
+  Localizable.strings
+  TodoMacRepertorie
+
+  Created by 孬孬 on 2025/1/21.
+  
+*/
+
+//通用
+"today" = "今";
+"back_to_today" = "返回今天";
+
+// 星期
+"week_sun" = "周日";
+"week_mon" = "周一";
+"week_tue" = "周二";
+"week_wed" = "周三";
+"week_thu" = "周四";
+"week_fri" = "周五";
+"week_sat" = "周六";
+
+// 日期格式
+"date_format_full" = "yyyy年M月d日";
+"date_format_short" = "M月d日";
+"date_format_with_week" = "%@ %@"; 
+
+// 任务输入
+"task_input_placeholder" = "在此编辑内容，按回车创建事件";
+"uncategorized" = "未分类"; 

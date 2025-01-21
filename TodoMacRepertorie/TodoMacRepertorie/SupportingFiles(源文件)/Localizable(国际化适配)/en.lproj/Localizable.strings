@@ -1,0 +1,28 @@
+/* 
+  Localizable.strings
+  TodoMacRepertorie
+
+  Created by 孬孬 on 2025/1/21.
+  
+*/
+//通用
+"today" = "Today";
+"back_to_today" = "Back to Today";
+
+// 日期格式
+"week_sun" = "Sun";
+"week_mon" = "Mon";
+"week_tue" = "Tue";
+"week_wed" = "Wed";
+"week_thu" = "Thu";
+"week_fri" = "Fri";
+"week_sat" = "Sat";
+
+// 日期格式
+"date_format_full" = "MMM d, yy";
+"date_format_short" = "MMM d";
+"date_format_with_week" = "%@ %@"; 
+
+// 任务输入
+"task_input_placeholder" = "Press Enter to create a task";
+"uncategorized" = "Uncategorized";

@@ -1,74 +1,72 @@
-////
-////  TDTaskListView.swift
-////  TodoMacRepertorie
-////
-////  Created by 孬孬 on 2024/12/29.
-////
 //
-//import SwiftUI
-//import SwiftData
+//  TDTaskListView.swift
+//  TodoMacRepertorie
 //
-//struct TDTaskListView: View {
-//    @Environment(\.modelContext) private var modelContext
-//    @StateObject private var viewModel: TDMacListViewModel
-//    @Binding var selectedCategory: TDSliderBarModel?
+//  Created by 孬孬 on 2024/12/29.
 //
-//    init(modelContext: ModelContext, selectedCategory: Binding<TDSliderBarModel?>) {
-//        _viewModel = StateObject(wrappedValue: TDMacListViewModel(modelContext: modelContext))
-//        self._selectedCategory = selectedCategory
-//
-//    }
-//    
-//    var body: some View {
-//        Group {
-//            if viewModel.isLoading {
-//                ProgressView()
-//                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-//            } else {
-//                taskListContent
-//            }
-//        }
-//        .task {
-//            // 初始加载数据
-//            await viewModel.initializeAfterLogin()
-//        }
-//    }
-//    
-//    private var taskListContent: some View {
-//        VStack {
-//            // 顶部工具栏
-//            HStack {
-//                // 同步按钮
-//                Button {
-//                    Task {
-//                        await viewModel.syncAndRefresh()
-//                    }
-//                } label: {
-//                    Image(systemName: "arrow.clockwise")
-//                }
-//                .disabled(viewModel.isLoading)
-//                
-//                Spacer()
-//                
-//                // 其他工具栏按钮...
-//            }
-//            .padding()
-//            
-//            // 任务列表
-//            ScrollView {
-//                LazyVStack(spacing: 16) {
-//                    ForEach(TDMacTaskGroup.allCases, id: \.self) { group in
-//                        if let tasks = viewModel.taskGroups[group], !tasks.isEmpty {
-//                            TDTaskGroupSection(group: group, tasks: tasks)
-//                        }
-//                    }
-//                }
-//                .padding()
-//            }
-//        }
-//    }
-//
-//}
+
+import SwiftUI
+import SwiftData
+
+struct TDTaskListView: View {
+    @StateObject private var mainViewModel = TDMainViewModel.shared
+    @StateObject private var themeManager = TDThemeManager.shared
+    
+    var body: some View {
+        List {
+            ForEach(mainViewModel.groupedTasks.keys.sorted(), id: \.rawValue) { group in
+                if let tasks = mainViewModel.groupedTasks[group], !tasks.isEmpty {
+                    Section {
+                        ForEach(tasks, id: \.taskId) { task in
+                            TDTaskRow(task: task)
+                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                    Button(role: .destructive) {
+                                        Task {
+                                            // 删除任务
+                                            task.delete = true
+                                            try? await TDModelContainer.shared.perform {
+                                                try TDModelContainer.shared.save()
+                                            }
+                                            await mainViewModel.refreshTasks()
+                                        }
+                                    } label: {
+                                        Label("删除", systemImage: "trash")
+                                    }
+                                }
+                                .contextMenu {
+                                    Button(action: {
+                                        Task {
+                                            // 删除任务
+                                            task.delete = true
+                                            try? await TDModelContainer.shared.perform {
+                                                try TDModelContainer.shared.save()
+                                            }
+                                            await mainViewModel.refreshTasks()
+                                        }
+                                    }) {
+                                        Label("删除", systemImage: "trash")
+                                            .foregroundColor(.red)
+                                    }
+                                }
+                        }
+                        .onMove { from, to in
+                            // TODO: 处理任务重新排序
+                            // 需要更新 taskSort 字段并保存
+                        }
+                    } header: {
+                        // DayTodo 模式下不显示组标题
+                        if mainViewModel.selectedCategory?.categoryId != -100 {
+                            TDTaskGroupHeader(group: group, taskCount: tasks.count)
+                        }
+                    }
+                }
+            }
+        }
+        .listStyle(.plain)
+        .scrollContentBackground(.hidden)
+        .background(themeManager.backgroundColor)
+    }
+}
 //
 //// 任务组区域视图
 //struct TDTaskGroupSection: View {

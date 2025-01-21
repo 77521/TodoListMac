@@ -21,8 +21,31 @@ struct TDMainView: View {
                 // 第一列 - 左侧导航栏
                 TDSliderBarView()
                     .frame(minWidth: 216, maxWidth: 220)
-
+                
                 // 第二列 - 任务列表
+                VStack(spacing: 0) {
+                    // 顶部日期选择器（只在 DayTodo 视图下显示）
+                    if mainViewModel.selectedCategory?.categoryId == -100 {
+                        TDWeekDatePickerView()
+                            .padding(.vertical, 8)
+                            .padding(.horizontal, 12)
+                            .background(.ultraThinMaterial)
+                    }
+                    
+                    // 任务列表和悬浮输入框
+                    ZStack(alignment: .top) {
+                        // 任务列表
+                        TDTaskListView()
+                            .padding(.top, mainViewModel.selectedCategory?.categoryId == -100 ? 0 : 12)
+
+                        
+                        // 悬浮的任务输入框
+                        TDTaskInputView()
+                            .padding(.horizontal, 12)
+                    }
+                }
+                .frame(minWidth: 417)
+
 //                TDTaskListView(
 //                    selectedCategory: mainViewModel.selectedCategory
 //                )

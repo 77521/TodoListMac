@@ -33,6 +33,15 @@ extension String {
             .joined()
     }
     
+    /// 国际化处理
+    var localized: String {
+        NSLocalizedString(self, comment: "")
+    }
+    
+    func localizedFormat(_ arguments: CVarArg...) -> String {
+        String(format: localized, arguments: arguments)
+    }
+    
 //    // MARK: - 字符串工具扩展
 //    func localized(bundle: Bundle = .main, tableName: String = "Calendar") -> String {
 //        return NSLocalizedString(self, tableName: tableName, bundle: bundle, value: "", comment: "")
