@@ -28,10 +28,10 @@ struct TDSliderBarView: View {
                     VStack(alignment: .leading, spacing: 2) {
                         Text(TDUserManager.shared.nickname)
                             .font(.system(size: settingManager.fontSize.size))
-                            .foregroundColor(themeManager.primaryTextColor)
+                            .foregroundColor(themeManager.titleTextColor)
                         Text("账号")
                             .font(.system(size: settingManager.fontSize.size - 2))
-                            .foregroundColor(themeManager.secondaryTextColor)
+                            .foregroundColor(themeManager.descriptionTextColor)
                     }
                     
                     Spacer()
@@ -43,10 +43,10 @@ struct TDSliderBarView: View {
                 // 同步状态
                 HStack {
                     Image(systemName: "arrow.triangle.2.circlepath")
-                        .foregroundColor(themeManager.secondaryTextColor)
+                        .foregroundColor(themeManager.descriptionTextColor)
                     Text(viewModel.isSyncing ? "正在同步..." : "同步完成")
                         .font(.system(size: settingManager.fontSize.size))
-                        .foregroundColor(themeManager.primaryTextColor)
+                        .foregroundColor(themeManager.titleTextColor)
                     
                     Spacer()
                     

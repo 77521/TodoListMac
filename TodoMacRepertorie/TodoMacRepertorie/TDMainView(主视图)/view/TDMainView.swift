@@ -36,12 +36,13 @@ struct TDMainView: View {
                     ZStack(alignment: .top) {
                         // 任务列表
                         TDTaskListView()
-                            .padding(.top, mainViewModel.selectedCategory?.categoryId == -100 ? 0 : 12)
+//                            .padding(.top, mainViewModel.selectedCategory?.categoryId == -100 ? 0 : 12)
 
                         
                         // 悬浮的任务输入框
                         TDTaskInputView()
                             .padding(.horizontal, 12)
+                            .padding(.top,10)
                     }
                 }
                 .frame(minWidth: 417)

@@ -34,19 +34,19 @@ struct TDCustomDatePickerView: View {
             HStack {
                 Button(action: previousMonth) {
                     Image(systemName: "chevron.left")
-                        .foregroundColor(themeManager.primaryTextColor)
+                        .foregroundColor(themeManager.titleTextColor)
                 }
                 
                 Spacer()
                 
                 Text(monthYearString(from: currentMonth))
-                    .foregroundColor(themeManager.primaryTextColor)
+                    .foregroundColor(themeManager.titleTextColor)
                 
                 Spacer()
                 
                 Button(action: nextMonth) {
                     Image(systemName: "chevron.right")
-                        .foregroundColor(themeManager.primaryTextColor)
+                        .foregroundColor(themeManager.titleTextColor)
                 }
             }
             .padding(.horizontal)
@@ -57,7 +57,7 @@ struct TDCustomDatePickerView: View {
                 ForEach(daysInWeek, id: \.self) { day in
                     Text(day)
                         .frame(maxWidth: .infinity)
-                        .foregroundColor(themeManager.secondaryTextColor)
+                        .foregroundColor(themeManager.descriptionTextColor)
                         .font(.system(size: 12))
                 }
             }
@@ -83,8 +83,8 @@ struct TDCustomDatePickerView: View {
                                     calendar.isDate(date, inSameDayAs: selectedDate) ? .white :
                                         date.isToday ? themeManager.color(level: 7) :
                                         calendar.isDate(date, inSameDayAs: currentMonth) ?
-                                            themeManager.primaryTextColor :
-                                            themeManager.secondaryTextColor
+                                            themeManager.titleTextColor :
+                                            themeManager.descriptionTextColor
                                 )
                                 .clipShape(Circle())
                         }

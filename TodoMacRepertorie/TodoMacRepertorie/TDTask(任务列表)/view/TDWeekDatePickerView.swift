@@ -29,7 +29,7 @@ struct TDWeekDatePickerView: View {
                     }
                 }) {
                     Image(systemName: "chevron.left")
-                        .foregroundColor(themeManager.primaryTextColor)
+                        .foregroundColor(themeManager.titleTextColor)
                         .frame(width: 30, height: 30)
 //                        .background(Color.yellow.opacity(0.3))
                 }
@@ -54,7 +54,7 @@ struct TDWeekDatePickerView: View {
                                 .foregroundColor(
                                     dateManager.isSelectedDate(date) ? .white :
                                     date.isToday ? themeManager.color(level: 7) :
-                                    themeManager.primaryTextColor
+                                    themeManager.titleTextColor
                                 )
                                 .clipShape(Circle())
                         }
@@ -75,7 +75,7 @@ struct TDWeekDatePickerView: View {
                     }
                 }) {
                     Image(systemName: "chevron.right")
-                        .foregroundColor(themeManager.primaryTextColor)
+                        .foregroundColor(themeManager.titleTextColor)
                         .frame(width: 30, height: 30)
 //                        .background(Color.yellow.opacity(0.3))
                 }
@@ -92,7 +92,7 @@ struct TDWeekDatePickerView: View {
             }) {
                 Text(dateManager.selectedDate.dateAndWeekString)
                     .font(.system(size: 13))
-                    .foregroundColor(themeManager.primaryTextColor)
+                    .foregroundColor(themeManager.titleTextColor)
                     .frame(height: 30)
 
             }
@@ -121,7 +121,7 @@ struct TDWeekDatePickerView: View {
                 }
             }) {
                 Image(systemName: "sun.max")
-                    .foregroundColor(themeManager.primaryTextColor)
+                    .foregroundColor(themeManager.titleTextColor)
                     .frame(width: 30, height: 30)
 //                    .background(Color.purple.opacity(0.3))
             }

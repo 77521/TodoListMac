@@ -16,19 +16,19 @@ struct TDTaskGroupHeader: View {
         HStack {
             Text(group.title)
                 .font(.system(size: 13))
-                .foregroundColor(themeManager.secondaryTextColor)
+                .foregroundColor(themeManager.descriptionTextColor)
             
             Spacer()
             
             Text("\(taskCount)")
                 .font(.system(size: 12))
-                .foregroundColor(themeManager.secondaryTextColor)
+                .foregroundColor(themeManager.descriptionTextColor)
             
             Button(action: {
                 // TODO: 组设置按钮点击事件
             }) {
                 Image(systemName: "ellipsis")
-                    .foregroundColor(themeManager.secondaryTextColor)
+                    .foregroundColor(themeManager.descriptionTextColor)
             }
             .buttonStyle(.plain)
         }

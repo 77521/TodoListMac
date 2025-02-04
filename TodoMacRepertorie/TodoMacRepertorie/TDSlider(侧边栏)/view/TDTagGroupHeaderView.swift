@@ -26,17 +26,17 @@ struct TDTagGroupView: View {
         HStack(spacing: 8) {
             // 1. 展开/折叠图标
             Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
-                .foregroundColor(themeManager.secondaryTextColor)
+                .foregroundColor(themeManager.titleTextColor)
                 .frame(width: 12)
             
             // 2. 标签图标
             Image(systemName: "tag")
-                .foregroundColor(themeManager.secondaryTextColor)
+                .foregroundColor(themeManager.titleTextColor)
             
             // 3. 标题
             Text("标签")
                 .font(.system(size: settingManager.fontSize.size))
-                .foregroundColor(themeManager.primaryTextColor)
+                .foregroundColor(themeManager.titleTextColor)
             
             Spacer()
             
@@ -44,7 +44,7 @@ struct TDTagGroupView: View {
             if isHovered {
                 Button(action: onFilter) {
                     Image(systemName: "line.3.horizontal.decrease.circle")
-                        .foregroundColor(themeManager.secondaryTextColor)
+                        .foregroundColor(themeManager.descriptionTextColor)
                 }
                 .buttonStyle(.plain)
             }

@@ -10,20 +10,32 @@ import SwiftUI
 
 /// 主题基础颜色
 struct TDThemeBaseColors: Codable, Equatable {
-    /// 背景色
-    let background: TDDynamicColor
-    /// 次要背景色（用于卡片、弹窗等）
+    /// 一级背景色
+    let primaryBackground: TDDynamicColor
+    /// 二级背景色（用于卡片、弹窗等）
     let secondaryBackground: TDDynamicColor
-    /// 主要文字颜色
-    let primaryText: TDDynamicColor
-    /// 次要文字颜色
-    let secondaryText: TDDynamicColor
+    /// 三级背景色
+    let tertiaryBackground: TDDynamicColor
+    
+    /// 标题文字颜色
+    let titleText: TDDynamicColor
     /// 描述文字颜色
     let descriptionText: TDDynamicColor
+    /// 子任务文字颜色
+    let subtaskText: TDDynamicColor
+    
+    /// 标题已完成颜色
+    let titleFinishText: TDDynamicColor
+    /// 描述已完成颜色
+    let descriptionFinishText: TDDynamicColor
+    /// 子任务已完成颜色
+    let subtaskFinishText: TDDynamicColor
+    
     /// 分割线颜色
     let separator: TDDynamicColor
     /// 边框颜色
     let border: TDDynamicColor
+
 }
 
 /// 动态颜色（深浅色模式）

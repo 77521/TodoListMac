@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 /// 任务模型（用于网络传输）
 struct TDTaskModel: Codable {
@@ -107,26 +108,38 @@ struct TDTaskModel: Codable {
     }
     
     /// 处理分类信息
+    @MainActor
     mutating func processCategoryInfo() {
         // 从分类管理器获取分类信息
         if let category = TDCategoryManager.shared.getCategory(id: standbyInt1) {
             standbyIntColor = category.categoryColor ?? ""
             standbyIntName = category.categoryName
         }
+        
+        // 从分类管理器获取分类信息
+                if let category = TDCategoryManager.shared.getCategory(id: standbyInt1) {
+                    standbyIntColor = category.categoryColor ?? ""
+                    standbyIntName = category.categoryName
+                } else {
+                    // 如果查不到分类信息，使用默认值
+                    
+                    standbyIntColor =  TDThemeManager.shared.borderColor.toHexString()
+                    standbyIntName = "uncategorized".localized
+                }
     }
     
     /// 处理子任务数据
-        mutating func processSubTasks() {
-            guard let subTasksJson = standbyStr2,
-                  !subTasksJson.isEmpty,
-                  subTasksJson != "null" else {
-                subTaskList = []
-                return
-            }
-            
-            // 解析子任务
-            subTaskList = parseSubTasks(subTasksJson, parentComplete: complete)
+    mutating func processSubTasks() {
+        guard let subTasksJson = standbyStr2,
+              !subTasksJson.isEmpty,
+              subTasksJson != "null" else {
+            subTaskList = []
+            return
         }
+        
+        // 解析子任务
+        subTaskList = parseSubTasks(subTasksJson, parentComplete: complete)
+    }
         
     /// 解析子任务字符串
     private func parseSubTasks(_ subTasksString: String, parentComplete: Bool) -> [SubTask] {
@@ -144,14 +157,14 @@ struct TDTaskModel: Codable {
             }
             
             // 检查任务完成状态标记
-            if trimmed.contains("-[x]") {
+            if trimmed.contains("- [x]") {
                 // 已完成的任务
-                let content = trimmed.replacingOccurrences(of: "-[x]", with: "")
+                let content = trimmed.replacingOccurrences(of: "- [x]", with: "")
                     .trimmingCharacters(in: .whitespaces)
                 return SubTask(isComplete: true, content: content)
-            } else if trimmed.contains("-[ ]") {
+            } else if trimmed.contains("- [ ]") {
                 // 未完成的任务
-                let content = trimmed.replacingOccurrences(of: "-[ ]", with: "")
+                let content = trimmed.replacingOccurrences(of: "- [ ]", with: "")
                     .trimmingCharacters(in: .whitespaces)
                 return SubTask(isComplete: false, content: content)
             }
@@ -192,7 +205,7 @@ struct TDTaskModel: Codable {
         }
     }
     /// 处理所有数据
-    mutating func processAllData() {
+    @MainActor mutating func processAllData() {
         processReminderTime()
         processCategoryInfo()
         processSubTasks()
@@ -200,7 +213,7 @@ struct TDTaskModel: Codable {
     }
     
     /// 转换为 SwiftData 模型
-    func toSwiftDataModel() -> TDMacSwiftDataListModel {
+    @MainActor func toSwiftDataModel() -> TDMacSwiftDataListModel {
         // 处理所有数据
         var processedModel = self
         processedModel.processAllData()

@@ -26,11 +26,18 @@ class TDThemeManager: ObservableObject {
     
     /// 基础文字颜色配置（使用普通灰主题色）
     private static let baseTextColors = TDThemeBaseColors(
-        background: TDDynamicColor(light: "#FFFFFF", dark: "#111111"),
+        primaryBackground: TDDynamicColor(light: "#FFFFFF", dark: "#000000"),
         secondaryBackground: TDDynamicColor(light: "#F5F4F5", dark: "#111111"),
-        primaryText: TDDynamicColor(light: "#303030", dark: "#F5F4F5"),
-        secondaryText: TDDynamicColor(light: "#AAAAAA", dark: "#797979"),
-        descriptionText: TDDynamicColor(light: "#A0A0A0", dark: "#797979"),
+        tertiaryBackground: TDDynamicColor(light: "#FFFFFF", dark: "#111111"),
+        
+        titleText: TDDynamicColor(light: "#303030", dark: "#F5F4F5"),
+        descriptionText: TDDynamicColor(light: "#AAAAAA", dark: "#797979"),
+        subtaskText: TDDynamicColor(light: "#595959", dark: "#F5F4F5"),
+        
+        titleFinishText: TDDynamicColor(light: "#AAAAAA", dark: "#797979"),
+        descriptionFinishText: TDDynamicColor(light: "#AAAAAA", dark: "#797979"),
+        subtaskFinishText: TDDynamicColor(light: "#B3B3B3", dark: "#AAAAAA"),
+        
         separator: TDDynamicColor(light: "#F5F4F5", dark: "#111111"),
         border: TDDynamicColor(light: "#C3C3C3", dark: "#4F4F4F")
     )
@@ -212,7 +219,6 @@ class TDThemeManager: ObservableObject {
     }
     
     // MARK: - 颜色获取
-    
     /// 获取指定层级的颜色
     func color(level: Int) -> Color {
         let isDark = TDSettingManager.shared.isDarkMode
@@ -220,29 +226,49 @@ class TDThemeManager: ObservableObject {
         return Color.fromHex(hexColor)
     }
     
-    /// 获取背景色
+    /// 获取一级背景色
     var backgroundColor: Color {
-        currentTheme.baseColors.background.color(isDark: TDSettingManager.shared.isDarkMode)
+        currentTheme.baseColors.primaryBackground.color(isDark: TDSettingManager.shared.isDarkMode)
     }
     
-    /// 获取次要背景色
+    /// 获取二级背景色
     var secondaryBackgroundColor: Color {
         currentTheme.baseColors.secondaryBackground.color(isDark: TDSettingManager.shared.isDarkMode)
     }
     
-    /// 获取主要文字颜色
-    var primaryTextColor: Color {
-        currentTheme.baseColors.primaryText.color(isDark: TDSettingManager.shared.isDarkMode)
+    /// 获取三级背景色
+    var tertiaryBackgroundColor: Color {
+        currentTheme.baseColors.tertiaryBackground.color(isDark: TDSettingManager.shared.isDarkMode)
     }
     
-    /// 获取次要文字颜色
-    var secondaryTextColor: Color {
-        currentTheme.baseColors.secondaryText.color(isDark: TDSettingManager.shared.isDarkMode)
+    /// 获取标题文字颜色
+    var titleTextColor: Color {
+        currentTheme.baseColors.titleText.color(isDark: TDSettingManager.shared.isDarkMode)
     }
     
     /// 获取描述文字颜色
     var descriptionTextColor: Color {
         currentTheme.baseColors.descriptionText.color(isDark: TDSettingManager.shared.isDarkMode)
+    }
+    
+    /// 获取子任务文字颜色
+    var subtaskTextColor: Color {
+        currentTheme.baseColors.subtaskText.color(isDark: TDSettingManager.shared.isDarkMode)
+    }
+    
+    /// 获取标题已完成颜色
+    var titleFinishTextColor: Color {
+        currentTheme.baseColors.titleFinishText.color(isDark: TDSettingManager.shared.isDarkMode)
+    }
+    
+    /// 获取描述已完成颜色
+    var descriptionFinishTextColor: Color {
+        currentTheme.baseColors.descriptionFinishText.color(isDark: TDSettingManager.shared.isDarkMode)
+    }
+    
+    /// 获取子任务已完成颜色
+    var subtaskFinishTextColor: Color {
+        currentTheme.baseColors.subtaskFinishText.color(isDark: TDSettingManager.shared.isDarkMode)
     }
     
     /// 获取分割线颜色
@@ -254,7 +280,6 @@ class TDThemeManager: ObservableObject {
     var borderColor: Color {
         currentTheme.baseColors.border.color(isDark: TDSettingManager.shared.isDarkMode)
     }
-    
     // MARK: - 持久化存储
     
     /// 主题文件URL

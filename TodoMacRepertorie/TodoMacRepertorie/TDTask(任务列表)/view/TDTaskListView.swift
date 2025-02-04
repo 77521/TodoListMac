@@ -54,8 +54,12 @@ struct TDTaskListView: View {
                             // 需要更新 taskSort 字段并保存
                         }
                     } header: {
-                        // DayTodo 模式下不显示组标题
-                        if mainViewModel.selectedCategory?.categoryId != -100 {
+                        if mainViewModel.selectedCategory?.categoryId == -100 {
+                            // DayTodo 模式下显示空的组头，但保持一定高度
+                            Color.clear
+                                .frame(height: 60)
+                                .listRowBackground(Color.clear)
+                        } else {
                             TDTaskGroupHeader(group: group, taskCount: tasks.count)
                         }
                     }
@@ -64,7 +68,7 @@ struct TDTaskListView: View {
         }
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
-        .background(themeManager.backgroundColor)
+        .background(.ultraThinMaterial)
     }
 }
 //

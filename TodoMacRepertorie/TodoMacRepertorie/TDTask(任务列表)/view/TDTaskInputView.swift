@@ -26,14 +26,14 @@ struct TDTaskInputView: View {
                 // 显示未分类文字
                 Text("uncategorized".localized)
                     .font(.system(size: 13))
-                    .foregroundColor(themeManager.secondaryTextColor)
+                    .foregroundColor(themeManager.descriptionTextColor)
             }
             
             // 输入框
             TextField("task_input_placeholder".localized, text: $taskContent)
                 .textFieldStyle(PlainTextFieldStyle())
                 .font(.system(size: 14))
-                .foregroundColor(themeManager.primaryTextColor)
+                .foregroundColor(themeManager.titleTextColor)
                 .onSubmit {
                     createTaskIfNeeded()
 
@@ -53,7 +53,7 @@ struct TDTaskInputView: View {
         .padding(.vertical, 12)
         .background(themeManager.backgroundColor)
         .clipShape(RoundedRectangle(cornerRadius: 8))
-        .shadow(color: themeManager.primaryTextColor.opacity(0.2), radius: 4, x: 0, y: 2)
+        .shadow(color: themeManager.titleTextColor.opacity(0.2), radius: 4, x: 0, y: 2)
         .offset(x: offset)
         .onChange(of: isShaking) { oldValue, newValue in
             guard newValue else { return }

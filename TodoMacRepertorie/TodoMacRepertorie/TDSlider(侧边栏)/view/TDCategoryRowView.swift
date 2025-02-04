@@ -31,7 +31,7 @@ struct TDCategoryRowView: View {
             if item.categoryId == -100 && item.unfinishedCount ?? 0 > 0 {
                 Text("\(String(describing: item.unfinishedCount))")
                     .font(.system(size: settingManager.fontSize.size - 2))
-                    .foregroundColor(item.isSelect ?? false ? .white : themeManager.primaryTextColor)
+                    .foregroundColor(item.isSelect ?? false ? .white : themeManager.titleTextColor)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
                     .background(item.isSelect ?? false ? Color.white.opacity(0.2) : themeManager.color(level: 5).opacity(0.1))
@@ -81,7 +81,7 @@ struct TDCategoryRowView: View {
                 // 选中状态使用白色
                 return .white
             }
-            return themeManager.primaryTextColor
+            return themeManager.titleTextColor
         }
         if item.isSelect ?? false {
             // 选中状态使用白色
@@ -98,14 +98,14 @@ struct TDCategoryRowView: View {
                 // 选中状态使用白色
                 return .white
             }
-            return themeManager.primaryTextColor
+            return themeManager.titleTextColor
         }
         if item.isSelect ?? false {
             // 选中状态使用白色
             return .white
         }
         // 未选中状态使用默认文字颜色
-        return themeManager.primaryTextColor
+        return themeManager.titleTextColor
     }
     
     private var backgroundStyle: Color {

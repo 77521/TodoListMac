@@ -28,7 +28,7 @@ struct TDCategoryGroupView: View {
                 .foregroundColor(themeManager.color(level: 5))
             Text(title)
                 .font(.system(size: settingManager.fontSize.size))
-                .foregroundColor(themeManager.primaryTextColor)
+                .foregroundColor(themeManager.titleTextColor)
             
             Spacer()
             

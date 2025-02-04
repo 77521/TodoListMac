@@ -29,6 +29,8 @@ class TDSettingManager: ObservableObject {
         static let taskSortOrder = "td_task_sort_order"
         /// 是否显示本地日历数据
         static let showLocalCalendarEvents = "td_show_local_calendar_events"
+        /// 描述显示行数 (1-5行)
+        static let descriptionLineLimit = "td_description_line_limit"
 
     }
     
@@ -63,7 +65,18 @@ class TDSettingManager: ObservableObject {
     @AppStorage(Keys.showLocalCalendarEvents) private var showLocalCalendarEventsValue: Bool = false {
         didSet { objectWillChange.send() }
     }
-
+    /// 描述显示行数 (1-5行)
+    @AppStorage(Keys.descriptionLineLimit) private var descriptionLineLimitValue: Int = 1 {
+        didSet {
+            // 确保值在1-5之间
+            if descriptionLineLimitValue < 1 {
+                descriptionLineLimitValue = 1
+            } else if descriptionLineLimitValue > 5 {
+                descriptionLineLimitValue = 5
+            }
+            objectWillChange.send()
+        }
+    }
 
     // MARK: - 计算属性
     
@@ -118,7 +131,11 @@ class TDSettingManager: ObservableObject {
         get { showLocalCalendarEventsValue }
         set { showLocalCalendarEventsValue = newValue }
     }
-    
+    /// 描述显示行数
+    var descriptionLineLimit: Int {
+        get { descriptionLineLimitValue }
+        set { descriptionLineLimitValue = min(max(newValue, 1), 5) }
+    }
     // MARK: - 初始化
     private init() {}
     
