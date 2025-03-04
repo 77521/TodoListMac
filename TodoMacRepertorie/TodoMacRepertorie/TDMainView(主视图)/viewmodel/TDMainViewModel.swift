@@ -225,29 +225,203 @@ final class TDMainViewModel: ObservableObject {
     private func fetchTasks(for category: TDSliderBarModel) async throws -> [TDMacSwiftDataListModel] {
         // TODO: 从数据库获取任务
         // 这里先返回一个空数组，后续实现真正的数据获取逻辑
-        return try await queryManager.queryTasksByDate(timestamp: dateManager.selectedDate.startOfDayTimestamp)
+        return try await queryManager.queryLocalTasks(categoryId: category.categoryId)
     }
 
+    /// 更新任务列表
+//    private func updateTasksForSelectedCategory() async {
+//        guard let category = selectedCategory else { return }
+//        
+//        do {
+//            let tasks = try await fetchTasks(for: category)
+//            await MainActor.run {
+//                if category.categoryId == -100 {
+//                    // DayTodo 模式：只显示选中日期的任务，不需要分组标题
+//                    self.groupedTasks = [.today: tasks]
+//                } else {
+//                    // 其他模式：按日期状态分组
+////                    self.groupedTasks = groupTasks(tasks)
+//                }
+//            }
+//        } catch {
+//            print("Error fetching tasks: \(error)")
+//        }
+//    }
+    
+    
     /// 更新任务列表
     private func updateTasksForSelectedCategory() async {
         guard let category = selectedCategory else { return }
         
         do {
-            let tasks = try await fetchTasks(for: category)
-            await MainActor.run {
-                if category.categoryId == -100 {
-                    // DayTodo 模式：只显示选中日期的任务，不需要分组标题
-                    self.groupedTasks = [.today: tasks]
-                } else {
-                    // 其他模式：按日期状态分组
-//                    self.groupedTasks = groupTasks(tasks)
+            switch category.categoryId {
+            case -102: // 日程概览
+                // 直接更新日历数据
+                await TDCalendarManager.shared.updateCalendarData()
+                
+            default:
+                let tasks = try await fetchTasks(for: category)
+                await MainActor.run {
+                    switch category.categoryId {
+                    case -100: // DayTodo
+                        // DayTodo 模式：只显示选中日期的任务，不需要分组
+                        self.groupedTasks = [.today: tasks]
+                        
+                    case -101: // 最近待办
+                        // 最近待办：按日期状态分组
+                        self.groupedTasks = groupTasks(tasks)
+                        
+                    case -103: // 待办箱
+                        // 待办箱：所有任务放在无日期组
+                        self.groupedTasks = [.noDate: tasks]
+                        
+                    case -107: // 最近已完成
+                        // 最近已完成：所有任务放在已完成组
+                        self.groupedTasks = [.completed: tasks]
+                        
+                    case -108: // 回收站
+                        // 回收站：所有任务放在删除组
+                        self.groupedTasks = [.deleted: tasks]
+                        
+                    case let id where id >= 0: // 自定义分类
+                        // 自定义分类：按日期状态分组
+                        self.groupedTasks = groupTasks(tasks)
+                        
+                    default:
+                        self.groupedTasks = [:]
+                    }
                 }
             }
         } catch {
-            print("Error fetching tasks: \(error)")
+            print("获取任务失败: \(error)")
+            await MainActor.run {
+                self.error = error
+            }
         }
     }
+//    private func updateTasksForSelectedCategory() async {
+//        guard let category = selectedCategory else { return }
+//        
+//        do {
+//            let tasks = try await fetchTasks(for: category)
+//            await MainActor.run {
+//                if category.categoryId == -100 {
+//                    // DayTodo 模式：只显示选中日期的任务，不需要分组标题
+//                    self.groupedTasks = [.today: tasks]
+//                } else if category.categoryId == -101 || category.categoryId >= 0 {
+//                    // 最近待办或自定义分类：按日期状态分组
+//                    self.groupedTasks = groupTasks(tasks)
+//                } else {
+//                    self.groupedTasks = [:]
+//                }
+//            }
+//        } catch {
+//            print("获取任务失败: \(error)")
+//            await MainActor.run {
+//                self.error = error
+//            }
+//        }
+//    }
+    
     /// 对任务进行分组
+    private func groupTasks(_ tasks: [TDMacSwiftDataListModel]) -> [TDTaskGroup: [TDMacSwiftDataListModel]] {
+        var grouped: [TDTaskGroup: [TDMacSwiftDataListModel]] = [:]
+        let today = Date()
+        
+        for task in tasks {
+            if task.todoTime == 0 {
+                // 无日期任务
+                grouped[.noDate, default: []].append(task)
+                continue
+            }
+            
+            let taskDate = Date.fromTimestamp(task.todoTime)
+            
+            if taskDate.isOverdue {
+                // 过期任务
+                if task.complete {
+                    // 已完成的过期任务
+                    if settingManager.expiredRangeCompleted != .hide {
+                        // 获取过期范围的起始时间戳
+                        let rangeStartTimestamp = today.daysAgoStartTimestamp(settingManager.expiredRangeCompleted.rawValue)
+                        
+                        // 如果任务时间在范围内，添加到已完成过期任务组
+                        if task.todoTime >= rangeStartTimestamp {
+                            grouped[.overdueCompleted, default: []].append(task)
+                        }
+                    }
+                } else {
+                    // 未完成的过期任务
+                    if settingManager.expiredRangeUncompleted != .hide {
+                        // 获取过期范围的起始时间戳
+                        let rangeStartTimestamp = today.daysAgoStartTimestamp(settingManager.expiredRangeUncompleted.rawValue)
+                        
+                        // 如果任务时间在范围内，添加到未完成过期任务组
+                        if task.todoTime >= rangeStartTimestamp {
+                            grouped[.overdueIncomplete, default: []].append(task)
+                        }
+                    }
+                }
+            } else if taskDate.isToday {
+                // 今天的任务
+                grouped[.today, default: []].append(task)
+            } else if taskDate.isTomorrow {
+                // 明天的任务
+                grouped[.tomorrow, default: []].append(task)
+            } else if taskDate.isDayAfterTomorrow {
+                // 后天的任务
+                grouped[.dayAfterTomorrow, default: []].append(task)
+            } else {
+                // 未来的任务
+                grouped[.future, default: []].append(task)
+            }
+        }
+        
+        // 对每个分组内的任务进行排序
+        for (group, tasks) in grouped {
+            let sortedTasks = sortTasks(tasks, for: group)
+            grouped[group] = sortedTasks
+        }
+        
+        return grouped
+    }
+
+    /// 对任务进行排序
+    private func sortTasks(_ tasks: [TDMacSwiftDataListModel], for group: TDTaskGroup) -> [TDMacSwiftDataListModel] {
+        // 首先按完成状态分组
+        let uncompletedTasks = tasks.filter { !$0.complete }
+        let completedTasks = tasks.filter { $0.complete }
+        
+        // 对未完成任务排序
+        let sortedUncompletedTasks = uncompletedTasks.sorted { task1, task2 in
+            if group == .future {
+                // 后续日程先按日期升序
+                if task1.todoTime != task2.todoTime {
+                    return task1.todoTime < task2.todoTime
+                }
+            }
+            // 再按 taskSort 排序
+            return settingManager.isTaskSortAscending ?
+                task1.taskSort < task2.taskSort :
+                task1.taskSort > task2.taskSort
+        }
+        
+        // 对已完成任务排序
+        let sortedCompletedTasks = completedTasks.sorted { task1, task2 in
+            if group == .future {
+                // 后续日程先按日期升序
+                if task1.todoTime != task2.todoTime {
+                    return task1.todoTime < task2.todoTime
+                }
+            }
+            // 再按 taskSort 排序
+            return task1.taskSort < task2.taskSort
+        }
+        
+        // 未完成任务在前,已完成任务在后
+        return sortedUncompletedTasks + sortedCompletedTasks
+    }
+//
 //    private func groupTasks(_ tasks: [TDMacSwiftDataListModel]) -> [TDTaskGroup: [TDMacSwiftDataListModel]] {
 //        var grouped: [TDTaskGroup: [TDMacSwiftDataListModel]] = [:]
 //        let calendar = Calendar.current

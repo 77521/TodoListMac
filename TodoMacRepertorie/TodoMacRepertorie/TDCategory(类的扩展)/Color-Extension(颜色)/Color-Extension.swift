@@ -89,4 +89,10 @@ extension Color {
                       Int(color.greenComponent * 255),
                       Int(color.blueComponent * 255))
     }
+    
+    /// 获取颜色的反色
+    func inverted() -> Color {
+        guard let components = NSColor(self).cgColor.components else { return self }
+        return Color(red: 1 - components[0], green: 1 - components[1], blue: 1 - components[2])
+    }
 }

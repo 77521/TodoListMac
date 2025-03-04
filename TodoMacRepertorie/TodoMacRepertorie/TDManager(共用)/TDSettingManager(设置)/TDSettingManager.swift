@@ -31,6 +31,23 @@ class TDSettingManager: ObservableObject {
         static let showLocalCalendarEvents = "td_show_local_calendar_events"
         /// 描述显示行数 (1-5行)
         static let descriptionLineLimit = "td_description_line_limit"
+        /// 已完成过期任务显示范围
+        static let expiredRangeCompleted = "td_expired_range_completed"
+        /// 未完成过期任务显示范围
+        static let expiredRangeUncompleted = "td_expired_range_uncompleted"
+        /// 重复数据显示个数
+        static let repeatTasksLimit = "td_repeat_tasks_limit"
+        /// 后续日程显示范围
+        static let futureDateRange = "td_future_date_range"
+        
+        
+        /// 日历视图任务背景色模式
+        static let calendarTaskBackgroundMode = "td_calendar_task_background_mode"
+        /// 日历视图是否显示已完成分割线
+        static let calendarShowCompletedSeparator = "td_calendar_show_completed_separator"
+        /// 日历视图是否显示剩余任务数量
+        static let calendarShowRemainingCount = "td_calendar_show_remaining_count"
+
 
     }
     
@@ -77,7 +94,40 @@ class TDSettingManager: ObservableObject {
             objectWillChange.send()
         }
     }
+    
+    /// 已完成过期任务显示范围
+    @AppStorage(Keys.expiredRangeCompleted) private var expiredRangeCompletedValue: Int = TDExpiredRange.sevenDays.rawValue {
+        didSet { objectWillChange.send() }
+    }
+    
+    /// 未完成过期任务显示范围
+    @AppStorage(Keys.expiredRangeUncompleted) private var expiredRangeUncompletedValue: Int = TDExpiredRange.sevenDays.rawValue {
+        didSet { objectWillChange.send() }
+    }
 
+    /// 重复数据显示个数
+    @AppStorage(Keys.repeatTasksLimit) private var repeatTasksLimitValue: Int = TDRepeatTasksLimit.all.rawValue {
+        didSet { objectWillChange.send() }
+    }
+    /// 后续日程显示范围
+    @AppStorage(Keys.futureDateRange) private var futureDateRangeValue: Int = TDFutureDateRange.thirtyDays.rawValue {
+        didSet { objectWillChange.send() }
+    }
+    
+    /// 日历视图任务背景色模式
+    @AppStorage(Keys.calendarTaskBackgroundMode) private var taskBackgroundModeValue: Int = TDTaskBackgroundMode.workload.rawValue {
+        didSet { objectWillChange.send() }
+    }
+
+    /// 日历视图是否显示已完成分割线
+    @AppStorage(Keys.calendarShowCompletedSeparator) private var showCompletedSeparatorValue: Bool = true {
+        didSet { objectWillChange.send() }
+    }
+    
+    /// 日历视图是否显示剩余任务数量
+    @AppStorage(Keys.calendarShowRemainingCount) private var showRemainingCountValue: Bool = true {
+        didSet { objectWillChange.send() }
+    }
     // MARK: - 计算属性
     
     /// 当前主题模式
@@ -136,6 +186,107 @@ class TDSettingManager: ObservableObject {
         get { descriptionLineLimitValue }
         set { descriptionLineLimitValue = min(max(newValue, 1), 5) }
     }
+    
+    /// 已完成过期任务显示范围
+    var expiredRangeCompleted: TDExpiredRange {
+        get { TDExpiredRange(rawValue: expiredRangeCompletedValue) ?? .sevenDays }
+        set { expiredRangeCompletedValue = newValue.rawValue }
+    }
+    
+    /// 未完成过期任务显示范围
+    var expiredRangeUncompleted: TDExpiredRange {
+        get { TDExpiredRange(rawValue: expiredRangeUncompletedValue) ?? .sevenDays }
+        set { expiredRangeUncompletedValue = newValue.rawValue }
+    }
+    
+    /// 重复数据显示个数
+    var repeatTasksLimit: TDRepeatTasksLimit {
+        get { TDRepeatTasksLimit(rawValue: repeatTasksLimitValue) ?? .all }
+        set { repeatTasksLimitValue = newValue.rawValue }
+    }
+    /// 获取重复数据显示个数的具体数值
+    var repeatNum: Int {
+        repeatTasksLimit.rawValue
+    }
+    
+    /// 后续日程显示范围
+    var futureDateRange: TDFutureDateRange {
+        get { TDFutureDateRange(rawValue: futureDateRangeValue) ?? .thirtyDays }
+        set { futureDateRangeValue = newValue.rawValue }
+    }
+    
+    /// 获取后续日程显示范围的天数
+    var futureDays: Int {
+        futureDateRange.rawValue
+    }
+    
+    /// 获取后续日程的结束时间戳
+    func getFutureEndTimestamp(from date: Date) -> Int64 {
+        if futureDateRange == .all {
+            // 如果是全部，返回一个很大的时间戳
+            return Int64.max
+        } else {
+            return date.adding(days: futureDays).endOfDayTimestamp
+        }
+    }
+
+    /// 日历视图任务背景色模式
+    var calendarTaskBackgroundMode: TDTaskBackgroundMode {
+        get { TDTaskBackgroundMode(rawValue: taskBackgroundModeValue) ?? .workload }
+        set { taskBackgroundModeValue = newValue.rawValue }
+    }
+    /// 日历视图是否显示已完成分割线
+    var calendarShowCompletedSeparator: Bool {
+        get { showCompletedSeparatorValue }
+        set { showCompletedSeparatorValue = newValue }
+    }
+    
+    /// 日历视图是否显示剩余任务数量
+    var calendarShowRemainingCount: Bool {
+        get { showRemainingCountValue }
+        set { showRemainingCountValue = newValue }
+    }
+    
+    
+
+    /// 获取任务显示样式
+    @MainActor
+    func getTaskStyle(for task: TDMacSwiftDataListModel) -> (backgroundColor: Color?, textColor: Color) {
+        let themeManager = TDThemeManager.shared
+        
+        switch calendarTaskBackgroundMode {
+        case .workload:
+            // 工作量背景色
+            let backgroundColor: Color
+            if task.snowAssess < 5 {
+                backgroundColor = .gray.opacity(0.1)
+            } else if task.snowAssess < 9 {
+                backgroundColor = .orange.opacity(0.1)
+            } else {
+                backgroundColor = .red.opacity(0.1)
+            }
+            return (
+                backgroundColor,
+                task.complete ? themeManager.titleFinishTextColor : themeManager.titleTextColor
+            )
+            
+        case .category:
+            // 清单颜色 - 只有自定义分类（categoryId > 0）才显示清单颜色
+            if task.standbyInt1 > 0 {
+                let color = Color.fromHex(task.standbyIntColor)
+                return (
+                    color.opacity(0.1),
+                    task.complete ? themeManager.titleFinishTextColor : color
+                )
+            }
+            // 系统分类使用默认主题颜色
+            return (
+                nil,
+                task.complete ? themeManager.titleFinishTextColor : themeManager.titleTextColor
+            )
+        }
+    }
+
     // MARK: - 初始化
     private init() {}
     

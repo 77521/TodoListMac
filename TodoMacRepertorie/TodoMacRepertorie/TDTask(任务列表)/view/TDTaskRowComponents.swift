@@ -211,16 +211,19 @@ enum TDTaskRowComponents {
     struct DateView: View {
         let timestamp: Int64
         @StateObject private var themeManager = TDThemeManager.shared
-        
+        @StateObject private var mainViewModel = TDMainViewModel.shared // 添加 mainViewModel
+
         var body: some View {
-            if timestamp > 0 {
+            // 只在非 DayTodo 模式下显示日期
+            if mainViewModel.selectedCategory?.categoryId != -100 && timestamp > 0 {
                 let date = Date.fromTimestamp(timestamp)
                 if !date.isToday && !date.isTomorrow && !date.isDayAfterTomorrow {
                     Text(date.formattedString)
                         .font(.system(size: 12))
                         .foregroundColor(date.isOverdue ? .red : themeManager.descriptionTextColor)
                 }
-            } else {
+            } else if mainViewModel.selectedCategory?.categoryId != -100 {
+                // 非 DayTodo 模式下且没有日期时显示"无日期"
                 Text("no_date".localized)
                     .font(.system(size: 12))
                     .foregroundColor(themeManager.descriptionTextColor)

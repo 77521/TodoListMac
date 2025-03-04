@@ -1,15 +1,6 @@
 {
-  "originHash" : "7f518ba0c1b8eb977e21b8f4eb093e2c048e8b6451eb6f4326f39f62a075202a",
+  "originHash" : "f58228b4c2f15547f146a88017a6fefd36c3165e1fdf0d37f3c502028ae25470",
   "pins" : [
-    {
-      "identity" : "alamofire",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/Alamofire/Alamofire.git",
-      "state" : {
-        "revision" : "513364f870f6bfc468f9d2ff0a95caccc10044c5",
-        "version" : "5.10.2"
-      }
-    },
     {
       "identity" : "alerttoast",
       "kind" : "remoteSourceControl",
@@ -17,33 +8,6 @@
       "state" : {
         "revision" : "b39252eacd159904afd7d718bba0afabb87f2f2f",
         "version" : "1.3.9"
-      }
-    },
-    {
-      "identity" : "dynamiccolor",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/yannickl/DynamicColor.git",
-      "state" : {
-        "revision" : "d9beca13ca85baa50ee29832d0db5129fba69630",
-        "version" : "5.0.1"
-      }
-    },
-    {
-      "identity" : "handyjson",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/alibaba/HandyJSON.git",
-      "state" : {
-        "revision" : "dcf39cf062680ffa4fd0acb7f9117a97755c113f",
-        "version" : "5.0.2"
-      }
-    },
-    {
-      "identity" : "schedule",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/luoxiu/Schedule",
-      "state" : {
-        "revision" : "e388fcab1d870f32c0359a414fda81b8e81b98c9",
-        "version" : "2.1.1"
       }
     },
     {

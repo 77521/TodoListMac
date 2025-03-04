@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import SwiftDate
+//import SwiftDate
 
 // MARK: - 日期工具扩展
 extension Date {
@@ -161,6 +161,99 @@ extension Date {
     /// let date = Date.fromTimestamp(timestamp)
     static func fromTimestamp(_ timestamp: Int64) -> Date {
         return Date(timeIntervalSince1970: TimeInterval(timestamp / 1000))
+    }
+
+    // MARK: - 日期计算
+    
+    /// 增加指定天数
+    func adding(days: Int) -> Date {
+        Calendar.current.date(byAdding: .day, value: days, to: self) ?? self
+    }
+    
+    /// 减少指定天数
+    func subtracting(days: Int) -> Date {
+        adding(days: -days)
+    }
+    
+    /// 增加指定月数
+    func adding(months: Int) -> Date {
+        Calendar.current.date(byAdding: .month, value: months, to: self) ?? self
+    }
+    
+    /// 减少指定月数
+    func subtracting(months: Int) -> Date {
+        adding(months: -months)
+    }
+    
+    /// 增加指定年数
+    func adding(years: Int) -> Date {
+        Calendar.current.date(byAdding: .year, value: years, to: self) ?? self
+    }
+    
+    /// 减少指定年数
+    func subtracting(years: Int) -> Date {
+        adding(years: -years)
+    }
+    
+    /// 增加指定小时数
+    func adding(hours: Int) -> Date {
+        Calendar.current.date(byAdding: .hour, value: hours, to: self) ?? self
+    }
+    
+    /// 减少指定小时数
+    func subtracting(hours: Int) -> Date {
+        adding(hours: -hours)
+    }
+    
+    /// 增加指定分钟数
+    func adding(minutes: Int) -> Date {
+        Calendar.current.date(byAdding: .minute, value: minutes, to: self) ?? self
+    }
+    
+    /// 减少指定分钟数
+    func subtracting(minutes: Int) -> Date {
+        adding(minutes: -minutes)
+    }
+    
+    /// 增加指定秒数
+    func adding(seconds: Int) -> Date {
+        Calendar.current.date(byAdding: .second, value: seconds, to: self) ?? self
+    }
+    
+    /// 减少指定秒数
+    func subtracting(seconds: Int) -> Date {
+        adding(seconds: -seconds)
+    }
+    
+    // MARK: - 日期比较
+    
+    /// 是否大于指定日期
+    func isGreaterThan(_ date: Date) -> Bool {
+        self.compare(date) == .orderedDescending
+    }
+    
+    /// 是否大于等于指定日期
+    func isGreaterThanOrEqual(to date: Date) -> Bool {
+        self.compare(date) != .orderedAscending
+    }
+    
+    /// 是否小于指定日期
+    func isLessThan(_ date: Date) -> Bool {
+        self.compare(date) == .orderedAscending
+    }
+    
+    /// 是否小于等于指定日期
+    func isLessThanOrEqual(to date: Date) -> Bool {
+        self.compare(date) != .orderedDescending
+    }
+    
+    /// 获取指定天数之前的日期的开始时间戳
+    /// - Parameter days: 天数
+    /// - Returns: 时间戳（毫秒）
+    func daysAgoStartTimestamp(_ days: Int) -> Int64 {
+        let calendar = Calendar.current
+        let date = calendar.date(byAdding: .day, value: -days, to: self) ?? self
+        return date.startOfDayTimestamp
     }
 
 }

@@ -6,8 +6,8 @@
 //
 
 import Foundation
-import HandyJSON
-import Alamofire
+//import HandyJSON
+//import Alamofire
 
 class TDLoginAPI {
     

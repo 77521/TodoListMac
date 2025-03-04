@@ -12,67 +12,128 @@ struct TDMainView: View {
     @StateObject private var mainViewModel = TDMainViewModel.shared
     @State private var searchText = ""
     @Environment(\.modelContext) private var modelContext
+    @State private var columnVisibility = NavigationSplitViewVisibility.all
 
+    
     var body: some View {
-        ZStack(alignment: .top) {
-            Rectangle()
-                .fill(.red)
-            HSplitView {
-                // 第一列 - 左侧导航栏
-                TDSliderBarView()
-                    .frame(minWidth: 216, maxWidth: 220)
-                
-                // 第二列 - 任务列表
-                VStack(spacing: 0) {
-                    // 顶部日期选择器（只在 DayTodo 视图下显示）
-                    if mainViewModel.selectedCategory?.categoryId == -100 {
-                        TDWeekDatePickerView()
-                            .padding(.vertical, 8)
-                            .padding(.horizontal, 12)
-                            .background(.ultraThinMaterial)
-                    }
-                    
-                    // 任务列表和悬浮输入框
-                    ZStack(alignment: .top) {
-                        // 任务列表
-                        TDTaskListView()
-//                            .padding(.top, mainViewModel.selectedCategory?.categoryId == -100 ? 0 : 12)
-
+        NavigationSplitView(columnVisibility: $columnVisibility) {
+            // 第一列 - 左侧导航栏
+            TDSliderBarView()
+                .navigationSplitViewColumnWidth(min: 216, ideal: 250, max: 300)
+            
+        } content: {
+            // 第二列 - 根据选中的分类显示不同的视图
+            Group {
+                if mainViewModel.selectedCategory?.categoryId == -102 {
+                    // 日程概览
+                    TDCalendarView()
+                } else {
+                    // 其他分类显示任务列表
+                    VStack(spacing: 0) {
+                        // 顶部日期选择器（只在 DayTodo 视图下显示）
+                        if mainViewModel.selectedCategory?.categoryId == -100 {
+                            TDWeekDatePickerView()
+                                .padding(.vertical, 8)
+                                .padding(.horizontal, 12)
+                                .background(.ultraThinMaterial)
+                        }
                         
-                        // 悬浮的任务输入框
-                        TDTaskInputView()
-                            .padding(.horizontal, 12)
-                            .padding(.top,10)
+                        // 任务列表和悬浮输入框
+                        ZStack(alignment: .top) {
+                            // 任务列表
+                            TDTaskListView()
+                            
+                            // 悬浮的任务输入框
+                            TDTaskInputView()
+                                .padding(.horizontal, 12)
+                                .padding(.top, 10)
+                        }
                     }
                 }
-                .frame(minWidth: 417)
-
-//                TDTaskListView(
-//                    selectedCategory: mainViewModel.selectedCategory
-//                )
-//                .frame(minWidth: 417)
-//                .onChange(of: mainViewModel.shouldRefreshTaskList) { shouldRefresh in
-//                    if shouldRefresh {
-//                        // 当选中分类变化时，加载对应的任务列表
-//                        Task {
-//                            await mainViewModel.fetchTasksForSelectedCategory(modelContext: modelContext)
-//                        }
-//                    }
-//                }
-
-                // 第三列 - 任务详情
-                TaskDetailView()
-                    .frame(minWidth: 400)
             }
-            .background(.white)
+            .navigationSplitViewColumnWidth(min: 600, ideal: 833, max: .infinity)
+            
+        } detail: {
+            // 第三列 - 任务详情
+            TaskDetailView()
+                .navigationSplitViewColumnWidth(min: 400, ideal: 450, max: .infinity)
         }
         .task {
             // 视图加载时启动同步
             await mainViewModel.syncAfterLaunch()
         }
-
     }
 }
+  
+
+
+
+//    var body: some View {
+//        ZStack(alignment: .top) {
+//            Rectangle()
+//                .fill(.red)
+//            
+//            HSplitView {
+//                // 第一列 - 左侧导航栏
+//                TDSliderBarView()
+//                    .frame(minWidth: 216, maxWidth: 300)
+//                
+//                // 第二列 - 根据选中的分类显示不同的视图
+//                if mainViewModel.selectedCategory?.categoryId == -102 {
+//                    // 日程概览
+//                    TDCalendarView()
+//                        .frame(minWidth: 833)
+//                } else {
+//                    // 其他分类显示任务列表
+//                    VStack(spacing: 0) {
+//                        // 顶部日期选择器（只在 DayTodo 视图下显示）
+//                        if mainViewModel.selectedCategory?.categoryId == -100 {
+//                            TDWeekDatePickerView()
+//                                .padding(.vertical, 8)
+//                                .padding(.horizontal, 12)
+//                                .background(.ultraThinMaterial)
+//                        }
+//                        
+//                        // 任务列表和悬浮输入框
+//                        ZStack(alignment: .top) {
+//                            // 任务列表
+//                            TDTaskListView()
+//                            
+//                            // 悬浮的任务输入框
+//                            TDTaskInputView()
+//                                .padding(.horizontal, 12)
+//                                .padding(.top, 10)
+//                        }
+//                    }
+//                    .frame(minWidth: 833)
+//                }
+//
+////                TDTaskListView(
+////                    selectedCategory: mainViewModel.selectedCategory
+////                )
+////                .frame(minWidth: 417)
+////                .onChange(of: mainViewModel.shouldRefreshTaskList) { shouldRefresh in
+////                    if shouldRefresh {
+////                        // 当选中分类变化时，加载对应的任务列表
+////                        Task {
+////                            await mainViewModel.fetchTasksForSelectedCategory(modelContext: modelContext)
+////                        }
+////                    }
+////                }
+//
+//                // 第三列 - 任务详情
+//                TaskDetailView()
+//                    .frame(minWidth: 400)
+//            }
+//            .background(.white)
+//        }
+//        .task {
+//            // 视图加载时启动同步
+//            await mainViewModel.syncAfterLaunch()
+//        }
+//
+//    }
+//}
 
 //
 //struct TDMainView: View {

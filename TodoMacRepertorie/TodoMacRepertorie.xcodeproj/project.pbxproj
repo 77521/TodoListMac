@@ -7,12 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		AF7D0F312D1F96A000F83EB9 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = AF7D0F302D1F96A000F83EB9 /* Alamofire */; };
-		AF7D0F362D1F96B200F83EB9 /* SwiftDate in Frameworks */ = {isa = PBXBuildFile; productRef = AF7D0F352D1F96B200F83EB9 /* SwiftDate */; };
-		AF7D0F392D1F971700F83EB9 /* DynamicColor in Frameworks */ = {isa = PBXBuildFile; productRef = AF7D0F382D1F971700F83EB9 /* DynamicColor */; };
-		AF7D0F3C2D1F99AA00F83EB9 /* HandyJSON in Frameworks */ = {isa = PBXBuildFile; productRef = AF7D0F3B2D1F99AA00F83EB9 /* HandyJSON */; };
-		AF7D0F3F2D1F9D6A00F83EB9 /* Schedule in Frameworks */ = {isa = PBXBuildFile; productRef = AF7D0F3E2D1F9D6A00F83EB9 /* Schedule */; };
-		AF7D0FD32D1FB8F200F83EB9 /* AlertToast in Frameworks */ = {isa = PBXBuildFile; productRef = AF7D0FD22D1FB8F200F83EB9 /* AlertToast */; };
+		0D39D1A82D5B428F00A5688A /* AlertToast in Frameworks */ = {isa = PBXBuildFile; productRef = 0D39D1A72D5B428F00A5688A /* AlertToast */; };
+		0D39D1AB2D5B42BD00A5688A /* SwiftDate in Frameworks */ = {isa = PBXBuildFile; productRef = 0D39D1AA2D5B42BD00A5688A /* SwiftDate */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -45,12 +41,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AF7D0F392D1F971700F83EB9 /* DynamicColor in Frameworks */,
-				AF7D0F3F2D1F9D6A00F83EB9 /* Schedule in Frameworks */,
-				AF7D0F312D1F96A000F83EB9 /* Alamofire in Frameworks */,
-				AF7D0FD32D1FB8F200F83EB9 /* AlertToast in Frameworks */,
-				AF7D0F3C2D1F99AA00F83EB9 /* HandyJSON in Frameworks */,
-				AF7D0F362D1F96B200F83EB9 /* SwiftDate in Frameworks */,
+				0D39D1AB2D5B42BD00A5688A /* SwiftDate in Frameworks */,
+				0D39D1A82D5B428F00A5688A /* AlertToast in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -93,12 +85,8 @@
 			);
 			name = TodoMacRepertorie;
 			packageProductDependencies = (
-				AF7D0F302D1F96A000F83EB9 /* Alamofire */,
-				AF7D0F352D1F96B200F83EB9 /* SwiftDate */,
-				AF7D0F382D1F971700F83EB9 /* DynamicColor */,
-				AF7D0F3B2D1F99AA00F83EB9 /* HandyJSON */,
-				AF7D0F3E2D1F9D6A00F83EB9 /* Schedule */,
-				AF7D0FD22D1FB8F200F83EB9 /* AlertToast */,
+				0D39D1A72D5B428F00A5688A /* AlertToast */,
+				0D39D1AA2D5B42BD00A5688A /* SwiftDate */,
 			);
 			productName = TodoMacRepertorie;
 			productReference = AF7D0F1B2D1EC14D00F83EB9 /* TodoMacRepertorie.app */;
@@ -130,12 +118,8 @@
 			mainGroup = AF7D0F122D1EC14D00F83EB9;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				AF7D0F2F2D1F96A000F83EB9 /* XCRemoteSwiftPackageReference "Alamofire" */,
-				AF7D0F342D1F96B200F83EB9 /* XCRemoteSwiftPackageReference "SwiftDate" */,
-				AF7D0F372D1F971700F83EB9 /* XCRemoteSwiftPackageReference "DynamicColor" */,
-				AF7D0F3A2D1F99AA00F83EB9 /* XCRemoteSwiftPackageReference "HandyJSON" */,
-				AF7D0F3D2D1F9D6A00F83EB9 /* XCRemoteSwiftPackageReference "Schedule" */,
-				AF7D0FD12D1FB8F200F83EB9 /* XCRemoteSwiftPackageReference "AlertToast" */,
+				0D39D1A62D5B428F00A5688A /* XCRemoteSwiftPackageReference "AlertToast" */,
+				0D39D1A92D5B42BD00A5688A /* XCRemoteSwiftPackageReference "SwiftDate" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = AF7D0F1C2D1EC14D00F83EB9 /* Products */;
@@ -295,10 +279,11 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = TodoMacRepertorie/TodoMacRepertorie.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"/Users/naonao/Documents/TodoListMac/TodoMacRepertorie/TodoMacRepertorie/SupportingFiles(源文件)/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"$(SRCROOT)/TodoMacRepertorie/SupportingFiles(源文件)/Preview Content/Preview Assets.xcassets\"";
 				DEVELOPMENT_TEAM = ARQ4QZ8Q3D;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
@@ -327,10 +312,11 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = TodoMacRepertorie/TodoMacRepertorie.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"/Users/naonao/Documents/TodoListMac/TodoMacRepertorie/TodoMacRepertorie/SupportingFiles(源文件)/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"$(SRCROOT)/TodoMacRepertorie/SupportingFiles(源文件)/Preview Content/Preview Assets.xcassets\"";
 				DEVELOPMENT_TEAM = ARQ4QZ8Q3D;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
@@ -376,15 +362,15 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		AF7D0F2F2D1F96A000F83EB9 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
+		0D39D1A62D5B428F00A5688A /* XCRemoteSwiftPackageReference "AlertToast" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/Alamofire/Alamofire.git";
+			repositoryURL = "https://github.com/elai950/AlertToast.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 5.10.2;
+				minimumVersion = 1.3.9;
 			};
 		};
-		AF7D0F342D1F96B200F83EB9 /* XCRemoteSwiftPackageReference "SwiftDate" */ = {
+		0D39D1A92D5B42BD00A5688A /* XCRemoteSwiftPackageReference "SwiftDate" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/malcommac/SwiftDate.git";
 			requirement = {
@@ -392,70 +378,18 @@
 				minimumVersion = 7.0.0;
 			};
 		};
-		AF7D0F372D1F971700F83EB9 /* XCRemoteSwiftPackageReference "DynamicColor" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/yannickl/DynamicColor.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 5.0.1;
-			};
-		};
-		AF7D0F3A2D1F99AA00F83EB9 /* XCRemoteSwiftPackageReference "HandyJSON" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/alibaba/HandyJSON";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 5.0.2;
-			};
-		};
-		AF7D0F3D2D1F9D6A00F83EB9 /* XCRemoteSwiftPackageReference "Schedule" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/luoxiu/Schedule";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.1.1;
-			};
-		};
-		AF7D0FD12D1FB8F200F83EB9 /* XCRemoteSwiftPackageReference "AlertToast" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/elai950/AlertToast";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.3.9;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		AF7D0F302D1F96A000F83EB9 /* Alamofire */ = {
+		0D39D1A72D5B428F00A5688A /* AlertToast */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = AF7D0F2F2D1F96A000F83EB9 /* XCRemoteSwiftPackageReference "Alamofire" */;
-			productName = Alamofire;
-		};
-		AF7D0F352D1F96B200F83EB9 /* SwiftDate */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = AF7D0F342D1F96B200F83EB9 /* XCRemoteSwiftPackageReference "SwiftDate" */;
-			productName = SwiftDate;
-		};
-		AF7D0F382D1F971700F83EB9 /* DynamicColor */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = AF7D0F372D1F971700F83EB9 /* XCRemoteSwiftPackageReference "DynamicColor" */;
-			productName = DynamicColor;
-		};
-		AF7D0F3B2D1F99AA00F83EB9 /* HandyJSON */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = AF7D0F3A2D1F99AA00F83EB9 /* XCRemoteSwiftPackageReference "HandyJSON" */;
-			productName = HandyJSON;
-		};
-		AF7D0F3E2D1F9D6A00F83EB9 /* Schedule */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = AF7D0F3D2D1F9D6A00F83EB9 /* XCRemoteSwiftPackageReference "Schedule" */;
-			productName = Schedule;
-		};
-		AF7D0FD22D1FB8F200F83EB9 /* AlertToast */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = AF7D0FD12D1FB8F200F83EB9 /* XCRemoteSwiftPackageReference "AlertToast" */;
+			package = 0D39D1A62D5B428F00A5688A /* XCRemoteSwiftPackageReference "AlertToast" */;
 			productName = AlertToast;
+		};
+		0D39D1AA2D5B42BD00A5688A /* SwiftDate */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0D39D1A92D5B42BD00A5688A /* XCRemoteSwiftPackageReference "SwiftDate" */;
+			productName = SwiftDate;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -16,14 +16,18 @@ struct TDCategoryRowView: View {
     @ObservedObject private var settingManager = TDSettingManager.shared
     
     var body: some View {
-        HStack(spacing: 8) {
-            // 1. 左侧图标
-            leadingIcon
+        HStack(spacing: 0) { // 修改最外层 HStack 的 spacing 为 0
+            // 1. 左侧图标容器
+            HStack {
+                leadingIcon
+            }
+            .frame(width: 20) // 固定图标容器宽度
             
             // 2. 名称
             Text(item.categoryName)
                 .font(.system(size: settingManager.fontSize.size))
                 .foregroundColor(textColor)
+                .padding(.leading, 8) // 固定文字和图标的间距
             
             Spacer()
             
@@ -43,7 +47,6 @@ struct TDCategoryRowView: View {
         .background(
             backgroundStyle
                 .cornerRadius(6)
-//                .padding(.horizontal, 8)
         )
         .contentShape(Rectangle())
         .onHover { hovering in
@@ -70,6 +73,8 @@ struct TDCategoryRowView: View {
                     .foregroundColor(iconColor)
             }
         }
+        .frame(maxWidth: .infinity, alignment: .center) // 确保图标在容器中居中
+
     }
     
     // MARK: - 样式属性
