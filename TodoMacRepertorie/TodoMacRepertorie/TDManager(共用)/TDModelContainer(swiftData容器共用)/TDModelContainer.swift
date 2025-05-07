@@ -24,55 +24,63 @@ class TDModelContainer : ObservableObject {
     }
     
     private init() {
-        do {
-            // 删除旧的数据库文件
-//            Self.clearOldDatabase()
-            // 配置 Schema
-            let schema = Schema([
-                TDMacSwiftDataListModel.self
-            ])
-            
-            // 配置 ModelConfiguration
-            let modelConfiguration = ModelConfiguration(
-                schema: schema,
-                isStoredInMemoryOnly: false,
-                allowsSave: true
-            )
-            
-            // 创建 ModelContainer
-            modelContainer = try ModelContainer(
-                for: schema,
-                configurations: modelConfiguration
-            )
-            
-        } catch {
-            print("创建 ModelContainer 失败: \(error)")
-            fatalError("Could not create ModelContainer: \(error)")
+//        do {
+//            // 删除旧的数据库文件
+////            Self.clearOldDatabase()
+//            // 配置 Schema
+//            let schema = Schema([
+//                TDMacSwiftDataListModel.self
+//            ])
+//            
+//            // 配置 ModelConfiguration
+//            let modelConfiguration = ModelConfiguration(
+//                schema: schema,
+//                isStoredInMemoryOnly: false,
+//                allowsSave: true
+//            )
+//            
+//            // 创建 ModelContainer
+//            modelContainer = try ModelContainer(
+//                for: schema,
+//                configurations: modelConfiguration
+//            )
+//            
+//        } catch {
+//            print("创建 ModelContainer 失败: \(error)")
+//            fatalError("Could not create ModelContainer: \(error)")
+//        }
+        
+        // 1. 获取数据库路径（直接用 TDAppConfig.swiftDataDBURL）
+        guard let dbURL = TDAppConfig.swiftDataDBURL else {
+            fatalError("获取 App Group 数据库路径失败")
         }
+        // 2. 配置 SwiftData 存储到 App Group
+        let schema = Schema([TDMacSwiftDataListModel.self])
+        let config = ModelConfiguration(schema: schema, url: dbURL)
+        do {
+            modelContainer = try ModelContainer(for: schema, configurations: config)
+        } catch {
+            fatalError("SwiftData 容器初始化失败: \(error)")
+        }
+        
     }
 
     
     /// 清除旧的数据库文件
     private static func clearOldDatabase() {
         do {
-            // 获取应用支持目录
-            let applicationSupportURL = try FileManager.default.url(
-                for: .applicationSupportDirectory,
-                in: .userDomainMask,
-                appropriateFor: nil,
-                create: false
-            )
-            
-            // 获取数据库目录
-            let storePath = applicationSupportURL.appendingPathComponent("default.store")
-            
-            // 如果目录存在，删除它
+            // 1. 获取数据库主文件路径
+            guard let storePath = TDAppConfig.swiftDataDBURL else {
+                print("获取 App Group 数据库路径失败")
+                return
+            }
+            // 2. 删除主数据库文件
             if FileManager.default.fileExists(atPath: storePath.path) {
                 try FileManager.default.removeItem(at: storePath)
-                print("已删除旧的数据库文件")
+                print("已删除 App Group 下的旧数据库文件")
             }
             
-            // 删除 -shm 和 -wal 文件
+            // 4. 删除 -shm 和 -wal 文件
             let shmPath = storePath.appendingPathExtension("sqlite-shm")
             let walPath = storePath.appendingPathExtension("sqlite-wal")
             
@@ -84,7 +92,7 @@ class TDModelContainer : ObservableObject {
             }
             
         } catch {
-            print("清除旧数据库文件失败: \(error)")
+            print("清除 App Group 下旧数据库文件失败: \(error)")
         }
     }
 

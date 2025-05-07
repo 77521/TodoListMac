@@ -371,8 +371,6 @@ class TDLoginViewModel: ObservableObject {
     private func handleLoginSuccess(_ user: TDUserModel) {
         // 保存用户信息
         TDUserManager.shared.saveUser(user)
-        // 保存 token
-        TDKeychainManager.shared.saveToken(user.token)
         // 登录成 功后获取分类数据
         Task {
 //            await TDCategoryManager.shared.fetchCategories()

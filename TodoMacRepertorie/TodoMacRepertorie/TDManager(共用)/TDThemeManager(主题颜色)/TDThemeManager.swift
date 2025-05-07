@@ -12,7 +12,9 @@ import SwiftUI
 @MainActor
 class TDThemeManager: ObservableObject {
     static let shared = TDThemeManager()
-    
+    // 使用 App Group 的 UserDefaults
+    private let sharedDefaults: UserDefaults
+
     // MARK: - AppStorage
     @AppStorage("td_selected_theme_id") private var selectedThemeId: String = "mars_green"
     
@@ -175,6 +177,18 @@ class TDThemeManager: ObservableObject {
     ]
     
     private init() {
+        
+        // 初始化 App Group 的 UserDefaults
+        guard let sharedDefaults = UserDefaults(suiteName:TDAppConfig.appGroupId) else {
+            fatalError("无法初始化 App Group UserDefaults")
+        }
+        self.sharedDefaults = sharedDefaults
+        
+        // 从 App Group 加载主题 ID
+        if let savedThemeId = sharedDefaults.string(forKey: "td_selected_theme_id") {
+            selectedThemeId = savedThemeId
+        }
+        
         loadThemes()
     }
     
@@ -185,17 +199,28 @@ class TDThemeManager: ObservableObject {
         guard (themes + Self.defaultThemes).contains(where: { $0.id == themeId }) else { return }
         withAnimation(.easeInOut(duration: 0.3)) {
             selectedThemeId = themeId
+            // 同步到 App Group
+            sharedDefaults.set(themeId, forKey: "td_selected_theme_id")
+            sharedDefaults.synchronize()
             objectWillChange.send()
         }
     }
-    
+   
+    /// 添加新主题
+//    func addTheme(_ theme: TDTheme) {
+//        guard !themes.contains(where: { $0.id == theme.id }) else { return }
+//        themes.append(theme)
+//        saveThemes()
+//    }
     /// 添加新主题
     func addTheme(_ theme: TDTheme) {
         guard !themes.contains(where: { $0.id == theme.id }) else { return }
         themes.append(theme)
         saveThemes()
+        // 通知小组件更新
+//        NotificationCenter.default.post(name: .themeDidChange, object: nil)
     }
-    
+
     /// 删除主题
     func deleteTheme(_ themeId: String) {
         // 内置主题不能删除
@@ -209,6 +234,8 @@ class TDThemeManager: ObservableObject {
         if selectedThemeId == themeId {
             switchTheme(to: Self.defaultThemes[0].id)
         }
+        // 通知小组件更新
+//        NotificationCenter.default.post(name: .themeDidChange, object: nil)
     }
     
     /// 退出登录时重置主题
@@ -225,73 +252,75 @@ class TDThemeManager: ObservableObject {
         let hexColor = currentTheme.colorLevels.color(for: level, isDark: isDark)
         return Color.fromHex(hexColor)
     }
-    
+    /// 获取主题颜色
+    private func themeColor(_ keyPath: KeyPath<TDThemeBaseColors, TDDynamicColor>) -> Color {
+        currentTheme.baseColors[keyPath: keyPath].color(isDark: TDSettingManager.shared.isDarkMode)
+    }
+
     /// 获取一级背景色
     var backgroundColor: Color {
-        currentTheme.baseColors.primaryBackground.color(isDark: TDSettingManager.shared.isDarkMode)
+        themeColor(\.primaryBackground)
     }
     
     /// 获取二级背景色
     var secondaryBackgroundColor: Color {
-        currentTheme.baseColors.secondaryBackground.color(isDark: TDSettingManager.shared.isDarkMode)
+        themeColor(\.secondaryBackground)
     }
     
     /// 获取三级背景色
     var tertiaryBackgroundColor: Color {
-        currentTheme.baseColors.tertiaryBackground.color(isDark: TDSettingManager.shared.isDarkMode)
+        themeColor(\.tertiaryBackground)
     }
     
     /// 获取标题文字颜色
     var titleTextColor: Color {
-        currentTheme.baseColors.titleText.color(isDark: TDSettingManager.shared.isDarkMode)
+        themeColor(\.titleText)
     }
     
     /// 获取描述文字颜色
     var descriptionTextColor: Color {
-        currentTheme.baseColors.descriptionText.color(isDark: TDSettingManager.shared.isDarkMode)
+        themeColor(\.descriptionText)
     }
     
     /// 获取子任务文字颜色
     var subtaskTextColor: Color {
-        currentTheme.baseColors.subtaskText.color(isDark: TDSettingManager.shared.isDarkMode)
+        themeColor(\.subtaskText)
     }
     
     /// 获取标题已完成颜色
     var titleFinishTextColor: Color {
-        currentTheme.baseColors.titleFinishText.color(isDark: TDSettingManager.shared.isDarkMode)
+        themeColor(\.titleFinishText)
     }
     
     /// 获取描述已完成颜色
     var descriptionFinishTextColor: Color {
-        currentTheme.baseColors.descriptionFinishText.color(isDark: TDSettingManager.shared.isDarkMode)
+        themeColor(\.descriptionFinishText)
     }
     
     /// 获取子任务已完成颜色
     var subtaskFinishTextColor: Color {
-        currentTheme.baseColors.subtaskFinishText.color(isDark: TDSettingManager.shared.isDarkMode)
+        themeColor(\.subtaskFinishText)
     }
     
     /// 获取分割线颜色
     var separatorColor: Color {
-        currentTheme.baseColors.separator.color(isDark: TDSettingManager.shared.isDarkMode)
+        themeColor(\.separator)
     }
     
     /// 获取边框颜色
     var borderColor: Color {
-        currentTheme.baseColors.border.color(isDark: TDSettingManager.shared.isDarkMode)
+        themeColor(\.border)
     }
     // MARK: - 持久化存储
     
     /// 主题文件URL
     private var themesFileURL: URL {
-        let documentsDirectory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-        let appSupportURL = documentsDirectory.appendingPathComponent("TodoList", isDirectory: true)
-        
-        // 确保目录存在
-        try? FileManager.default.createDirectory(at: appSupportURL, withIntermediateDirectories: true)
-        
-        return appSupportURL.appendingPathComponent("custom_themes.json")
+        guard let url = TDAppConfig.themesFileURL else {
+            fatalError("无法获取主题文件 URL")
+        }
+        return url
     }
+
     
     /// 加载保存的主题
      func loadThemes() {

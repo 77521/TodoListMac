@@ -13,6 +13,14 @@ import SwiftUI
 class TDSettingManager: ObservableObject {
     static let shared = TDSettingManager()
     
+    /// App Group 标识符，主程序和小组件都要配置同一个 groupId
+    private let appGroupIdentifier = TDAppConfig.appGroupId
+    /// 共享的 UserDefaults，用于主程序和小组件数据同步
+    private var sharedDefaults: UserDefaults? {
+        UserDefaults(suiteName: appGroupIdentifier)
+    }
+
+    
     // MARK: - AppStorage Keys
     private struct Keys {
         /// 主题模式 跟随系统 白天  黑夜
@@ -51,102 +59,100 @@ class TDSettingManager: ObservableObject {
 
     }
     
-    /// 主题模式
-    @AppStorage(Keys.themeMode) private var themeModeRawValue: Int = TDThemeMode.light.rawValue {
-        didSet { objectWillChange.send() }
+    // MARK: - 存储属性（每个都带注释）
+    
+    /// 主题模式（0: 跟随系统，1: 白天，2: 黑夜）
+    var themeMode: TDThemeMode {
+        get { TDThemeMode(rawValue: sharedDefaults?.integer(forKey: Keys.themeMode) ?? TDThemeMode.light.rawValue) ?? .light }
+        set { sharedDefaults?.set(newValue.rawValue, forKey: Keys.themeMode); objectWillChange.send() }
     }
     
-    /// 文字大小
-    @AppStorage(Keys.fontSize) private var fontSizeRawValue: Int = TDFontSize.system.rawValue {
-        didSet { objectWillChange.send() }
+    /// 字体大小
+    var fontSize: TDFontSize {
+        get { TDFontSize(rawValue: sharedDefaults?.integer(forKey: Keys.fontSize) ?? TDFontSize.system.rawValue) ?? .system }
+        set { sharedDefaults?.set(newValue.rawValue, forKey: Keys.fontSize); objectWillChange.send() }
     }
     
-    /// 语言设置
-    @AppStorage(Keys.language) private var languageRawValue: Int = TDLanguage.system.rawValue {
-        didSet { objectWillChange.send() }
+    /// 语言（0: 跟随系统，1: 中文，2: 英文 ...）
+    var language: TDLanguage {
+        get { TDLanguage(rawValue: sharedDefaults?.integer(forKey: Keys.language) ?? TDLanguage.system.rawValue) ?? .system }
+        set { sharedDefaults?.set(newValue.rawValue, forKey: Keys.language); objectWillChange.send() }
     }
-    /// 每周第一天（0: 周日，1: 周一）
-    @AppStorage(Keys.firstDayOfWeek) private var firstDayOfWeekValue: Int = 1 {
-        didSet { objectWillChange.send() }
+    /// 每周第一天是否为周一
+    var isFirstDayMonday: Bool {
+        get { sharedDefaults?.integer(forKey: Keys.firstDayOfWeek) == 1 }
+        set { sharedDefaults?.set(newValue ? 1 : 0, forKey: Keys.firstDayOfWeek); objectWillChange.send() }
     }
-
+    
     /// 是否显示已完成任务
-    @AppStorage(Keys.showCompletedTasks) private var showCompletedTasksValue: Bool = false {
-        didSet { objectWillChange.send() }
+    var showCompletedTasks: Bool {
+        get { sharedDefaults?.bool(forKey: Keys.showCompletedTasks) ?? false }
+        set { sharedDefaults?.set(newValue, forKey: Keys.showCompletedTasks); objectWillChange.send() }
     }
-    /// 数据展示排序
-    @AppStorage(Keys.taskSortOrder) private var taskSortOrderValue: Bool = true {
-        didSet { objectWillChange.send() }
+    
+    /// 数据展示排序（true: 升序，false: 降序）
+    var isTaskSortAscending: Bool {
+        get { sharedDefaults?.bool(forKey: Keys.taskSortOrder) ?? true }
+        set { sharedDefaults?.set(newValue, forKey: Keys.taskSortOrder); objectWillChange.send() }
     }
     /// 是否显示本地日历数据
-    @AppStorage(Keys.showLocalCalendarEvents) private var showLocalCalendarEventsValue: Bool = false {
-        didSet { objectWillChange.send() }
+    var showLocalCalendarEvents: Bool {
+        get { sharedDefaults?.bool(forKey: Keys.showLocalCalendarEvents) ?? false }
+        set { sharedDefaults?.set(newValue, forKey: Keys.showLocalCalendarEvents); objectWillChange.send() }
     }
-    /// 描述显示行数 (1-5行)
-    @AppStorage(Keys.descriptionLineLimit) private var descriptionLineLimitValue: Int = 1 {
-        didSet {
-            // 确保值在1-5之间
-            if descriptionLineLimitValue < 1 {
-                descriptionLineLimitValue = 1
-            } else if descriptionLineLimitValue > 5 {
-                descriptionLineLimitValue = 5
-            }
+    
+    /// 描述显示行数（1-5）
+    var descriptionLineLimit: Int {
+        get { sharedDefaults?.integer(forKey: Keys.descriptionLineLimit) ?? 1 }
+        set {
+            let value = min(max(newValue, 1), 5)
+            sharedDefaults?.set(value, forKey: Keys.descriptionLineLimit)
             objectWillChange.send()
         }
     }
     
     /// 已完成过期任务显示范围
-    @AppStorage(Keys.expiredRangeCompleted) private var expiredRangeCompletedValue: Int = TDExpiredRange.sevenDays.rawValue {
-        didSet { objectWillChange.send() }
+    var expiredRangeCompleted: TDExpiredRange {
+        get { TDExpiredRange(rawValue: sharedDefaults?.integer(forKey: Keys.expiredRangeCompleted) ?? TDExpiredRange.sevenDays.rawValue) ?? .sevenDays }
+        set { sharedDefaults?.set(newValue.rawValue, forKey: Keys.expiredRangeCompleted); objectWillChange.send() }
     }
-    
+
     /// 未完成过期任务显示范围
-    @AppStorage(Keys.expiredRangeUncompleted) private var expiredRangeUncompletedValue: Int = TDExpiredRange.sevenDays.rawValue {
-        didSet { objectWillChange.send() }
-    }
-
-    /// 重复数据显示个数
-    @AppStorage(Keys.repeatTasksLimit) private var repeatTasksLimitValue: Int = TDRepeatTasksLimit.all.rawValue {
-        didSet { objectWillChange.send() }
-    }
-    /// 后续日程显示范围
-    @AppStorage(Keys.futureDateRange) private var futureDateRangeValue: Int = TDFutureDateRange.thirtyDays.rawValue {
-        didSet { objectWillChange.send() }
+    var expiredRangeUncompleted: TDExpiredRange {
+        get { TDExpiredRange(rawValue: sharedDefaults?.integer(forKey: Keys.expiredRangeUncompleted) ?? TDExpiredRange.sevenDays.rawValue) ?? .sevenDays }
+        set { sharedDefaults?.set(newValue.rawValue, forKey: Keys.expiredRangeUncompleted); objectWillChange.send() }
     }
     
-    /// 日历视图任务背景色模式
-    @AppStorage(Keys.calendarTaskBackgroundMode) private var taskBackgroundModeValue: Int = TDTaskBackgroundMode.workload.rawValue {
-        didSet { objectWillChange.send() }
+    /// 重复数据显示个数
+    var repeatTasksLimit: TDRepeatTasksLimit {
+        get { TDRepeatTasksLimit(rawValue: sharedDefaults?.integer(forKey: Keys.repeatTasksLimit) ?? TDRepeatTasksLimit.all.rawValue) ?? .all }
+        set { sharedDefaults?.set(newValue.rawValue, forKey: Keys.repeatTasksLimit); objectWillChange.send() }
+    }
+    
+    /// 后续日程显示范围
+    var futureDateRange: TDFutureDateRange {
+        get { TDFutureDateRange(rawValue: sharedDefaults?.integer(forKey: Keys.futureDateRange) ?? TDFutureDateRange.thirtyDays.rawValue) ?? .thirtyDays }
+        set { sharedDefaults?.set(newValue.rawValue, forKey: Keys.futureDateRange); objectWillChange.send() }
     }
 
+    /// 日历视图任务背景色模式
+    var calendarTaskBackgroundMode: TDTaskBackgroundMode {
+        get { TDTaskBackgroundMode(rawValue: sharedDefaults?.integer(forKey: Keys.calendarTaskBackgroundMode) ?? TDTaskBackgroundMode.workload.rawValue) ?? .workload }
+        set { sharedDefaults?.set(newValue.rawValue, forKey: Keys.calendarTaskBackgroundMode); objectWillChange.send() }
+    }
+    
     /// 日历视图是否显示已完成分割线
-    @AppStorage(Keys.calendarShowCompletedSeparator) private var showCompletedSeparatorValue: Bool = true {
-        didSet { objectWillChange.send() }
+    var calendarShowCompletedSeparator: Bool {
+        get { sharedDefaults?.bool(forKey: Keys.calendarShowCompletedSeparator) ?? true }
+        set { sharedDefaults?.set(newValue, forKey: Keys.calendarShowCompletedSeparator); objectWillChange.send() }
     }
     
     /// 日历视图是否显示剩余任务数量
-    @AppStorage(Keys.calendarShowRemainingCount) private var showRemainingCountValue: Bool = true {
-        didSet { objectWillChange.send() }
-    }
-    // MARK: - 计算属性
-    
-    /// 当前主题模式
-    var themeMode: TDThemeMode {
-        get { TDThemeMode(rawValue: themeModeRawValue) ?? .light }
-        set { themeModeRawValue = newValue.rawValue }
+    var calendarShowRemainingCount: Bool {
+        get { sharedDefaults?.bool(forKey: Keys.calendarShowRemainingCount) ?? true }
+        set { sharedDefaults?.set(newValue, forKey: Keys.calendarShowRemainingCount); objectWillChange.send() }
     }
     
-    /// 当前文字大小
-    var fontSize: TDFontSize {
-        get { TDFontSize(rawValue: fontSizeRawValue) ?? .system }
-        set { fontSizeRawValue = newValue.rawValue }
-    }
-    
-    /// 当前语言
-    var language: TDLanguage {
-        get { TDLanguage(rawValue: languageRawValue) ?? .system }
-        set { languageRawValue = newValue.rawValue }
-    }
     
     /// 获取当前是否是深色模式
     var isDarkMode: Bool {
@@ -159,61 +165,11 @@ class TDSettingManager: ObservableObject {
             return true
         }
     }
-    /// 每周第一天是否为周一
-    var isFirstDayMonday: Bool {
-        get { firstDayOfWeekValue == 1 }
-        set { firstDayOfWeekValue = newValue ? 1 : 0 }
-    }
-
-    /// 是否显示已完成任务
-    var showCompletedTasks: Bool {
-        get { showCompletedTasksValue }
-        set { showCompletedTasksValue = newValue }
-    }
-    
-    /// 数据展示排序
-    var isTaskSortAscending: Bool {
-        get { taskSortOrderValue }
-        set { taskSortOrderValue = newValue }
-    }
-    /// 是否显示本地日历数据
-    var showLocalCalendarEvents: Bool {
-        get { showLocalCalendarEventsValue }
-        set { showLocalCalendarEventsValue = newValue }
-    }
-    /// 描述显示行数
-    var descriptionLineLimit: Int {
-        get { descriptionLineLimitValue }
-        set { descriptionLineLimitValue = min(max(newValue, 1), 5) }
-    }
-    
-    /// 已完成过期任务显示范围
-    var expiredRangeCompleted: TDExpiredRange {
-        get { TDExpiredRange(rawValue: expiredRangeCompletedValue) ?? .sevenDays }
-        set { expiredRangeCompletedValue = newValue.rawValue }
-    }
-    
-    /// 未完成过期任务显示范围
-    var expiredRangeUncompleted: TDExpiredRange {
-        get { TDExpiredRange(rawValue: expiredRangeUncompletedValue) ?? .sevenDays }
-        set { expiredRangeUncompletedValue = newValue.rawValue }
-    }
-    
-    /// 重复数据显示个数
-    var repeatTasksLimit: TDRepeatTasksLimit {
-        get { TDRepeatTasksLimit(rawValue: repeatTasksLimitValue) ?? .all }
-        set { repeatTasksLimitValue = newValue.rawValue }
-    }
     /// 获取重复数据显示个数的具体数值
     var repeatNum: Int {
         repeatTasksLimit.rawValue
     }
     
-    /// 后续日程显示范围
-    var futureDateRange: TDFutureDateRange {
-        get { TDFutureDateRange(rawValue: futureDateRangeValue) ?? .thirtyDays }
-        set { futureDateRangeValue = newValue.rawValue }
-    }
     
     /// 获取后续日程显示范围的天数
     var futureDays: Int {
@@ -230,23 +186,7 @@ class TDSettingManager: ObservableObject {
         }
     }
 
-    /// 日历视图任务背景色模式
-    var calendarTaskBackgroundMode: TDTaskBackgroundMode {
-        get { TDTaskBackgroundMode(rawValue: taskBackgroundModeValue) ?? .workload }
-        set { taskBackgroundModeValue = newValue.rawValue }
-    }
-    /// 日历视图是否显示已完成分割线
-    var calendarShowCompletedSeparator: Bool {
-        get { showCompletedSeparatorValue }
-        set { showCompletedSeparatorValue = newValue }
-    }
-    
-    /// 日历视图是否显示剩余任务数量
-    var calendarShowRemainingCount: Bool {
-        get { showRemainingCountValue }
-        set { showRemainingCountValue = newValue }
-    }
-    
+  
     
 
     /// 获取任务显示样式

@@ -19,8 +19,8 @@ struct TDMainView: View {
         NavigationSplitView(columnVisibility: $columnVisibility) {
             // 第一列 - 左侧导航栏
             TDSliderBarView()
-                .navigationSplitViewColumnWidth(min: 216, ideal: 250, max: 300)
-            
+                .frame(minWidth: 240, idealWidth: 270, maxWidth: 320) // 加宽
+
         } content: {
             // 第二列 - 根据选中的分类显示不同的视图
             Group {
@@ -51,12 +51,12 @@ struct TDMainView: View {
                     }
                 }
             }
-            .navigationSplitViewColumnWidth(min: 600, ideal: 833, max: .infinity)
+            .navigationSplitViewColumnWidth(min: 500, ideal: 833, max: .infinity)
             
         } detail: {
             // 第三列 - 任务详情
             TaskDetailView()
-                .navigationSplitViewColumnWidth(min: 400, ideal: 450, max: .infinity)
+                .navigationSplitViewColumnWidth(min: 300, ideal: 450, max: .infinity)
         }
         .task {
             // 视图加载时启动同步

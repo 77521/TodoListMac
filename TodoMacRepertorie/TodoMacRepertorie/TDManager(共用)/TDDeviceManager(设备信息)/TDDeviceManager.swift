@@ -13,9 +13,9 @@ import CryptoKit
 class TDDeviceManager {
     static let shared = TDDeviceManager()
     
-    
+
     // 安全密钥
-    private let securityKey = "naonao520a@163.com"
+    private let securityKey = TDAppConfig.securityKey
     
     // 设备ID（优先使用存储的，没有则生成新的）
     var deviceId: String {

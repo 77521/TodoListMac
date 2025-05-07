@@ -9,13 +9,107 @@
 /* Begin PBXBuildFile section */
 		0D39D1A82D5B428F00A5688A /* AlertToast in Frameworks */ = {isa = PBXBuildFile; productRef = 0D39D1A72D5B428F00A5688A /* AlertToast */; };
 		0D39D1AB2D5B42BD00A5688A /* SwiftDate in Frameworks */ = {isa = PBXBuildFile; productRef = 0D39D1AA2D5B42BD00A5688A /* SwiftDate */; };
+		0DA3980B2DCAF25300D208A3 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0DA3980A2DCAF25300D208A3 /* WidgetKit.framework */; };
+		0DA3980D2DCAF25300D208A3 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0DA3980C2DCAF25300D208A3 /* SwiftUI.framework */; };
+		0DA3981B2DCAF25500D208A3 /* TDMacWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 0DA398082DCAF25300D208A3 /* TDMacWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		0DA398542DCAF67000D208A3 /* SwiftDate in Frameworks */ = {isa = PBXBuildFile; productRef = 0DA398532DCAF67000D208A3 /* SwiftDate */; };
+		0DA398562DCAF68800D208A3 /* AlertToast in Frameworks */ = {isa = PBXBuildFile; productRef = 0DA398552DCAF68800D208A3 /* AlertToast */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		0DA398192DCAF25500D208A3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AF7D0F132D1EC14D00F83EB9 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0DA398072DCAF25300D208A3;
+			remoteInfo = TDMacWidgetExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		0DA3981C2DCAF25500D208A3 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				0DA3981B2DCAF25500D208A3 /* TDMacWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		0DA398082DCAF25300D208A3 /* TDMacWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TDMacWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		0DA3980A2DCAF25300D208A3 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		0DA3980C2DCAF25300D208A3 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		AF7D0F1B2D1EC14D00F83EB9 /* TodoMacRepertorie.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TodoMacRepertorie.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		0DA398202DCAF25500D208A3 /* Exceptions for "TDMacWidget" folder in "TDMacWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 0DA398072DCAF25300D208A3 /* TDMacWidgetExtension */;
+		};
+		0DA398222DCAF2C700D208A3 /* Exceptions for "TodoMacRepertorie" folder in "TDMacWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"/Localized: SupportingFiles(源文件)/Localizable(国际化适配)/Localizable.strings",
+				"SupportingFiles(源文件)/Assets.xcassets",
+				"TDCategory(类的扩展)/Color-Extension(颜色)/Color-Extension.swift",
+				"TDCategory(类的扩展)/Date-Extension(日期)/Date-Extension.swift",
+				"TDCategory(类的扩展)/Notification-Extension(通知)/Notification-Extension.swift",
+				"TDCategory(类的扩展)/NSAppearance-Extension(系统)/NSAppearance-Extension.swift",
+				"TDCategory(类的扩展)/String-Extension(字符串)/String-Extension.swift",
+				"TDCategory(类的扩展)/View-Extension(视图)/View-Extension.swift",
+				"TDLogin(登录)/model/TDLoginAPI(登录接口调用)/TDLoginAPI.swift",
+				"TDLogin(登录)/model/TDUserModel(用户信息)/TDUserModel.swift",
+				"TDLogin(登录)/view/TDBridTextField.swift",
+				"TDLogin(登录)/view/TDLoginRuleView.swift",
+				"TDLogin(登录)/view/TDLoginView.swift",
+				"TDLogin(登录)/viewModel/TDLoginViewModel.swift",
+				"TDMainView(主视图)/viewmodel/TDMainViewModel.swift",
+				"TDManager(共用)/TDAppConfig(App设置)/TDAppConfig.swift",
+				"TDManager(共用)/TDCalendarManager(日程概览管理器)/TDCalendarManager.swift",
+				"TDManager(共用)/TDCalendarService(本地日历)/TDCalendarService.swift",
+				"TDManager(共用)/TDCategoryManager(分类清单)/TDCategoryManager.swift",
+				"TDManager(共用)/TDDeviceManager(设备信息)/TDDeviceManager.swift",
+				"TDManager(共用)/TDModelContainer(swiftData容器共用)/TDModelContainer.swift",
+				"TDManager(共用)/TDNetworkManager(网络请求)/TDNetworkManager.swift",
+				"TDManager(共用)/TDNetworkManager(网络请求)/TDNetworkModels.swift",
+				"TDManager(共用)/TDQueryConditionManager(数据库查询条件)/TDQueryConditionManager.swift",
+				"TDManager(共用)/TDSettingManager(设置)/TDSettingEnum.swift",
+				"TDManager(共用)/TDSettingManager(设置)/TDSettingManager.swift",
+				"TDManager(共用)/TDThemeManager(主题颜色)/TDThemeColorBase.swift",
+				"TDManager(共用)/TDThemeManager(主题颜色)/TDThemeManager.swift",
+				"TDManager(共用)/TDTost(Tost 提示弹窗)/TDToastManager.swift",
+				"TDManager(共用)/TDUser(用户信息)/TDAvatarManager(头像缓存)/TDAvatarManager.swift",
+				"TDManager(共用)/TDUser(用户信息)/TDKeychainManager(用户信息缓存)/TDKeychainManager.swift",
+				"TDManager(共用)/TDUser(用户信息)/TDUserManager(用户信息获取操作)/TDUserManager.swift",
+				"TDManager(共用)/TDUser(用户信息)/TDUserSyncManager(用户同步)/TDUserSyncManager.swift",
+				"TDScheduleOverview(日程概览)/model/TDCalendarDateModel.swift",
+				"TDSlider(侧边栏)/model/TDCategoryAPI.swift",
+				"TDSlider(侧边栏)/model/TDSliderBarModel.swift",
+				"TDSlider(侧边栏)/viewModel/TDSliderBarViewModel.swift",
+				"TDTask(任务列表)/model/TDDateManager.swift",
+				"TDTask(任务列表)/model/TDGetCurrentVersionModel.swift",
+				"TDTask(任务列表)/model/TDMacSwiftDataListModel.swift",
+				"TDTask(任务列表)/model/TDMacTaskPredicateBuilder.swift",
+				"TDTask(任务列表)/model/TDMacTaskService.swift",
+				"TDTask(任务列表)/model/TDTaskAPI.swift",
+				"TDTask(任务列表)/model/TDTaskModel.swift",
+				"TDTask(任务列表)/view/TDCustomDatePickerView.swift",
+				"TDTask(任务列表)/view/TDTaskGroupHeader.swift",
+				"TDTask(任务列表)/view/TDTaskInputView.swift",
+				"TDTask(任务列表)/viewModel/TDMacListViewModel.swift",
+				"TDTask(任务列表)/viewModel/TDTaskGroup.swift",
+			);
+			target = 0DA398072DCAF25300D208A3 /* TDMacWidgetExtension */;
+		};
 		AF9055CA2D3E37030037A3A7 /* Exceptions for "TodoMacRepertorie" folder in "TodoMacRepertorie" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -26,10 +120,19 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		0DA3980E2DCAF25300D208A3 /* TDMacWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				0DA398202DCAF25500D208A3 /* Exceptions for "TDMacWidget" folder in "TDMacWidgetExtension" target */,
+			);
+			path = TDMacWidget;
+			sourceTree = "<group>";
+		};
 		AF7D0F1D2D1EC14D00F83EB9 /* TodoMacRepertorie */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				AF9055CA2D3E37030037A3A7 /* Exceptions for "TodoMacRepertorie" folder in "TodoMacRepertorie" target */,
+				0DA398222DCAF2C700D208A3 /* Exceptions for "TodoMacRepertorie" folder in "TDMacWidgetExtension" target */,
 			);
 			path = TodoMacRepertorie;
 			sourceTree = "<group>";
@@ -37,6 +140,17 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		0DA398052DCAF25300D208A3 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0DA3980D2DCAF25300D208A3 /* SwiftUI.framework in Frameworks */,
+				0DA398562DCAF68800D208A3 /* AlertToast in Frameworks */,
+				0DA3980B2DCAF25300D208A3 /* WidgetKit.framework in Frameworks */,
+				0DA398542DCAF67000D208A3 /* SwiftDate in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		AF7D0F182D1EC14D00F83EB9 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -49,10 +163,21 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0DA398092DCAF25300D208A3 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				0DA3980A2DCAF25300D208A3 /* WidgetKit.framework */,
+				0DA3980C2DCAF25300D208A3 /* SwiftUI.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		AF7D0F122D1EC14D00F83EB9 = {
 			isa = PBXGroup;
 			children = (
 				AF7D0F1D2D1EC14D00F83EB9 /* TodoMacRepertorie */,
+				0DA3980E2DCAF25300D208A3 /* TDMacWidget */,
+				0DA398092DCAF25300D208A3 /* Frameworks */,
 				AF7D0F1C2D1EC14D00F83EB9 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -61,6 +186,7 @@
 			isa = PBXGroup;
 			children = (
 				AF7D0F1B2D1EC14D00F83EB9 /* TodoMacRepertorie.app */,
+				0DA398082DCAF25300D208A3 /* TDMacWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -68,6 +194,30 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		0DA398072DCAF25300D208A3 /* TDMacWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0DA3981F2DCAF25500D208A3 /* Build configuration list for PBXNativeTarget "TDMacWidgetExtension" */;
+			buildPhases = (
+				0DA398042DCAF25300D208A3 /* Sources */,
+				0DA398052DCAF25300D208A3 /* Frameworks */,
+				0DA398062DCAF25300D208A3 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				0DA3980E2DCAF25300D208A3 /* TDMacWidget */,
+			);
+			name = TDMacWidgetExtension;
+			packageProductDependencies = (
+				0DA398532DCAF67000D208A3 /* SwiftDate */,
+				0DA398552DCAF68800D208A3 /* AlertToast */,
+			);
+			productName = TDMacWidgetExtension;
+			productReference = 0DA398082DCAF25300D208A3 /* TDMacWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		AF7D0F1A2D1EC14D00F83EB9 /* TodoMacRepertorie */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = AF7D0F2C2D1EC15000F83EB9 /* Build configuration list for PBXNativeTarget "TodoMacRepertorie" */;
@@ -75,10 +225,12 @@
 				AF7D0F172D1EC14D00F83EB9 /* Sources */,
 				AF7D0F182D1EC14D00F83EB9 /* Frameworks */,
 				AF7D0F192D1EC14D00F83EB9 /* Resources */,
+				0DA3981C2DCAF25500D208A3 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				0DA3981A2DCAF25500D208A3 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				AF7D0F1D2D1EC14D00F83EB9 /* TodoMacRepertorie */,
@@ -102,6 +254,9 @@
 				LastSwiftUpdateCheck = 1620;
 				LastUpgradeCheck = 1620;
 				TargetAttributes = {
+					0DA398072DCAF25300D208A3 = {
+						CreatedOnToolsVersion = 16.2;
+					};
 					AF7D0F1A2D1EC14D00F83EB9 = {
 						CreatedOnToolsVersion = 16.2;
 					};
@@ -127,11 +282,19 @@
 			projectRoot = "";
 			targets = (
 				AF7D0F1A2D1EC14D00F83EB9 /* TodoMacRepertorie */,
+				0DA398072DCAF25300D208A3 /* TDMacWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		0DA398062DCAF25300D208A3 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		AF7D0F192D1EC14D00F83EB9 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -142,6 +305,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		0DA398042DCAF25300D208A3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		AF7D0F172D1EC14D00F83EB9 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -151,7 +321,77 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		0DA3981A2DCAF25500D208A3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 0DA398072DCAF25300D208A3 /* TDMacWidgetExtension */;
+			targetProxy = 0DA398192DCAF25500D208A3 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		0DA3981D2DCAF25500D208A3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = TDMacWidget/TDMacWidget.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = ARQ4QZ8Q3D;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = TDMacWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = TDMacWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.Mac.Todolist.TodoMacRepertorie.TDMacWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		0DA3981E2DCAF25500D208A3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = TDMacWidget/TDMacWidget.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = ARQ4QZ8Q3D;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = TDMacWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = TDMacWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.Mac.Todolist.TodoMacRepertorie.TDMacWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
 		AF7D0F2A2D1EC15000F83EB9 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -341,6 +581,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		0DA3981F2DCAF25500D208A3 /* Build configuration list for PBXNativeTarget "TDMacWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0DA3981D2DCAF25500D208A3 /* Debug */,
+				0DA3981E2DCAF25500D208A3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		AF7D0F162D1EC14D00F83EB9 /* Build configuration list for PBXProject "TodoMacRepertorie" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -390,6 +639,15 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 0D39D1A92D5B42BD00A5688A /* XCRemoteSwiftPackageReference "SwiftDate" */;
 			productName = SwiftDate;
+		};
+		0DA398532DCAF67000D208A3 /* SwiftDate */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SwiftDate;
+		};
+		0DA398552DCAF68800D208A3 /* AlertToast */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0D39D1A62D5B428F00A5688A /* XCRemoteSwiftPackageReference "AlertToast" */;
+			productName = AlertToast;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
