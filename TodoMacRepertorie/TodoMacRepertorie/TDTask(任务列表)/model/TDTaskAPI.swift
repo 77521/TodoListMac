@@ -89,6 +89,20 @@ final class TDTaskAPI {
         return result
 
     }
+    
+    
+    /// 同步本地数据到服务器
+    /// - Parameter tasksJson: 本地数组转 json数据
+    /// - Returns: 返回的数据
+    func syncPushData(tasksJson: String) async throws -> [TDTaskSyncResultModel] {
+        let parameters: [String: Any] = ["tasksJson": tasksJson]
+        let result: [TDTaskSyncResultModel] = try await TDNetworkManager.shared.fetchList(
+            endpoint: "syncPushData",
+            parameters: parameters
+        )
+        return result
+    }
+
 }
 
 

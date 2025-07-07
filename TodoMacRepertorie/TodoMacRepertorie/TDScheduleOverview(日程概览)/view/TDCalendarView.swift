@@ -30,16 +30,17 @@ struct TDCalendarView: View {
                 .onAppear {
                     calendarManager.updateViewHeight(geometry.size.height)
                     Task {
-                        await calendarManager.updateCalendarData()
+                        try? await calendarManager.updateCalendarData()
                     }
                 }
-                .onChange(of: geometry.size.height) { newHeight in
-                    calendarManager.updateViewHeight(newHeight)
+                .onChange(of: geometry.size.height) { oldValue, newValue in
+                    calendarManager.updateViewHeight(newValue)
                     Task {
-                        await calendarManager.updateCalendarData()
+                        try? await calendarManager.updateCalendarData()
                     }
                 }
             }
+
         }
     }
     
@@ -308,7 +309,7 @@ struct TDCalendarHeaderView: View {
                     calendarManager.selectedDate = newDate
                 }
                 // 重新加载日历数据
-                await calendarManager.updateCalendarData()
+                try? await calendarManager.updateCalendarData()
             }
         }
     }
@@ -322,7 +323,7 @@ struct TDCalendarHeaderView: View {
                     calendarManager.selectedDate = newDate
                 }
                 // 重新加载日历数据
-                await calendarManager.updateCalendarData()
+                try? await calendarManager.updateCalendarData()
             }
         }
     }

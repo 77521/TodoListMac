@@ -21,7 +21,7 @@ final class TDCalendarManager: ObservableObject {
         didSet {
             // 当日期变化时，自动更新日历数据
             Task {
-                await updateCalendarData()
+                try? await updateCalendarData()
             }
         }
     }
@@ -33,7 +33,7 @@ final class TDCalendarManager: ObservableObject {
     private init() {}
     
     /// 更新日历数据
-    func updateCalendarData() async {
+    func updateCalendarData() async throws {
         // 1. 获取当月第一天和最后一天
         let firstDayOfMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: selectedDate))!
         let lastDayOfMonth = calendar.date(byAdding: DateComponents(month: 1, day: -1), to: firstDayOfMonth)!
@@ -48,8 +48,8 @@ final class TDCalendarManager: ObservableObject {
         let datesWithLunar = await addLunarAndHolidayInfo(to: allDates)
         
         // 5. 获取任务数据
-        let datesWithTasks = await addTasksToDate(dates: datesWithLunar)
-        
+        let datesWithTasks = try await addTasksToDate(dates: datesWithLunar)
+
         // 6. 按周分组
         calendarDates = groupByWeek(dates: datesWithTasks, numberOfWeeks: numberOfWeeks)
     }
@@ -166,12 +166,12 @@ final class TDCalendarManager: ObservableObject {
     }
     
     /// 添加任务数据
-    private func addTasksToDate(dates: [TDCalendarDateModel]) async -> [TDCalendarDateModel] {
+    private func addTasksToDate(dates: [TDCalendarDateModel]) async throws -> [TDCalendarDateModel] {
         var updatedDates = dates
         
         for (index, date) in dates.enumerated() {
-            let tasks = try? await queryManager.queryTasksByDate(timestamp: date.date.startOfDayTimestamp)
-            updatedDates[index].tasks = tasks ?? []
+            let tasks = try await queryManager.queryTasksByDate(timestamp: date.date.startOfDayTimestamp)
+            updatedDates[index].tasks = tasks
         }
         
         return updatedDates

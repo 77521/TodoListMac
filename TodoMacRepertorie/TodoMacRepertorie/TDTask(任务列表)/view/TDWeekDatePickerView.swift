@@ -25,7 +25,7 @@ struct TDWeekDatePickerView: View {
                         dateManager.backToToday()
                     }
                     Task {
-                        await mainViewModel.refreshTasks()
+                        try? await mainViewModel.refreshTasks()
                     }
                 }) {
                     Image(systemName: "chevron.left")
@@ -41,7 +41,7 @@ struct TDWeekDatePickerView: View {
                         Button(action: {
                             dateManager.selectDate(date)
                             Task {
-                                await mainViewModel.refreshTasks()
+                                try? await mainViewModel.refreshTasks()
                             }
                         }) {
                             Text(date.dayNumberString)
@@ -71,7 +71,7 @@ struct TDWeekDatePickerView: View {
                         dateManager.backToToday()
                     }
                     Task {
-                        await mainViewModel.refreshTasks()
+                        try? await mainViewModel.refreshTasks()
                     }
                 }) {
                     Image(systemName: "chevron.right")
@@ -106,7 +106,7 @@ struct TDWeekDatePickerView: View {
                         dateManager.selectDate(date)
                         dateManager.updateCurrentWeek()
                         Task {
-                            await mainViewModel.refreshTasks()
+                            try? await mainViewModel.refreshTasks()
                         }
                     }
                 )
@@ -117,7 +117,7 @@ struct TDWeekDatePickerView: View {
             Button(action: {
                 dateManager.backToToday()
                 Task {
-                    await mainViewModel.refreshTasks()
+                    try? await mainViewModel.refreshTasks()
                 }
             }) {
                 Image(systemName: "sun.max")

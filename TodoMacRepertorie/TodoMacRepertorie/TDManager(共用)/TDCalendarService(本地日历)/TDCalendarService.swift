@@ -818,11 +818,28 @@ final class TDCalendarService {
             
             // 创建任务模型
 //            let tempContext = ModelContext(TDModelContainer.shared.modelContainer)
-            let task = TDMacSwiftDataListModel(backingData: ModelContext(TDModelContainer.shared.modelContainer) as! any BackingData<TDMacSwiftDataListModel>)
+            let task = TDMacSwiftDataListModel(
+                id: Int64(event.eventIdentifier?.hashValue ?? 0),
+                taskId: event.eventIdentifier ?? UUID().uuidString,
+                taskContent: event.title ?? "",
+                taskDescribe: event.notes,
+                complete: false,
+                createTime: Int64(event.startDate.timeIntervalSince1970 * 1000),
+                delete: false,
+                reminderTime: Int64(event.startDate.timeIntervalSince1970 * 1000),
+                snowAdd: 0,
+                snowAssess: 0,
+                standbyInt1: 0,
+                syncTime: Int64(Date().timeIntervalSince1970 * 1000),
+                taskSort: 0,
+                todoTime: Int64(event.startDate.timeIntervalSince1970 * 1000),
+                userId: TDUserManager.shared.userId,
+                version: 0,
+                status: "local",
+                isSubOpen: true
+            )
 
-            // 设置基本属性
-            task.taskContent = event.title ?? ""
-            task.taskDescribe = event.notes ?? ""
+            // 设置其他属性
             task.standbyIntName = event.calendar.title
             
             // 将日历颜色转换为字符串保存
@@ -831,18 +848,9 @@ final class TDCalendarService {
                 task.standbyIntColor = color.toHexString()
             }
             
-            // 设置时间相关属性
-            task.createTime = Int64(event.startDate.timeIntervalSince1970 * 1000)
-            task.reminderTime = Int64(event.startDate.timeIntervalSince1970 * 1000)
-            
-            // 设置其他必要属性
-            task.taskId = event.eventIdentifier ?? UUID().uuidString
-            task.complete = false
-            task.delete = false
-            
             // 设置是否为系统日历数据的标识（运行时属性，不保存到数据库）
             task.isSystemCalendarEvent = true
-            
+
             tasks.append(task)
         }
         

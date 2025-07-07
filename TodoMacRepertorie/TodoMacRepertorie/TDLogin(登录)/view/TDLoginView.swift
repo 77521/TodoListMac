@@ -17,7 +17,9 @@ import SwiftUI
 
 struct TDLoginView: View {
     @StateObject private var viewModel = TDLoginViewModel()
-    
+    @Environment(\.openWindow) private var openWindow
+    @Environment(\.dismissWindow) private var dismissWindow
+
     var body: some View {
         ZStack {
             // 背景图
@@ -285,6 +287,11 @@ struct CustomSegmentedControl<T: Hashable>: View {
 // Views/AccountLoginForm.swift
 struct AccountLoginForm: View {
     @ObservedObject var viewModel: TDLoginViewModel
+    
+    @Environment(\.openWindow) private var openWindow
+    @Environment(\.dismissWindow) private var dismissWindow
+
+    
     var body: some View {
         VStack(spacing: 0) {
             TDTextFieldView(viewModel: viewModel, text: $viewModel.userAccount, placeString: "账号/邮箱")

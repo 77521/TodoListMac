@@ -60,7 +60,7 @@ struct TDSliderBarView: View {
                 .contentShape(Rectangle())
                 .onTapGesture {
                     Task {
-                        await viewModel.sync()
+                         viewModel.performSync()
                     }
                 }
             }

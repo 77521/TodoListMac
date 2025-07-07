@@ -8,63 +8,86 @@
 import SwiftUI
 import SwiftData
 
+/// 主界面视图，负责整体布局和全局依赖注入
 struct TDMainView: View {
-    @StateObject private var mainViewModel = TDMainViewModel.shared
-    @State private var searchText = ""
+    @EnvironmentObject private var mainViewModel: TDMainViewModel
+    @EnvironmentObject private var themeManager: TDThemeManager
+    @EnvironmentObject private var settingManager: TDSettingManager
     @Environment(\.modelContext) private var modelContext
     @State private var columnVisibility = NavigationSplitViewVisibility.all
 
-    
     var body: some View {
         NavigationSplitView(columnVisibility: $columnVisibility) {
-            // 第一列 - 左侧导航栏
+            // 左侧导航栏
             TDSliderBarView()
-                .frame(minWidth: 240, idealWidth: 270, maxWidth: 320) // 加宽
-
+                .frame(minWidth: 216, idealWidth: 216, maxWidth: 280)
+                .background(Color(.windowBackgroundColor))
+                .toolbar {
+                    ToolbarItemGroup(placement: .automatic) {
+                        Spacer()
+                        Button(action: {}) {
+                            Image(systemName: "ellipsis.circle")
+                        }
+                        Button(action: {
+                            TDUserManager.shared.logoutCurrentUser()
+                        }) {
+                            Image(systemName: "gearshape")
+                        }
+                    }
+                }
         } content: {
-            // 第二列 - 根据选中的分类显示不同的视图
+            // 中间主内容区
             Group {
                 if mainViewModel.selectedCategory?.categoryId == -102 {
                     // 日程概览
                     TDCalendarView()
                 } else {
-                    // 其他分类显示任务列表
-                    VStack(spacing: 0) {
-                        // 顶部日期选择器（只在 DayTodo 视图下显示）
-                        if mainViewModel.selectedCategory?.categoryId == -100 {
-                            TDWeekDatePickerView()
-                                .padding(.vertical, 8)
-                                .padding(.horizontal, 12)
-                                .background(.ultraThinMaterial)
-                        }
-                        
-                        // 任务列表和悬浮输入框
-                        ZStack(alignment: .top) {
+                    ZStack(alignment: .top) {
+                        VStack(spacing: 0) {
+                            // 日历头部
+                            ZStack(alignment: .top) {
+                                Rectangle()
+                                    .fill(Color(.windowBackgroundColor))
+                                    .frame(height: 50)
+                                    .shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 4)
+                                TDWeekDatePickerView()
+                                    .frame(height: 50)
+                                    .padding(.horizontal, 24)
+                                    .background(Color.clear)
+                            }
                             // 任务列表
                             TDTaskListView()
-                            
-                            // 悬浮的任务输入框
-                            TDTaskInputView()
-                                .padding(.horizontal, 12)
-                                .padding(.top, 10)
                         }
+                        .ignoresSafeArea(.container, edges: .all)
+                        // 悬浮输入框
+                        TDTaskInputView()
+                            .padding(.horizontal, 24)
+                            .padding(.top, 80)
                     }
+                    .ignoresSafeArea(.container, edges: .all)
                 }
             }
-            .navigationSplitViewColumnWidth(min: 500, ideal: 833, max: .infinity)
-            
+            .background(Color(.windowBackgroundColor))
+            .navigationSplitViewColumnWidth(
+                min: mainViewModel.selectedCategory?.categoryId == -102 ? 840 : 450,
+                ideal: mainViewModel.selectedCategory?.categoryId == -102 ? 840 : 450,
+                max: .infinity
+            )
         } detail: {
-            // 第三列 - 任务详情
+            // 右侧详情区
             TaskDetailView()
-                .navigationSplitViewColumnWidth(min: 300, ideal: 450, max: .infinity)
+                .navigationSplitViewColumnWidth(min: 414, ideal: 414, max: .infinity)
+                .background(Color(.windowBackgroundColor))
         }
+        .frame(minWidth: mainViewModel.selectedCategory?.categoryId == -102 ? 1500 : 1100, minHeight: 700)
+        .background(Color(.windowBackgroundColor))
+        .navigationTitle("")
         .task {
-            // 视图加载时启动同步
-            await mainViewModel.syncAfterLaunch()
+            // 启动时自动同步
+            try? await mainViewModel.syncAfterLogin()
         }
     }
 }
-  
 
 
 

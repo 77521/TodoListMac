@@ -84,6 +84,7 @@
 				"TDManager(共用)/TDQueryConditionManager(数据库查询条件)/TDQueryConditionManager.swift",
 				"TDManager(共用)/TDSettingManager(设置)/TDSettingEnum.swift",
 				"TDManager(共用)/TDSettingManager(设置)/TDSettingManager.swift",
+				"TDManager(共用)/TDSwiftJsonUtil(数据转换)/TDSwiftJsonUtil.swift",
 				"TDManager(共用)/TDThemeManager(主题颜色)/TDThemeColorBase.swift",
 				"TDManager(共用)/TDThemeManager(主题颜色)/TDThemeManager.swift",
 				"TDManager(共用)/TDTost(Tost 提示弹窗)/TDToastManager.swift",

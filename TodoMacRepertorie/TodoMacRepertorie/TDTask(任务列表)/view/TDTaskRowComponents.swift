@@ -19,11 +19,16 @@ enum TDTaskRowComponents {
             var body: some View {
                 Button(action: {
                     Task {
+                        // 1. 先更改完成状态
                         task.complete.toggle()
-                        try? await TDModelContainer.shared.perform {
-                            try TDModelContainer.shared.save()
-                        }
-                        await TDMainViewModel.shared.refreshTasks()
+                        task.status = "update"
+                        // 2. 更新本地数据
+                        try await TDQueryConditionManager.shared.updateLocalTaskFields([task])
+                        // 3. 立即刷新 UI
+                        try? await TDMainViewModel.shared.refreshTasks()
+                        // 4. 调用同步方法
+                        try? await TDMainViewModel.shared.syncAfterLogin()
+
                     }
                 }) {
                     if isDayTodo {
@@ -248,21 +253,68 @@ enum TDTaskRowComponents {
         }
     }
     
-    /// 子任务列表组件
+//    /// 子任务列表组件
+//    struct SubTaskListView: View {
+//        let task: TDMacSwiftDataListModel
+//        @StateObject private var themeManager = TDThemeManager.shared
+//        
+//        var body: some View {
+//            if !task.subTaskList.isEmpty {
+//                VStack(alignment: .leading, spacing: 6) {
+//                    // 展开/收起按钮
+//                    Button(action: {
+//                        // 更新本地数据库
+//                        withAnimation(.easeInOut(duration: 0.2)) {
+//                            task.isSubOpen.toggle()
+//                            Task {
+//                                try? await TDModelContainer.shared.perform {
+//                                    try TDModelContainer.shared.save()
+//                                }
+//                            }
+//                        }
+//                    }) {
+//                        HStack(spacing: 0) {
+//                            HStack(spacing: 5) {
+//                                Image(systemName: task.isSubOpen ? "chevron.up" : "chevron.down")
+//                                    .font(.system(size: 12))
+//                                Text(task.isSubOpen ? "收起" : "\(task.subTaskList.filter(\.isComplete).count)/\(task.subTaskList.count)")
+//                                    .font(.system(size: 12))
+//                            }
+//                            .padding(.horizontal, 10)
+//                            .padding(.vertical, 4)
+//                            .background(
+//                                RoundedRectangle(cornerRadius: 4)
+//                                    .fill(themeManager.secondaryBackgroundColor)
+//                            )
+//                        }
+//                        .foregroundColor(themeManager.descriptionTextColor)
+//                    }
+//                    .buttonStyle(.plain)
+//                    
+//                    // 子任务列表
+//                    if task.isSubOpen {
+//                        ForEach(task.subTaskList.indices, id: \.self) { index in
+//                            SubTaskRow(task: task, index: index)
+//                        }
+//                    }
+//                }
+//                .padding(.leading, 37)
+//            }
+//        }
+//    }
     struct SubTaskListView: View {
         let task: TDMacSwiftDataListModel
         @StateObject private var themeManager = TDThemeManager.shared
-        
+
         var body: some View {
             if !task.subTaskList.isEmpty {
                 VStack(alignment: .leading, spacing: 6) {
                     // 展开/收起按钮
                     Button(action: {
-                        // 更新本地数据库
                         withAnimation(.easeInOut(duration: 0.2)) {
                             task.isSubOpen.toggle()
                             Task {
-                                try? await TDModelContainer.shared.perform {
+                                try? await TDModelContainer.shared.performAsync { context in
                                     try TDModelContainer.shared.save()
                                 }
                             }
@@ -285,19 +337,23 @@ enum TDTaskRowComponents {
                         .foregroundColor(themeManager.descriptionTextColor)
                     }
                     .buttonStyle(.plain)
-                    
+
                     // 子任务列表
                     if task.isSubOpen {
-                        ForEach(task.subTaskList.indices, id: \.self) { index in
-                            SubTaskRow(task: task, index: index)
+                        VStack(alignment: .leading, spacing: 4) {
+                            ForEach(task.subTaskList.indices, id: \.self) { index in
+                                SubTaskRow(task: task, index: index)
+                            }
                         }
+                        .transition(.opacity.combined(with: .move(edge: .top)))
                     }
                 }
                 .padding(.leading, 37)
+                // 让动画作用于整个 VStack
+                .animation(.easeInOut(duration: 0.2), value: task.isSubOpen)
             }
         }
     }
-    
     /// 单个子任务行组件
     struct SubTaskRow: View {
         let task: TDMacSwiftDataListModel
@@ -309,7 +365,7 @@ enum TDTaskRowComponents {
                 Button(action: {
                     task.subTaskList[index].isComplete.toggle()
                     Task {
-                        try? await TDModelContainer.shared.perform {
+                        try? await TDModelContainer.shared.performAsync { context in
                             try TDModelContainer.shared.save()
                         }
                     }
