@@ -47,3 +47,11 @@ extension String {
 //        return NSLocalizedString(self, tableName: tableName, bundle: bundle, value: "", comment: "")
 //    }
 }
+
+// 用于 SwiftData，让布尔值可排序
+extension Bool: @retroactive Comparable {
+    public static func <(lhs: Self, rhs: Self) -> Bool {
+        // the only true inequality is false < true
+        !lhs && rhs
+    }
+}

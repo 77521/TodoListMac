@@ -13,6 +13,23 @@ import SwiftData
 /// 待办事项模型
 @Model
 final class TDMacSwiftDataListModel {
+    // MARK: - 索引配置（提升查询和排序性能）
+    @Attribute(.unique) var id: Int64
+    @Attribute(.spotlight) var userId: Int
+    @Attribute(.unique) var taskId: String
+    @Attribute(.spotlight) var complete: Bool
+    @Attribute(.spotlight) var delete: Bool
+    @Attribute(.spotlight) var todoTime: Int64
+    @Attribute(.spotlight) var taskSort: Decimal
+    @Attribute(.spotlight) var standbyInt1: Int
+    @Attribute(.spotlight) var createTime: Int64
+    @Attribute(.spotlight) var syncTime: Int64
+    @Attribute(.spotlight) var snowAssess: Int
+    @Attribute(.spotlight) var standbyStr1: String?
+    @Attribute(.spotlight) var version: Int64
+    @Attribute(.spotlight) var taskContent: String
+    @Attribute(.spotlight) var taskDescribe: String?
+    @Attribute(.spotlight) var standbyStr2: String?
     // MARK: - 子任务结构体
     struct SubTask: Codable {
         var isComplete: Bool
@@ -35,26 +52,10 @@ final class TDMacSwiftDataListModel {
     }
     
     // MARK: - 服务器字段
-    var id: Int64
-    var taskId: String
-    var taskContent: String
-    var taskDescribe: String?
-    var complete: Bool
-    var createTime: Int64
-    var delete: Bool
     var reminderTime: Int64
     var snowAdd: Int
-    var snowAssess: Int
-    var standbyInt1: Int
-    var standbyStr1: String?
-    var standbyStr2: String?
     var standbyStr3: String?
     var standbyStr4: String?
-    var syncTime: Int64
-    var taskSort: Double
-    var todoTime: Int64
-    var userId: Int
-    var version: Int
     
     // MARK: - 本地字段
     var status: String = "sync"
@@ -86,10 +87,10 @@ final class TDMacSwiftDataListModel {
         standbyStr3: String? = nil,
         standbyStr4: String? = nil,
         syncTime: Int64,
-        taskSort: Double,
+        taskSort: Decimal,
         todoTime: Int64,
         userId: Int,
-        version: Int,
+        version: Int64,
         status: String = "sync",
         isSubOpen: Bool = true
     ) {

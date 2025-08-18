@@ -252,6 +252,22 @@ class TDThemeManager: ObservableObject {
         let hexColor = currentTheme.colorLevels.color(for: level, isDark: isDark)
         return Color.fromHex(hexColor)
     }
+    
+    /// 获取指定主题的指定层级颜色（完全固定，不受主题和模式影响）
+    /// 用于需要固定颜色的UI元素，如"过期未达成"分组始终使用新年红
+    func fixedColor(themeId: String, level: Int) -> Color {
+        // 查找指定主题
+        let allThemes = themes + Self.defaultThemes
+        guard let theme = allThemes.first(where: { $0.id == themeId }) else {
+            // 如果找不到指定主题，返回当前主题的颜色
+            return color(level: level)
+        }
+        
+        // 始终使用浅色模式的颜色，确保颜色完全固定
+        let hexColor = theme.colorLevels.color(for: level, isDark: false)
+        return Color.fromHex(hexColor)
+    }
+    
     /// 获取主题颜色
     private func themeColor(_ keyPath: KeyPath<TDThemeBaseColors, TDDynamicColor>) -> Color {
         currentTheme.baseColors[keyPath: keyPath].color(isDark: TDSettingManager.shared.isDarkMode)
@@ -311,6 +327,14 @@ class TDThemeManager: ObservableObject {
     var borderColor: Color {
         themeColor(\.border)
     }
+    
+    /// 获取选中背景颜色
+    var selectedBackgroundColor: Color {
+        // 使用主题色的浅色版本作为选中背景
+        color(level: 1).opacity(0.3)
+    }
+
+    
     // MARK: - 持久化存储
     
     /// 主题文件URL

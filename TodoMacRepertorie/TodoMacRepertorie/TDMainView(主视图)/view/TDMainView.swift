@@ -1,549 +1,653 @@
+////
+////  TDMainView.swift
+////  TodoMacRepertorie
+////
+////  Created by 孬孬 on 2024/12/28.
+////
 //
-//  TDMainView.swift
-//  TodoMacRepertorie
+//import SwiftUI
+//import SwiftData
 //
-//  Created by 孬孬 on 2024/12/28.
+///// 主界面视图，负责整体布局和全局依赖注入
+//struct TDMainView: View {
+//    @EnvironmentObject private var mainViewModel: TDMainViewModel
+//    @EnvironmentObject private var themeManager: TDThemeManager
+//    @EnvironmentObject private var settingManager: TDSettingManager
+//    @Environment(\.modelContext) private var modelContext
+//    @State private var columnVisibility = NavigationSplitViewVisibility.all
 //
+//    var body: some View {
+//        NavigationSplitView(columnVisibility: $columnVisibility) {
+//            // 左侧导航栏
+//            TDSliderBarView()
+//                .frame(minWidth: 216, idealWidth: 216, maxWidth: 280)
+//                .background(Color(.windowBackgroundColor))
+//                .toolbar {
+//                    ToolbarItemGroup(placement: .automatic) {
+//                        Spacer()
+//                        Button(action: {}) {
+//                            Image(systemName: "ellipsis.circle")
+//                        }
+//                        Button(action: {
+//                            TDUserManager.shared.logoutCurrentUser()
+//                        }) {
+//                            Image(systemName: "gearshape")
+//                        }
+//                    }
+//                }
+//        } content: {
+//            // 中间主内容区
+//            Group {
+//                if mainViewModel.selectedCategory?.categoryId == -102 {
+//                    // 日程概览
+//                    TDCalendarView()
+//                } else {
+//                    ZStack(alignment: .top) {
+//                        VStack(spacing: 0) {
+//                            // 日历头部
+//                            ZStack(alignment: .top) {
+//                                Rectangle()
+//                                    .fill(Color(.windowBackgroundColor))
+//                                    .frame(height: 50)
+//                                    .shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 4)
+//                                TDWeekDatePickerView()
+//                                    .frame(height: 50)
+//                                    .padding(.horizontal, 24)
+//                                    .background(Color.clear)
+//                            }
+//                            // 任务列表
+//                            TDTaskListView()
+//                        }
+//                        .ignoresSafeArea(.container, edges: .all)
+//                        // 悬浮输入框
+//                        TDTaskInputView()
+//                            .padding(.horizontal, 24)
+//                            .padding(.top, 80)
+//                    }
+//                    .ignoresSafeArea(.container, edges: .all)
+//                }
+//            }
+//            .background(Color(.windowBackgroundColor))
+//            .navigationSplitViewColumnWidth(
+//                min: mainViewModel.selectedCategory?.categoryId == -102 ? 840 : 450,
+//                ideal: mainViewModel.selectedCategory?.categoryId == -102 ? 840 : 450,
+//                max: .infinity
+//            )
+//        } detail: {
+//            // 右侧详情区
+//            TaskDetailView()
+//                .navigationSplitViewColumnWidth(min: 414, ideal: 414, max: .infinity)
+//                .background(Color(.windowBackgroundColor))
+//        }
+//        .frame(minWidth: mainViewModel.selectedCategory?.categoryId == -102 ? 1500 : 1100, minHeight: 700)
+//        .background(Color(.windowBackgroundColor))
+//        .navigationTitle("")
+//        .task {
+//            // 启动时自动同步
+//            try? await mainViewModel.syncAfterLogin()
+//        }
+//    }
+//}
+//
+//
+//
+////    var body: some View {
+////        ZStack(alignment: .top) {
+////            Rectangle()
+////                .fill(.red)
+////            
+////            HSplitView {
+////                // 第一列 - 左侧导航栏
+////                TDSliderBarView()
+////                    .frame(minWidth: 216, maxWidth: 300)
+////                
+////                // 第二列 - 根据选中的分类显示不同的视图
+////                if mainViewModel.selectedCategory?.categoryId == -102 {
+////                    // 日程概览
+////                    TDCalendarView()
+////                        .frame(minWidth: 833)
+////                } else {
+////                    // 其他分类显示任务列表
+////                    VStack(spacing: 0) {
+////                        // 顶部日期选择器（只在 DayTodo 视图下显示）
+////                        if mainViewModel.selectedCategory?.categoryId == -100 {
+////                            TDWeekDatePickerView()
+////                                .padding(.vertical, 8)
+////                                .padding(.horizontal, 12)
+////                                .background(.ultraThinMaterial)
+////                        }
+////                        
+////                        // 任务列表和悬浮输入框
+////                        ZStack(alignment: .top) {
+////                            // 任务列表
+////                            TDTaskListView()
+////                            
+////                            // 悬浮的任务输入框
+////                            TDTaskInputView()
+////                                .padding(.horizontal, 12)
+////                                .padding(.top, 10)
+////                        }
+////                    }
+////                    .frame(minWidth: 833)
+////                }
+////
+//////                TDTaskListView(
+//////                    selectedCategory: mainViewModel.selectedCategory
+//////                )
+//////                .frame(minWidth: 417)
+//////                .onChange(of: mainViewModel.shouldRefreshTaskList) { shouldRefresh in
+//////                    if shouldRefresh {
+//////                        // 当选中分类变化时，加载对应的任务列表
+//////                        Task {
+//////                            await mainViewModel.fetchTasksForSelectedCategory(modelContext: modelContext)
+//////                        }
+//////                    }
+//////                }
+////
+////                // 第三列 - 任务详情
+////                TaskDetailView()
+////                    .frame(minWidth: 400)
+////            }
+////            .background(.white)
+////        }
+////        .task {
+////            // 视图加载时启动同步
+////            await mainViewModel.syncAfterLaunch()
+////        }
+////
+////    }
+////}
+//
+////
+//struct TDMainView: View {
+//    @EnvironmentObject private var mainViewModel: TDMainViewModel
+//    @EnvironmentObject private var themeManager: TDThemeManager
+//    @EnvironmentObject private var settingManager: TDSettingManager
+//    @Environment(\.modelContext) private var modelContext
+//    @State private var columnVisibility = NavigationSplitViewVisibility.all
+//    @State private var selectedTask: TDMacSwiftDataListModel?
+//
+//    var body: some View {
+//        NavigationSplitView(columnVisibility: $columnVisibility) {
+//            // 第一列：分类导航栏
+//            firstColumn
+//        } content: {
+//            // 第二列：任务列表
+//            secondColumn
+//        } detail: {
+//            // 第三列：任务详情
+//            thirdColumn
+//        }
+//        .frame(minWidth: minWidth, minHeight: 700)
+//        .background(Color(.windowBackgroundColor))
+//        .navigationTitle("")
+//        .onChange(of: mainViewModel.selectedCategory) { _, _ in
+//            // 当分类改变时，清空选中的任务（第三列消失）
+//            withAnimation(.easeInOut(duration: 0.3)) {
+//                selectedTask = nil
+//            }
+//        }
+//        .task {
+//            // 启动时自动同步
+//             await mainViewModel.syncAfterLogin()
+//        }
+//    }
+//    
+//    // MARK: - 第一列：分类导航栏
+//    private var firstColumn: some View {
+//        TDSliderBarView()
+//            .frame(minWidth: 216, idealWidth: 216, maxWidth: 280)
+//            .background(Color(.windowBackgroundColor))
+//            .toolbar {
+//                ToolbarItemGroup(placement: .automatic) {
+//                    Spacer()
+//                    Button(action: {}) {
+//                        Image(systemName: "ellipsis.circle")
+//                    }
+//                    Button(action: {
+//                        TDUserManager.shared.logoutCurrentUser()
+//                    }) {
+//                        Image(systemName: "gearshape")
+//                    }
+//                }
+//            }
+//    }
+//    
+//    // MARK: - 第二列：任务列表
+//    private var secondColumn: some View {
+//        Group {
+//            if isCalendarView {
+//                // 日程概览
+//                TDCalendarView()
+//            } else {
+//                taskListView
+//            }
+//        }
+//        .background(Color(.windowBackgroundColor))
+//        .navigationSplitViewColumnWidth(
+//            min: columnMinWidth,
+//            ideal: columnIdealWidth,
+//            max: .infinity
+//        )
+//    }
+//    
+//    // MARK: - 任务列表视图
+//    private var taskListView: some View {
+//        ZStack(alignment: .top) {
+//            VStack(spacing: 0) {
+//                // 日历头部（只在 DayTodo 模式下显示）
+//                if isDayTodoMode {
+//                    dayTodoHeader
+//                }
+//                // 任务列表
+//                TDTaskListView(selectedTask: $selectedTask)
+//            }
+//            .ignoresSafeArea(.container, edges: .all)
+//            // 悬浮输入框
+//            TDTaskInputView()
+//                .padding(.horizontal, 24)
+//                .padding(.top, inputTopPadding)
+//        }
+//        .ignoresSafeArea(.container, edges: .all)
+//    }
+//    
+//    // MARK: - DayTodo 头部
+//    private var dayTodoHeader: some View {
+//        ZStack(alignment: .top) {
+//            Rectangle()
+//                .fill(Color(.windowBackgroundColor))
+//                .frame(height: 50)
+//                .shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 4)
+//            TDWeekDatePickerView()
+//                .frame(height: 50)
+//                .padding(.horizontal, 24)
+//                .background(Color.clear)
+//        }
+//    }
+//    
+//    // MARK: - 第三列：任务详情
+//    private var thirdColumn: some View {
+//        Group {
+//            if let selectedTask = selectedTask {
+//                TaskDetailView(task: selectedTask)
+//                    .navigationSplitViewColumnWidth(min: 414, ideal: 414, max: .infinity)
+//                    .background(Color(.windowBackgroundColor))
+//                    .transition(.asymmetric(
+//                        insertion: .move(edge: .trailing).combined(with: .opacity),
+//                        removal: .move(edge: .trailing).combined(with: .opacity)
+//                    ))
+//            } else {
+//                // 未选择任务时的占位视图
+//                emptyTaskDetailView
+//            }
+//        }
+//    }
+//    
+//    // MARK: - 空任务详情占位视图
+//    private var emptyTaskDetailView: some View {
+//        VStack(spacing: 16) {
+//            Image(systemName: "doc.text")
+//                .font(.system(size: 48))
+//                .foregroundColor(.secondary)
+//            Text("选择任务查看详情")
+//                .font(.headline)
+//                .foregroundColor(.secondary)
+//            Text("点击左侧任务列表中的任意任务")
+//                .font(.subheadline)
+//                .foregroundColor(.secondary)
+//        }
+//        .frame(maxWidth: .infinity, maxHeight: .infinity)
+//        .background(Color(.windowBackgroundColor))
+//    }
+//    
+//    // MARK: - 计算属性
+//    private var isCalendarView: Bool {
+//        mainViewModel.selectedCategory?.categoryId == -102
+//    }
+//    
+//    private var isDayTodoMode: Bool {
+//        mainViewModel.selectedCategory?.categoryId == -100
+//    }
+//    
+//    private var columnMinWidth: CGFloat {
+//        isCalendarView ? 840 : 450
+//    }
+//    
+//    private var columnIdealWidth: CGFloat {
+//        isCalendarView ? 840 : 450
+//    }
+//    
+//    private var minWidth: CGFloat {
+//        isCalendarView ? 1500 : 1100
+//    }
+//    
+//    private var inputTopPadding: CGFloat {
+//        isDayTodoMode ? 80 : 20
+//    }
+//}
+//
+//// 任务详情视图
+//struct TaskDetailView: View {
+//    let task: TDMacSwiftDataListModel
+//    @EnvironmentObject private var themeManager: TDThemeManager
+//    
+//    var body: some View {
+//        ScrollView {
+//            VStack(alignment: .leading, spacing: 20) {
+//                // 任务标题
+//                VStack(alignment: .leading, spacing: 8) {
+//                    Text("任务详情")
+//                        .font(.title2)
+//                        .fontWeight(.semibold)
+//                    
+//                    Text(task.taskContent)
+//                        .font(.headline)
+//                        .foregroundColor(themeManager.titleTextColor)
+//                }
+//                
+//                Divider()
+//                
+//                // 任务描述
+//                if let description = task.taskDescribe, !description.isEmpty {
+//                    VStack(alignment: .leading, spacing: 8) {
+//                        Text("描述")
+//                            .font(.subheadline)
+//                            .fontWeight(.medium)
+//                        Text(description)
+//                            .font(.body)
+//                            .foregroundColor(themeManager.titleTextColor)
+//                    }
+//                    Divider()
+//                }
+//                
+//                // 分类信息
+//                VStack(alignment: .leading, spacing: 8) {
+//                    Text("分类")
+//                        .font(.subheadline)
+//                        .fontWeight(.medium)
+//                    HStack {
+//                        Circle()
+//                            .fill(Color.fromHex(task.standbyIntColor))
+//                            .frame(width: 12, height: 12)
+//                        Text(task.standbyIntName.isEmpty ? "未分类" : task.standbyIntName)
+//                            .font(.body)
+//                            .foregroundColor(themeManager.titleTextColor)
+//                    }
+//                }
+//                
+//                Divider()
+//                
+//                // 时间信息
+//                VStack(alignment: .leading, spacing: 8) {
+//                    Text("时间")
+//                        .font(.subheadline)
+//                        .fontWeight(.medium)
+//                    
+//                    if task.todoTime > 0 {
+//                        HStack {
+//                            Image(systemName: "calendar")
+//                                .foregroundColor(.secondary)
+//                            Text(Date.fromTimestamp(task.todoTime).formatted(date: .abbreviated, time: .omitted))
+//                                .font(.body)
+//                                .foregroundColor(themeManager.titleTextColor)
+//                        }
+//                    }
+//                    
+//                    if task.reminderTime > 0 {
+//                        HStack {
+//                            Image(systemName: "bell")
+//                                .foregroundColor(.secondary)
+//                            Text(Date.fromTimestamp(task.reminderTime).formatted(date: .omitted, time: .shortened))
+//                                .font(.body)
+//                                .foregroundColor(themeManager.titleTextColor)
+//                        }
+//                    }
+//                }
+//                
+//                Divider()
+//                
+//                // 子任务
+//                if !task.subTaskList.isEmpty {
+//                    VStack(alignment: .leading, spacing: 8) {
+//                        Text("子任务")
+//                            .font(.subheadline)
+//                            .fontWeight(.medium)
+//                        
+//                        ForEach(Array(task.subTaskList.enumerated()), id: \.offset) { index, subTask in
+//                            HStack {
+//                                Image(systemName: subTask.isComplete ? "checkmark.circle.fill" : "circle")
+//                                    .foregroundColor(subTask.isComplete ? .green : .secondary)
+//                                Text(subTask.content)
+//                                    .font(.body)
+//                                    .foregroundColor(subTask.isComplete ? themeManager.titleFinishTextColor : themeManager.titleTextColor)
+//                                    .strikethrough(subTask.isComplete)
+//                            }
+//                        }
+//                    }
+//                    Divider()
+//                }
+//                
+//                // 附件
+//                if !task.attachmentList.isEmpty {
+//                    VStack(alignment: .leading, spacing: 8) {
+//                        Text("附件")
+//                            .font(.subheadline)
+//                            .fontWeight(.medium)
+//                        
+//                        ForEach(Array(task.attachmentList.enumerated()), id: \.offset) { index, attachment in
+//                            HStack {
+//                                Image(systemName: attachment.isPhoto ? "photo" : "doc")
+//                                    .foregroundColor(.secondary)
+//                                VStack(alignment: .leading, spacing: 2) {
+//                                    Text(attachment.name)
+//                                        .font(.body)
+//                                        .foregroundColor(themeManager.titleTextColor)
+//                                    Text(attachment.size)
+//                                        .font(.caption)
+//                                        .foregroundColor(themeManager.descriptionTextColor)
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//            .padding()
+//        }
+//    }
+//}
+//
+//#Preview {
+//    TDMainView()
+//        .environmentObject(TDMainViewModel.shared)
+//        .environmentObject(TDThemeManager.shared)
+//        .environmentObject(TDSettingManager.shared)
+//}
 
 import SwiftUI
 import SwiftData
 
-/// 主界面视图，负责整体布局和全局依赖注入
+/// 主界面视图 - 三列布局
 struct TDMainView: View {
     @EnvironmentObject private var mainViewModel: TDMainViewModel
     @EnvironmentObject private var themeManager: TDThemeManager
     @EnvironmentObject private var settingManager: TDSettingManager
     @Environment(\.modelContext) private var modelContext
-    @State private var columnVisibility = NavigationSplitViewVisibility.all
+    
+    @ObservedObject private var dateManager = TDDateManager.shared
 
+    // 控制第三列的显示/隐藏
+    @State private var columnVisibility = NavigationSplitViewVisibility.automatic
+    @State private var selectedTask: TDMacSwiftDataListModel?
+    
     var body: some View {
         NavigationSplitView(columnVisibility: $columnVisibility) {
-            // 左侧导航栏
-            TDSliderBarView()
-                .frame(minWidth: 216, idealWidth: 216, maxWidth: 280)
-                .background(Color(.windowBackgroundColor))
-                .toolbar {
-                    ToolbarItemGroup(placement: .automatic) {
-                        Spacer()
-                        Button(action: {}) {
-                            Image(systemName: "ellipsis.circle")
-                        }
-                        Button(action: {
-                            TDUserManager.shared.logoutCurrentUser()
-                        }) {
-                            Image(systemName: "gearshape")
-                        }
-                    }
-                }
+            // 第一列：分类导航栏
+            firstColumn
+            
         } content: {
-            // 中间主内容区
-            Group {
-                if mainViewModel.selectedCategory?.categoryId == -102 {
-                    // 日程概览
-                    TDCalendarView()
-                } else {
-                    ZStack(alignment: .top) {
-                        VStack(spacing: 0) {
-                            // 日历头部
-                            ZStack(alignment: .top) {
-                                Rectangle()
-                                    .fill(Color(.windowBackgroundColor))
-                                    .frame(height: 50)
-                                    .shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 4)
-                                TDWeekDatePickerView()
-                                    .frame(height: 50)
-                                    .padding(.horizontal, 24)
-                                    .background(Color.clear)
-                            }
-                            // 任务列表
-                            TDTaskListView()
-                        }
-                        .ignoresSafeArea(.container, edges: .all)
-                        // 悬浮输入框
-                        TDTaskInputView()
-                            .padding(.horizontal, 24)
-                            .padding(.top, 80)
-                    }
-                    .ignoresSafeArea(.container, edges: .all)
-                }
-            }
-            .background(Color(.windowBackgroundColor))
-            .navigationSplitViewColumnWidth(
-                min: mainViewModel.selectedCategory?.categoryId == -102 ? 840 : 450,
-                ideal: mainViewModel.selectedCategory?.categoryId == -102 ? 840 : 450,
-                max: .infinity
-            )
+            // 第二列：任务列表
+            secondColumn
         } detail: {
-            // 右侧详情区
-            TaskDetailView()
-                .navigationSplitViewColumnWidth(min: 414, ideal: 414, max: .infinity)
-                .background(Color(.windowBackgroundColor))
+            // 第三列：任务详情
+            thirdColumn
         }
-        .frame(minWidth: mainViewModel.selectedCategory?.categoryId == -102 ? 1500 : 1100, minHeight: 700)
+        .frame(minWidth: 1100, minHeight: 700)
         .background(Color(.windowBackgroundColor))
-        .navigationTitle("")
+
         .task {
-            // 启动时自动同步
-            try? await mainViewModel.syncAfterLogin()
+            // 界面加载完成后，立即执行四个初始化请求和同步操作
+            await mainViewModel.performInitialServerRequests()
+            // 单独执行同步操作，避免线程优先级冲突
+//            await mainViewModel.performSyncSeparately()
+
         }
     }
-}
-
-
-
-//    var body: some View {
-//        ZStack(alignment: .top) {
-//            Rectangle()
-//                .fill(.red)
-//            
-//            HSplitView {
-//                // 第一列 - 左侧导航栏
-//                TDSliderBarView()
-//                    .frame(minWidth: 216, maxWidth: 300)
-//                
-//                // 第二列 - 根据选中的分类显示不同的视图
-//                if mainViewModel.selectedCategory?.categoryId == -102 {
-//                    // 日程概览
-//                    TDCalendarView()
-//                        .frame(minWidth: 833)
-//                } else {
-//                    // 其他分类显示任务列表
-//                    VStack(spacing: 0) {
-//                        // 顶部日期选择器（只在 DayTodo 视图下显示）
-//                        if mainViewModel.selectedCategory?.categoryId == -100 {
-//                            TDWeekDatePickerView()
-//                                .padding(.vertical, 8)
-//                                .padding(.horizontal, 12)
-//                                .background(.ultraThinMaterial)
-//                        }
-//                        
-//                        // 任务列表和悬浮输入框
-//                        ZStack(alignment: .top) {
-//                            // 任务列表
-//                            TDTaskListView()
-//                            
-//                            // 悬浮的任务输入框
-//                            TDTaskInputView()
-//                                .padding(.horizontal, 12)
-//                                .padding(.top, 10)
-//                        }
-//                    }
-//                    .frame(minWidth: 833)
-//                }
-//
-////                TDTaskListView(
-////                    selectedCategory: mainViewModel.selectedCategory
-////                )
-////                .frame(minWidth: 417)
-////                .onChange(of: mainViewModel.shouldRefreshTaskList) { shouldRefresh in
-////                    if shouldRefresh {
-////                        // 当选中分类变化时，加载对应的任务列表
-////                        Task {
-////                            await mainViewModel.fetchTasksForSelectedCategory(modelContext: modelContext)
-////                        }
-////                    }
-////                }
-//
-//                // 第三列 - 任务详情
-//                TaskDetailView()
-//                    .frame(minWidth: 400)
-//            }
-//            .background(.white)
-//        }
-//        .task {
-//            // 视图加载时启动同步
-//            await mainViewModel.syncAfterLaunch()
-//        }
-//
-//    }
-//}
-
-//
-//struct TDMainView: View {
-////    @StateObject private var navigationState = NavigationState()
-//        @State private var selectedCategory: TDSliderBarModel?
-//    @State private var searchText = ""
-//    @Environment(\.modelContext) private var modelContext
-//
-//    var body: some View {
-//        
-//        ZStack(alignment: .top) {
-//            Rectangle()
-//                .fill(.red)
-//            HSplitView {
-//                // 第一列 - 左侧导航栏
-//                // 用户信息部分
-//                TDSliderBarView()
-//                .frame(minWidth: 216, maxWidth: 220)
-//
-//                // 第二列 - 任务列表
-////                TDTaskListView(
-////                    modelContext: modelContext,
-////                    selectedCategory: Binding(
-////                        get: { selectedCategory },
-////                        set: { selectedCategory = $0 }
-////                    )
-////                )
-////                .frame(minWidth: 417)
-//
-//                // 第三列 - 任务详情
-//                TaskDetailView()
-//                .frame(minWidth: 400)
-////                .toolbar {
-////                    ToolbarItem(placement: .automatic) {
-////                        HStack(spacing: 8) {
-////                            Spacer() // 将内容推到最右边
-////
-////                            HStack {
-////                                Image(systemName: "magnifyingglass")
-////                                    .foregroundColor(.secondary)
-////                                TextField("搜索事件", text: .constant(""))
-////                                    .textFieldStyle(PlainTextFieldStyle())
-////                                    .frame(width: 120)
-////                            }
-////                            .padding(.horizontal, 6)
-////                            .padding(.vertical, 4)
-////                            .background(Color(.textBackgroundColor))
-////                            .cornerRadius(6)
-////
-////                            Button(action: {}) {
-////                                Image(systemName: "ellipsis.circle")
-////                            }
-////
-////                            Button(action: {}) {
-////                                Image(systemName: "gearshape")
-////                            }
-////                        }
-////                        .frame(maxWidth: .infinity, alignment: .trailing)
-////                    }
-////                }
-//
-//            }
-//            .background(.white)
-//
-//        }
-//    }
-//}
-// 自定义标题栏
-struct CustomTitleBar: View {
-    @Binding var searchText: String
-    @State private var selectedDate = Date()
-    @Environment(\.colorScheme) var colorScheme
     
-    var body: some View {
-        HStack(spacing: 8) {
-//            // 左侧窗口控制按钮
-//            HStack(spacing: 8) {
-//                Circle()
-//                    .fill(Color.red)
-//                    .frame(width: 12, height: 12)
-//                Circle()
-//                    .fill(Color.yellow)
-//                    .frame(width: 12, height: 12)
-//                Circle()
-//                    .fill(Color.green)
-//                    .frame(width: 12, height: 12)
-//            }
-//            .padding(.leading, 8)
-            
-            // 用户信息
-            HStack(spacing: 4) {
-                Image(systemName: "person.circle.fill")
-                    .resizable()
-                    .frame(width: 16, height: 16)
-                Text("VYTAS ZHAO")
-                    .font(.system(size: 12))
-                Text("diwww@gm...")
-                    .font(.system(size: 12))
-                    .foregroundColor(.secondary)
-            }
-            .padding(.leading, 8)
-            
-            // 日期导航
-            HStack(spacing: 0) {
-                Button(action: {}) {
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 12))
-                }
-                
-                ForEach(15...21, id: \.self) { day in
-                    Text("\(day)")
-                        .font(.system(size: 12))
-                        .padding(.horizontal, 4)
-                        .padding(.vertical, 2)
-                        .background(day == 18 ? Color.accentColor : Color.clear)
-                        .cornerRadius(4)
-                        .foregroundColor(day == 18 ? .white : .primary)
-                }
-                
-                Button(action: {}) {
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 12))
-                }
-            }
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
+    // MARK: - 第一列：分类导航栏
+    private var firstColumn: some View {
+        TDSliderBarView()
+            .frame(minWidth: 216, idealWidth: 216, maxWidth: 280)
             .background(Color(.windowBackgroundColor))
-            .cornerRadius(6)
-            
-            Text("11.18 周四")
-                .font(.system(size: 12))
-            
-            // 搜索框
-            HStack {
-                Image(systemName: "magnifyingglass")
-                    .foregroundColor(.secondary)
-                TextField("搜索事件", text: $searchText)
-                    .textFieldStyle(PlainTextFieldStyle())
-                    .font(.system(size: 12))
-            }
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .background(Color(.textBackgroundColor))
-            .cornerRadius(6)
-            
-            // 右侧按钮
-            HStack(spacing: 8) {
-                Button(action: {}) {
-                    Image(systemName: "ellipsis.circle")
-                }
-                
-                Button(action: {}) {
-                    Image(systemName: "gearshape")
+            .toolbar {
+                ToolbarItemGroup(placement: .automatic) {
+                    Spacer()
+                    
+                    // 更多按钮
+                    Button(action: {
+                        // TODO: 更多操作
+                    }) {
+                        Image(systemName: "ellipsis.circle")
+                            .foregroundColor(.secondary)
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    
+                    // 设置按钮
+                    Button(action: {
+                        // TODO: 设置操作
+                    }) {
+                        Image(systemName: "gearshape")
+                            .foregroundColor(.secondary)
+                    }
+                    .buttonStyle(PlainButtonStyle())
                 }
             }
-            .padding(.trailing, 8)
-        }
-        .padding(.vertical, 8)
-        .background(colorScheme == .dark ? Color(.windowBackgroundColor) : Color(.windowBackgroundColor))
-        .frame(height: 38)
     }
-}
-// 左侧导航栏
-struct SidebarView: View {
-    var body: some View {
-        List {
-            Section {
-                NavigationLink(destination: Text("同步完成")) {
-                    Label("同步完成", systemImage: "arrow.triangle.2.circlepath.circle")
-                }
-                
-                NavigationLink(destination: DayTodoView()) {
-                    Label("DayTodo", systemImage: "sun.max")
-                }
-                .badge(6)
-                
-                NavigationLink(destination: Text("最近待办")) {
-                    Label("最近待办", systemImage: "clock")
-                }
-                
-                NavigationLink(destination: Text("日程概览")) {
-                    Label("日程概览", systemImage: "calendar")
-                }
-                
-                NavigationLink(destination: Text("待办箱")) {
-                    Label("待办箱", systemImage: "tray")
-                }
-            }
-            
-            Section("分类清单") {
-                NavigationLink(destination: Text("未分类")) {
-                    Label("未分类", systemImage: "circle")
-                }
-                
-                NavigationLink(destination: Text("工作")) {
-                    Label("工作", systemImage: "briefcase")
-                }
-                
-                NavigationLink(destination: Text("生活")) {
-                    Label("生活", systemImage: "house")
-                }
-                
-                NavigationLink(destination: Text("Project-Pors")) {
-                    Label("Project-Pors", systemImage: "folder")
-                }
-            }
-            
-            Section("标签") {
-                Text("#所有标签")
-                Text("#城投")
-            }
-        }
-        .listStyle(SidebarListStyle())
-    }
-}
-
-// 中间任务列表
-struct TaskListView: View {
-    @State private var searchText = ""
     
-    var body: some View {
-        VStack(spacing: 0) {
-            // 搜索栏
-            HStack {
-                Image(systemName: "plus.circle.fill")
-                    .foregroundColor(.orange)
-                TextField("在此编辑内容,按回车创建事件", text: $searchText)
-                Image(systemName: "plus")
-                    .foregroundColor(.blue)
+    // MARK: - 第二列：任务列表
+    private var secondColumn: some View {
+        AnyView(
+            Group {
+                if let selectedCategory = mainViewModel.selectedCategory {
+                    switch selectedCategory.categoryId {
+                    case -100: // DayTodo
+                        TDDayTodoView(selectedDate: dateManager.selectedDate, category: selectedCategory)
+                    case -101: // 最近待办
+                        TDTaskListView(category: selectedCategory)
+                    case -102: // 日程概览
+                        TDScheduleOverviewView()
+                    case -103: // 待办箱
+                        TDInboxView()
+                    case -107: // 最近已完成
+                        TDCompletedDeletedView(category: selectedCategory)
+                    case -108: // 回收站
+                        TDCompletedDeletedView(category: selectedCategory)
+                    case -106: // 数据复盘
+                        TDDataReviewView()
+                    case 0: // 未分类
+                        TDTaskListView(category: selectedCategory)
+                    default: // 用户创建的分类
+                        if selectedCategory.categoryId > 0 {
+                            TDTaskListView(category: selectedCategory)
+                        } else {
+                            // 如果出现未知分类，默认显示DayTodo
+                            TDDayTodoView(selectedDate: dateManager.selectedDate, category: selectedCategory)
+                        }
+                    }
+                } else {
+                    // 如果没有选中分类，默认显示DayTodo
+                    TDDayTodoView(selectedDate: dateManager.selectedDate, category: TDSliderBarModel.defaultItems.first(where: { $0.categoryId == -100 }) ?? TDSliderBarModel.defaultItems[0])
+                }
             }
-            .padding()
-            .background(Color(.textBackgroundColor))
-            
-            // 任务列表
-            List {
-                TaskRow(
-                    title: "马尔斯绿Marrs green, 经历为期6个月的全球调查",
-                    descriptions: ["流畅的页面展示,", "科学的功能呈现,", "带给用户赏心悦目的完美体验。"],
-                    type: "工作",
-                    time: "7:25",
-                    repeatCount: 3
-                )
-                
-                TaskRow(title: "摒弃了传统同类软件繁杂的日程管理流程，采用了最轻量的交互方式，用最助用户安排事项、管理时间。",
-                       type: "旅游清单",
-                       time: "7:25",
-                       date: "今天 周四")
-            }
-        }
-    }
-}
+            .frame(minWidth: 450, idealWidth: 450, maxWidth: .infinity)
+            .background(Color(.windowBackgroundColor))
+            .ignoresSafeArea(.container, edges: .all)
 
-// 任务行
-struct TaskRow: View {
-    let title: String
-    var descriptions: [String]? = nil
-    let type: String
-    let time: String
-    var repeatCount: Int? = nil
-    var date: String? = nil
+        )
+    }
     
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            // 标题
-            Text(title)
-                .lineLimit(3)
-            
-            // 描述列表
-            if let descriptions = descriptions {
-                ForEach(descriptions, id: \.self) { desc in
-                    Text(desc)
+    // MARK: - 第三列：任务详情
+    private var thirdColumn: some View {
+        Group {
+            if let selectedTask = selectedTask {
+                // 有选中任务时，显示任务详情
+                VStack {
+                    Text("任务详情")
+                        .font(.title2)
+                        .fontWeight(.semibold)
+                        .padding()
+                    
+                    VStack(alignment: .leading, spacing: 16) {
+                        HStack {
+                            Text("任务标题：\(selectedTask.taskContent)")
+                                .font(.headline)
+                            
+                            Spacer()
+                            
+                            Button(action: {
+                                self.selectedTask = nil
+                            }) {
+                                Image(systemName: "xmark.circle.fill")
+                                    .foregroundColor(.secondary)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                        }
+                        
+                        if let description = selectedTask.taskDescribe {
+                            Text("任务描述：\(description)")
+                                .font(.body)
+                        }
+                        
+                        Text("任务ID：\(selectedTask.taskId)")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        
+                        Spacer()
+                    }
+                    .padding()
+                    
+                    Spacer()
+                }
+                .frame(minWidth: 414, idealWidth: 414, maxWidth: .infinity)
+                .background(Color(.windowBackgroundColor))
+            } else {
+                // 没有选中任务时，显示占位界面
+                VStack(spacing: 20) {
+                    Image(systemName: "doc.text")
+                        .font(.system(size: 64))
                         .foregroundColor(.secondary)
+                    
+                    Text("暂无数据显示")
+                        .font(.title2)
+                        .fontWeight(.medium)
+                        .foregroundColor(.secondary)
+                    
+                    Text("请选择左侧任务列表中的任意任务")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color(.windowBackgroundColor))
             }
-            
-            // 底部信息
-            HStack {
-                Label(type, systemImage: "circle.fill")
-                    .foregroundColor(.blue)
-                
-                Image(systemName: "clock")
-                Text(time)
-                
-                if let repeatCount = repeatCount {
-                    Image(systemName: "arrow.triangle.2.circlepath")
-                    Text("\(repeatCount)")
-                }
-                
-                if let date = date {
-                    Text(date)
-                }
-            }
-            .font(.caption)
-            .foregroundColor(.secondary)
         }
-        .padding(.vertical, 8)
+        .animation(.easeInOut(duration: 0.3), value: selectedTask != nil)
     }
-}
 
-// 右侧任务详情
-struct TaskDetailView: View {
-    var body: some View {
-        VStack(alignment: .leading) {
-            Text("Task Content")
-                .font(.headline)
-            
-            Text("describe")
-                .foregroundColor(.secondary)
-            
-            Label("未分类", systemImage: "circle")
-                .foregroundColor(.secondary)
-        }
-        .padding()
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-    }
 }
-
-// DayTodo 视图
-struct DayTodoView: View {
-    var body: some View {
-        Text("DayTodo")
-    }
-}
-
-//struct TDMainView: View {
-//
-//    @State private var selectedCategory: TDSliderBarModel?
-//
-//    @State private var columnVisibility = NavigationSplitViewVisibility.all
-//
-//    var body: some View {
-//
-//        NavigationSplitView(columnVisibility: $columnVisibility) {
-//            // 第一列：分类列表
-//            TDSliderBarView(selection: Binding(
-//                get: { selectedCategory },
-//                set: { selectedCategory = $0 }
-//            ))
-//            .navigationSplitViewColumnWidth(min: 216, ideal: 220, max: 220)
-//            .toolbarBackground(Color(hexString: "#282828").opacity(0.6))
-//        } content: {
-//            TaskListView()
-//                .frame(minWidth: 417)
-//                .navigationSplitViewColumnWidth(min: 417, ideal: 500, max: .infinity)
-//
-//                .toolbar(content: {
-//                    ToolbarItem(placement: .automatic) {
-//                        TDDetailToobarDateView()
-//                            .frame(height: 32)
-//                            .frame(maxWidth: .infinity)
-//                    }
-//                })
-//        } detail: {
-//            TaskDetailView()
-//                .navigationSplitViewColumnWidth(min: 400, ideal: 500, max: .infinity)
-//                .toolbar {
-//                    ToolbarItem(placement: .automatic) {
-//                        HStack(spacing: 8) {
-//
-//                            HStack {
-//                                Image(systemName: "magnifyingglass")
-//                                    .foregroundColor(.secondary)
-//                                TextField("搜索事件", text: .constant(""))
-//                                    .textFieldStyle(PlainTextFieldStyle())
-//                                    .frame(width: 120)
-//                            }
-//                            .padding(.horizontal, 6)
-//                            .padding(.vertical, 4)
-//                            .background(Color(.textBackgroundColor))
-//                            .cornerRadius(6)
-//
-//                            Button(action: {}) {
-//                                Image(systemName: "ellipsis.circle")
-//                            }
-//
-//                            Button(action: {}) {
-//                                Image(systemName: "gearshape")
-//                            }
-//                        }
-//                        .frame(maxWidth: .infinity)
-//                    }
-//                }
-//        }
-//
-//    }
-//}
 
 #Preview {
     TDMainView()
+        .environmentObject(TDMainViewModel.shared)
+        .environmentObject(TDThemeManager.shared)
+        .environmentObject(TDSettingManager.shared)
 }

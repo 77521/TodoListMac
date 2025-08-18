@@ -540,9 +540,9 @@ final class TDCalendarService {
             throw TDCalendarServiceError.noCalendarAccess
         }
         
-        // 获取当前时间戳（毫秒）
-        let currentTimestamp = Int64(Date().timeIntervalSince1970 * 1000)
-        
+        // 获取当前时间戳（毫秒）- 使用当前时区
+        let currentTimestamp = Date.currentTimestamp
+
         // 如果任务已删除、已完成、没有提醒时间或提醒时间已过，删除对应的日历事件
         if task.delete || task.complete || task.reminderTime <= 0 || task.reminderTime < currentTimestamp {
             print("任务状态检查:")
@@ -568,7 +568,7 @@ final class TDCalendarService {
         
         // 2. 如果没找到，尝试在同一个日历中搜索相似事件
         if event == nil {
-            let reminderDate = Date(timeIntervalSince1970: TimeInterval(task.reminderTime / 1000))
+            let reminderDate = Date.fromTimestamp(task.reminderTime)
             // 创建一个时间范围，前后5分钟
             let startSearch = Calendar.current.date(byAdding: .minute, value: -5, to: reminderDate) ?? reminderDate
             let endSearch = Calendar.current.date(byAdding: .minute, value: 5, to: reminderDate) ?? reminderDate
@@ -616,7 +616,7 @@ final class TDCalendarService {
         event.notes = "\(task.taskDescribe ?? "")\nTaskID: \(task.taskId)"
         
         // 设置提醒时间
-        let reminderDate = Date(timeIntervalSince1970: TimeInterval(task.reminderTime / 1000))
+        let reminderDate = Date.fromTimestamp(task.reminderTime)
         event.startDate = reminderDate
         event.endDate = Calendar.current.date(byAdding: .hour, value: 1, to: reminderDate)
         
@@ -632,7 +632,7 @@ final class TDCalendarService {
             saveEventId(eventId, for: task.taskId)
         }
         
-        print("成功\(event.eventIdentifier == nil ? "创建" : "更新")事件，标题: \(event.title ?? "无标题"), 开始时间: \(event.startDate)")
+        print("成功\(event.eventIdentifier == nil ? "创建" : "更新")事件，标题: \(event.title ?? "无标题"), 开始时间: \(String(describing: event.startDate))")
     }
     
     /// 获取或创建事件
@@ -653,7 +653,7 @@ final class TDCalendarService {
         event.notes = "\(task.taskDescribe ?? "")\nTaskID: \(task.taskId)"
         
         // 设置提醒时间
-        let reminderDate = Date(timeIntervalSince1970: TimeInterval(task.reminderTime / 1000))
+        let reminderDate = Date.fromTimestamp(task.reminderTime)
         event.startDate = reminderDate
         event.endDate = Calendar.current.date(byAdding: .hour, value: 1, to: reminderDate)
         
@@ -824,15 +824,15 @@ final class TDCalendarService {
                 taskContent: event.title ?? "",
                 taskDescribe: event.notes,
                 complete: false,
-                createTime: Int64(event.startDate.timeIntervalSince1970 * 1000),
+                createTime: event.startDate.fullTimestamp,
                 delete: false,
-                reminderTime: Int64(event.startDate.timeIntervalSince1970 * 1000),
+                reminderTime: event.startDate.fullTimestamp,
                 snowAdd: 0,
                 snowAssess: 0,
                 standbyInt1: 0,
-                syncTime: Int64(Date().timeIntervalSince1970 * 1000),
+                syncTime: Date.currentTimestamp,
                 taskSort: 0,
-                todoTime: Int64(event.startDate.timeIntervalSince1970 * 1000),
+                todoTime: event.startDate.startOfDayTimestamp,
                 userId: TDUserManager.shared.userId,
                 version: 0,
                 status: "local",

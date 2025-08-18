@@ -36,7 +36,8 @@ struct TDHeaderImageView: View {
                 .fill(Color(white: 0.9))
                 .overlay(
                     ProgressView()
-                        .scaleEffect(0.5)
+                        .scaleEffect(0.6)
+                        .frame(width: 16, height: 16)
                 )
         case .success(let image):
             image

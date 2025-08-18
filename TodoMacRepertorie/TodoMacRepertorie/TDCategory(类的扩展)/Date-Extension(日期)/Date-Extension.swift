@@ -256,5 +256,39 @@ extension Date {
         return date.startOfDayTimestamp
     }
 
+    // MARK: - 星期显示相关
+    
+    // MARK: - 星期显示相关
+    
+    /// 根据日期获取星期显示（使用国际化）
+    /// - Parameter date: 日期
+    /// - Returns: 星期显示字符串，如 "Mon", "Tue" 等
+    func weekdayDisplay() -> String {
+        let weekday = Calendar.current.component(.weekday, from: self)
+        let key: String
+        
+        switch weekday {
+        case 1: key = "week_sun"
+        case 2: key = "week_mon"
+        case 3: key = "week_tue"
+        case 4: key = "week_wed"
+        case 5: key = "week_thu"
+        case 6: key = "week_fri"
+        case 7: key = "week_sat"
+        default: key = "week_sun"
+        }
+        
+        return key.localized
+    }
+    
+    /// 根据日期获取星期显示（使用国际化）
+    /// - Parameter date: 日期
+    /// - Returns: 星期显示字符串，如 "Mon", "Tue" 等
+    static func weekdayDisplay(for date: Date) -> String {
+        return date.weekdayDisplay()
+    }
+
+
+    
 }
 

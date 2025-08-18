@@ -9,6 +9,7 @@ import SwiftUI
 
 struct TDUserInfoView: View {
     @StateObject private var userManager = TDUserManager.shared
+    @ObservedObject private var themeManager = TDThemeManager.shared
 
     var body: some View {
         HStack(spacing: 8) {
@@ -16,12 +17,12 @@ struct TDUserInfoView: View {
 
             VStack(alignment: .leading, spacing: 0) {
                 Text(userManager.nickname)
-                    .foregroundColor(.white)
+                    .foregroundColor(themeManager.titleTextColor)
                     .font(.system(size: 12))
                     .lineLimit(1)
                 
                 Text(userManager.account)
-                    .foregroundColor(.greyColor4)
+                    .foregroundColor(themeManager.descriptionTextColor)
                     .font(.system(size: 12))
                     .lineLimit(1)
             }

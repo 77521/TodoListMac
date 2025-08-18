@@ -18,7 +18,9 @@ import OSLog
 /// 4. 专注核心功能
 @MainActor
 class TDSliderBarViewModel: ObservableObject {
-    
+    // MARK: - 单例
+    static let shared = TDSliderBarViewModel()
+
     // MARK: - 日志系统
     private let logger = Logger(subsystem: "com.Mac.Todolist.TodoMacRepertorie", category: "TDSliderBarViewModel")
     
@@ -26,7 +28,9 @@ class TDSliderBarViewModel: ObservableObject {
     
     /// 是否正在同步
     @Published var isSyncing = false
-    
+    /// 同步进度信息
+    @Published var syncProgress: String = ""
+
     /// 所有分类项（包括系统默认分类和用户创建的分类）
     @Published var items: [TDSliderBarModel] = [] {
         didSet {
@@ -64,12 +68,10 @@ class TDSliderBarViewModel: ObservableObject {
     /// 标签数组
     @Published var tagsArr: [TDSliderBarModel] = []
     
-    /// 错误信息
-    @Published var errorMessage: String?
 
     // MARK: - 初始化方法
     
-    init() {
+    private init() {
         logger.info("📱 侧边栏ViewModel初始化开始")
         
         // 初始化默认系统分类
@@ -79,23 +81,21 @@ class TDSliderBarViewModel: ObservableObject {
         if let dayTodo = items.first(where: { $0.categoryId == -100 }) {
             selectedCategory = dayTodo
         }
-        
-        // 异步加载数据
-        Task {
-            await loadInitialData()
-        }
-        
+        // 立即加载本地分类数据（确保即使网络失败也能显示本地数据）
+        loadLocalCategories()
+
         logger.info("📱 侧边栏ViewModel初始化完成")
     }
-    
+
     // MARK: - 公共方法
     
     /// 选择分类 - 极简版本
     func selectCategory(_ category: TDSliderBarModel) {
-        logger.info("🎯 用户选择分类: \(category.categoryName) (ID: \(category.categoryId))")
-        
-        // 直接更新选中分类
-        selectedCategory = category
+        logger.info("🎯 用户选择分类: \(category.categoryName) (ID: \(category.categoryId))")        
+        // 使用 Task 来避免在 View 更新过程中修改 @Published 属性
+        Task { @MainActor in
+            selectedCategory = category
+        }
     }
     
     /// 切换分类组展开状态
@@ -115,10 +115,29 @@ class TDSliderBarViewModel: ObservableObject {
     /// 执行同步
     func performSync() {
         Task {
-            await performSyncOperation()
+            await TDMainViewModel.shared.performSyncSeparately()
         }
     }
+    /// 开始同步
+    func startSync(isFirstTime: Bool = false) {
+        isSyncing = true
+        syncProgress = isFirstTime ? "首次同步中..." : "同步中..."
+        logger.info("🔄 开始同步")
+    }
     
+    /// 更新同步进度
+    func updateSyncProgress(current: Int, total: Int, isFirstTime: Bool = false) {
+        syncProgress = isFirstTime ? "Todo：首次同步中 \(current)/\(total)" : "同步中 \(current)/\(total)"
+        logger.info("📊 同步进度: \(current)/\(total)")
+    }
+    
+    /// 完成同步
+    func completeSync() {
+        isSyncing = false
+        syncProgress = ""
+        logger.info("✅ 同步完成")
+    }
+
     /// 显示添加分类弹窗
     func showAddCategorySheet() {
         showSheet = true
@@ -129,71 +148,24 @@ class TDSliderBarViewModel: ObservableObject {
         showTagFilter = true
     }
     
-    // MARK: - 私有方法
-    
-    /// 加载初始数据
-    private func loadInitialData() async {
-        logger.info("📚 加载初始数据")
-        
-        // 从本地加载分类数据
-        await loadCategoriesFromLocal()
-        
-        // 尝试从服务器获取最新数据
-        do {
-            try await loadCategoriesFromServer()
-        } catch {
-            logger.error("❌ 加载服务器分类失败: \(error.localizedDescription)")
-        }
+    /// 更新分类数据（供 TDMainViewModel 调用）
+    func updateCategories(_ categories: [TDSliderBarModel]) {
+        logger.debug("🔄 更新分类数据，共\(categories.count)项")
+        updateCategoryItems(categories)
     }
-    
-    /// 从本地加载分类数据
-    private func loadCategoriesFromLocal() async {
-        logger.debug("💾 从本地加载分类数据")
+    /// 加载本地分类数据
+    private func loadLocalCategories() {
+        logger.debug("💾 加载本地分类数据")
         
         let localCategories = TDCategoryManager.shared.loadLocalCategories()
-        updateCategoryItems(localCategories)
-        
-        logger.debug("💾 本地分类数据加载完成，共\(localCategories.count)项")
-    }
-    
-    /// 从服务器加载分类数据
-    private func loadCategoriesFromServer() async throws {
-        logger.debug("🌐 从服务器加载分类数据")
-        
-        // 获取服务器分类数据
-        let serverCategories = try await TDCategoryAPI.shared.getCategoryList()
-        
-        // 保存到本地
-        await TDCategoryManager.shared.saveCategories(serverCategories)
-        
-        // 更新UI
-        updateCategoryItems(serverCategories)
-        
-        logger.info("✅ 服务器分类数据加载完成，共\(serverCategories.count)项")
-    }
-    
-    /// 执行同步操作
-    private func performSyncOperation() async {
-        isSyncing = true
-        errorMessage = nil
-        
-        do {
-            // 执行同步
-            await TDMainViewModel.shared.sync()
-            
-            // 重新加载分类数据
-            try await loadCategoriesFromServer()
-            
-            logger.info("✅ 同步完成")
-            
-        } catch {
-            logger.error("❌ 同步失败: \(error.localizedDescription)")
-            errorMessage = "同步失败: \(error.localizedDescription)"
+        if !localCategories.isEmpty {
+            updateCategoryItems(localCategories)
+            logger.debug("💾 本地分类数据加载完成，共\(localCategories.count)项")
+        } else {
+            logger.debug("💾 本地没有分类数据")
         }
-        
-        isSyncing = false
     }
-    
+
     /// 更新分类列表数据
     private func updateCategoryItems(_ categories: [TDSliderBarModel]) {
         logger.debug("🔄 更新分类列表数据")
@@ -260,28 +232,6 @@ class TDSliderBarViewModel: ObservableObject {
     }
 }
 
-// MARK: - 扩展：错误处理
-
-extension TDSliderBarViewModel {
-    
-    /// 清除错误信息
-    func clearError() {
-        errorMessage = nil
-    }
-    
-    /// 重试操作
-    func retry() async {
-        clearError()
-        do {
-            try await loadCategoriesFromServer()
-        } catch {
-            logger.error("❌ 重试失败: \(error.localizedDescription)")
-            await MainActor.run {
-                errorMessage = "重试失败: \(error.localizedDescription)"
-            }
-        }
-    }
-}
 
 // MARK: - 扩展：调试支持
 

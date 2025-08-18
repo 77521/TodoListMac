@@ -66,8 +66,20 @@ final class TDDateManager: ObservableObject {
     /// 选择日期
     func selectDate(_ date: Date) {
         selectedDate = date
+        updateCurrentWeek()
     }
     
+    /// 设置选中日期（异步安全）
+    @MainActor
+    func setSelectedDate(_ date: Date) async {
+        selectedDate = date
+        updateCurrentWeek()
+    }
+    
+    /// 获取默认日期（今天）
+    func getDefaultDate() -> Date {
+        return Date()
+    }
     /// 获取日期的显示文本
     func getDateDisplayText(for date: Date) -> String {
         date.dayNumberString

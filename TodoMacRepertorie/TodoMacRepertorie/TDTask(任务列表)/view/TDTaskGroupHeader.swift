@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct TDTaskGroupHeader: View {
-    let group: TDTaskGroup
+    let group: TDTaskGroupModel
     let taskCount: Int
     @StateObject private var themeManager = TDThemeManager.shared
     
@@ -36,5 +36,5 @@ struct TDTaskGroupHeader: View {
 }
 
 #Preview {
-    TDTaskGroupHeader(group: TDTaskGroup.today, taskCount: 1)
+//    TDTaskGroupHeader(group: TDTaskGroupModel.today, taskCount: 1)
 }

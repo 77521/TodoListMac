@@ -371,11 +371,7 @@ class TDLoginViewModel: ObservableObject {
     private func handleLoginSuccess(_ user: TDUserModel) {
         // 保存用户信息
         TDUserManager.shared.saveUser(user)
-        // 登录成 功后获取分类数据
-        Task {
-//            await TDCategoryManager.shared.fetchCategories()
-            await syncUserData()
-        }
+        
         // 清理状态
         clearInputs()
     }
@@ -477,18 +473,4 @@ class TDLoginViewModel: ObservableObject {
     }
     
     
-    // MARK: - 数据同步
-    private func syncUserData() async {
-        // 同步分类数据
-        let mainViewModel = TDMainViewModel.shared
-        
-        do {
-            // 登录场景：直接从服务器获取数据并同步
-            try await mainViewModel.syncAfterLogin()
-        } catch {
-            // 同步失败不影响登录流程，只记录错误
-            showErrorToast = true
-            toastMessage = "同步数据失败：\(error.localizedDescription)"
-        }
-    }
 }

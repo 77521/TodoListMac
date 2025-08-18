@@ -16,7 +16,7 @@ final class TDTaskAPI {
     private init() {}
     
     /// 获取服务器当前最大版本号
-    func getCurrentVersion() async throws -> Int {
+    func getCurrentVersion() async throws -> Int64 {
         
         // 发起请求
         let response = try await TDNetworkManager.shared.request(
@@ -29,7 +29,7 @@ final class TDTaskAPI {
     /// 从服务器获取任务列表
     /// - Parameter version: 本地最大版本号
     /// - Returns: 任务列表
-    func getTaskList(version: Int) async throws -> [TDMacSwiftDataListModel] {
+    func getTaskList(version: Int64) async throws -> [TDMacSwiftDataListModel] {
         // 构建请求参数
         // 获取当前用户 ID
         let userId = TDUserManager.shared.userId
@@ -45,13 +45,6 @@ final class TDTaskAPI {
             endpoint: "syncGetData",
             parameters: parameters
         )
-        
-//        // 转换为 SwiftData 模型
-//        var swiftDataModels: [TDMacSwiftDataListModel] = []
-//        for task in taskList {
-//            let model = await task.toSwiftDataModel()
-//            swiftDataModels.append(model)
-//        }
         // 如果不是首次同步，标记为已完成首次同步
         if isFirst {
             TDUserSyncManager.shared.markSyncCompleted(userId: userId)

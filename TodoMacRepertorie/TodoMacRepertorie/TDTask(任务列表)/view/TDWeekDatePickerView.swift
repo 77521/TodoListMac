@@ -24,9 +24,6 @@ struct TDWeekDatePickerView: View {
                     if dateManager.currentWeek.contains(where: { $0.isToday }) {
                         dateManager.backToToday()
                     }
-                    Task {
-                        try? await mainViewModel.refreshTasks()
-                    }
                 }) {
                     Image(systemName: "chevron.left")
                         .foregroundColor(themeManager.titleTextColor)
@@ -39,9 +36,8 @@ struct TDWeekDatePickerView: View {
                 HStack(spacing: 4) {
                     ForEach(dateManager.currentWeek, id: \.self) { date in
                         Button(action: {
-                            dateManager.selectDate(date)
                             Task {
-                                try? await mainViewModel.refreshTasks()
+                                await mainViewModel.selectDateAndRefreshTasks(date)
                             }
                         }) {
                             Text(date.dayNumberString)
@@ -69,9 +65,6 @@ struct TDWeekDatePickerView: View {
                     dateManager.nextWeek()
                     if dateManager.currentWeek.contains(where: { $0.isToday }) {
                         dateManager.backToToday()
-                    }
-                    Task {
-                        try? await mainViewModel.refreshTasks()
                     }
                 }) {
                     Image(systemName: "chevron.right")
@@ -103,10 +96,8 @@ struct TDWeekDatePickerView: View {
                     selectedDate: $selectedPickerDate,
                     isPresented: $showDatePicker,
                     onDateSelected: { date in
-                        dateManager.selectDate(date)
-                        dateManager.updateCurrentWeek()
                         Task {
-                            try? await mainViewModel.refreshTasks()
+                            await mainViewModel.selectDateAndRefreshTasks(date)
                         }
                     }
                 )
@@ -116,9 +107,6 @@ struct TDWeekDatePickerView: View {
             // 回到今天按钮
             Button(action: {
                 dateManager.backToToday()
-                Task {
-                    try? await mainViewModel.refreshTasks()
-                }
             }) {
                 Image(systemName: "sun.max")
                     .foregroundColor(themeManager.titleTextColor)

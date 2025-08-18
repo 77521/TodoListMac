@@ -10,6 +10,7 @@
 import Foundation
 import SwiftUI
 
+
 class TDUserManager: ObservableObject {
     static let shared = TDUserManager()
     private let keychainManager = TDKeychainManager.shared
@@ -174,6 +175,7 @@ class TDUserManager: ObservableObject {
             UserDefaults.standard.set(userIds, forKey: loggedInUserIdsKey)
         }
     }
+    
 
     /// 移除一个已登录用户ID
     func removeLoggedInUserId(_ userId: Int) {

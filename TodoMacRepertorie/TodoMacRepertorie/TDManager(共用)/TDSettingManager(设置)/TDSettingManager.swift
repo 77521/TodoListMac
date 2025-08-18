@@ -48,6 +48,11 @@ class TDSettingManager: ObservableObject {
         /// 后续日程显示范围
         static let futureDateRange = "td_future_date_range"
         
+        /// 是否显示无日期事件
+        static let showNoDateEvents = "td_show_no_date_events"
+        /// 是否显示已完成的无日期事件
+        static let showCompletedNoDateEvents = "td_show_completed_no_date_events"
+
         
         /// 日历视图任务背景色模式
         static let calendarTaskBackgroundMode = "td_calendar_task_background_mode"
@@ -80,13 +85,19 @@ class TDSettingManager: ObservableObject {
     }
     /// 每周第一天是否为周一
     var isFirstDayMonday: Bool {
-        get { sharedDefaults?.integer(forKey: Keys.firstDayOfWeek) == 1 }
+        get {
+            // 如果没有存储过值，默认返回 true（周一）
+            if sharedDefaults?.object(forKey: Keys.firstDayOfWeek) == nil {
+                return true
+            }
+            return sharedDefaults?.integer(forKey: Keys.firstDayOfWeek) == 1
+        }
         set { sharedDefaults?.set(newValue ? 1 : 0, forKey: Keys.firstDayOfWeek); objectWillChange.send() }
     }
     
     /// 是否显示已完成任务
     var showCompletedTasks: Bool {
-        get { sharedDefaults?.bool(forKey: Keys.showCompletedTasks) ?? false }
+        get { sharedDefaults?.bool(forKey: Keys.showCompletedTasks) ?? true }
         set { sharedDefaults?.set(newValue, forKey: Keys.showCompletedTasks); objectWillChange.send() }
     }
     
@@ -103,7 +114,7 @@ class TDSettingManager: ObservableObject {
     
     /// 描述显示行数（1-5）
     var descriptionLineLimit: Int {
-        get { sharedDefaults?.integer(forKey: Keys.descriptionLineLimit) ?? 1 }
+        get { sharedDefaults?.integer(forKey: Keys.descriptionLineLimit) ?? 3 }
         set {
             let value = min(max(newValue, 1), 5)
             sharedDefaults?.set(value, forKey: Keys.descriptionLineLimit)
@@ -125,7 +136,7 @@ class TDSettingManager: ObservableObject {
     
     /// 重复数据显示个数
     var repeatTasksLimit: TDRepeatTasksLimit {
-        get { TDRepeatTasksLimit(rawValue: sharedDefaults?.integer(forKey: Keys.repeatTasksLimit) ?? TDRepeatTasksLimit.all.rawValue) ?? .all }
+        get { TDRepeatTasksLimit(rawValue: sharedDefaults?.integer(forKey: Keys.repeatTasksLimit) ?? TDRepeatTasksLimit.five.rawValue) ?? .five }
         set { sharedDefaults?.set(newValue.rawValue, forKey: Keys.repeatTasksLimit); objectWillChange.send() }
     }
     
@@ -134,6 +145,19 @@ class TDSettingManager: ObservableObject {
         get { TDFutureDateRange(rawValue: sharedDefaults?.integer(forKey: Keys.futureDateRange) ?? TDFutureDateRange.thirtyDays.rawValue) ?? .thirtyDays }
         set { sharedDefaults?.set(newValue.rawValue, forKey: Keys.futureDateRange); objectWillChange.send() }
     }
+    
+    /// 是否显示无日期事件
+    var showNoDateEvents: Bool {
+        get { sharedDefaults?.bool(forKey: Keys.showNoDateEvents) ?? true }
+        set { sharedDefaults?.set(newValue, forKey: Keys.showNoDateEvents); objectWillChange.send() }
+    }
+
+    /// 是否显示已完成的无日期事件
+    var showCompletedNoDateEvents: Bool {
+        get { sharedDefaults?.bool(forKey: Keys.showCompletedNoDateEvents) ?? true }
+        set { sharedDefaults?.set(newValue, forKey: Keys.showCompletedNoDateEvents); objectWillChange.send() }
+    }
+
 
     /// 日历视图任务背景色模式
     var calendarTaskBackgroundMode: TDTaskBackgroundMode {

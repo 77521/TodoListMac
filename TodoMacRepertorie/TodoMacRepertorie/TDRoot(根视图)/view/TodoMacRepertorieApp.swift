@@ -10,7 +10,7 @@ import SwiftData
 
 @main
 struct TodoMacRepertorieApp: App {
-    @StateObject private var modelContainer = TDModelContainer.shared
+//    @StateObject private var modelContainer = TDModelContainer.shared
     @StateObject private var userManager = TDUserManager.shared
     @StateObject private var themeManager = TDThemeManager.shared
     @StateObject private var settingManager = TDSettingManager.shared
@@ -21,7 +21,7 @@ struct TodoMacRepertorieApp: App {
             Group {
                 if userManager.isLoggedIn {
                     TDMainView()
-                        .environment(\.modelContext, modelContainer.mainContext)
+//                        .environment(\.modelContext, modelContainer.mainContext)
                         .environmentObject(themeManager)
                         .environmentObject(settingManager)
                         .environmentObject(mainViewModel)
@@ -32,7 +32,15 @@ struct TodoMacRepertorieApp: App {
                 }
             }
         }
-        .modelContainer(modelContainer.container)
+        .modelContainer(for: TDMacSwiftDataListModel.self, onSetup: { result in
+                    switch result {
+                    case .success(let container):
+                        // 配置成功，使用默认设置
+                        break
+                    case .failure(let error):
+                        print("ModelContainer 配置失败: \(error)")
+                    }
+                })
         .windowStyle(.hiddenTitleBar)
         .windowResizability(.contentSize)
     }

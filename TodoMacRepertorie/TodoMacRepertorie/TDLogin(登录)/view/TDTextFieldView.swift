@@ -86,7 +86,8 @@ struct TDSecureTextField: View {
                                     if viewModel.isSendingSms {
                                         ProgressView()  // loading 状态显示转圈圈
                                             .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                                            .scaleEffect(0.7)  // 缩小转圈圈的大小
+                                            .scaleEffect(0.6)
+                                            .frame(width: 16, height: 16)
                                     } else {
                                         Text(viewModel.smsButtonTitle)
                                             .foregroundStyle(.white)

@@ -30,5 +30,9 @@ extension Notification.Name {
     // 日历切换
     static let tdFrequentCalendarDataLoaded = Notification.Name("tdFrequentCalendarDataLoaded")
     static let tdFullCalendarDataLoaded = Notification.Name("tdFullCalendarDataLoaded")
+    
+    // 任务数据
+    static let taskDataChanged = Notification.Name("taskDataChanged")
+
 
 }
