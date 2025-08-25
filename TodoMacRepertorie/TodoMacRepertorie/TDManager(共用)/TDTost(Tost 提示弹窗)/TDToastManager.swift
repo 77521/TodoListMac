@@ -59,7 +59,7 @@ public extension View {
             AlertToast(
                 displayMode: position.toAlertToastPosition,
                 type: type.toAlertType,
-                title: "Todo清单：\(message)"
+                title: "\("app_name".localized)：\(message.localized)"
             )
         }
     }

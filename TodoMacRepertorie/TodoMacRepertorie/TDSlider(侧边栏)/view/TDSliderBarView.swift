@@ -639,8 +639,13 @@ struct TDSliderBarView: View {
     private func categoryRowView(_ category: TDSliderBarModel) -> some View {
         HStack(spacing: 8) {
             // 图标或颜色圆圈
-            if category.categoryId >= 0, let categoryColor = category.categoryColor {
-                // 服务器分类：使用颜色圆圈
+            if category.categoryId == 0 {
+                // 未分类：使用空心圆圈
+                Circle()
+                    .stroke(themeManager.color(level: 6), lineWidth: 1)
+                    .frame(width: 12, height: 12)
+            } else if category.categoryId > 0, let categoryColor = category.categoryColor {
+                // 服务器分类：使用实心颜色圆圈
                 Circle()
                     .fill(Color.fromHex(categoryColor))
                     .frame(width: 12, height: 12)
@@ -650,7 +655,7 @@ struct TDSliderBarView: View {
                     .foregroundColor(themeManager.color(level: 5))
                     .font(.system(size: 14))
             }
-            
+
             // 分类名称
             Text(category.categoryName)
                 .font(.system(size: 14))

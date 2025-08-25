@@ -237,7 +237,7 @@ class TDQueryConditionManager {
             
             if serverTask.syncTime > localTask.syncTime {
                 // 服务器数据更新，更新本地数据
-                updateLocalTaskWithServerData(localTask: localTask, serverTask: serverTask)
+                try updateLocalTaskWithServerData(localTask: localTask, serverTask: serverTask, context: context)
                 return .updated
                 
             } else {
@@ -253,8 +253,9 @@ class TDQueryConditionManager {
     ///   - serverTask: 服务器任务（已经是 TDMacSwiftDataListModel 类型）
     private func updateLocalTaskWithServerData(
         localTask: TDMacSwiftDataListModel,
-        serverTask: TDMacSwiftDataListModel
-    ) {
+        serverTask: TDMacSwiftDataListModel,
+        context: ModelContext
+    ) throws {
         // 更新所有服务器字段
         localTask.taskContent = serverTask.taskContent
         localTask.taskDescribe = serverTask.taskDescribe
@@ -284,6 +285,9 @@ class TDQueryConditionManager {
         localTask.reminderTimeString = serverTask.reminderTimeString
         localTask.subTaskList = serverTask.subTaskList
         localTask.attachmentList = serverTask.attachmentList
+        // 保存到数据库
+        try context.save()
+
     }
     
     /// 检查是否需要显示同步进度
@@ -363,7 +367,31 @@ class TDQueryConditionManager {
         return localTasks.first
     }
     
-    
+    /// 根据重复ID查询数据
+    /// - Parameters:
+    ///   - standbyStr1: 重复ID
+    ///   - onlyUncompleted: 是否只查询未完成的任务
+    ///   - context: SwiftData 上下文
+    /// - Returns: 重复事件列表
+    func getDuplicateTasks(
+        standbyStr1: String,
+        onlyUncompleted: Bool = false,
+        context: ModelContext
+    ) async throws -> [TDMacSwiftDataListModel] {
+        
+        let (predicate, sortDescriptors) = TDCorrectQueryBuilder.getDuplicateTasksQuery(
+            standbyStr1: standbyStr1,
+            onlyUncompleted: onlyUncompleted
+        )
+        
+        let descriptor = FetchDescriptor<TDMacSwiftDataListModel>(
+            predicate: predicate,
+            sortBy: sortDescriptors
+        )
+        
+        return try context.fetch(descriptor)
+    }
+
     
 
 }
@@ -499,6 +527,11 @@ extension TDQueryConditionManager {
                 localTask.complete = complete
                 print("本地更新完成状态，taskId: \(taskId), complete: \(complete), version: \(newVersion)")
                 
+            } else if let taskSort = updateData["taskSort"] as? Decimal {
+                // 排序更新
+                localTask.taskSort = taskSort
+                print("本地更新排序，taskId: \(taskId), taskSort: \(taskSort), version: \(newVersion)")
+                
             } else {
                 // 其他字段全部更新（因为不确定用户修改了哪些字段）
                 localTask.taskContent = updateData["taskContent"] as? String ?? localTask.taskContent
@@ -548,7 +581,24 @@ extension TDQueryConditionManager {
             context: context
         )
     }
-    
+    /// 更新任务排序（便捷方法）
+    /// - Parameters:
+    ///   - taskId: 任务ID
+    ///   - taskSort: 新的排序值
+    ///   - context: SwiftData 上下文
+    /// - Returns: 操作结果
+    func updateTaskSort(
+        taskId: String,
+        taskSort: Decimal,
+        context: ModelContext
+    ) async throws -> LocalDataAction {
+        return try await updateLocalTask(
+            taskId: taskId,
+            updateData: ["taskSort": taskSort],
+            context: context
+        )
+    }
+
     /// 变更任务完成状态（便捷方法）
     /// - Parameters:
     ///   - taskId: 任务ID
@@ -567,6 +617,71 @@ extension TDQueryConditionManager {
         )
     }
     
+    
+    /// 更新子任务状态（专门处理子任务逻辑）
+    /// - Parameters:
+    ///   - taskId: 任务ID
+    ///   - subTaskIndex: 子任务索引
+    ///   - isCompleted: 子任务是否完成
+    ///   - context: SwiftData 上下文
+    /// - Returns: 操作结果
+    func updateSubTaskCompletion(
+        taskId: String,
+        subTaskIndex: Int,
+        isCompleted: Bool,
+        context: ModelContext
+    ) async throws -> LocalDataAction {
+        
+        do {
+            // 1. 根据 taskId 查询本地数据
+            guard let localTask = try await getLocalTaskByTaskId(taskId: taskId, context: context) else {
+                throw LocalDataError.taskNotFound
+            }
+            
+            // 2. 检查子任务索引是否有效
+            guard subTaskIndex >= 0 && subTaskIndex < localTask.subTaskList.count else {
+                throw LocalDataError.taskNotFound
+            }
+            
+            // 3. 更新子任务状态
+            localTask.subTaskList[subTaskIndex].isComplete = isCompleted
+            
+            // 4. 重新生成 standbyStr2 字符串
+            let newSubTasksString = localTask.generateSubTasksString()
+            localTask.standbyStr2 = newSubTasksString.isEmpty ? nil : newSubTasksString
+            
+            // 5. 检查是否需要自动完成父任务
+            if localTask.allSubTasksCompleted {
+                // 根据设置决定是否自动完成父任务
+                // TODO: 这里需要添加设置项，暂时默认自动完成
+                let shouldAutoCompleteParent = true // TDSettingManager.shared.autoCompleteParentWhenAllSubTasksDone
+                
+                if shouldAutoCompleteParent && !localTask.complete {
+                    localTask.complete = true
+                    print("🔍 所有子任务完成，自动完成父任务: \(localTask.taskContent)")
+                }
+            }
+            
+            // 6. 更新 version 和 status
+            let maxVersion = try await getLocalMaxVersionForLocal(context: context)
+            localTask.version = maxVersion + 1
+            localTask.status = "update"
+            localTask.syncTime = Date.currentTimestamp
+            
+            // 7. 保存到数据库
+            try context.save()
+            
+            print("🔍 子任务状态更新成功: taskId=\(taskId), subTaskIndex=\(subTaskIndex), isCompleted=\(isCompleted)")
+            return .updated
+            
+        } catch {
+            print("🔍 子任务状态更新失败: \(error)")
+            throw LocalDataError.contextSaveFailed
+        }
+    }
+    
+
+    
     /// 计算新任务的智能 taskSort 值
     /// - Parameters:
     ///   - todoTime: 任务的日期时间戳
@@ -578,8 +693,8 @@ extension TDQueryConditionManager {
     ) async throws -> Decimal {
         
         // 获取设置中的添加位置偏好（暂时使用默认值，后续可以从设置中获取）
-        let isAddToTop = true // TODO: 从 TDSettingManager 获取设置
-        
+        let isAddToTop = TDSettingManager.shared.isNewTaskAddToTop
+
         do {
             let maxTaskSort = try await getMaxTaskSortForDate(todoTime: todoTime, context: context)
             let minTaskSort = try await getMinTaskSortForDate(todoTime: todoTime, context: context)
@@ -619,9 +734,7 @@ extension TDQueryConditionManager {
             return TDAppConfig.defaultTaskSort
         }
     }
-    
-    
-    
+        
     /// 根据服务器返回结果批量更新本地数据状态为已同步
     /// 用于服务器返回数据后，将本地数据标记为已同步
     /// - Parameters:

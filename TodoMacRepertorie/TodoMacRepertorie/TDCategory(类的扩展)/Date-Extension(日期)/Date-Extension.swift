@@ -55,7 +55,7 @@ extension Date {
     /// 获取日期数字显示
     var dayNumberString: String {
         if isToday {
-            return "今"
+            return "today_short".localized
         }
         let formatter = DateFormatter()
         formatter.locale = Locale.current
@@ -67,7 +67,7 @@ extension Date {
     var formattedString: String {
         let formatter = DateFormatter()
         formatter.locale = Locale.current
-        formatter.dateFormat = isThisYear ? "MM月dd日" : "yyyy年MM月dd日"
+        formatter.dateFormat = isThisYear ? "date_format_short".localized : "date_format_full".localized
         return formatter.string(from: self)
     }
     

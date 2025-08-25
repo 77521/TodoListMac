@@ -198,10 +198,8 @@ struct TDTaskModel: Codable {
     /// 处理提醒时间字符串
     mutating func processReminderTime() {
         if reminderTime > 0 {
-            let date = Date(timeIntervalSince1970: TimeInterval(reminderTime / 1000))
-            let formatter = DateFormatter()
-            formatter.dateFormat = "HH:mm"
-            reminderTimeString = formatter.string(from: date)
+            let date = Date.fromTimestamp(reminderTime)
+            reminderTimeString = date.toString(format: "time_format_hour_minute".localized)
         }
     }
     /// 处理分类信息
@@ -231,16 +229,28 @@ struct TDTaskModel: Codable {
         return subTasks.compactMap { subTaskString in
             let trimmed = subTaskString.trimmingCharacters(in: .whitespacesAndNewlines)
             if trimmed.isEmpty { return nil }
-            if parentComplete {
-                return SubTask(isComplete: true, content: trimmed)
-            }
+            
+            // 先处理复选框标识，无论父任务是否完成
+            var content = trimmed
             if trimmed.contains("- [x]") {
-                let content = trimmed.replacingOccurrences(of: "- [x]", with: "")
+                content = trimmed.replacingOccurrences(of: "- [x]", with: "")
                     .trimmingCharacters(in: .whitespaces)
+            } else if trimmed.contains("- [ ]") {
+                content = trimmed.replacingOccurrences(of: "- [ ]", with: "")
+                    .trimmingCharacters(in: .whitespaces)
+            }
+            
+            if parentComplete {
+                print("🔍 父任务完成，子任务content: '\(content)'")
+                return SubTask(isComplete: true, content: content)
+            }
+            
+            // 根据原始字符串判断完成状态
+            if trimmed.contains("- [x]") {
+                print("🔍 已完成子任务content: '\(content)'")
                 return SubTask(isComplete: true, content: content)
             } else if trimmed.contains("- [ ]") {
-                let content = trimmed.replacingOccurrences(of: "- [ ]", with: "")
-                    .trimmingCharacters(in: .whitespaces)
+                print("🔍 未完成子任务content: '\(content)'")
                 return SubTask(isComplete: false, content: content)
             }
             return nil

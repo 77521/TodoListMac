@@ -19,7 +19,7 @@ struct TDCorrectQueryBuilder {
     static func getLocalMaxVersionQuery() -> (Predicate<TDMacSwiftDataListModel>, [SortDescriptor<TDMacSwiftDataListModel>]) {
         let userId = TDUserManager.shared.userId
         let predicate = #Predicate<TDMacSwiftDataListModel> { task in
-            task.userId == userId && task.status == "sync"
+            task.userId == userId
         }
         
         let sortDescriptors = [
@@ -62,17 +62,14 @@ struct TDCorrectQueryBuilder {
     /// 查询条件：userid = 用户登录 id，todoTime = 传入的时间戳，delete = false
     /// 根据设置是否显示已完成事件，不显示的话添加 complete = false 条件
     static func getDayTodoQuery(selectedDate: Date) -> (Predicate<TDMacSwiftDataListModel>, [SortDescriptor<TDMacSwiftDataListModel>]) {
-//        let settingManager = TDSettingManager.shared
-//        let userId = TDUserManager.shared.userId
-//        let showCompleted = settingManager.showCompletedTasks
+        let settingManager = TDSettingManager.shared
+        let userId = TDUserManager.shared.userId
+        let showCompleted = settingManager.showCompletedTasks
         let dateTimestamp = selectedDate.startOfDayTimestamp
 //        
-//        let predicate = #Predicate<TDMacSwiftDataListModel> { task in
-//            task.userId == userId && !task.delete && task.todoTime == dateTimestamp &&
-//            (showCompleted || !task.complete)
-//        }
         let predicate = #Predicate<TDMacSwiftDataListModel> { task in
-            task.userId == 398819 && !task.delete && task.todoTime == dateTimestamp && !task.complete
+            task.userId == userId && !task.delete && task.todoTime == dateTimestamp &&
+            (showCompleted || !task.complete)
         }
         // 使用日期排序
         let sortDescriptors = [

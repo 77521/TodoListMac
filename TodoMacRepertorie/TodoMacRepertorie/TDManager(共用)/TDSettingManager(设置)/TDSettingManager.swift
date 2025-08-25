@@ -35,10 +35,11 @@ class TDSettingManager: ObservableObject {
         static let showCompletedTasks = "td_show_completed_tasks"
         /// 数据展示排序
         static let taskSortOrder = "td_task_sort_order"
+        /// 新数据添加位置（true: 添加到顶部，false: 添加到底部）
+        static let newTaskAddToTop = "td_new_task_add_to_top"
+
         /// 是否显示本地日历数据
         static let showLocalCalendarEvents = "td_show_local_calendar_events"
-        /// 描述显示行数 (1-5行)
-        static let descriptionLineLimit = "td_description_line_limit"
         /// 已完成过期任务显示范围
         static let expiredRangeCompleted = "td_expired_range_completed"
         /// 未完成过期任务显示范围
@@ -60,10 +61,30 @@ class TDSettingManager: ObservableObject {
         static let calendarShowCompletedSeparator = "td_calendar_show_completed_separator"
         /// 日历视图是否显示剩余任务数量
         static let calendarShowRemainingCount = "td_calendar_show_remaining_count"
+        /// DayTodo 是否显示顺序数字
+        static let showDayTodoOrderNumber = "td_show_daytodo_order_number1"
+
+        /// 任务标题显示行数
+        static let taskTitleLines = "td_task_title_lines"
+        /// 任务描述显示行数
+        static let taskDescriptionLines = "td_task_description_lines"
+        /// 是否显示任务描述
+        static let showTaskDescription = "td_show_task_description"
+        /// 任务已完成标题是否显示删除线
+        static let showCompletedTaskStrikethrough = "td_show_completed_task_strikethrough"
+        /// 选中框是否跟随分类清单颜色
+        static let checkboxFollowCategoryColor = "td_checkbox_follow_category_color"
+
+        
+        /// 是否开启震动
+        static let enableVibration = "td_enable_vibration"
+        /// 是否开启音效
+        static let enableSound = "td_enable_sound"
+        /// 音效类型（1: ok_ding, 2: todofinishvoice）
+        static let soundType = "td_sound_type"
 
 
     }
-    
     // MARK: - 存储属性（每个都带注释）
     
     /// 主题模式（0: 跟随系统，1: 白天，2: 黑夜）
@@ -97,30 +118,42 @@ class TDSettingManager: ObservableObject {
     
     /// 是否显示已完成任务
     var showCompletedTasks: Bool {
-        get { sharedDefaults?.bool(forKey: Keys.showCompletedTasks) ?? true }
+        get {
+            if sharedDefaults?.object(forKey: Keys.showCompletedTasks) == nil {
+                return true // 默认显示已完成任务
+            }
+            return sharedDefaults?.bool(forKey: Keys.showCompletedTasks) ?? true
+        }
         set { sharedDefaults?.set(newValue, forKey: Keys.showCompletedTasks); objectWillChange.send() }
     }
     
     /// 数据展示排序（true: 升序，false: 降序）
-    var isTaskSortAscending: Bool {
-        get { sharedDefaults?.bool(forKey: Keys.taskSortOrder) ?? true }
-        set { sharedDefaults?.set(newValue, forKey: Keys.taskSortOrder); objectWillChange.send() }
+//    var isTaskSortAscending: Bool {
+//        get { sharedDefaults?.bool(forKey: Keys.taskSortOrder) ?? true }
+//        set { sharedDefaults?.set(newValue, forKey: Keys.taskSortOrder); objectWillChange.send() }
+//    }
+    /// 新数据添加位置（true: 添加到顶部，false: 添加到底部，默认添加到底部）
+    var isNewTaskAddToTop: Bool {
+        get {
+            if sharedDefaults?.object(forKey: Keys.newTaskAddToTop) == nil {
+                return false // 默认添加到底部
+            }
+            return sharedDefaults?.bool(forKey: Keys.newTaskAddToTop) ?? false
+        }
+        set { sharedDefaults?.set(newValue, forKey: Keys.newTaskAddToTop); objectWillChange.send() }
     }
+
     /// 是否显示本地日历数据
     var showLocalCalendarEvents: Bool {
-        get { sharedDefaults?.bool(forKey: Keys.showLocalCalendarEvents) ?? false }
+        get {
+            if sharedDefaults?.object(forKey: Keys.showLocalCalendarEvents) == nil {
+                return false // 默认不显示本地日历数据
+            }
+            return sharedDefaults?.bool(forKey: Keys.showLocalCalendarEvents) ?? false
+        }
         set { sharedDefaults?.set(newValue, forKey: Keys.showLocalCalendarEvents); objectWillChange.send() }
     }
     
-    /// 描述显示行数（1-5）
-    var descriptionLineLimit: Int {
-        get { sharedDefaults?.integer(forKey: Keys.descriptionLineLimit) ?? 3 }
-        set {
-            let value = min(max(newValue, 1), 5)
-            sharedDefaults?.set(value, forKey: Keys.descriptionLineLimit)
-            objectWillChange.send()
-        }
-    }
     
     /// 已完成过期任务显示范围
     var expiredRangeCompleted: TDExpiredRange {
@@ -154,7 +187,12 @@ class TDSettingManager: ObservableObject {
 
     /// 是否显示已完成的无日期事件
     var showCompletedNoDateEvents: Bool {
-        get { sharedDefaults?.bool(forKey: Keys.showCompletedNoDateEvents) ?? true }
+        get {
+            if sharedDefaults?.object(forKey: Keys.showNoDateEvents) == nil {
+                return true // 默认显示无日期事件
+            }
+            return sharedDefaults?.bool(forKey: Keys.showNoDateEvents) ?? true
+        }
         set { sharedDefaults?.set(newValue, forKey: Keys.showCompletedNoDateEvents); objectWillChange.send() }
     }
 
@@ -167,13 +205,23 @@ class TDSettingManager: ObservableObject {
     
     /// 日历视图是否显示已完成分割线
     var calendarShowCompletedSeparator: Bool {
-        get { sharedDefaults?.bool(forKey: Keys.calendarShowCompletedSeparator) ?? true }
+        get {
+            if sharedDefaults?.object(forKey: Keys.calendarShowCompletedSeparator) == nil {
+                return true // 默认显示已完成分割线
+            }
+            return sharedDefaults?.bool(forKey: Keys.calendarShowCompletedSeparator) ?? true
+        }
         set { sharedDefaults?.set(newValue, forKey: Keys.calendarShowCompletedSeparator); objectWillChange.send() }
     }
     
     /// 日历视图是否显示剩余任务数量
     var calendarShowRemainingCount: Bool {
-        get { sharedDefaults?.bool(forKey: Keys.calendarShowRemainingCount) ?? true }
+        get {
+            if sharedDefaults?.object(forKey: Keys.calendarShowRemainingCount) == nil {
+                return true // 默认显示剩余任务数量
+            }
+            return sharedDefaults?.bool(forKey: Keys.calendarShowRemainingCount) ?? true
+        }
         set { sharedDefaults?.set(newValue, forKey: Keys.calendarShowRemainingCount); objectWillChange.send() }
     }
     
@@ -250,6 +298,107 @@ class TDSettingManager: ObservableObject {
             )
         }
     }
+    
+    // MARK: - 任务显示设置
+    
+    /// 任务标题显示行数（默认2行）
+    var taskTitleLines: Int {
+        get {
+            if sharedDefaults?.object(forKey: Keys.taskTitleLines) == nil {
+                return 2 // 默认2行
+            }
+            return sharedDefaults?.integer(forKey: Keys.taskTitleLines) ?? 2
+        }
+        set { sharedDefaults?.set(newValue, forKey: Keys.taskTitleLines); objectWillChange.send() }
+    }
+    
+    /// 任务描述显示行数（默认3行）
+    var taskDescriptionLines: Int {
+        get {
+            if sharedDefaults?.object(forKey: Keys.taskDescriptionLines) == nil {
+                return 3 // 默认3行
+            }
+            return sharedDefaults?.integer(forKey: Keys.taskDescriptionLines) ?? 3
+        }
+        set { sharedDefaults?.set(newValue, forKey: Keys.taskDescriptionLines); objectWillChange.send() }
+    }
+    
+    /// 是否显示任务描述（默认显示）
+    var showTaskDescription: Bool {
+        get {
+            if sharedDefaults?.object(forKey: Keys.showTaskDescription) == nil {
+                return true // 默认显示任务描述
+            }
+            return sharedDefaults?.bool(forKey: Keys.showTaskDescription) ?? true
+        }
+        set { sharedDefaults?.set(newValue, forKey: Keys.showTaskDescription); objectWillChange.send() }
+    }
+    
+    /// 任务已完成标题是否显示删除线（默认显示）
+    var showCompletedTaskStrikethrough: Bool {
+        get {
+            if sharedDefaults?.object(forKey: Keys.showCompletedTaskStrikethrough) == nil {
+                return true // 默认显示删除线
+            }
+            return sharedDefaults?.bool(forKey: Keys.showCompletedTaskStrikethrough) ?? true
+        }
+        set { sharedDefaults?.set(newValue, forKey: Keys.showCompletedTaskStrikethrough); objectWillChange.send() }
+    }
+    /// 选中框是否跟随分类清单颜色（默认不跟随）
+    var checkboxFollowCategoryColor: Bool {
+        get {
+            if sharedDefaults?.object(forKey: Keys.checkboxFollowCategoryColor) == nil {
+                return false // 默认不跟随分类颜色
+            }
+            return sharedDefaults?.bool(forKey: Keys.checkboxFollowCategoryColor) ?? false
+        }
+        set { sharedDefaults?.set(newValue, forKey: Keys.checkboxFollowCategoryColor); objectWillChange.send() }
+    }
+
+    /// DayTodo 是否显示顺序数字（默认显示）
+    var showDayTodoOrderNumber: Bool {
+        get {
+            if sharedDefaults?.object(forKey: Keys.showDayTodoOrderNumber) == nil {
+                return true // 默认显示顺序数字
+            }
+            return sharedDefaults?.bool(forKey: Keys.showDayTodoOrderNumber) ?? true
+        }
+        set { sharedDefaults?.set(newValue, forKey: Keys.showDayTodoOrderNumber); objectWillChange.send() }
+    }
+    
+    /// 是否开启震动（默认开启）
+    var enableVibration: Bool {
+        get {
+            if sharedDefaults?.object(forKey: Keys.enableVibration) == nil {
+                return true // 默认开启震动
+            }
+            return sharedDefaults?.bool(forKey: Keys.enableVibration) ?? true
+        }
+        set { sharedDefaults?.set(newValue, forKey: Keys.enableVibration); objectWillChange.send() }
+    }
+    
+    /// 是否开启音效（默认开启）
+    var enableSound: Bool {
+        get {
+            if sharedDefaults?.object(forKey: Keys.enableSound) == nil {
+                return true // 默认开启音效
+            }
+            return sharedDefaults?.bool(forKey: Keys.enableSound) ?? true
+        }
+        set { sharedDefaults?.set(newValue, forKey: Keys.enableSound); objectWillChange.send() }
+    }
+    
+    /// 音效类型（默认使用 ok_ding）
+    var soundType: TDSoundType {
+        get {
+            if sharedDefaults?.object(forKey: Keys.soundType) == nil {
+                return .okDing // 默认使用 ok_ding
+            }
+            return TDSoundType(rawValue: sharedDefaults?.integer(forKey: Keys.soundType) ?? TDSoundType.okDing.rawValue) ?? .okDing
+        }
+        set { sharedDefaults?.set(newValue.rawValue, forKey: Keys.soundType); objectWillChange.send() }
+    }
+    
 
     // MARK: - 初始化
     private init() {}

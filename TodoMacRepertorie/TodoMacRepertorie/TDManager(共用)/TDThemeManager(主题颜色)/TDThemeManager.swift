@@ -9,7 +9,6 @@ import Foundation
 import SwiftUI
 
 /// 主题管理器
-@MainActor
 class TDThemeManager: ObservableObject {
     static let shared = TDThemeManager()
     // 使用 App Group 的 UserDefaults

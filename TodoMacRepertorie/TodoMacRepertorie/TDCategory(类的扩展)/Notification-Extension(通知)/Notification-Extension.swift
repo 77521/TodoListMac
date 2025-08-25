@@ -33,6 +33,7 @@ extension Notification.Name {
     
     // 任务数据
     static let taskDataChanged = Notification.Name("taskDataChanged")
+    static let dayTodoDataChanged = Notification.Name("dayTodoDataChanged")
 
 
 }

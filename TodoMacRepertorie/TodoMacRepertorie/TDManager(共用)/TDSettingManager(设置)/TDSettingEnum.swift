@@ -120,3 +120,29 @@ enum TDTaskBackgroundMode: Int, CaseIterable {
     }
 }
 
+
+/// 音效类型枚举
+enum TDSoundType: Int, CaseIterable {
+    case okDing = 1
+    case todoFinishVoice = 2
+    
+    /// 音效文件名
+    var fileName: String {
+        switch self {
+        case .okDing:
+            return "ok_ding.mp3"
+        case .todoFinishVoice:
+            return "todofinishvoice.mp3"
+        }
+    }
+    
+    /// 显示名称
+    var displayName: String {
+        switch self {
+        case .okDing:
+            return "叮声"
+        case .todoFinishVoice:
+            return "完成音效"
+        }
+    }
+}

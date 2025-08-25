@@ -493,7 +493,7 @@ struct TDMainView: View {
         }
         .frame(minWidth: 1100, minHeight: 700)
         .background(Color(.windowBackgroundColor))
-
+        .ignoresSafeArea(.container, edges: .all)
         .task {
             // 界面加载完成后，立即执行四个初始化请求和同步操作
             await mainViewModel.performInitialServerRequests()

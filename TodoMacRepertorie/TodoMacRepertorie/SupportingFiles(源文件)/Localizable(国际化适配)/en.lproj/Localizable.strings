@@ -7,7 +7,11 @@
 */
 //通用
 "today" = "Today";
+"tomorrow" = "Tomorrow";
+"day_after_tomorrow" = "Day after tomorrow";
 "back_to_today" = "Back to Today";
+"today_short" = "Today";
+"app_name" = "Todo List";
 
 // 日期格式
 "week_sun" = "Sun";
@@ -22,7 +26,24 @@
 "date_format_full" = "MMM d, yy";
 "date_format_short" = "MMM d";
 "date_format_with_week" = "%@ %@"; 
+"time_format_hour_minute" = "HH:mm";
 
 // 任务输入
 "task_input_placeholder" = "Press Enter to create a task";
 "uncategorized" = "Uncategorized";
+"no_date" = "No date";
+
+// 多选模式
+"select_at_least_one_event" = "Please select at least one event";
+"select_all" = "Select All";
+"deselect_all" = "Deselect All";
+"selected_count" = "Selected %d";
+"select_date" = "Select Date";
+"copy" = "Copy";
+"delete" = "Delete";
+"more_options" = "More Options";
+"more" = "More";
+"modify_category" = "Modify Category";
+"complete_events" = "Complete %d Events";
+"cancel_complete_events" = "Cancel Complete %d Events";
+"exit_multi_select" = "Exit Multi-select";

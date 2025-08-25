@@ -13,23 +13,6 @@ import SwiftData
 /// 待办事项模型
 @Model
 final class TDMacSwiftDataListModel {
-    // MARK: - 索引配置（提升查询和排序性能）
-    @Attribute(.unique) var id: Int64
-    @Attribute(.spotlight) var userId: Int
-    @Attribute(.unique) var taskId: String
-    @Attribute(.spotlight) var complete: Bool
-    @Attribute(.spotlight) var delete: Bool
-    @Attribute(.spotlight) var todoTime: Int64
-    @Attribute(.spotlight) var taskSort: Decimal
-    @Attribute(.spotlight) var standbyInt1: Int
-    @Attribute(.spotlight) var createTime: Int64
-    @Attribute(.spotlight) var syncTime: Int64
-    @Attribute(.spotlight) var snowAssess: Int
-    @Attribute(.spotlight) var standbyStr1: String?
-    @Attribute(.spotlight) var version: Int64
-    @Attribute(.spotlight) var taskContent: String
-    @Attribute(.spotlight) var taskDescribe: String?
-    @Attribute(.spotlight) var standbyStr2: String?
     // MARK: - 子任务结构体
     struct SubTask: Codable {
         var isComplete: Bool
@@ -52,22 +35,60 @@ final class TDMacSwiftDataListModel {
     }
     
     // MARK: - 服务器字段
+    // MARK: - 索引配置（提升查询和排序性能）
+//    @Attribute(.unique) var id: Int64
+//    @Attribute(.spotlight) var userId: Int
+//    @Attribute(.unique) var taskId: String
+//    @Attribute(.spotlight) var complete: Bool
+//    @Attribute(.spotlight) var delete: Bool
+//    @Attribute(.spotlight) var todoTime: Int64
+//    @Attribute(.spotlight) var taskSort: Decimal
+//    @Attribute(.spotlight) var standbyInt1: Int
+//    @Attribute(.spotlight) var createTime: Int64
+//    @Attribute(.spotlight) var syncTime: Int64
+//    @Attribute(.spotlight) var snowAssess: Int
+//    @Attribute(.spotlight) var standbyStr1: String?
+//    @Attribute(.spotlight) var version: Int64
+//    @Attribute(.spotlight) var taskContent: String
+//    @Attribute(.spotlight) var taskDescribe: String?
+//    @Attribute(.spotlight) var standbyStr2: String?
+
+    // MARK: - 索引配置（提升查询和排序性能）
+    var id: Int64
+    var userId: Int
+    var taskId: String
+     var complete: Bool
+     var delete: Bool
+     var todoTime: Int64
+     var taskSort: Decimal
+     var standbyInt1: Int
+     var createTime: Int64
+     var syncTime: Int64
+     var snowAssess: Int
+     var standbyStr1: String?
+     var version: Int64
+     var taskContent: String
+     var taskDescribe: String?
+     var standbyStr2: String?
+
+    
     var reminderTime: Int64
     var snowAdd: Int
     var standbyStr3: String?
     var standbyStr4: String?
     
-    // MARK: - 本地字段
     var status: String = "sync"
-    var number: Int = 1
     var isSubOpen: Bool = true
     var standbyIntColor: String = ""
     var standbyIntName: String = ""
     var reminderTimeString: String = ""
     var subTaskList: [SubTask] = []
     var attachmentList: [Attachment] = []
+    
+    // MARK: - 本地字段
     // 运行时属性，不保存到数据库
     @Transient var isSystemCalendarEvent: Bool = false
+    @Transient var number: Int = 1
 
     // MARK: - 初始化方法
     init(
@@ -92,7 +113,13 @@ final class TDMacSwiftDataListModel {
         userId: Int,
         version: Int64,
         status: String = "sync",
-        isSubOpen: Bool = true
+        isSubOpen: Bool = true,
+        // 本地字段
+        standbyIntColor: String = "",
+        standbyIntName: String = "",
+        reminderTimeString: String = "",
+        subTaskList: [SubTask] = [],
+        attachmentList: [Attachment] = []
     ) {
         self.id = id
         self.taskId = taskId
@@ -116,16 +143,163 @@ final class TDMacSwiftDataListModel {
         self.version = version
         self.status = status
         self.isSubOpen = isSubOpen
+        // 初始化本地字段
+        self.standbyIntColor = standbyIntColor
+        self.standbyIntName = standbyIntName
+        self.reminderTimeString = reminderTimeString
+        self.subTaskList = subTaskList
+        self.attachmentList = attachmentList
+
     }
-}
-/// 子任务
-@Model
-final class TDSubDataModel {
-    var content: String      // 子任务内容
-    var complete: Bool       // 是否完成
+    /// 难度等级颜色
+    var difficultyColor: Color {
+        if snowAssess < 5 {
+            return .clear // 一般
+        } else if snowAssess < 9 {
+            return TDThemeManager.shared.fixedColor(themeId: "wish_orange", level: 6) // 心想事橙，6级
+        } else {
+            return TDThemeManager.shared.fixedColor(themeId: "new_year_red", level: 6) // 新年红，6级
+        }
+    }
     
-    init(content: String, complete: Bool) {
-        self.content = content
-        self.complete = complete
+    /// 是否有提醒时间
+    var hasReminder: Bool {
+        return reminderTime > 0
     }
+    
+    
+    /// 是否有重复设置
+    var hasRepeat: Bool {
+        return !(standbyStr1?.isEmpty ?? true)
+    }
+    
+    /// 是否有附件
+    var hasAttachment: Bool {
+        return !(standbyStr4?.isEmpty ?? true)
+    }
+    
+    /// 是否有子任务
+    var hasSubTasks: Bool {
+        return !(standbyStr2?.isEmpty ?? true)
+    }
+
+    
+    /// 根据 todotime 转换日期显示（今天、明天、后天返回空，否则判断是否今年）
+    var taskDateConditionalString: String {
+        // 无日期的情况
+        if todoTime == 0 {
+            return "no_date".localized
+        }
+        
+        let taskDate = Date.fromTimestamp(todoTime)
+        
+        // 如果是今天、明天、后天，返回空字符串
+        if taskDate.isToday || taskDate.isTomorrow || taskDate.isDayAfterTomorrow {
+            return ""
+        } else {
+            // 否则返回根据年份的日期显示
+            return taskDate.formattedString
+        }
+    }
+        
+    /// 根据 todotime 判断是否今年，显示月日或年月日（包含无日期判断）
+    var taskDateByYearWithNoDateString: String {
+        // 无日期的情况
+        if todoTime == 0 {
+            return "no_date".localized
+        }
+        
+        let taskDate = Date.fromTimestamp(todoTime)
+        return taskDate.formattedString
+    }
+
+    /// 根据 todotime 获取日期显示颜色
+    var taskDateColor: Color {
+        // 无日期的情况
+        if todoTime == 0 {
+            return TDThemeManager.shared.descriptionTextColor // 描述颜色
+        }
+        
+        let taskDate = Date.fromTimestamp(todoTime)
+        
+        // 已过期
+        if taskDate.isOverdue {
+            return TDThemeManager.shared.fixedColor(themeId: "new_year_red", level: 6) // 新年红，6级
+        }
+        
+        // 大于后天的情况
+        if !taskDate.isToday && !taskDate.isTomorrow && !taskDate.isDayAfterTomorrow {
+            return TDThemeManager.shared.descriptionTextColor // 描述颜色
+        }
+        
+        // 今天、明天、后天
+        return TDThemeManager.shared.color(level: 5) // 主题色
+    }
+    /// 获取任务标题显示颜色
+    var taskTitleColor: Color {
+        if complete {
+            return TDThemeManager.shared.descriptionTextColor // 已完成显示描述颜色
+        } else {
+            return TDThemeManager.shared.titleTextColor // 未完成显示标题颜色
+        }
+    }
+    /// 获取任务标题是否显示删除线
+    var taskTitleStrikethrough: Bool {
+        if !complete {
+            return false // 未完成肯定不显示删除线
+        } else {
+            return TDSettingManager.shared.showCompletedTaskStrikethrough // 已完成根据设置决定
+        }
+    }
+    /// 获取任务描述是否显示
+    var shouldShowTaskDescription: Bool {
+        // 如果设置内设置了不显示，就算描述有值，也不显示
+//        guard TDSettingManager.shared.showTaskDescription else {
+//            return false
+//        }
+        // 如果设置内设置显示，但是本身描述为空，也不显示
+        return !(taskDescribe?.isEmpty ?? true)
+    }
+    /// 获取选中框颜色
+    var checkboxColor: Color {
+        if TDSettingManager.shared.checkboxFollowCategoryColor && standbyInt1 > 0 {
+            // 如果设置跟随分类颜色且任务有分类，显示分类颜色
+            return Color.fromHex(standbyIntColor)
+        } else {
+            // 否则显示主题颜色描述颜色
+            return TDThemeManager.shared.descriptionTextColor
+        }
+    }
+    /// 获取是否显示顺序数字
+    var shouldShowOrderNumber: Bool {
+        let result = TDSettingManager.shared.showDayTodoOrderNumber
+        print("🔍 shouldShowOrderNumber 调试:")
+        print("   - TDSettingManager.shared.showDayTodoOrderNumber: \(result)")
+        return result
+    }
+    
+    /// 将子任务数组转换为字符串格式
+    func generateSubTasksString() -> String {
+        guard !subTaskList.isEmpty else { return "" }
+        
+        let subTaskStrings = subTaskList.map { subTask in
+            let prefix = subTask.isComplete ? "- [x]" : "- [ ]"
+            return "\(prefix) \(subTask.content)"
+        }
+        
+        return subTaskStrings.joined(separator: "[end] -")
+    }
+    
+    /// 检查是否所有子任务都已完成
+    var allSubTasksCompleted: Bool {
+        return !subTaskList.isEmpty && subTaskList.allSatisfy { $0.isComplete }
+    }
+
+    /// 检查任务日期是否是今天
+    var isToday: Bool {
+        guard todoTime > 0 else { return false }
+        let taskDate = Date.fromTimestamp(todoTime)
+        return taskDate.isToday
+    }
+
 }

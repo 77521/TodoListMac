@@ -27,6 +27,19 @@ final class TDMainViewModel: ObservableObject {
         
     /// 当前选中的分类
     @Published var selectedCategory: TDSliderBarModel?
+    
+    // MARK: - 多选模式相关属性
+    
+    /// 是否处于多选模式
+    @Published var isMultiSelectMode: Bool = false
+    
+    /// 选中的任务ID集合
+    @Published var selectedTaskIds: Set<String> = []
+
+    // MARK: - 单选模式相关属性
+    
+    /// 当前选中的任务（单选模式）
+    @Published var selectedTask: TDMacSwiftDataListModel?
 
     // MARK: - 私有属性
     
@@ -50,6 +63,9 @@ final class TDMainViewModel: ObservableObject {
         // 使用 Task 来避免在 View 更新过程中修改 @Published 属性
         Task { @MainActor in
             selectedCategory = category
+            // 切换分类时退出多选模式
+            exitMultiSelectMode()
+
         }
     }
     
@@ -212,6 +228,7 @@ final class TDMainViewModel: ObservableObject {
                 // 服务器为最新，需要从服务器获取数据
                 os_log(.info, log: logger, "🔄 服务器数据更新，开始从服务器获取数据")
                 await downloadDataFromServer(localMaxVersion: localMaxVersion, serverMaxVersion: serverMaxVersion, isFirstTime: isFirstTime)
+                await uploadLocalDataToServer()
             }
             
         } catch {
@@ -312,9 +329,60 @@ final class TDMainViewModel: ObservableObject {
         
         os_log(.info, log: logger, "🔄 同步完成，刷新当前分类界面: \(selectedCategory.categoryName)")
         
+        // 如果是 DayTodo，强制刷新数据
+        if selectedCategory.categoryId == -100 {
+            // 强制刷新 DayTodo 的 @Query
+            NotificationCenter.default.post(name: .dayTodoDataChanged, object: nil)
+        }
+        
         // 发送任务数据变化通知，触发对应界面重新初始化
         // 这会让 TDTaskListView 重新调用 init 方法，就像用户点击侧栏分类一样
         NotificationCenter.default.post(name: .taskDataChanged, object: nil)
+    }
+    
+    // MARK: - 多选模式管理方法
+    
+    /// 进入多选模式
+    func enterMultiSelectMode() {
+        os_log(.info, log: logger, "🎯 进入多选模式")
+        isMultiSelectMode = true
+        selectedTaskIds.removeAll()
+        selectedTask = nil
+
+    }
+    
+    /// 退出多选模式
+    func exitMultiSelectMode() {
+        os_log(.info, log: logger, "🎯 退出多选模式")
+        isMultiSelectMode = false
+        selectedTaskIds.removeAll()
+    }
+    
+    /// 更新选中任务状态
+    func updateSelectedTask(taskId: String, isSelected: Bool) {
+        if isSelected {
+            selectedTaskIds.insert(taskId)
+        } else {
+            selectedTaskIds.remove(taskId)
+        }
+        os_log(.info, log: logger, "🎯 更新任务选中状态: \(taskId), 选中: \(isSelected), 当前选中数量: \(self.selectedTaskIds.count)")
+    }
+    
+    /// 全选/取消全选
+    func toggleSelectAll(taskIds: [String]) {
+        if selectedTaskIds.count == taskIds.count {
+            // 当前全选，则取消全选
+            selectedTaskIds.removeAll()
+        } else {
+            // 当前未全选，则全选
+            selectedTaskIds = Set(taskIds)
+        }
+        os_log(.info, log: logger, "🎯 切换全选状态，当前选中数量: \(self.selectedTaskIds.count)")
+    }
+    /// 选择任务（单选模式）
+    func selectTask(_ task: TDMacSwiftDataListModel) {
+        os_log(.info, log: logger, "🎯 选择任务: \(task.taskContent)")
+        selectedTask = task
     }
 
 }

@@ -175,7 +175,11 @@ class TDSliderBarViewModel: ObservableObject {
         
         // 在分类清单后插入用户创建的分类
         if let categoryListIndex = newItems.firstIndex(where: { $0.categoryId == -104 }) {
-            newItems.insert(contentsOf: categories, at: categoryListIndex + 1)
+            // 创建包含"未分类"的完整分类列表
+            var fullCategories = [TDSliderBarModel.uncategorized] // 第一项永远是"未分类"
+            fullCategories.append(contentsOf: categories) // 后面是服务器获取的分类
+            
+            newItems.insert(contentsOf: fullCategories, at: categoryListIndex + 1)
         }
         
         // 保持选中状态
