@@ -9,6 +9,16 @@ import SwiftUI
 import SwiftData
 
 
+
+/// 副本创建类型枚举
+enum CopyType {
+    case normal          // 创建副本（保持原日期）
+    case toToday         // 创建副本到今天
+    case toSpecificDate  // 创建副本到指定日期
+}
+
+
+
 struct CustomDisclosureGroupStyle: DisclosureGroupStyle {
     func makeBody(configuration: Configuration) -> some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -51,6 +61,14 @@ struct TDTaskRowView: View {
     @EnvironmentObject private var themeManager: TDThemeManager
     @Environment(\.modelContext) private var modelContext
     
+    @State private var showDatePickerForCopy: Bool = false  // 控制创建副本的日期选择器显示
+    @State private var selectedCopyDate: Date = Date()  // 创建副本时选择的日期
+    @State private var showCopySuccessToast: Bool = false  // 控制复制成功Toast的显示
+    // 复制成功回调
+    var onCopySuccess: (() -> Void)?
+    // 进入多选模式回调
+    var onEnterMultiSelect: (() -> Void)?
+
     // 判断是否显示顺序数字
     private var shouldShowOrderNumber: Bool {
         return category?.categoryId == -100 && task.shouldShowOrderNumber && orderNumber != nil
@@ -88,7 +106,7 @@ struct TDTaskRowView: View {
                                         .stroke(themeManager.color(level: 5), lineWidth: 1.5)
                                         .frame(width: 18, height: 18)
                                     
-                                    if mainViewModel.selectedTaskIds.contains(task.taskId) {
+                                    if mainViewModel.selectedTasks.contains(where: { $0.taskId == task.taskId }) {
                                         Circle()
                                             .fill(themeManager.color(level: 5))
                                             .frame(width: 18, height: 18)
@@ -287,7 +305,7 @@ struct TDTaskRowView: View {
         .frame(maxWidth: .infinity) // 横向铺满
         .background(
             Group {
-                if mainViewModel.selectedTask?.taskId == task.taskId || mainViewModel.selectedTaskIds.contains(task.taskId) {
+                if mainViewModel.selectedTask?.taskId == task.taskId || mainViewModel.selectedTasks.contains(where: { $0.taskId == task.taskId }) {
                     // 选中状态（单选或多选）：毛玻璃背景
                     Rectangle()
                         .fill(.ultraThinMaterial)
@@ -328,33 +346,46 @@ struct TDTaskRowView: View {
                     // TODO: 实现选择事件功能
                     print("选择事件: \(task.taskContent)")
                     mainViewModel.enterMultiSelectMode()
+                    mainViewModel.updateSelectedTask(task: task, isSelected: true)
+                    // 调用进入多选模式回调，通知父视图更新任务列表
+                    onEnterMultiSelect?()
+
                 }
                 
                 Divider()
                 
                 Button("复制内容") {
-                    // 复制任务内容到剪贴板
-                    NSPasteboard.general.clearContents()
-                    NSPasteboard.general.setString(task.taskContent, forType: .string)
+                    // 使用数据操作管理器复制单个任务内容
+                    // 使用数据操作管理器复制单个任务内容
+                    let singleTaskArray = [task]
+                    let success = TDDataOperationManager.shared.copyTasksToClipboard(singleTaskArray)
+                    
+                    if success {
+                        // 触发复制成功回调
+                        onCopySuccess?()
+                    }
                 }
                 
                 Menu("创建副本") {
                     Button("创建副本") {
                         // TODO: 实现创建副本功能
-                        print("创建副本: \(task.taskContent)")
+                        // 创建副本 - 保持原日期
+                        handleCreateCopy(copyType: .normal)
                     }
                     
                     // 根据当前任务的日期判断是否显示"创建到今天"
                     if !task.isToday {
                         Button("创建到今天") {
                             // TODO: 实现创建到今天功能
-                            print("创建到今天: \(task.taskContent)")
+                            // 创建副本到今天
+                            handleCreateCopy(copyType: .toToday)
                         }
                     }
                     
                     Button("创建到指定日期") {
                         // TODO: 实现创建到指定日期功能
-                        print("创建到指定日期: \(task.taskContent)")
+                        // 创建副本到指定日期 - 显示日期选择器
+                        showDatePickerForCopy = true
                     }
                 }
                 
@@ -411,6 +442,21 @@ struct TDTaskRowView: View {
         // Performance optimizations
         //        .drawingGroup()
         .animation(.none, value: task.complete)
+        // 创建副本的日期选择器弹窗 - 使用自定义日期选择器（支持农历显示）
+        .popover(isPresented: $showDatePickerForCopy) {
+            TDCustomDatePickerView(
+                selectedDate: $selectedCopyDate,
+                isPresented: $showDatePickerForCopy,
+                onDateSelected: { date in
+                    // 日期选择完成后的回调函数
+                    print("📅 选择创建副本的日期: \(date)")
+                    // 创建副本到指定日期
+                    handleCreateCopy(copyType: .toSpecificDate)
+                }
+            )
+            .frame(width: 280, height: 320) // 设置弹窗尺寸，与多选模式保持一致
+        }
+
     }
     
     // MARK: - Private Methods
@@ -423,23 +469,25 @@ struct TDTaskRowView: View {
                 TDAudioManager.shared.playCompletionSound()
             }
             do {
-                // 1. 调用 TDQueryConditionManager 的完成状态切换方法
+                let updatedTask = task
+                updatedTask.complete = !task.complete // 切换状态
+                
+                // 2. 调用通用更新方法
                 let queryManager = TDQueryConditionManager()
-                let result = try await queryManager.toggleTaskCompletion(
-                    taskId: task.taskId,
-                    isCompleted: !task.complete, // 切换状态
+                let result = try await queryManager.updateLocalTaskWithModel(
+                    updatedTask: updatedTask,
                     context: modelContext
                 )
                 
                 if result == .updated {
                     print("切换任务状态成功: \(task.taskContent)")
                     
-                    // 2. 调用同步方法
+                    // 3. 调用同步方法
                     await TDMainViewModel.shared.performSyncSeparately()
                 } else {
                     print("切换任务状态失败: 更新结果异常")
                 }
-                
+
             } catch {
                 print("切换任务状态失败: \(error)")
             }
@@ -450,26 +498,46 @@ struct TDTaskRowView: View {
         
         Task {
             do {
-                // 1. 调用 TDQueryConditionManager 的子任务完成状态切换方法
-                let queryManager = TDQueryConditionManager()
+
+                // 1. 创建更新后的任务模型
+                let updatedTask = task
                 let newCompletionState = !task.subTaskList[subTaskIndex].isComplete
                 
-                let result = try await queryManager.updateSubTaskCompletion(
-                    taskId: task.taskId,
-                    subTaskIndex: subTaskIndex,
-                    isCompleted: newCompletionState,
+                // 2. 更新子任务状态
+                updatedTask.subTaskList[subTaskIndex].isComplete = newCompletionState
+                
+                // 3. 重新生成 standbyStr2 字符串
+                let newSubTasksString = updatedTask.generateSubTasksString()
+                updatedTask.standbyStr2 = newSubTasksString.isEmpty ? nil : newSubTasksString
+                
+                // 4. 检查是否需要自动完成父任务
+                if updatedTask.allSubTasksCompleted {
+                    // 根据设置决定是否自动完成父任务
+                    // TODO: 这里需要添加设置项，暂时默认自动完成
+                    let shouldAutoCompleteParent = true // TDSettingManager.shared.autoCompleteParentWhenAllSubTasksDone
+                    
+                    if shouldAutoCompleteParent && !updatedTask.complete {
+                        updatedTask.complete = true
+                        print("🔍 所有子任务完成，自动完成父任务: \(updatedTask.taskContent)")
+                    }
+                }
+                
+                // 5. 调用通用更新方法
+                let queryManager = TDQueryConditionManager()
+                let result = try await queryManager.updateLocalTaskWithModel(
+                    updatedTask: updatedTask,
                     context: modelContext
                 )
                 
                 if result == .updated {
                     print("切换子任务状态成功: \(task.subTaskList[subTaskIndex].content)")
                     
-                    // 2. 调用同步方法
+                    // 6. 调用同步方法
                     await TDMainViewModel.shared.performSyncSeparately()
                 } else {
                     print("切换子任务状态失败: 更新结果异常")
                 }
-                
+
             } catch {
                 print("切换子任务状态失败: \(error)")
             }
@@ -477,8 +545,8 @@ struct TDTaskRowView: View {
     }
     
     private func toggleSelection() {
-        let newSelectionState = !mainViewModel.selectedTaskIds.contains(task.taskId)
-        mainViewModel.updateSelectedTask(taskId: task.taskId, isSelected: newSelectionState)
+        let isSelected = mainViewModel.selectedTasks.contains { $0.taskId == task.taskId }
+        mainViewModel.updateSelectedTask(task: task, isSelected: !isSelected)
     }
     
     
@@ -511,16 +579,21 @@ struct TDTaskRowView: View {
         
         Task {
             do {
-                // 1. 调用 TDQueryConditionManager 的删除方法
+                // 1. 创建更新后的任务模型
+                let updatedTask = task
+                updatedTask.delete = true
+                // 2. 调用通用更新方法
                 let queryManager = TDQueryConditionManager()
-                let result = try await queryManager.deleteLocalTask(
-                    taskId: task.taskId,
+                let result = try await queryManager.updateLocalTaskWithModel(
+                    updatedTask: updatedTask,
                     context: modelContext
                 )
-                print("删除任务成功，结果: \(result)")
-                // 2. 调用同步方法
-                await TDMainViewModel.shared.performSyncSeparately()
                 
+                print("删除任务成功，结果: \(result)")
+                
+                // 3. 调用同步方法
+                await TDMainViewModel.shared.performSyncSeparately()
+
             } catch {
                 print("删除任务失败: \(error)")
             }
@@ -599,19 +672,14 @@ struct TDTaskRowView: View {
         print("\(action)任务: \(task.taskContent) (\(scope))")
         
         Task {
-            do {
-                if isRepeatGroup, let duplicateTasks = duplicateTasks {
-                    // 批量操作重复组
-                    print("开始批量\(action) \(duplicateTasks.count) 个重复事件")
-                    await performBatchMove(duplicateTasks: duplicateTasks, isToTop: isToTop)
-                    
-                } else {
-                    // 单个任务操作
-                    await performSingleMove(task: task, isToTop: isToTop)
-                }
+            if isRepeatGroup, let duplicateTasks = duplicateTasks {
+                // 批量操作重复组
+                print("开始批量\(action) \(duplicateTasks.count) 个重复事件")
+                await performBatchMove(duplicateTasks: duplicateTasks, isToTop: isToTop)
                 
-            } catch {
-                print("\(action)任务失败: \(error)")
+            } else {
+                // 单个任务操作
+                await performSingleMove(task: task, isToTop: isToTop)
             }
         }
     }
@@ -695,9 +763,12 @@ struct TDTaskRowView: View {
             }
             
             // 更新任务的 taskSort 值
-            let result = try await queryManager.updateTaskSort(
-                taskId: task.taskId,
-                taskSort: newTaskSort,
+            let updatedTask = task
+            updatedTask.taskSort = newTaskSort
+            
+            let queryManager = TDQueryConditionManager()
+            let result = try await queryManager.updateLocalTaskWithModel(
+                updatedTask: updatedTask,
                 context: modelContext
             )
             
@@ -715,6 +786,59 @@ struct TDTaskRowView: View {
         }
         
     }
+    
+    /// 处理创建副本的逻辑
+    /// - Parameter copyType: 副本创建类型（普通副本、到今天、到指定日期）
+    private func handleCreateCopy(copyType: CopyType) {
+        print("📋 开始创建副本，类型: \(copyType)，任务: \(task.taskContent)")
+        
+        Task {
+            do {
+                // 1. 创建任务副本
+                let copiedTask = task
+                
+                // 2. 重置副本的基本信息
+                copiedTask.taskId = TDAppConfig.generateTaskId()  // 使用统一方法生成任务ID
+                copiedTask.standbyStr1 = ""  // 清空重复事件ID
+                
+                // 3. 根据副本类型设置日期
+                switch copyType {
+                case .normal:
+                    // 保持原日期，不做修改
+                    print("📅 创建副本 - 保持原日期: \(task.todoTime)")
+                    
+                case .toToday:
+                    // 设置为今天开始时间
+                    let todayStartTime = Date().startOfDayTimestamp
+                    copiedTask.todoTime = todayStartTime
+                    print("📅 创建副本到今天: \(todayStartTime)")
+                    
+                case .toSpecificDate:
+                    // 设置为指定日期开始时间
+                    let specificDateStartTime = selectedCopyDate.startOfDayTimestamp
+                    copiedTask.todoTime = specificDateStartTime
+                    print("📅 创建副本到指定日期: \(specificDateStartTime)")
+                }
+                
+                // 4. 调用添加本地数据方法（会自动计算 taskSort）
+                let queryManager = TDQueryConditionManager()
+                let result = try await queryManager.addLocalTask(copiedTask, context: modelContext)
+                
+                if result == .added {
+                    // 5. 执行数据同步
+                    await TDMainViewModel.shared.performSyncSeparately()
+                    
+                    print("✅ 创建副本成功，新任务ID: \(copiedTask.taskId)")
+                } else {
+                    print("❌ 创建副本失败，结果: \(result)")
+                }
+                
+            } catch {
+                print("❌ 创建副本失败: \(error)")
+            }
+        }
+    }
+
     
 }
 

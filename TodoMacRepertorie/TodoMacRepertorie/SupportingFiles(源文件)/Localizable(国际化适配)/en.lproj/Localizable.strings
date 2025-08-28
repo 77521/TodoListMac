@@ -47,3 +47,6 @@
 "complete_events" = "Complete %d Events";
 "cancel_complete_events" = "Cancel Complete %d Events";
 "exit_multi_select" = "Exit Multi-select";
+"copy_success" = "Copied %d tasks to clipboard";
+"copy_success_simple" = "Copy successful";
+"new_category" = "New";

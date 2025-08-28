@@ -49,3 +49,6 @@
 "complete_events" = "达成 %d 个事件";
 "cancel_complete_events" = "取消达成 %d 个事件";
 "exit_multi_select" = "退出多选";
+"copy_success" = "已复制 %d 个任务到剪贴板";
+"copy_success_simple" = "复制成功";
+"new_category" = "新建";

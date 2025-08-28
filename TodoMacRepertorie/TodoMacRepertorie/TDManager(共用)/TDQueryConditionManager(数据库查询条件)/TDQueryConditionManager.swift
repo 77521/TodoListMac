@@ -488,22 +488,21 @@ extension TDQueryConditionManager {
             throw LocalDataError.contextSaveFailed
         }
     }
+  
     
-    /// 更新本地数据（包括删除和完成状态变更）
+    /// 根据完整任务模型更新本地数据（通用方法）
     /// - Parameters:
-    ///   - taskId: 任务ID
-    ///   - updateData: 要更新的数据字典
+    ///   - updatedTask: 包含更新数据的任务模型（包含 taskId）
     ///   - context: SwiftData 上下文
     /// - Returns: 操作结果
-    func updateLocalTask(
-        taskId: String,
-        updateData: [String: Any],
+    func updateLocalTaskWithModel(
+        updatedTask: TDMacSwiftDataListModel,
         context: ModelContext
     ) async throws -> LocalDataAction {
-        
+
         do {
-            // 1. 根据 taskId 查询本地数据
-            guard let localTask = try await getLocalTaskByTaskId(taskId: taskId, context: context) else {
+            // 1. 根据任务模型中的 taskId 查询本地数据
+            guard let localTask = try await getLocalTaskByTaskId(taskId: updatedTask.taskId, context: context) else {
                 throw LocalDataError.taskNotFound
             }
 
@@ -516,166 +515,36 @@ extension TDQueryConditionManager {
             localTask.status = "update"
             localTask.syncTime = Date.currentTimestamp // 更新到毫秒级别，createTime 保持不变
             
-            // 4. 根据更新类型设置不同的字段
-            if let delete = updateData["delete"] as? Bool {
-                // 删除操作
-                localTask.delete = delete
-                print("本地删除任务，taskId: \(taskId), version: \(newVersion)")
-                
-            } else if let complete = updateData["complete"] as? Bool {
-                // 完成状态变更
-                localTask.complete = complete
-                print("本地更新完成状态，taskId: \(taskId), complete: \(complete), version: \(newVersion)")
-                
-            } else if let taskSort = updateData["taskSort"] as? Decimal {
-                // 排序更新
-                localTask.taskSort = taskSort
-                print("本地更新排序，taskId: \(taskId), taskSort: \(taskSort), version: \(newVersion)")
-                
-            } else {
-                // 其他字段全部更新（因为不确定用户修改了哪些字段）
-                localTask.taskContent = updateData["taskContent"] as? String ?? localTask.taskContent
-                localTask.taskDescribe = updateData["taskDescribe"] as? String ?? localTask.taskDescribe
-                localTask.todoTime = updateData["todoTime"] as? Int64 ?? localTask.todoTime
-                localTask.taskSort = updateData["taskSort"] as? Decimal ?? localTask.taskSort
-                localTask.standbyInt1 = updateData["standbyInt1"] as? Int ?? localTask.standbyInt1
-                localTask.standbyStr1 = updateData["standbyStr1"] as? String ?? localTask.standbyStr1
-                localTask.standbyStr2 = updateData["standbyStr2"] as? String ?? localTask.standbyStr2
-                localTask.standbyStr3 = updateData["standbyStr3"] as? String ?? localTask.standbyStr3
-                localTask.standbyStr4 = updateData["standbyStr4"] as? String ?? localTask.standbyStr4
-                localTask.reminderTime = updateData["reminderTime"] as? Int64 ?? localTask.reminderTime
-                localTask.snowAdd = updateData["snowAdd"] as? Int ?? localTask.snowAdd
-                localTask.snowAssess = updateData["snowAssess"] as? Int ?? localTask.snowAssess
-                localTask.isSubOpen = updateData["isSubOpen"] as? Bool ?? localTask.isSubOpen
-                localTask.standbyIntColor = updateData["standbyIntColor"] as? String ?? localTask.standbyIntColor
-                localTask.standbyIntName = updateData["standbyIntName"] as? String ?? localTask.standbyIntName
-                localTask.reminderTimeString = updateData["reminderTimeString"] as? String ?? localTask.reminderTimeString
-                localTask.subTaskList = updateData["subTaskList"] as? [TDMacSwiftDataListModel.SubTask] ?? localTask.subTaskList
-                localTask.attachmentList = updateData["attachmentList"] as? [TDMacSwiftDataListModel.Attachment] ?? localTask.attachmentList
-                
-                print("本地更新任务，taskId: \(taskId), version: \(newVersion)")
-            }
+            // 4. 根据传入的模型更新所有字段
+            localTask.taskContent = updatedTask.taskContent
+            localTask.taskDescribe = updatedTask.taskDescribe
+            localTask.todoTime = updatedTask.todoTime
+            localTask.taskSort = updatedTask.taskSort
+            localTask.complete = updatedTask.complete
+            localTask.delete = updatedTask.delete
+            localTask.standbyInt1 = updatedTask.standbyInt1
+            localTask.standbyStr1 = updatedTask.standbyStr1
+            localTask.standbyStr2 = updatedTask.standbyStr2
+            localTask.standbyStr3 = updatedTask.standbyStr3
+            localTask.standbyStr4 = updatedTask.standbyStr4
+            localTask.reminderTime = updatedTask.reminderTime
+            localTask.snowAdd = updatedTask.snowAdd
+            localTask.snowAssess = updatedTask.snowAssess
+            localTask.isSubOpen = updatedTask.isSubOpen
+            localTask.standbyIntColor = updatedTask.standbyIntColor
+            localTask.standbyIntName = updatedTask.standbyIntName
+            localTask.reminderTimeString = updatedTask.reminderTimeString
+            localTask.subTaskList = updatedTask.subTaskList
+            localTask.attachmentList = updatedTask.attachmentList
+            
+            print("本地更新任务（完整模型），taskId: \(updatedTask.taskId), version: \(newVersion)")
             
             // 5. 保存上下文
             try context.save()
             return .updated
             
         } catch {
-            print("本地更新任务失败，taskId: \(taskId), 错误: \(error)")
-            throw LocalDataError.contextSaveFailed
-        }
-    }
-    
-    /// 删除本地任务（便捷方法）
-    /// - Parameters:
-    ///   - taskId: 任务ID
-    ///   - context: SwiftData 上下文
-    /// - Returns: 操作结果
-    func deleteLocalTask(
-        taskId: String,
-        context: ModelContext
-    ) async throws -> LocalDataAction {
-        return try await updateLocalTask(
-            taskId: taskId,
-            updateData: ["delete": true],
-            context: context
-        )
-    }
-    /// 更新任务排序（便捷方法）
-    /// - Parameters:
-    ///   - taskId: 任务ID
-    ///   - taskSort: 新的排序值
-    ///   - context: SwiftData 上下文
-    /// - Returns: 操作结果
-    func updateTaskSort(
-        taskId: String,
-        taskSort: Decimal,
-        context: ModelContext
-    ) async throws -> LocalDataAction {
-        return try await updateLocalTask(
-            taskId: taskId,
-            updateData: ["taskSort": taskSort],
-            context: context
-        )
-    }
-
-    /// 变更任务完成状态（便捷方法）
-    /// - Parameters:
-    ///   - taskId: 任务ID
-    ///   - isCompleted: 是否完成
-    ///   - context: SwiftData 上下文
-    /// - Returns: 操作结果
-    func toggleTaskCompletion(
-        taskId: String,
-        isCompleted: Bool,
-        context: ModelContext
-    ) async throws -> LocalDataAction {
-        return try await updateLocalTask(
-            taskId: taskId,
-            updateData: ["complete": isCompleted],
-            context: context
-        )
-    }
-    
-    
-    /// 更新子任务状态（专门处理子任务逻辑）
-    /// - Parameters:
-    ///   - taskId: 任务ID
-    ///   - subTaskIndex: 子任务索引
-    ///   - isCompleted: 子任务是否完成
-    ///   - context: SwiftData 上下文
-    /// - Returns: 操作结果
-    func updateSubTaskCompletion(
-        taskId: String,
-        subTaskIndex: Int,
-        isCompleted: Bool,
-        context: ModelContext
-    ) async throws -> LocalDataAction {
-        
-        do {
-            // 1. 根据 taskId 查询本地数据
-            guard let localTask = try await getLocalTaskByTaskId(taskId: taskId, context: context) else {
-                throw LocalDataError.taskNotFound
-            }
-            
-            // 2. 检查子任务索引是否有效
-            guard subTaskIndex >= 0 && subTaskIndex < localTask.subTaskList.count else {
-                throw LocalDataError.taskNotFound
-            }
-            
-            // 3. 更新子任务状态
-            localTask.subTaskList[subTaskIndex].isComplete = isCompleted
-            
-            // 4. 重新生成 standbyStr2 字符串
-            let newSubTasksString = localTask.generateSubTasksString()
-            localTask.standbyStr2 = newSubTasksString.isEmpty ? nil : newSubTasksString
-            
-            // 5. 检查是否需要自动完成父任务
-            if localTask.allSubTasksCompleted {
-                // 根据设置决定是否自动完成父任务
-                // TODO: 这里需要添加设置项，暂时默认自动完成
-                let shouldAutoCompleteParent = true // TDSettingManager.shared.autoCompleteParentWhenAllSubTasksDone
-                
-                if shouldAutoCompleteParent && !localTask.complete {
-                    localTask.complete = true
-                    print("🔍 所有子任务完成，自动完成父任务: \(localTask.taskContent)")
-                }
-            }
-            
-            // 6. 更新 version 和 status
-            let maxVersion = try await getLocalMaxVersionForLocal(context: context)
-            localTask.version = maxVersion + 1
-            localTask.status = "update"
-            localTask.syncTime = Date.currentTimestamp
-            
-            // 7. 保存到数据库
-            try context.save()
-            
-            print("🔍 子任务状态更新成功: taskId=\(taskId), subTaskIndex=\(subTaskIndex), isCompleted=\(isCompleted)")
-            return .updated
-            
-        } catch {
-            print("🔍 子任务状态更新失败: \(error)")
+            print("本地更新任务失败，taskId: \(updatedTask.taskId), 错误: \(error)")
             throw LocalDataError.contextSaveFailed
         }
     }
@@ -687,7 +556,7 @@ extension TDQueryConditionManager {
     ///   - todoTime: 任务的日期时间戳
     ///   - context: SwiftData 上下文
     /// - Returns: 计算出的 taskSort 值
-    private func calculateTaskSortForNewTask(
+    func calculateTaskSortForNewTask(
         todoTime: Int64,
         context: ModelContext
     ) async throws -> Decimal {

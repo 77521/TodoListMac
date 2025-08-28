@@ -33,9 +33,9 @@ final class TDMainViewModel: ObservableObject {
     /// 是否处于多选模式
     @Published var isMultiSelectMode: Bool = false
     
-    /// 选中的任务ID集合
-    @Published var selectedTaskIds: Set<String> = []
-
+    /// 选中的任务对象数组（包含完整的任务数据）
+    @Published var selectedTasks: [TDMacSwiftDataListModel] = []
+  
     // MARK: - 单选模式相关属性
     
     /// 当前选中的任务（单选模式）
@@ -239,7 +239,7 @@ final class TDMainViewModel: ObservableObject {
         // 通知侧边栏完成同步
         TDSliderBarViewModel.shared.completeSync()
         // 同步完成后，根据当前选中的分类重新初始化界面
-        await refreshCurrentCategoryView()
+//        await refreshCurrentCategoryView()
 
         os_signpost(.end, log: logger, name: "Sync")
     }
@@ -346,38 +346,37 @@ final class TDMainViewModel: ObservableObject {
     func enterMultiSelectMode() {
         os_log(.info, log: logger, "🎯 进入多选模式")
         isMultiSelectMode = true
-        selectedTaskIds.removeAll()
         selectedTask = nil
-
+        selectedTasks.removeAll()
     }
     
     /// 退出多选模式
     func exitMultiSelectMode() {
         os_log(.info, log: logger, "🎯 退出多选模式")
         isMultiSelectMode = false
-        selectedTaskIds.removeAll()
+        selectedTasks.removeAll()
     }
     
     /// 更新选中任务状态
-    func updateSelectedTask(taskId: String, isSelected: Bool) {
+    func updateSelectedTask(task: TDMacSwiftDataListModel, isSelected: Bool) {
         if isSelected {
-            selectedTaskIds.insert(taskId)
+            selectedTasks.append(task)
         } else {
-            selectedTaskIds.remove(taskId)
+            selectedTasks.removeAll { $0.taskId == task.taskId }
         }
-        os_log(.info, log: logger, "🎯 更新任务选中状态: \(taskId), 选中: \(isSelected), 当前选中数量: \(self.selectedTaskIds.count)")
+        os_log(.info, log: logger, "🎯 更新任务选中状态: \(task.taskId), 选中: \(isSelected), 当前选中数量: \(self.selectedTasks.count)")
     }
-    
+
     /// 全选/取消全选
-    func toggleSelectAll(taskIds: [String]) {
-        if selectedTaskIds.count == taskIds.count {
+    func toggleSelectAll(allTasks: [TDMacSwiftDataListModel]) {
+        if selectedTasks.count == allTasks.count {
             // 当前全选，则取消全选
-            selectedTaskIds.removeAll()
+            selectedTasks.removeAll()
         } else {
             // 当前未全选，则全选
-            selectedTaskIds = Set(taskIds)
+            selectedTasks = allTasks
         }
-        os_log(.info, log: logger, "🎯 切换全选状态，当前选中数量: \(self.selectedTaskIds.count)")
+        os_log(.info, log: logger, "🎯 切换全选状态，当前选中数量: \(self.selectedTasks.count)")
     }
     /// 选择任务（单选模式）
     func selectTask(_ task: TDMacSwiftDataListModel) {

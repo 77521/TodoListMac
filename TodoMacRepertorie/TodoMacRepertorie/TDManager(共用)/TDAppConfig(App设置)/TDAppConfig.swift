@@ -50,4 +50,28 @@ struct TDAppConfig {
         return appGroupURL.appendingPathComponent(themesFileName)
     }
 
+    // MARK: - TaskId 生成相关配置
+    
+    /// 生成唯一的任务ID
+    /// 格式：当前登录用户ID + 当前时间戳（毫秒）+ 32位随机字符串
+    /// - Returns: 唯一的任务ID字符串
+    static func generateTaskId() -> String {
+        let userId = TDUserManager.shared.userId
+        let timestamp = Date.currentTimestamp
+        let randomString = generateRandomString(length: 32)
+        
+        return "\(userId)_\(timestamp)_\(randomString)"
+    }
+    
+    /// 生成指定长度的随机字符串
+    /// 包含数字 0-9、小写字母 a-z、大写字母 A-Z
+    /// - Parameter length: 字符串长度
+    /// - Returns: 随机字符串
+    private static func generateRandomString(length: Int) -> String {
+        let characters = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        return String((0..<length).map { _ in characters.randomElement()! })
+    }
+
+    
+    
 }

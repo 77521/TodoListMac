@@ -62,6 +62,7 @@
 				"SupportingFiles(源文件)/Assets.xcassets",
 				"TDCategory(类的扩展)/Color-Extension(颜色)/Color-Extension.swift",
 				"TDCategory(类的扩展)/Date-Extension(日期)/Date-Extension.swift",
+				"TDCategory(类的扩展)/Image-Extension(图片)/Image-Extension.swift",
 				"TDCategory(类的扩展)/Notification-Extension(通知)/Notification-Extension.swift",
 				"TDCategory(类的扩展)/NSAppearance-Extension(系统)/NSAppearance-Extension.swift",
 				"TDCategory(类的扩展)/String-Extension(字符串)/String-Extension.swift",
