@@ -29,7 +29,7 @@ class TDThemeManager: ObservableObject {
     private static let baseTextColors = TDThemeBaseColors(
         primaryBackground: TDDynamicColor(light: "#FFFFFF", dark: "#000000"),
         secondaryBackground: TDDynamicColor(light: "#F5F4F5", dark: "#111111"),
-        tertiaryBackground: TDDynamicColor(light: "#FFFFFF", dark: "#111111"),
+        tertiaryBackground: TDDynamicColor(light: "#F5F4F5", dark: "#303030"),
         
         titleText: TDDynamicColor(light: "#303030", dark: "#F5F4F5"),
         descriptionText: TDDynamicColor(light: "#AAAAAA", dark: "#797979"),

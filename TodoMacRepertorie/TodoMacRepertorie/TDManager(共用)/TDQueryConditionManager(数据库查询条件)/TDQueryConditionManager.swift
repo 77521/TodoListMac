@@ -473,6 +473,7 @@ extension TDQueryConditionManager {
             task.createTime = currentTimestamp // 创建时间
             task.syncTime = currentTimestamp // 同步时间（新添加时与创建时间相同）
             task.taskSort = calculatedTaskSort // 设置计算出的排序值
+            task.taskId = TDAppConfig.generateTaskId()  // 使用统一方法生成任务ID
 
             // 4. 插入到数据库
             context.insert(task)

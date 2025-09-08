@@ -34,6 +34,7 @@
 "task_input_placeholder" = "在此编辑内容，按回车创建事件";
 "uncategorized" = "未分类"; 
 "no_date" = "没有日期";
+"inbox" = "待办箱";
 
 // 多选模式
 "select_at_least_one_event" = "至少选择一个事件";
@@ -52,3 +53,8 @@
 "copy_success" = "已复制 %d 个任务到剪贴板";
 "copy_success_simple" = "复制成功";
 "new_category" = "新建";
+
+// 描述与子任务转换
+"subtask_limit_reached" = "子任务数量已达上限（20个），无法添加更多";
+"convert_success" = "转换成功";
+"description_length_exceeded" = "转换后描述文本长度超过限制";

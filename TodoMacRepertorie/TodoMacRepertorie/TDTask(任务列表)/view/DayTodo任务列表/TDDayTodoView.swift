@@ -24,9 +24,6 @@ struct TDDayTodoView: View {
     // 状态变量：控制复制成功Toast的显示
     @State private var showCopySuccessToast = false
 
-    // 强制刷新状态
-    @State private var refreshTrigger: UUID = UUID()
-    
     private let selectedDate: Date
     private let selectedCategory: TDSliderBarModel
     
@@ -36,7 +33,8 @@ struct TDDayTodoView: View {
         
         // 根据传入的日期和分类初始化查询条件
         let (predicate, sortDescriptors) = TDCorrectQueryBuilder.getDayTodoQuery(selectedDate: selectedDate)
-        
+//        let (predicate, sortDescriptors) = TDCorrectQueryBuilder.getExpiredUncompletedQuery(categoryId: -101)
+
         _allTasks = Query(filter: predicate, sort: sortDescriptors)
 
     }
@@ -66,7 +64,7 @@ struct TDDayTodoView: View {
                         .padding(.top, 60)
                     } else {
                         // 使用 List 显示任务数据，性能更好
-                        List(allTasks, id: \.id) { task in
+                        List(allTasks, id: \.taskId) { task in
                             let taskIndex = allTasks.firstIndex(of: task) ?? 0
                             TDTaskRowView(
                                 task: task,
@@ -80,11 +78,12 @@ struct TDDayTodoView: View {
                                 }
 
                             )
+                            .equatable()  // 添加这个
+
                             .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                             .listRowBackground(Color.clear)
                             .listRowSeparator(.hidden)
                         }
-//                        .id(refreshTrigger) // 使用 refreshTrigger 来强制刷新 List
                         .listStyle(.plain)
                         .scrollContentBackground(.hidden)
                         .background(Color.clear)

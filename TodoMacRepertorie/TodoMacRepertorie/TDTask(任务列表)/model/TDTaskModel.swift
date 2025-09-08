@@ -13,20 +13,54 @@ import SwiftUI
 struct TDTaskModel: Codable {
     // MARK: - 子任务结构体
     struct SubTask: Codable {
+        let id: String
         var isComplete: Bool?
         var content: String?
+        
+        init(isComplete: Bool? = nil, content: String? = nil, id: String? = nil) {
+            self.id = id ?? UUID().uuidString
+            self.isComplete = isComplete
+            self.content = content
+        }
+        
+        // 自定义解码方法，兼容没有 id 字段的旧数据
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            
+            // 尝试解码 id，如果不存在则生成新的
+            if let id = try? container.decode(String.self, forKey: .id) {
+                self.id = id
+            } else {
+                self.id = UUID().uuidString
+            }
+            
+            self.isComplete = try container.decodeIfPresent(Bool.self, forKey: .isComplete)
+            self.content = try container.decodeIfPresent(String.self, forKey: .content)
+        }
+        
+        // 编码时总是包含 id
+        func encode(to encoder: Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encode(id, forKey: .id)
+            try container.encodeIfPresent(isComplete, forKey: .isComplete)
+            try container.encodeIfPresent(content, forKey: .content)
+        }
+        
+        private enum CodingKeys: String, CodingKey {
+            case id, isComplete, content
+        }
+
     }
     
     // MARK: - 附件结构体
     struct Attachment: Codable {
         // 服务器返回字段
+        let id: String        // 唯一ID
         let size: String      // 附件大小，字符串类型
         let suffix: String?   // 文件后缀，可选
         let url: String       // 附件URL
         let name: String      // 附件名称
         
-        // 本地字段
-        var downloading: Bool = false
         
         /// 是否为图片类型
         var isPhoto: Bool {
@@ -35,11 +69,12 @@ struct TDTaskModel: Codable {
         }
         
         enum CodingKeys: String, CodingKey {
-            case size, suffix, url, name
+            case id, size, suffix, url, name
         }
 
         /// 普通初始化方法
-        init(size: String, suffix: String?, url: String, name: String) {
+        init(id: String = UUID().uuidString, size: String, suffix: String?, url: String, name: String) {
+            self.id = id
             self.size = size
             self.suffix = suffix
             self.url = url
@@ -49,6 +84,14 @@ struct TDTaskModel: Codable {
         /// 自定义解码方法，兼容 size 字段为字符串或数字
         init(from decoder: Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
+            
+            // 处理 ID 字段，如果没有则生成一个
+            if let idString = try? container.decode(String.self, forKey: .id) {
+                id = idString
+            } else {
+                id = UUID().uuidString
+            }
+            
             if let sizeString = try? container.decode(String.self, forKey: .size) {
                 size = sizeString
             } else if let sizeNumber = try? container.decode(Double.self, forKey: .size) {
@@ -61,7 +104,7 @@ struct TDTaskModel: Codable {
             name = try container.decode(String.self, forKey: .name)
         }
     }
-    
+
     // MARK: - 服务器字段
     var id: Int64
     var taskId: String
@@ -123,7 +166,7 @@ struct TDTaskModel: Codable {
         self.standbyIntName = model.standbyIntName
         self.reminderTimeString = model.reminderTimeString
         self.subTaskList = model.subTaskList.map { sub in
-            TDTaskModel.SubTask(isComplete: sub.isComplete, content: sub.content)
+            TDTaskModel.SubTask(isComplete: sub.isComplete, content: sub.content, id: sub.id)
         }
         self.attachmentList = model.attachmentList.map { att in
             TDTaskModel.Attachment(
@@ -171,12 +214,12 @@ struct TDTaskModel: Codable {
         model.subTaskList = processedModel.subTaskList.map { subTask in
             TDMacSwiftDataListModel.SubTask(
                 isComplete: subTask.isComplete ?? false,
-                content: subTask.content ?? ""
+                content: subTask.content ?? "",
+                id: subTask.id
             )
         }
         model.attachmentList = processedModel.attachmentList.map { att in
             TDMacSwiftDataListModel.Attachment(
-                downloading: att.downloading,
                 name: att.name,
                 size: att.size,
                 suffix: att.suffix,

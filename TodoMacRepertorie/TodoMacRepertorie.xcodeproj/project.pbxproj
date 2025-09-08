@@ -79,6 +79,7 @@
 				"TDManager(共用)/TDAppConfig(App设置)/TDAppConfig.swift",
 				"TDManager(共用)/TDCalendarManager(日程概览管理器)/TDCalendarManager.swift",
 				"TDManager(共用)/TDCalendarService(本地日历)/TDCalendarService.swift",
+				"TDManager(共用)/TDCalendarService(本地日历)/TDLunarCalendar.swift",
 				"TDManager(共用)/TDCategoryManager(分类清单)/TDCategoryManager.swift",
 				"TDManager(共用)/TDConfigManager(App配置信息)/TDConfigAPI.swift",
 				"TDManager(共用)/TDConfigManager(App配置信息)/TDConfigManager.swift",

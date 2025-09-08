@@ -11,37 +11,6 @@ import SwiftUI
 /// 主题颜色
 extension Color {
     
-    
-    /// 从十六进制字符串创建颜色
-//       init(hex: String) {
-//           let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
-//           var int: UInt64 = 0
-//           Scanner(string: hex).scanHexInt64(&int)
-//           let a, r, g, b: UInt64
-//           switch hex.count {
-//           case 3: // RGB (12-bit)
-//               (a, r, g, b) = (255, (int >> 8) * 17, (int >> 4 & 0xF) * 17, (int & 0xF) * 17)
-//           case 6: // RGB (24-bit)
-//               (a, r, g, b) = (255, int >> 16, int >> 8 & 0xFF, int & 0xFF)
-//           case 8: // ARGB (32-bit)
-//               (a, r, g, b) = (int >> 24, int >> 16 & 0xFF, int >> 8 & 0xFF, int & 0xFF)
-//           default:
-//               (a, r, g, b) = (255, 0, 0, 0)
-//           }
-//           self.init(
-//               .sRGB,
-//               red: Double(r) / 255,
-//               green: Double(g) / 255,
-//               blue: Double(b) / 255,
-//               opacity: Double(a) / 255
-//           )
-//       }
-//       
-//       /// 获取颜色的半透明版本
-//       func withAlpha(_ alpha: Double) -> Color {
-//           self.opacity(alpha)
-//       }
-    
     /// 16进制颜色调整 带透明度的 透明度参数 在前后 都可以
     /// - Parameter hexString: 传进来的颜色字符串
     /// - Returns: 返回的颜色
@@ -96,5 +65,18 @@ extension Color {
         return Color(red: 1 - components[0], green: 1 - components[1], blue: 1 - components[2])
     }
     
-    
+    /// 根据夜间/白天模式返回不同的颜色
+    /// - Parameters:
+    ///   - lightModeColor: 白天模式的16进制颜色值
+    ///   - darkModeColor: 夜间模式的16进制颜色值
+    /// - Returns: 根据当前模式返回对应的颜色
+    static func adaptive(light lightModeColor: String, dark darkModeColor: String) -> Color {
+        // 使用 TDSettingManager 中的 isDarkMode 属性
+        if TDSettingManager.shared.isDarkMode {
+            return Color.fromHex(darkModeColor)
+        } else {
+            return Color.fromHex(lightModeColor)
+        }
+    }
+
 }

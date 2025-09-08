@@ -155,12 +155,93 @@ extension Date {
         return date.toString(format: format)
     }
     
+    
+    
     /// 将时间戳转换为Date对象 静态方法
     /// - Parameter timestamp: 时间戳（毫秒）
     /// let timestamp: Int64 = 1705555555000
     /// let date = Date.fromTimestamp(timestamp)
     static func fromTimestamp(_ timestamp: Int64) -> Date {
         return Date(timeIntervalSince1970: TimeInterval(timestamp / 1000))
+    }
+
+    // MARK: - 获取日期组件
+    
+    /// 获取年份
+    /// - Returns: 年份 (例如: 2025)
+    /// 使用示例: let year = Date().year
+    var year: Int {
+        Calendar.current.component(.year, from: self)
+    }
+    
+    /// 获取月份
+    /// - Returns: 月份 (1-12)
+    /// 使用示例: let month = Date().month
+    var month: Int {
+        Calendar.current.component(.month, from: self)
+    }
+    
+    /// 获取日期
+    /// - Returns: 日期 (1-31)
+    /// 使用示例: let day = Date().day
+    var day: Int {
+        Calendar.current.component(.day, from: self)
+    }
+    
+    /// 获取小时
+    /// - Returns: 小时 (0-23)
+    /// 使用示例: let hour = Date().hour
+    var hour: Int {
+        Calendar.current.component(.hour, from: self)
+    }
+    
+    /// 获取分钟
+    /// - Returns: 分钟 (0-59)
+    /// 使用示例: let minute = Date().minute
+    var minute: Int {
+        Calendar.current.component(.minute, from: self)
+    }
+    
+    /// 获取秒数
+    /// - Returns: 秒数 (0-59)
+    /// 使用示例: let second = Date().second
+    var second: Int {
+        Calendar.current.component(.second, from: self)
+    }
+
+    
+    /// 根据传入的数字生成日期
+    /// - Parameters:
+    ///   - year: 年份
+    ///   - month: 月份 (1-12)
+    ///   - day: 日期 (1-31)
+    ///   - hour: 小时 (0-23)
+    ///   - minute: 分钟 (0-59)
+    ///   - second: 秒数 (0-59)
+    /// - Returns: 生成的 Date 对象，如果参数无效则返回当前日期
+    /// 使用示例:
+    /// let date1 = Date.createDate(year: 2025, month: 1, day: 21, hour: 15, minute: 30, second: 0)
+    /// let date2 = Date.createDate(year: 2025, month: 12, day: 25) // 默认时分秒为 0:0:0
+    static func createDate(year: Int, month: Int, day: Int, hour: Int = 0, minute: Int = 0, second: Int = 0) -> Date {
+        let calendar = Calendar.current
+        
+        // 创建日期组件
+        var dateComponents = DateComponents()
+        dateComponents.year = year
+        dateComponents.month = month
+        dateComponents.day = day
+        dateComponents.hour = hour
+        dateComponents.minute = minute
+        dateComponents.second = second
+        
+        // 根据组件生成日期
+        if let date = calendar.date(from: dateComponents) {
+            return date
+        } else {
+            // 如果参数无效，返回当前日期
+            print("⚠️ 无效的日期参数: \(year)-\(month)-\(day) \(hour):\(minute):\(second)")
+            return Date()
+        }
     }
 
     // MARK: - 日期计算
@@ -288,7 +369,169 @@ extension Date {
         return date.weekdayDisplay()
     }
 
+    // MARK: - 重复计算相关方法（已合并到下方）
+    
+    /// 获取下一个工作日的日期（跳过周末）
+    /// - Returns: 下一个工作日的日期
+    func nextWorkday() -> Date {
+        let calendar = Calendar.current
+        var nextDate = self
+        
+        repeat {
+            nextDate = calendar.date(byAdding: .day, value: 1, to: nextDate) ?? nextDate
+            let weekday = calendar.component(.weekday, from: nextDate)
+            // 跳过周六(7)和周日(1)
+            if weekday != 1 && weekday != 7 {
+                break
+            }
+        } while true
+        
+        return nextDate
+    }
+    
+    /// 获取今天是第几个星期几（自动使用当前日期的星期几）
+    /// - Returns: 第几个（1-5）
+    func weekdayOrdinal() -> Int {
+        let calendar = Calendar.current
+        let currentWeekday = calendar.component(.weekday, from: self)
+        let dayOfMonth = calendar.component(.day, from: self)
+        return (dayOfMonth - 1) / 7 + 1
+    }
 
     
+    /// 获取今天是几号
+    /// - Returns: 日期数字（1-31）
+    func dayOfMonth() -> Int {
+        Calendar.current.component(.day, from: self)
+    }
+    
+    /// 获取今天是几月
+    /// - Returns: 月份数字（1-12）
+    func monthOfYear() -> Int {
+        Calendar.current.component(.month, from: self)
+    }
+    
+    /// 获取今天是几月几日
+    /// - Returns: 月日字符串，如 "8月28日"
+    func monthDayString() -> String {
+        let month = monthOfYear()
+        let day = dayOfMonth()
+        return "\(month)月\(day)日"
+    }
+    
+    
+    
+    // MARK: - 重复任务相关方法（合并版本）
+    
+    /// 获取下N个星期的同一天
+    /// - Parameters:
+    ///   - weekday: 星期几 (1=周日, 2=周一, ..., 7=周六)
+    ///   - weeksLater: 几周后，默认为1
+    /// - Returns: 下N个星期的同一天
+    func nextWeekday(_ weekday: Int, weeksLater: Int = 1) -> Date {
+        let calendar = Calendar.current
+        let currentWeekday = calendar.component(.weekday, from: self)
+        let daysToAdd = (weekday - currentWeekday + 7) % 7 + (weeksLater * 7)
+        return calendar.date(byAdding: .day, value: daysToAdd, to: self) ?? self
+    }
+    
+    /// 获取下N个月的同一天
+    /// - Parameters:
+    ///   - day: 几号
+    ///   - monthsLater: 几个月后，默认为1
+    /// - Returns: 下N个月的同一天
+    func nextMonthDay(_ day: Int, monthsLater: Int = 1) -> Date {
+        let calendar = Calendar.current
+        var components = calendar.dateComponents([.year, .month], from: self)
+        components.month = (components.month ?? 1) + monthsLater
+        components.day = day
+        
+        // 如果目标月份没有这一天，则使用该月的最后一天
+        if let targetDate = calendar.date(from: components) {
+            return targetDate
+        } else {
+            // 获取该月的最后一天
+            let lastDay = calendar.range(of: .day, in: .month, for: calendar.date(from: DateComponents(year: components.year, month: components.month)) ?? self)?.upperBound ?? 1
+            components.day = lastDay - 1
+            return calendar.date(from: components) ?? self
+        }
+    }
+    
+    /// 获取下个月最后一天
+    /// - Parameter monthsLater: 几个月后，默认为1
+    /// - Returns: 下个月最后一天的日期
+    func nextMonthLastDay(monthsLater: Int = 1) -> Date {
+        let calendar = Calendar.current
+        var components = calendar.dateComponents([.year, .month], from: self)
+        components.month = (components.month ?? 1) + monthsLater + 1
+        components.day = 0 // 0表示上个月的最后一天
+        
+        return calendar.date(from: components) ?? self
+    }
+    
+    /// 获取下N个月的第N个星期几
+    /// - Parameters:
+    ///   - ordinal: 第几个 (1=第一个, 2=第二个, ...)
+    ///   - weekday: 星期几 (1=周日, 2=周一, ..., 7=周六)
+    ///   - monthsLater: 几个月后，默认为1
+    /// - Returns: 下N个月的第N个星期几
+    func nextMonthWeekday(ordinal: Int, weekday: Int, monthsLater: Int = 1) -> Date {
+        let calendar = Calendar.current
+        var components = calendar.dateComponents([.year, .month], from: self)
+        components.month = (components.month ?? 1) + monthsLater
+        components.day = 1
+        
+        guard let firstDayOfMonth = calendar.date(from: components) else { return self }
+        
+        // 找到该月第一个目标星期几
+        let firstWeekday = calendar.component(.weekday, from: firstDayOfMonth)
+        let daysToFirstTarget = (weekday - firstWeekday + 7) % 7
+        
+        // 计算第N个目标星期几
+        let daysToAdd = daysToFirstTarget + (ordinal - 1) * 7
+        return calendar.date(byAdding: .day, value: daysToAdd, to: firstDayOfMonth) ?? self
+    }
+    
+    /// 获取下N年的同月日
+    /// - Parameters:
+    ///   - month: 月份
+    ///   - day: 几号
+    ///   - yearsLater: 几年后，默认为1
+    /// - Returns: 下N年的同月日
+    func nextYearMonthDay(month: Int, day: Int, yearsLater: Int = 1) -> Date {
+        let calendar = Calendar.current
+        var components = calendar.dateComponents([.year], from: self)
+        components.year = (components.year ?? 1) + yearsLater
+        components.month = month
+        components.day = day
+        
+        // 如果目标年份没有这一天（如2月29日），则使用该月的最后一天
+        if let targetDate = calendar.date(from: components) {
+            return targetDate
+        } else {
+            // 获取该月的最后一天
+            let lastDay = calendar.range(of: .day, in: .month, for: calendar.date(from: DateComponents(year: components.year, month: month)) ?? self)?.upperBound ?? 1
+            components.day = lastDay - 1
+            return calendar.date(from: components) ?? self
+        }
+    }
+    
+    /// 获取下N年农历的同月日
+    /// - Parameters:
+    ///   - lunarMonth: 农历月份
+    ///   - lunarDay: 农历几号
+    ///   - isLeapMonth: 是否为闰月
+    ///   - yearsLater: 几年后，默认为1
+    /// - Returns: 下N年农历的同月日
+    func nextLunarYearMonthDay(lunarMonth: Int, lunarDay: Int, isLeapMonth: Bool, yearsLater: Int = 1) -> Date? {
+        // 简化的农历转换，实际应用中建议使用专业的农历库
+        let currentYear = Calendar.current.component(.year, from: self)
+        let targetYear = currentYear + yearsLater
+        
+        return TDLunarCalendar.lunarToSolar(lunarYear: targetYear, lunarMonth: lunarMonth, lunarDay: lunarDay, isLeapMonth: isLeapMonth)
+    }
+
+
+
 }
 

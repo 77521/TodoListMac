@@ -19,7 +19,7 @@ struct TDCorrectQueryBuilder {
     static func getLocalMaxVersionQuery() -> (Predicate<TDMacSwiftDataListModel>, [SortDescriptor<TDMacSwiftDataListModel>]) {
         let userId = TDUserManager.shared.userId
         let predicate = #Predicate<TDMacSwiftDataListModel> { task in
-            task.userId == userId
+            task.userId == userId && task.status == "sync"
         }
         
         let sortDescriptors = [

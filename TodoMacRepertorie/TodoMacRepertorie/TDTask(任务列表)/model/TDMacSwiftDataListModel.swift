@@ -14,25 +14,101 @@ import SwiftData
 @Model
 final class TDMacSwiftDataListModel {
     // MARK: - 子任务结构体
-    struct SubTask: Codable {
+    struct SubTask: Codable, Equatable {
+        let id: String
         var isComplete: Bool
         var content: String
-    }
-    
-    // MARK: - 附件结构体
-    struct Attachment: Codable {
-        var downloading: Bool
-        var name: String
-        let size: String      // 改为 String 类型
-        var suffix: String?
-        var url: String
         
-        var isPhoto: Bool {
-            guard let suffix = suffix else { return true }
-            return ["jpg", "jpeg", "png", "gif", "heic", "webp"].contains(suffix.lowercased())
+        init(isComplete: Bool, content: String, id: String? = nil) {
+            self.id = id ?? UUID().uuidString
+            self.isComplete = isComplete
+            self.content = content
         }
         
+        // 自定义解码方法，兼容没有 id 字段的旧数据
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            
+            // 尝试解码 id，如果不存在则生成新的
+            if let id = try? container.decode(String.self, forKey: .id) {
+                self.id = id
+            } else {
+                self.id = UUID().uuidString
+            }
+            
+            self.isComplete = try container.decode(Bool.self, forKey: .isComplete)
+            self.content = try container.decode(String.self, forKey: .content)
+        }
+        
+        // 编码时总是包含 id
+        func encode(to encoder: Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encode(id, forKey: .id)
+            try container.encode(isComplete, forKey: .isComplete)
+            try container.encode(content, forKey: .content)
+        }
+        
+        private enum CodingKeys: String, CodingKey {
+            case id, isComplete, content
+        }
     }
+
+    // MARK: - 附件结构体
+       struct Attachment: Codable, Equatable {
+           let id: String        // 添加唯一ID
+           var name: String
+           let size: String      // 改为 String 类型
+           var suffix: String?
+           var url: String
+
+           var isPhoto: Bool {
+               guard let suffix = suffix else { return true }
+               return ["jpg", "jpeg", "png", "gif", "heic", "webp"].contains(suffix.lowercased())
+           }
+           
+           
+           /// 普通初始化方法
+           init(id: String = UUID().uuidString, name: String, size: String, suffix: String? = nil, url: String) {
+               self.id = id
+               self.name = name
+               self.size = size
+               self.suffix = suffix
+               self.url = url
+           }
+
+           // MARK: - Codable
+           private enum CodingKeys: String, CodingKey {
+               case id, name, size, suffix, url
+           }
+
+           /// 自定义解码方法，兼容没有ID的旧数据
+           init(from decoder: Decoder) throws {
+               let container = try decoder.container(keyedBy: CodingKeys.self)
+               
+               // 处理 ID 字段，如果没有则生成一个
+               if let idString = try? container.decode(String.self, forKey: .id) {
+                   id = idString
+               } else {
+                   id = UUID().uuidString
+               }
+               
+               name = try container.decode(String.self, forKey: .name)
+               size = try container.decode(String.self, forKey: .size)
+               suffix = try container.decodeIfPresent(String.self, forKey: .suffix)
+               url = try container.decode(String.self, forKey: .url)
+           }
+
+           /// 编码方法
+           func encode(to encoder: Encoder) throws {
+               var container = encoder.container(keyedBy: CodingKeys.self)
+               try container.encode(id, forKey: .id)
+               try container.encode(name, forKey: .name)
+               try container.encode(size, forKey: .size)
+               try container.encodeIfPresent(suffix, forKey: .suffix)
+               try container.encode(url, forKey: .url)
+           }
+
+       }
     
     // MARK: - 服务器字段
     // MARK: - 索引配置（提升查询和排序性能）
@@ -290,6 +366,13 @@ final class TDMacSwiftDataListModel {
         return subTaskStrings.joined(separator: "[end] -")
     }
     
+    /// 将附件数组转换为 JSON 字符串
+    func generateAttachmentListString() -> String {
+        guard !attachmentList.isEmpty else { return "" }
+        
+        return TDSwiftJsonUtil.arrayToJson(attachmentList) ?? ""
+    }
+    
     /// 检查是否所有子任务都已完成
     var allSubTasksCompleted: Bool {
         return !subTaskList.isEmpty && subTaskList.allSatisfy { $0.isComplete }
@@ -300,6 +383,11 @@ final class TDMacSwiftDataListModel {
         guard todoTime > 0 else { return false }
         let taskDate = Date.fromTimestamp(todoTime)
         return taskDate.isToday
+    }
+    /// 获取任务的日期
+    var taskDate: Date {
+        guard todoTime > 0 else { return Date() }
+        return Date.fromTimestamp(todoTime)
     }
 
 }

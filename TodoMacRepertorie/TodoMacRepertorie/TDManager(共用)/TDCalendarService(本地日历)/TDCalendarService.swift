@@ -544,7 +544,7 @@ final class TDCalendarService {
         let currentTimestamp = Date.currentTimestamp
 
         // 如果任务已删除、已完成、没有提醒时间或提醒时间已过，删除对应的日历事件
-        if task.delete || task.complete || task.reminderTime <= 0 || task.reminderTime < currentTimestamp {
+        if task.delete || task.complete || !task.hasReminder || task.reminderTime < currentTimestamp {
             print("任务状态检查:")
             print("- 是否删除: \(task.delete)")
             print("- 是否完成: \(task.complete)")

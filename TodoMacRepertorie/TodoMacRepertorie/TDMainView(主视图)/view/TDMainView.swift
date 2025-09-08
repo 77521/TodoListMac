@@ -121,47 +121,11 @@ struct TDMainView: View {
     // MARK: - 第三列：任务详情
     private var thirdColumn: some View {
         Group {
-            if let selectedTask = selectedTask {
+            if let selectedTask = mainViewModel.selectedTask {
                 // 有选中任务时，显示任务详情
-                VStack {
-                    Text("任务详情")
-                        .font(.title2)
-                        .fontWeight(.semibold)
-                        .padding()
-                    
-                    VStack(alignment: .leading, spacing: 16) {
-                        HStack {
-                            Text("任务标题：\(selectedTask.taskContent)")
-                                .font(.headline)
-                            
-                            Spacer()
-                            
-                            Button(action: {
-                                self.selectedTask = nil
-                            }) {
-                                Image(systemName: "xmark.circle.fill")
-                                    .foregroundColor(.secondary)
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                        }
-                        
-                        if let description = selectedTask.taskDescribe {
-                            Text("任务描述：\(description)")
-                                .font(.body)
-                        }
-                        
-                        Text("任务ID：\(selectedTask.taskId)")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                        
-                        Spacer()
-                    }
-                    .padding()
-                    
-                    Spacer()
-                }
-                .frame(minWidth: 414, idealWidth: 414, maxWidth: .infinity)
-                .background(Color(.windowBackgroundColor))
+                TDTaskDetailView(task: selectedTask)
+                    .frame(minWidth: 414, idealWidth: 414, maxWidth: .infinity)
+                    .background(Color(.windowBackgroundColor))
             } else {
                 // 没有选中任务时，显示占位界面
                 VStack(spacing: 20) {
@@ -183,7 +147,9 @@ struct TDMainView: View {
                 .background(Color(.windowBackgroundColor))
             }
         }
-        .animation(.easeInOut(duration: 0.3), value: selectedTask != nil)
+        .animation(.easeInOut(duration: 0.3), value: mainViewModel.selectedTask != nil)
+        .ignoresSafeArea(.container, edges: .all)
+
     }
 
 }

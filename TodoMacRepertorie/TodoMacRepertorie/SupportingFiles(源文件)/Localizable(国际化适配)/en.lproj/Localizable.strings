@@ -32,6 +32,7 @@
 "task_input_placeholder" = "Press Enter to create a task";
 "uncategorized" = "Uncategorized";
 "no_date" = "No date";
+"inbox" = "Inbox";
 
 // 多选模式
 "select_at_least_one_event" = "Please select at least one event";
@@ -50,3 +51,8 @@
 "copy_success" = "Copied %d tasks to clipboard";
 "copy_success_simple" = "Copy successful";
 "new_category" = "New";
+
+// Description and Subtask Conversion
+"subtask_limit_reached" = "Subtask limit reached (20), cannot add more";
+"convert_success" = "Conversion successful";
+"description_length_exceeded" = "Description text length exceeds limit after conversion";
