@@ -10,6 +10,44 @@ class TDDataOperationManager {
     
     private init() {}
     
+    // MARK: - 枚举定义
+    
+    /// 复制类型枚举 - 定义创建副本的不同方式
+    enum CopyType {
+        case normal        // 创建副本 - 保持原日期
+        case toToday      // 创建副本到今天
+        case toSpecificDate // 创建副本到指定日期
+    }
+    
+    /// 删除类型枚举 - 定义不同的删除方式
+    enum DeleteType {
+        case single      // 仅删除该事件
+        case all         // 删除该重复事件组的全部事件
+        case incomplete  // 删除该重复事件组的全部未达成事件
+    }
+    
+
+    /// 自定义重复类型枚举 - 定义各种重复模式
+    enum CustomRepeatType: String, CaseIterable {
+        case daily = "每天"                    // 每天重复
+        case weekly = "每周"                  // 每周重复
+        case workday = "每周工作日"            // 每周工作日重复
+        case monthly = "每月"                 // 每月重复
+        case monthlyLastDay = "每月最后一天"    // 每月最后一天重复
+        case monthlyWeekday = "每月星期几"      // 每月第N个星期几重复
+        case yearly = "每年"                  // 每年重复
+        case lunarYearly = "每年农历"          // 每年农历重复
+        case legalWorkday = "法定工作日"        // 法定工作日重复
+        case ebbinghaus = "艾宾浩斯记忆法"      // 艾宾浩斯记忆法重复
+    }
+    
+    /// 修改重复事件类型枚举 - 定义不同的修改方式
+    enum ModifyType {
+        case all         // 修改该重复事件组的全部事件
+        case incomplete  // 修改该重复事件组的全部未达成事件
+    }
+
+    
     // MARK: - 复制功能
     
     /// 将选中的任务内容复制到剪贴板

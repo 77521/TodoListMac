@@ -49,9 +49,7 @@ final class TDMainViewModel: ObservableObject {
     /// 模型容器
     private let modelContainer: TDModelContainer
     
-    private init() {
-        os_log(.info, log: logger, "🚀 主视图模型初始化")
-        
+    private init() {        
         // 确保在主线程初始化 modelContainer
         assert(Thread.isMainThread, "TDMainViewModel 必须在主线程初始化")
         self.modelContainer = TDModelContainer.shared
@@ -220,6 +218,8 @@ final class TDMainViewModel: ObservableObject {
             os_log(.info, log: logger, "🌐 服务器最大版本号: %d", serverMaxVersion)
             
             // 4. 判断同步策略
+//            var sss = localMaxVersion
+//            sss = 0
             if localMaxVersion > serverMaxVersion {
                 // 本地为最新，不需要更新或插入本地
                 os_log(.info, log: logger, "✅ 本地数据已是最新，开始上传本地数据到服务器")

@@ -43,14 +43,11 @@ struct TDTaskDetailAttachmentView: View {
                     
                     LazyVGrid(columns: columns, alignment: .leading, spacing: 15) {
                         ForEach(Array(task.attachmentList.enumerated()), id: \.element.id) { index, attachment in
-                            TDAttachmentItemView(attachment: attachment) {
+                            TDAttachmentItemView(attachment: attachment,task:task) {
                                 // 删除附件的回调
                                 deleteAttachment(at: index)
                             }
-//                            Text(attachment.name)
-//                                .font(.system(size: 10))
                                 .frame(width: 95, height: 95)
-//                                .background(Color.gray.opacity(0.3))
                                 .background(.clear)
                                 .cornerRadius(8)
                             .onDrag {
@@ -189,13 +186,15 @@ struct TDAttachmentItemView: View {
     @EnvironmentObject private var themeManager: TDThemeManager
     
     let attachment: TDMacSwiftDataListModel.Attachment
+    let task : TDMacSwiftDataListModel
     let onDelete: (() -> Void)?
 
     // 下载状态管理
     @State private var isDownloading: Bool = false
     
-    init(attachment: TDMacSwiftDataListModel.Attachment, onDelete: (() -> Void)? = nil) {
+    init(attachment: TDMacSwiftDataListModel.Attachment, task:TDMacSwiftDataListModel, onDelete: (() -> Void)? = nil) {
         self.attachment = attachment
+        self.task = task
         self.onDelete = onDelete
     }
     
@@ -223,7 +222,7 @@ struct TDAttachmentItemView: View {
                     )
                 } else {
                     // 其他文件，根据下载状态显示不同内容
-                    if TDFileManager.shared.isAttachmentDownloaded(name: attachment.name, suffix: attachment.suffix) {
+                    if TDFileManager.shared.isAttachmentDownloaded(fullName: attachment.getFullFileName(), taskId: task.taskId) {
                         // 已下载，显示文件图标
                         Image(systemName: TDFileManager.shared.getFileIcon(attachment.suffix ?? "unknown"))
                             .font(.system(size: 32))
@@ -264,7 +263,7 @@ struct TDAttachmentItemView: View {
             }
             
             // 文件名（包含后缀）
-            Text(TDFileManager.shared.getFullFileName(name: attachment.name, suffix: attachment.suffix))
+            Text(attachment.getFullFileName())
                 .font(.system(size: 10))
                 .foregroundColor(themeManager.titleTextColor)
                 .lineLimit(2)
@@ -274,7 +273,7 @@ struct TDAttachmentItemView: View {
         }
         .onTapGesture {
             // 统一点击逻辑：下载或打开
-            if TDFileManager.shared.isAttachmentDownloaded(name: attachment.name, suffix: attachment.suffix) {
+            if TDFileManager.shared.isAttachmentDownloaded(fullName: attachment.getFullFileName(), taskId: task.taskId) {
                 openAttachment()
             } else {
                 downloadAttachment()
@@ -283,7 +282,7 @@ struct TDAttachmentItemView: View {
         }
         .contextMenu {
             // 根据下载状态显示不同的右键菜单
-            if TDFileManager.shared.isAttachmentDownloaded(name: attachment.name, suffix: attachment.suffix) {
+            if TDFileManager.shared.isAttachmentDownloaded(fullName: attachment.getFullFileName(), taskId: task.taskId) {
                 // 已下载文件的菜单
                 Button("打开") {
                     openAttachment()
@@ -333,18 +332,16 @@ struct TDAttachmentItemView: View {
         )
     }
     
-    // MARK: - 私有方法
-    
     /// 下载附件
     private func downloadAttachment() {
         isDownloading = true
-        
         Task {
             do {
-                let fullFileName = TDFileManager.shared.getFullFileName(name: attachment.name, suffix: attachment.suffix)
-                let localPath = try await TDFileManager.shared.downloadFile(
+                let fullFileName = attachment.getFullFileName()
+                _ = try await TDFileManager.shared.downloadFile(
                     from: attachment.url,
-                    fileName: fullFileName
+                    fileName: fullFileName,
+                    taskId: task.taskId
                 )
                 print("✅ 附件下载成功: \(fullFileName)")
             } catch {
@@ -357,64 +354,27 @@ struct TDAttachmentItemView: View {
     
     /// 打开附件
     private func openAttachment() {
-        let fullFileName = TDFileManager.shared.getFullFileName(name: attachment.name, suffix: attachment.suffix)
-        let localPath = TDFileManager.shared.todoListFileFolder.appendingPathComponent(fullFileName).path
-        
-        if TDFileManager.shared.fileExists(at: localPath) {
-            // 文件已存在，直接打开
-            let url = URL(fileURLWithPath: localPath)
-            NSWorkspace.shared.open(url)
-        } else {
-            // 文件不存在，下载并打开
-            downloadAndOpenAttachment()
-        }
-    }
-    
-    /// 下载并打开附件
-    private func downloadAndOpenAttachment() {
-        isDownloading = true
-        
         Task {
-            do {
-                let fullFileName = TDFileManager.shared.getFullFileName(name: attachment.name, suffix: attachment.suffix)
-                let localPath = try await TDFileManager.shared.downloadFile(
-                    from: attachment.url,
-                    fileName: fullFileName
-                )
-                
-                // 下载完成后直接打开
-                let url = URL(fileURLWithPath: localPath)
-                NSWorkspace.shared.open(url)
-                
-                print("✅ 附件下载并打开成功: \(fullFileName)")
-            } catch {
-                print("❌ 附件下载失败: \(error)")
-            }
-            
-            isDownloading = false
+            let fullFileName = attachment.getFullFileName()
+            await TDFileManager.shared.openAttachment(
+                url: attachment.url,
+                fullFileName: fullFileName,
+                taskId: task.taskId
+            )
         }
     }
     
     /// 在 Finder 中显示文件
     private func showInFinder() {
-        let fullFileName = TDFileManager.shared.getFullFileName(name: attachment.name, suffix: attachment.suffix)
-        let localPath = TDFileManager.shared.todoListFileFolder.appendingPathComponent(fullFileName)
-        
-        if TDFileManager.shared.fileExists(at: localPath.path) {
-            NSWorkspace.shared.activateFileViewerSelecting([localPath])
-        } else {
-            print("❌ 文件不存在，无法在 Finder 中显示")
-        }
+        let fullFileName = attachment.getFullFileName()
+        TDFileManager.shared.showInFinder(fullFileName: fullFileName, taskId: task.taskId)
     }
     
     /// 在浏览器中打开
     private func openInBrowser() {
-        if let url = URL(string: attachment.url) {
-            NSWorkspace.shared.open(url)
-        } else {
-            print("❌ 无效的 URL: \(attachment.url)")
-        }
+        TDFileManager.shared.openInBrowser(url: attachment.url)
     }
+
 }
 
 // MARK: - 移动方向枚举

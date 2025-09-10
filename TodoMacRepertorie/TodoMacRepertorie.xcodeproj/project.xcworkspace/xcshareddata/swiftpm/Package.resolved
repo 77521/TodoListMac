@@ -1,5 +1,5 @@
 {
-  "originHash" : "f58228b4c2f15547f146a88017a6fefd36c3165e1fdf0d37f3c502028ae25470",
+  "originHash" : "f9d9101771dbc3d8b07bb918da124e21c64f3282281371b7234d0b2c3aa9de2e",
   "pins" : [
     {
       "identity" : "alerttoast",
@@ -11,12 +11,21 @@
       }
     },
     {
-      "identity" : "swiftdate",
+      "identity" : "happy-dns-objc",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/malcommac/SwiftDate.git",
+      "location" : "https://github.com/qiniu/happy-dns-objc",
       "state" : {
-        "revision" : "5d943224c3bb173e6ecf27295611615eba90c80e",
-        "version" : "7.0.0"
+        "revision" : "17039cf075bbee358dfb77ed1b5e437736768692",
+        "version" : "1.0.4"
+      }
+    },
+    {
+      "identity" : "objc-sdk",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/qiniu/objc-sdk",
+      "state" : {
+        "branch" : "master",
+        "revision" : "fcc273ceba0a95a57b23e5c898697c049abf9139"
       }
     }
   ],

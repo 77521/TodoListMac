@@ -65,7 +65,19 @@ final class TDMacSwiftDataListModel {
                guard let suffix = suffix else { return true }
                return ["jpg", "jpeg", "png", "gif", "heic", "webp"].contains(suffix.lowercased())
            }
-           
+           /// 获取完整的文件名（name + suffix）
+           /// - Parameters:
+           ///   - name: 文件名
+           ///   - suffix: 文件后缀
+           /// - Returns: 完整的文件名
+           func getFullFileName() -> String {
+               if let suffix = suffix, !suffix.isEmpty {
+                   return "\(name).\(suffix)"
+               } else {
+                   return name
+               }
+           }
+
            
            /// 普通初始化方法
            init(id: String = UUID().uuidString, name: String, size: String, suffix: String? = nil, url: String) {
@@ -76,6 +88,8 @@ final class TDMacSwiftDataListModel {
                self.url = url
            }
 
+           
+           
            // MARK: - Codable
            private enum CodingKeys: String, CodingKey {
                case id, name, size, suffix, url

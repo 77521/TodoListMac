@@ -7,13 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0D39D1A82D5B428F00A5688A /* AlertToast in Frameworks */ = {isa = PBXBuildFile; productRef = 0D39D1A72D5B428F00A5688A /* AlertToast */; };
-		0D39D1AB2D5B42BD00A5688A /* SwiftDate in Frameworks */ = {isa = PBXBuildFile; productRef = 0D39D1AA2D5B42BD00A5688A /* SwiftDate */; };
+		0D97A0E92E7025870018C27F /* AlertToast in Frameworks */ = {isa = PBXBuildFile; productRef = 0D97A0E82E7025870018C27F /* AlertToast */; };
+		0D97A0EC2E7026630018C27F /* Qiniu in Frameworks */ = {isa = PBXBuildFile; productRef = 0D97A0EB2E7026630018C27F /* Qiniu */; };
 		0DA3980B2DCAF25300D208A3 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0DA3980A2DCAF25300D208A3 /* WidgetKit.framework */; };
 		0DA3980D2DCAF25300D208A3 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0DA3980C2DCAF25300D208A3 /* SwiftUI.framework */; };
 		0DA3981B2DCAF25500D208A3 /* TDMacWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 0DA398082DCAF25300D208A3 /* TDMacWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		0DA398542DCAF67000D208A3 /* SwiftDate in Frameworks */ = {isa = PBXBuildFile; productRef = 0DA398532DCAF67000D208A3 /* SwiftDate */; };
-		0DA398562DCAF68800D208A3 /* AlertToast in Frameworks */ = {isa = PBXBuildFile; productRef = 0DA398552DCAF68800D208A3 /* AlertToast */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -72,7 +70,6 @@
 				"TDLogin(登录)/model/TDLoginAPI(登录接口调用)/TDLoginAPI.swift",
 				"TDLogin(登录)/model/TDUserModel(用户信息)/TDUserModel.swift",
 				"TDLogin(登录)/view/TDLoginRuleView.swift",
-				"TDLogin(登录)/view/TDLoginView.swift",
 				"TDLogin(登录)/view/TDTextFieldView.swift",
 				"TDLogin(登录)/viewModel/TDLoginViewModel.swift",
 				"TDMainView(主视图)/viewmodel/TDMainViewModel.swift",
@@ -94,7 +91,6 @@
 				"TDManager(共用)/TDSwiftJsonUtil(数据转换)/TDSwiftJsonUtil.swift",
 				"TDManager(共用)/TDThemeManager(主题颜色)/TDThemeColorBase.swift",
 				"TDManager(共用)/TDThemeManager(主题颜色)/TDThemeManager.swift",
-				"TDManager(共用)/TDTost(Tost 提示弹窗)/TDToastManager.swift",
 				"TDManager(共用)/TDUser(用户信息)/TDAvatarManager(头像缓存)/TDAvatarManager.swift",
 				"TDManager(共用)/TDUser(用户信息)/TDKeychainManager(用户信息缓存)/TDKeychainManager.swift",
 				"TDManager(共用)/TDUser(用户信息)/TDUserManager(用户信息获取操作)/TDUserManager.swift",
@@ -157,9 +153,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0DA3980D2DCAF25300D208A3 /* SwiftUI.framework in Frameworks */,
-				0DA398562DCAF68800D208A3 /* AlertToast in Frameworks */,
 				0DA3980B2DCAF25300D208A3 /* WidgetKit.framework in Frameworks */,
-				0DA398542DCAF67000D208A3 /* SwiftDate in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -167,8 +161,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0D39D1AB2D5B42BD00A5688A /* SwiftDate in Frameworks */,
-				0D39D1A82D5B428F00A5688A /* AlertToast in Frameworks */,
+				0D97A0E92E7025870018C27F /* AlertToast in Frameworks */,
+				0D97A0EC2E7026630018C27F /* Qiniu in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -223,8 +217,6 @@
 			);
 			name = TDMacWidgetExtension;
 			packageProductDependencies = (
-				0DA398532DCAF67000D208A3 /* SwiftDate */,
-				0DA398552DCAF68800D208A3 /* AlertToast */,
 			);
 			productName = TDMacWidgetExtension;
 			productReference = 0DA398082DCAF25300D208A3 /* TDMacWidgetExtension.appex */;
@@ -249,8 +241,8 @@
 			);
 			name = TodoMacRepertorie;
 			packageProductDependencies = (
-				0D39D1A72D5B428F00A5688A /* AlertToast */,
-				0D39D1AA2D5B42BD00A5688A /* SwiftDate */,
+				0D97A0E82E7025870018C27F /* AlertToast */,
+				0D97A0EB2E7026630018C27F /* Qiniu */,
 			);
 			productName = TodoMacRepertorie;
 			productReference = AF7D0F1B2D1EC14D00F83EB9 /* TodoMacRepertorie.app */;
@@ -285,8 +277,8 @@
 			mainGroup = AF7D0F122D1EC14D00F83EB9;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				0D39D1A62D5B428F00A5688A /* XCRemoteSwiftPackageReference "AlertToast" */,
-				0D39D1A92D5B42BD00A5688A /* XCRemoteSwiftPackageReference "SwiftDate" */,
+				0D97A0E72E7025870018C27F /* XCRemoteSwiftPackageReference "AlertToast" */,
+				0D97A0EA2E7026630018C27F /* XCRemoteSwiftPackageReference "objc-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = AF7D0F1C2D1EC14D00F83EB9 /* Products */;
@@ -623,7 +615,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		0D39D1A62D5B428F00A5688A /* XCRemoteSwiftPackageReference "AlertToast" */ = {
+		0D97A0E72E7025870018C27F /* XCRemoteSwiftPackageReference "AlertToast" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/elai950/AlertToast.git";
 			requirement = {
@@ -631,35 +623,26 @@
 				minimumVersion = 1.3.9;
 			};
 		};
-		0D39D1A92D5B42BD00A5688A /* XCRemoteSwiftPackageReference "SwiftDate" */ = {
+		0D97A0EA2E7026630018C27F /* XCRemoteSwiftPackageReference "objc-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/malcommac/SwiftDate.git";
+			repositoryURL = "https://github.com/qiniu/objc-sdk";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 7.0.0;
+				branch = master;
+				kind = branch;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		0D39D1A72D5B428F00A5688A /* AlertToast */ = {
+		0D97A0E82E7025870018C27F /* AlertToast */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 0D39D1A62D5B428F00A5688A /* XCRemoteSwiftPackageReference "AlertToast" */;
+			package = 0D97A0E72E7025870018C27F /* XCRemoteSwiftPackageReference "AlertToast" */;
 			productName = AlertToast;
 		};
-		0D39D1AA2D5B42BD00A5688A /* SwiftDate */ = {
+		0D97A0EB2E7026630018C27F /* Qiniu */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 0D39D1A92D5B42BD00A5688A /* XCRemoteSwiftPackageReference "SwiftDate" */;
-			productName = SwiftDate;
-		};
-		0DA398532DCAF67000D208A3 /* SwiftDate */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = SwiftDate;
-		};
-		0DA398552DCAF68800D208A3 /* AlertToast */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 0D39D1A62D5B428F00A5688A /* XCRemoteSwiftPackageReference "AlertToast" */;
-			productName = AlertToast;
+			package = 0D97A0EA2E7026630018C27F /* XCRemoteSwiftPackageReference "objc-sdk" */;
+			productName = Qiniu;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

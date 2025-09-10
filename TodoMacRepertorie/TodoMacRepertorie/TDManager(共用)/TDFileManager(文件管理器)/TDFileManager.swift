@@ -14,29 +14,76 @@ class TDFileManager {
     
     private init() {}
     
-    // MARK: - 文件夹路径
-    
-    /// 获取 TodoListFile 文件夹路径
-    var todoListFileFolder: URL {
+    /// 获取基础TodoListFile文件夹路径
+    /// - Returns: TodoListFile文件夹URL (Documents/TodoListFile/)
+    private var baseTodoListFileFolder: URL {
         let documentsPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        let todoListFolder = documentsPath.appendingPathComponent("TodoListFile")
+        let baseFolder = documentsPath.appendingPathComponent("TodoListFile")
         
-        // 确保文件夹存在
-        if !FileManager.default.fileExists(atPath: todoListFolder.path) {
-            try? FileManager.default.createDirectory(at: todoListFolder, withIntermediateDirectories: true)
+        // 确保基础文件夹存在
+        if !FileManager.default.fileExists(atPath: baseFolder.path) {
+            try? FileManager.default.createDirectory(at: baseFolder, withIntermediateDirectories: true)
         }
         
-        return todoListFolder
+        return baseFolder
     }
     
+    /// 根据taskId获取任务附件文件夹路径
+    /// - Parameter taskId: 任务ID
+    /// - Returns: 任务附件文件夹URL (Documents/TodoListFile/taskId/)
+    func getTaskAttachmentFolder(for taskId: String) -> URL {
+        let taskFolder = baseTodoListFileFolder.appendingPathComponent(taskId)
+        
+        // 确保任务文件夹存在
+        if !FileManager.default.fileExists(atPath: taskFolder.path) {
+            try? FileManager.default.createDirectory(at: taskFolder, withIntermediateDirectories: true)
+        }
+        
+        return taskFolder
+    }
+    
+    // MARK: - 文件复制功能
+    
+    /// 复制本地文件到任务附件文件夹
+    /// - Parameters:
+    ///   - sourceURL: 源文件URL
+    ///   - taskId: 任务ID
+    ///   - fileName: 目标文件名
+    /// - Returns: 复制后的文件路径
+    func copyLocalFileToTaskFolder(sourceURL: URL, taskId: String, fileName: String) async throws -> String {
+        print("📁 开始复制本地文件到任务文件夹")
+        print("📁 源文件: \(sourceURL.path)")
+        print("📁 任务ID: \(taskId)")
+        print("📁 目标文件名: \(fileName)")
+        
+        // 获取任务附件文件夹
+        let taskFolder = getTaskAttachmentFolder(for: taskId)
+        let destinationURL = taskFolder.appendingPathComponent(fileName)
+        
+        print("📁 目标路径: \(destinationURL.path)")
+        
+        // 如果目标文件已存在，先删除
+        if FileManager.default.fileExists(atPath: destinationURL.path) {
+            try FileManager.default.removeItem(at: destinationURL)
+            print("📁 删除已存在的目标文件")
+        }
+        
+        // 复制文件
+        try FileManager.default.copyItem(at: sourceURL, to: destinationURL)
+        print("✅ 文件复制成功: \(destinationURL.path)")
+        
+        return destinationURL.path
+    }
+
     // MARK: - 下载功能
     
     /// 下载文件
     /// - Parameters:
     ///   - urlString: 下载链接
     ///   - fileName: 文件名
+    ///   - taskId: 任务ID（用于确定下载路径）
     /// - Returns: 本地文件路径
-    func downloadFile(from urlString: String, fileName: String) async throws -> String {
+    func downloadFile(from urlString: String, fileName: String, taskId: String) async throws -> String {
         guard let url = URL(string: urlString) else {
             throw TDFileError.invalidURL
         }
@@ -44,8 +91,9 @@ class TDFileManager {
         // 确保文件名包含后缀
         let finalFileName = ensureFileExtension(fileName: fileName, urlString: urlString)
         
-        // 创建本地文件路径
-        let localURL = todoListFileFolder.appendingPathComponent(finalFileName)
+        // 获取任务附件文件夹（自动创建如果不存在）
+        let taskFolder = getTaskAttachmentFolder(for: taskId)
+        let localURL = taskFolder.appendingPathComponent(finalFileName)
         
         // 如果文件已存在，直接返回路径
         if FileManager.default.fileExists(atPath: localURL.path) {
@@ -66,69 +114,7 @@ class TDFileManager {
         
         return localURL.path
     }
-    
-    /// 下载图片并生成缩略图
-    /// - Parameters:
-    ///   - urlString: 图片链接
-    ///   - fileName: 文件名
-    /// - Returns: 本地文件路径和缩略图路径
-    func downloadImage(from urlString: String, fileName: String) async throws -> (originalPath: String, thumbnailPath: String?) {
-        let originalPath = try await downloadFile(from: urlString, fileName: fileName)
-        
-        // 生成缩略图
-        let thumbnailPath = try await generateThumbnail(for: originalPath, fileName: fileName)
-        
-        return (originalPath, thumbnailPath)
-    }
-    
-    // MARK: - 缩略图生成
-    
-    /// 生成缩略图
-    /// - Parameters:
-    ///   - imagePath: 原图路径
-    ///   - fileName: 文件名
-    /// - Returns: 缩略图路径
-    private func generateThumbnail(for imagePath: String, fileName: String) async throws -> String? {
-        guard let image = NSImage(contentsOfFile: imagePath) else {
-            return nil
-        }
-        
-        // 计算缩略图尺寸
-        let thumbnailSize = NSSize(width: 200, height: 200)
-        
-        // 生成缩略图
-        let thumbnail = NSImage(size: thumbnailSize)
-        thumbnail.lockFocus()
-        
-        let aspectRatio = image.size.width / image.size.height
-        var drawRect = NSRect(origin: .zero, size: thumbnailSize)
-        
-        if aspectRatio > 1 {
-            // 宽图
-            drawRect.size.height = thumbnailSize.width / aspectRatio
-            drawRect.origin.y = (thumbnailSize.height - drawRect.size.height) / 2
-        } else {
-            // 高图
-            drawRect.size.width = thumbnailSize.height * aspectRatio
-            drawRect.origin.x = (thumbnailSize.width - drawRect.size.width) / 2
-        }
-        
-        image.draw(in: drawRect)
-        thumbnail.unlockFocus()
-        
-        // 保存缩略图
-        let thumbnailFileName = "thumb_\(fileName)"
-        let thumbnailPath = todoListFileFolder.appendingPathComponent(thumbnailFileName)
-        
-        if let tiffData = thumbnail.tiffRepresentation,
-           let bitmapRep = NSBitmapImageRep(data: tiffData),
-           let pngData = bitmapRep.representation(using: .png, properties: [:]) {
-            try pngData.write(to: thumbnailPath)
-            return thumbnailPath.path
-        }
-        
-        return nil
-    }
+
     
     // MARK: - 文件操作
     
@@ -157,16 +143,7 @@ class TDFileManager {
         try FileManager.default.removeItem(atPath: path)
     }
     
-    /// 获取文件夹中的所有文件
-    /// - Returns: 文件路径数组
-    func getAllFiles() -> [String] {
-        do {
-            let files = try FileManager.default.contentsOfDirectory(atPath: todoListFileFolder.path)
-            return files.map { todoListFileFolder.appendingPathComponent($0).path }
-        } catch {
-            return []
-        }
-    }
+    
     
     // MARK: - 文件类型判断
     
@@ -248,38 +225,58 @@ class TDFileManager {
         return formatter.string(fromByteCount: Int64(sizeInBytes))
     }
     
-    /// 检查附件是否已下载到本地
+    /// 检查附件是否已下载到本地（使用完整文件名）
     /// - Parameters:
-    ///   - name: 文件名
-    ///   - suffix: 文件后缀
+    ///   - fullName: 完整文件名
+    ///   - taskId: 任务ID
     /// - Returns: 是否已下载
-    func isAttachmentDownloaded(name: String, suffix: String?) -> Bool {
-        let fullFileName = getFullFileName(name: name, suffix: suffix)
-        let localPath = todoListFileFolder.appendingPathComponent(fullFileName).path
+    func isAttachmentDownloaded(fullName: String, taskId: String) -> Bool {
+        let taskFolder = getTaskAttachmentFolder(for: taskId)
+        let localPath = taskFolder.appendingPathComponent(fullName).path
+        
+        print("🔍 检查文件是否存在:")
+        print("🔍 - 完整文件名: \(fullName)")
+        print("🔍 - 任务ID: \(taskId)")
+        print("🔍 - 任务文件夹: \(taskFolder.path)")
+        print("🔍 - 检查路径: \(localPath)")
+        print("🔍 - 文件是否存在: \(fileExists(at: localPath))")
+        
+        // 总是列出文件夹中的所有文件，方便调试
+        print("🔍 - 文件夹中的所有文件:")
+        do {
+            let files = try FileManager.default.contentsOfDirectory(atPath: taskFolder.path)
+            if files.isEmpty {
+                print("🔍   - 文件夹为空")
+            } else {
+                for file in files {
+                    print("🔍   - \(file)")
+                    // 检查文件名是否匹配
+                    if file == fullName {
+                        print("🔍     ✅ 找到匹配的文件!")
+                    }
+                }
+            }
+        } catch {
+            print("🔍   - 无法读取文件夹: \(error)")
+        }
+        
         return fileExists(at: localPath)
     }
 
-    /// 获取完整的文件名（name + suffix）
-    /// - Parameters:
-    ///   - name: 文件名
-    ///   - suffix: 文件后缀
-    /// - Returns: 完整的文件名
-    func getFullFileName(name: String, suffix: String?) -> String {
-        if let suffix = suffix, !suffix.isEmpty {
-            return "\(name).\(suffix)"
-        } else {
-            return name
-        }
-    }
+
     
     /// 在 Finder 中显示文件
-    func showInFinder(fullFileName:String) {
-        let localPath = TDFileManager.shared.todoListFileFolder.appendingPathComponent(fullFileName)
+    /// - Parameters:
+    ///   - fullFileName: 完整文件名
+    ///   - taskId: 任务ID
+    func showInFinder(fullFileName: String, taskId: String) {
+        let taskFolder = getTaskAttachmentFolder(for: taskId)
+        let localPath = taskFolder.appendingPathComponent(fullFileName)
         
-        if TDFileManager.shared.fileExists(at: localPath.path) {
+        if fileExists(at: localPath.path) {
             NSWorkspace.shared.activateFileViewerSelecting([localPath])
         } else {
-            print("❌ 文件不存在，无法在 Finder 中显示")
+            print("❌ 文件不存在，无法在 Finder 中显示: \(localPath.path)")
         }
     }
     
@@ -292,6 +289,100 @@ class TDFileManager {
         }
     }
 
+
+    ///   - url: 远程URL
+    ///   - fullFileName: 完整文件名
+    ///   - taskId: 任务ID
+    func openAttachment(url: String, fullFileName: String, taskId: String) async {
+        let taskFolder = getTaskAttachmentFolder(for: taskId)
+        let localPath = taskFolder.appendingPathComponent(fullFileName).path
+        
+        if fileExists(at: localPath) {
+            // 文件已存在，直接打开
+            let fileURL = URL(fileURLWithPath: localPath)
+            NSWorkspace.shared.open(fileURL)
+            print("✅ 直接打开本地文件: \(fullFileName)")
+        } else {
+            // 文件不存在，下载后打开
+            do {
+                let downloadedPath = try await downloadFile(
+                    from: url,
+                    fileName: fullFileName,
+                    taskId: taskId
+                )
+                let fileURL = URL(fileURLWithPath: downloadedPath)
+                NSWorkspace.shared.open(fileURL)
+                print("✅ 下载并打开文件: \(fullFileName)")
+            } catch {
+                print("❌ 下载文件失败: \(error)")
+            }
+        }
+    }
+
+    
+    
+//    /// 下载图片并生成缩略图
+//    /// - Parameters:
+//    ///   - urlString: 图片链接
+//    ///   - fileName: 文件名
+//    /// - Returns: 本地文件路径和缩略图路径
+//    func downloadImage(from urlString: String, fileName: String) async throws -> (originalPath: String, thumbnailPath: String?) {
+//        let originalPath = try await downloadFile(from: urlString, fileName: fileName)
+//        
+//        // 生成缩略图
+//        let thumbnailPath = try await generateThumbnail(for: originalPath, fileName: fileName)
+//        
+//        return (originalPath, thumbnailPath)
+//    }
+//    
+//    // MARK: - 缩略图生成
+//    
+//    /// 生成缩略图
+//    /// - Parameters:
+//    ///   - imagePath: 原图路径
+//    ///   - fileName: 文件名
+//    /// - Returns: 缩略图路径
+//    private func generateThumbnail(for imagePath: String, fileName: String) async throws -> String? {
+//        guard let image = NSImage(contentsOfFile: imagePath) else {
+//            return nil
+//        }
+//        
+//        // 计算缩略图尺寸
+//        let thumbnailSize = NSSize(width: 200, height: 200)
+//        
+//        // 生成缩略图
+//        let thumbnail = NSImage(size: thumbnailSize)
+//        thumbnail.lockFocus()
+//        
+//        let aspectRatio = image.size.width / image.size.height
+//        var drawRect = NSRect(origin: .zero, size: thumbnailSize)
+//        
+//        if aspectRatio > 1 {
+//            // 宽图
+//            drawRect.size.height = thumbnailSize.width / aspectRatio
+//            drawRect.origin.y = (thumbnailSize.height - drawRect.size.height) / 2
+//        } else {
+//            // 高图
+//            drawRect.size.width = thumbnailSize.height * aspectRatio
+//            drawRect.origin.x = (thumbnailSize.width - drawRect.size.width) / 2
+//        }
+//        
+//        image.draw(in: drawRect)
+//        thumbnail.unlockFocus()
+//        
+//        // 保存缩略图
+//        let thumbnailFileName = "thumb_\(fileName)"
+//        let thumbnailPath = todoListFileFolder.appendingPathComponent(thumbnailFileName)
+//        
+//        if let tiffData = thumbnail.tiffRepresentation,
+//           let bitmapRep = NSBitmapImageRep(data: tiffData),
+//           let pngData = bitmapRep.representation(using: .png, properties: [:]) {
+//            try pngData.write(to: thumbnailPath)
+//            return thumbnailPath.path
+//        }
+//        
+//        return nil
+//    }
 
 }
 
