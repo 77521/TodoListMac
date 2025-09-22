@@ -129,8 +129,19 @@ final class TDMainViewModel: ObservableObject {
             }
         }
         
-        // 这里会立即执行，不需要等待四个请求完成
-        os_log(.info, log: logger, "🚀 四个服务器请求已启动，继续执行后续逻辑")
+        Task {
+            do {
+                await TDHolidayManager.shared.fetchHolidayListFromNetwork()
+                os_log(.info, log: logger, "✅ 节假日数据获取成功")
+            } catch {
+                os_log(.error, log: logger, "❌ 节假日请求失败: %@", error.localizedDescription)
+            }
+        }
+        
+        // 这里会立即执行，不需要等待五个请求完成
+        os_log(.info, log: logger, "🚀 五个服务器请求已启动，继续执行后续逻辑")
+
+        
         
         // 判断是否首次登录，如果是则执行同步逻辑
 //        if isFirstLogin {
@@ -220,7 +231,7 @@ final class TDMainViewModel: ObservableObject {
             // 4. 判断同步策略
 //            var sss = localMaxVersion
 //            sss = 0
-            if localMaxVersion > serverMaxVersion {
+            if localMaxVersion >= serverMaxVersion {
                 // 本地为最新，不需要更新或插入本地
                 os_log(.info, log: logger, "✅ 本地数据已是最新，开始上传本地数据到服务器")
                 await uploadLocalDataToServer()

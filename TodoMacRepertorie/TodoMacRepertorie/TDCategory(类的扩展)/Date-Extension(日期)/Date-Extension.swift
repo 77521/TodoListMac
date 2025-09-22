@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import LunarSwift
 //import SwiftDate
 
 // MARK: - 日期工具扩展
@@ -516,19 +517,57 @@ extension Date {
         }
     }
     
+    
+    // MARK: - 农历显示方法
+    
+    /// 获取农历月日显示
+    /// - Returns: 农历月日显示文本
+    var lunarMonthDay: String {
+        return TDLunarCalendar.getLunarMonthDay(for: self)
+    }
+
+    /// 获取农历月份显示
+    /// 如果是初一就显示月份，否则显示具体日期
+    /// - Returns: 农历显示文本
+    var lunarMonthDisplay: String {
+        return TDLunarCalendar.getLunarMonthDisplay(for: self)
+    }
+    
+    /// 智能显示日期信息
+    /// 优先级：法定节假日 > 农历节假日 > 阳历节假日 > 24节气 > 农历
+    /// - Returns: 显示文本
+    var smartDisplay: String {
+        return TDLunarCalendar.getSmartDisplay(for: self)
+    }
+    
+    /// 转换为农历对象
+    /// - Returns: 农历对象
+    var toLunar: Lunar {
+        return TDLunarCalendar.solarToLunar(self)
+    }
+    /// 根据农历日期创建阳历日期
+    /// - Parameters:
+    ///   - lunarYear: 农历年
+    ///   - lunarMonth: 农历月
+    ///   - lunarDay: 农历日
+    /// - Returns: 阳历日期
+    static func fromLunar(lunarYear: Int, lunarMonth: Int, lunarDay: Int) -> Date? {
+        return TDLunarCalendar.lunarToSolar(lunarYear: lunarYear, lunarMonth: lunarMonth, lunarDay: lunarDay)
+    }
+
+    
     /// 获取下N年农历的同月日
     /// - Parameters:
     ///   - lunarMonth: 农历月份
     ///   - lunarDay: 农历几号
-    ///   - isLeapMonth: 是否为闰月
     ///   - yearsLater: 几年后，默认为1
     /// - Returns: 下N年农历的同月日
-    func nextLunarYearMonthDay(lunarMonth: Int, lunarDay: Int, isLeapMonth: Bool, yearsLater: Int = 1) -> Date? {
-        // 简化的农历转换，实际应用中建议使用专业的农历库
+    func nextLunarYearMonthDay(lunarMonth: Int, lunarDay: Int, yearsLater: Int = 1) -> Date? {
+        // 使用专业的农历库进行转换
         let currentYear = Calendar.current.component(.year, from: self)
         let targetYear = currentYear + yearsLater
         
-        return TDLunarCalendar.lunarToSolar(lunarYear: targetYear, lunarMonth: lunarMonth, lunarDay: lunarDay, isLeapMonth: isLeapMonth)
+        return TDLunarCalendar.lunarToSolar(lunarYear: targetYear, lunarMonth: lunarMonth, lunarDay: lunarDay)
     }
 
 

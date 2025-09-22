@@ -23,6 +23,17 @@
 "week_fri" = "周五";
 "week_sat" = "周六";
 
+// 星期选择器
+"weekday.everyday" = "每天";
+"weekday.sunday" = "日";
+"weekday.monday" = "一";
+"weekday.tuesday" = "二";
+"weekday.wednesday" = "三";
+"weekday.thursday" = "四";
+"weekday.friday" = "五";
+"weekday.saturday" = "六";
+
+
 // 日期格式
 "date_format_full" = "yyyy年M月d日";
 "date_format_HM" = "HH:mm";
@@ -58,3 +69,7 @@
 "subtask_limit_reached" = "子任务数量已达上限（20个），无法添加更多";
 "convert_success" = "转换成功";
 "description_length_exceeded" = "转换后描述文本长度超过限制";
+
+// 年重复选择器
+"calendar.gregorian" = "公历";
+"calendar.lunar" = "农历";

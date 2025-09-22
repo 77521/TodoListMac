@@ -346,10 +346,20 @@ struct TDMoreOptionsButtonView: View {
             // 标记所有任务为删除状态
             for taskToDelete in tasksToDelete {
                 taskToDelete.delete = true
+                taskToDelete.status = "delete"
+
                 _ = try await TDQueryConditionManager.shared.updateLocalTaskWithModel(
                     updatedTask: taskToDelete,
                     context: modelContext
                 )
+            }
+            // 清空第二列选中的任务数据，避免第三列显示已删除任务的数据
+            if deleteType == .incomplete {
+                if !task.complete {
+                    TDMainViewModel.shared.selectedTask = nil
+                }
+            } else {
+                TDMainViewModel.shared.selectedTask = nil
             }
             // 调用回调通知父组件显示Toast
             onShowToast("删除成功")

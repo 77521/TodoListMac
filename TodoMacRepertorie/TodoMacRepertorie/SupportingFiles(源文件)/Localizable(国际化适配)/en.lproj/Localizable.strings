@@ -22,6 +22,16 @@
 "week_fri" = "Fri";
 "week_sat" = "Sat";
 
+// 星期选择器
+"weekday.everyday" = "Everyday";
+"weekday.sunday" = "Sun";
+"weekday.monday" = "Mon";
+"weekday.tuesday" = "Tue";
+"weekday.wednesday" = "Wed";
+"weekday.thursday" = "Thu";
+"weekday.friday" = "Fri";
+"weekday.saturday" = "Sat";
+
 // 日期格式
 "date_format_full" = "MMM d, yy";
 "date_format_short" = "MMM d";
@@ -56,3 +66,7 @@
 "subtask_limit_reached" = "Subtask limit reached (20), cannot add more";
 "convert_success" = "Conversion successful";
 "description_length_exceeded" = "Description text length exceeds limit after conversion";
+
+// Year Repeat Selector
+"calendar.gregorian" = "Gregorian";
+"calendar.lunar" = "Lunar";

@@ -46,6 +46,20 @@ class TDDataOperationManager {
         case all         // 修改该重复事件组的全部事件
         case incomplete  // 修改该重复事件组的全部未达成事件
     }
+    /// 日历类型枚举 - 定义公历和农历
+    enum CalendarType: String, CaseIterable {
+        case gregorian = "公历"
+        case lunar = "农历"
+        
+        var localized: String {
+            switch self {
+            case .gregorian:
+                return "calendar.gregorian".localized
+            case .lunar:
+                return "calendar.lunar".localized
+            }
+        }
+    }
 
     
     // MARK: - 复制功能

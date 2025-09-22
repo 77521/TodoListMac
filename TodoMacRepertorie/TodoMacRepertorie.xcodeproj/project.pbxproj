@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0D926C212E81649900859750 /* LunarSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 0D926C202E81649900859750 /* LunarSwift */; };
+		0D926C232E819C9A00859750 /* LunarSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 0D926C222E819C9A00859750 /* LunarSwift */; };
 		0D97A0E92E7025870018C27F /* AlertToast in Frameworks */ = {isa = PBXBuildFile; productRef = 0D97A0E82E7025870018C27F /* AlertToast */; };
 		0D97A0EC2E7026630018C27F /* Qiniu in Frameworks */ = {isa = PBXBuildFile; productRef = 0D97A0EB2E7026630018C27F /* Qiniu */; };
 		0DA3980B2DCAF25300D208A3 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0DA3980A2DCAF25300D208A3 /* WidgetKit.framework */; };
@@ -81,6 +83,8 @@
 				"TDManager(共用)/TDConfigManager(App配置信息)/TDConfigAPI.swift",
 				"TDManager(共用)/TDConfigManager(App配置信息)/TDConfigManager.swift",
 				"TDManager(共用)/TDDeviceManager(设备信息)/TDDeviceManager.swift",
+				"TDManager(共用)/TDHoliday(法定节假日)/TDHolidayAPI.swift",
+				"TDManager(共用)/TDHoliday(法定节假日)/TDHolidayManager.swift",
 				"TDManager(共用)/TDModelContainer(swiftData容器共用)/TDModelContainer.swift",
 				"TDManager(共用)/TDNetworkManager(网络请求)/TDNetworkManager.swift",
 				"TDManager(共用)/TDNetworkManager(网络请求)/TDNetworkModels.swift",
@@ -154,6 +158,7 @@
 			files = (
 				0DA3980D2DCAF25300D208A3 /* SwiftUI.framework in Frameworks */,
 				0DA3980B2DCAF25300D208A3 /* WidgetKit.framework in Frameworks */,
+				0D926C232E819C9A00859750 /* LunarSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -163,6 +168,7 @@
 			files = (
 				0D97A0E92E7025870018C27F /* AlertToast in Frameworks */,
 				0D97A0EC2E7026630018C27F /* Qiniu in Frameworks */,
+				0D926C212E81649900859750 /* LunarSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -217,6 +223,7 @@
 			);
 			name = TDMacWidgetExtension;
 			packageProductDependencies = (
+				0D926C222E819C9A00859750 /* LunarSwift */,
 			);
 			productName = TDMacWidgetExtension;
 			productReference = 0DA398082DCAF25300D208A3 /* TDMacWidgetExtension.appex */;
@@ -243,6 +250,7 @@
 			packageProductDependencies = (
 				0D97A0E82E7025870018C27F /* AlertToast */,
 				0D97A0EB2E7026630018C27F /* Qiniu */,
+				0D926C202E81649900859750 /* LunarSwift */,
 			);
 			productName = TodoMacRepertorie;
 			productReference = AF7D0F1B2D1EC14D00F83EB9 /* TodoMacRepertorie.app */;
@@ -279,6 +287,7 @@
 			packageReferences = (
 				0D97A0E72E7025870018C27F /* XCRemoteSwiftPackageReference "AlertToast" */,
 				0D97A0EA2E7026630018C27F /* XCRemoteSwiftPackageReference "objc-sdk" */,
+				0D926C1F2E81649900859750 /* XCRemoteSwiftPackageReference "lunar-swift" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = AF7D0F1C2D1EC14D00F83EB9 /* Products */;
@@ -615,6 +624,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		0D926C1F2E81649900859750 /* XCRemoteSwiftPackageReference "lunar-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/6tail/lunar-swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.1.5;
+			};
+		};
 		0D97A0E72E7025870018C27F /* XCRemoteSwiftPackageReference "AlertToast" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/elai950/AlertToast.git";
@@ -634,6 +651,16 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		0D926C202E81649900859750 /* LunarSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0D926C1F2E81649900859750 /* XCRemoteSwiftPackageReference "lunar-swift" */;
+			productName = LunarSwift;
+		};
+		0D926C222E819C9A00859750 /* LunarSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0D926C1F2E81649900859750 /* XCRemoteSwiftPackageReference "lunar-swift" */;
+			productName = LunarSwift;
+		};
 		0D97A0E82E7025870018C27F /* AlertToast */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 0D97A0E72E7025870018C27F /* XCRemoteSwiftPackageReference "AlertToast" */;

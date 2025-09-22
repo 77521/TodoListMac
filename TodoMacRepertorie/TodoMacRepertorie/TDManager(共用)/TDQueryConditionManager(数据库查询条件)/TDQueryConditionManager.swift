@@ -513,7 +513,8 @@ extension TDQueryConditionManager {
             
             // 3. 更新 version 和 status
             localTask.version = newVersion
-            localTask.status = "update"
+            
+            localTask.status = updatedTask.status == "delete" ? "delete" : "update"
             localTask.syncTime = Date.currentTimestamp // 更新到毫秒级别，createTime 保持不变
             
             // 4. 根据传入的模型更新所有字段
@@ -621,7 +622,7 @@ extension TDQueryConditionManager {
                     }
                     
                     localTask.status = "sync"
-                    print("任务标记为已同步成功，taskId: \(result.taskId)")
+                    print("任务标记为已同步成功，taskId: \(result.taskId)，version = \(localTask.version)")
                     
                 } catch {
                     print("更新任务状态失败，taskId: \(result.taskId), 错误: \(error)")

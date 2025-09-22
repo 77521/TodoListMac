@@ -253,7 +253,8 @@ struct TDMultiSelectActionBar: View {
                     // 1. 创建更新后的任务模型
                     let updatedTask = selectedTask
                     updatedTask.delete = true
-                    
+                    updatedTask.status = "delete"
+
                     // 2. 调用通用更新方法
                     let queryManager = TDQueryConditionManager()
                     let result = try await queryManager.updateLocalTaskWithModel(

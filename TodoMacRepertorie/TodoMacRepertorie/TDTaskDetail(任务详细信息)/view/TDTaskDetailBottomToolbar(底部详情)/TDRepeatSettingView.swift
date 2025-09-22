@@ -19,6 +19,11 @@ struct TDRepeatSettingView: View {
     
     // MARK: - 回调
     let onRepeatSet: () -> Void  // 重复设置完成回调（仅用于同步数据）
+    // MARK: - 状态变量
+    @State private var showRepeatDataView = false  // 控制重复事件管理弹窗显示
+
+    @State private var showCustomRepeatSetting = false  // 控制自定义重复设置弹窗显示
+
     
     // MARK: - 主视图
     var body: some View {
@@ -27,6 +32,7 @@ struct TDRepeatSettingView: View {
             Button(action: {
                 // TODO: 可以添加查看重复任务的逻辑
                 print("查看重复任务")
+                showRepeatDataView = true
             }) {
                 HStack(spacing: 6) {
                     Image(systemName: "repeat")
@@ -51,7 +57,12 @@ struct TDRepeatSettingView: View {
             .animation(.easeInOut(duration: 0.15), value: task.hasRepeat)
             .buttonStyle(PlainButtonStyle())
             .help("查看重复任务")  // 鼠标悬停提示
-            
+            .sheet(isPresented: $showRepeatDataView) {
+                // 弹窗内容
+                TDRepeatManagementView(isPresented: $showRepeatDataView, task: task)
+                    .presentationDragIndicator(.visible)
+            }
+
         } else {
             // 如果任务没有重复，显示重复设置菜单
             Menu {
@@ -59,6 +70,7 @@ struct TDRepeatSettingView: View {
                 Button("自定义重复设置") {
                     // TODO: 显示自定义重复设置弹窗
                     print("显示自定义重复设置弹窗")
+                    showCustomRepeatSetting = true
                 }
                 
                 Divider()  // 分割线
@@ -99,7 +111,7 @@ struct TDRepeatSettingView: View {
                 }
                 
                 // 每年农历重复（显示任务日期的农历月日）
-                Button("每年 (\(task.taskDate.lunarMonthDayString()))") {
+                Button("每年 (\(task.taskDate.lunarMonthDay))") {
                     handleCustomRepeat(repeatType: .lunarYearly)
                 }
                 
@@ -131,7 +143,31 @@ struct TDRepeatSettingView: View {
             .menuIndicator(.hidden)  // 隐藏菜单指示器
             .buttonStyle(PlainButtonStyle())
             .help("设置重复任务")  // 鼠标悬停提示
+            .sheet(isPresented: $showCustomRepeatSetting) {
+                // 自定义重复设置弹窗
+                TDCustomRepeatSettingView(isPresented: $showCustomRepeatSetting,
+                                          task: task,
+                                          onRepeatDatesCalculated: { dates in
+                    // 处理重复日期数组
+                    print("收到重复日期: \(dates.count)个")
+                    // 创建重复任务
+                    Task {
+                        do {
+                            let repeatTaskId = TDAppConfig.generateTaskId()
+                            try await createRepeatTasks(repeatDates: dates, repeatTaskId: repeatTaskId)
+                            print("✅ 自定义重复任务创建成功: \(dates.count)个任务")
+                        } catch {
+                            print("❌ 自定义重复任务创建失败: \(error)")
+                        }
+                    }
+                }
+                )
+                
+                    .presentationDragIndicator(.visible)
+            }
+
         }
+        
     }
     
     // MARK: - 私有方法
@@ -147,48 +183,74 @@ struct TDRepeatSettingView: View {
                 let repeatDates = getRepeatDates(for: repeatType, count: 72, startDate: task.taskDate)
                 let repeatTaskId = TDAppConfig.generateTaskId() // 重复事件使用相同的standbyStr1
                 
+                
                 // 2. 创建重复任务
-                for (index, repeatDate) in repeatDates.enumerated() {
-                    if index == 0 {
-                        // 第一个任务：更新当前任务
-                        task.todoTime = repeatDate.startOfDayTimestamp
-                        task.standbyStr1 = repeatTaskId
-                        
-                        _ = try await TDQueryConditionManager.shared.updateLocalTaskWithModel(
-                            updatedTask: task,
-                            context: modelContext
-                        )
-                        
-                    } else {
-                        // 其他任务：新增重复任务
-                        
-                        // 1. 将当前任务转换为 TDTaskModel
-                        let taskModel = TDTaskModel(from: task)
-                        
-                        // 2. 将 TDTaskModel 转换回新的 TDMacSwiftDataListModel 对象
-                        let newTask = taskModel.toSwiftDataModel()
-
-                        
-                        newTask.todoTime = repeatDate.startOfDayTimestamp
-                        newTask.standbyStr1 = repeatTaskId
-                        
-                        _ = try await TDQueryConditionManager.shared.addLocalTask(
-                            newTask,
-                            context: modelContext
-                        )
-                    }
-                }
+                try await createRepeatTasks(repeatDates: repeatDates, repeatTaskId: repeatTaskId)
                 
                 print("✅ 自定义重复成功: 更新了1个任务，新增了71个重复任务，类型: \(repeatType.rawValue)")
                 
-                // 调用回调通知父组件同步数据
-                onRepeatSet()
-                
+
             } catch {
                 print("❌ 自定义重复失败: \(error)")
             }
         }
     }
+    
+    
+    // MARK: - 私有方法
+    
+    /// 创建重复任务
+    /// - Parameters:
+    ///   - repeatDates: 重复日期数组
+    ///   - repeatTaskId: 重复任务ID
+    private func createRepeatTasks(repeatDates: [Date], repeatTaskId: String) async throws {
+        for (index, repeatDate) in repeatDates.enumerated() {
+            if index == 0 {
+                // 第一个任务：更新当前任务
+                let originalTodoTime = task.todoTime
+                let newTodoTime = repeatDate.startOfDayTimestamp
+                
+                // 判断 todoTime 是否发生变化
+                if originalTodoTime != newTodoTime {
+                    print("📅 第一个任务的 todoTime 发生变化:")
+                    print("  - 原始时间: \(Date.fromTimestamp(originalTodoTime).dateAndWeekString)")
+                    print("  - 新时间: \(Date.fromTimestamp(newTodoTime).dateAndWeekString)")
+                    print("  - 清除第二列选中的列表内容")
+                    TDMainViewModel.shared.selectedTask = nil
+
+                    // TODO: 清除第二列选中的列表内容
+                    // 这里需要根据具体的UI实现来清除第二列的内容
+                    // 可能需要调用相关的清除方法或发送通知
+                }
+                
+                task.todoTime = newTodoTime
+
+                _ = try await TDQueryConditionManager.shared.updateLocalTaskWithModel(
+                    updatedTask: task,
+                    context: modelContext
+                )
+                
+            } else {
+                // 其他任务：新增重复任务
+                
+                // 1. 将当前任务转换为 TDTaskModel
+                let taskModel = TDTaskModel(from: task)
+                
+                // 2. 将 TDTaskModel 转换回新的 TDMacSwiftDataListModel 对象
+                let newTask = taskModel.toSwiftDataModel()
+                
+                newTask.todoTime = repeatDate.startOfDayTimestamp
+                newTask.standbyStr1 = repeatTaskId
+                
+                _ = try await TDQueryConditionManager.shared.addLocalTask(
+                    newTask,
+                    context: modelContext
+                )
+            }
+        }
+        onRepeatSet()
+    }
+
     
     /// 根据重复类型计算72个重复日期 - 生成重复任务的日期列表
     /// - Parameters:
@@ -256,9 +318,9 @@ struct TDRepeatSettingView: View {
             
         case .lunarYearly:
             // 每年农历重复：下一年农历同月日，72年
-            let currentLunar = currentDate.toLunar()
+            let currentLunar = currentDate.toLunar
             for i in 0..<count {
-                if let nextLunarDate = currentDate.nextLunarYearMonthDay(lunarMonth: currentLunar.month, lunarDay: currentLunar.day, isLeapMonth: currentLunar.isLeapMonth, yearsLater: i) {
+                if let nextLunarDate = currentDate.nextLunarYearMonthDay(lunarMonth: currentLunar.month, lunarDay: currentLunar.day, yearsLater: i) {
                     dates.append(nextLunarDate)
                 } else {
                     // 如果农历转换失败，使用阳历加一年

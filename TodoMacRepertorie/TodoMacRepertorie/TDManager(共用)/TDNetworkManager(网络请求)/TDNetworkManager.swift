@@ -52,17 +52,27 @@ actor TDNetworkManager {
         request.timeoutInterval = timeout
         request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
 
-        // 将参数转换为查询字符串格式
-        let queryItems = finalParameters.map { key, value in
-            return "\(key)=\(value)".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-        }.joined(separator: "&")
+//        // 将参数转换为查询字符串格式
+//        let queryItems = finalParameters.map { key, value in
+//            return "\(key)=\(value)".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+//        }.joined(separator: "&")
+//        
+//        request.httpBody = queryItems.data(using: .utf8)
+//        
+//        // 打印请求参数
+//        print("Request Parameters: \(queryItems)")
+
+        // 使用 URLComponents 处理参数，自动处理URL编码
+        var components = URLComponents()
+        components.queryItems = finalParameters.map { key, value in
+            URLQueryItem(name: key, value: "\(value)")
+        }
         
-        request.httpBody = queryItems.data(using: .utf8)
+        request.httpBody = components.query?.data(using: .utf8)
         
         // 打印请求参数
-        print("Request Parameters: \(queryItems)")
+        print("Request Parameters: \(components.query ?? "")")
 
-        
         var responseData: Data?
         var requestError: Error?
                 
