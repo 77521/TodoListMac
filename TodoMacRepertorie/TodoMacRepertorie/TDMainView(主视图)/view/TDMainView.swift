@@ -78,44 +78,51 @@ struct TDMainView: View {
     
     // MARK: - 第二列：任务列表
     private var secondColumn: some View {
-        AnyView(
-            Group {
-                if let selectedCategory = mainViewModel.selectedCategory {
-                    switch selectedCategory.categoryId {
-                    case -100: // DayTodo
-                        TDDayTodoView(selectedDate: dateManager.selectedDate, category: selectedCategory)
-                    case -101: // 最近待办
-                        TDTaskListView(category: selectedCategory)
-                    case -102: // 日程概览
-                        TDScheduleOverviewView()
-                    case -103: // 待办箱
-                        TDInboxView()
-                    case -107: // 最近已完成
-                        TDCompletedDeletedView(category: selectedCategory)
-                    case -108: // 回收站
-                        TDCompletedDeletedView(category: selectedCategory)
-                    case -106: // 数据复盘
-                        TDDataReviewView()
-                    case 0: // 未分类
-                        TDTaskListView(category: selectedCategory)
-                    default: // 用户创建的分类
-                        if selectedCategory.categoryId > 0 {
-                            TDTaskListView(category: selectedCategory)
-                        } else {
-                            // 如果出现未知分类，默认显示DayTodo
+        VStack(spacing: 0) {
+            // 主要内容区域
+            AnyView(
+                Group {
+                    if let selectedCategory = mainViewModel.selectedCategory {
+                        switch selectedCategory.categoryId {
+                        case -100: // DayTodo
                             TDDayTodoView(selectedDate: dateManager.selectedDate, category: selectedCategory)
+                        case -101: // 最近待办
+                            TDTaskListView(category: selectedCategory)
+                        case -102: // 日程概览
+                            TDScheduleOverviewView()
+                        case -103: // 待办箱
+                            TDInboxView()
+                        case -107: // 最近已完成
+                            TDCompletedDeletedView(category: selectedCategory)
+                        case -108: // 回收站
+                            TDCompletedDeletedView(category: selectedCategory)
+                        case -106: // 数据复盘
+                            TDDataReviewView()
+                        case 0: // 未分类
+                            TDTaskListView(category: selectedCategory)
+                        default: // 用户创建的分类
+                            if selectedCategory.categoryId > 0 {
+                                TDTaskListView(category: selectedCategory)
+                            } else {
+                                // 如果出现未知分类，默认显示DayTodo
+                                TDDayTodoView(selectedDate: dateManager.selectedDate, category: selectedCategory)
+                            }
                         }
+                    } else {
+                        // 如果没有选中分类，默认显示DayTodo
+                        TDDayTodoView(selectedDate: dateManager.selectedDate, category: TDSliderBarModel.defaultItems.first(where: { $0.categoryId == -100 }) ?? TDSliderBarModel.defaultItems[0])
                     }
-                } else {
-                    // 如果没有选中分类，默认显示DayTodo
-                    TDDayTodoView(selectedDate: dateManager.selectedDate, category: TDSliderBarModel.defaultItems.first(where: { $0.categoryId == -100 }) ?? TDSliderBarModel.defaultItems[0])
                 }
-            }
-            .frame(minWidth: 450, idealWidth: 450, maxWidth: .infinity)
-            .background(Color(.windowBackgroundColor))
-            .ignoresSafeArea(.container, edges: .all)
+                .frame(minWidth: 450, idealWidth: 450, maxWidth: .infinity)
+                .background(Color(.windowBackgroundColor))
+                .ignoresSafeArea(.container, edges: .all)
+            )
+            Spacer(minLength: 0)
+            // 专注界面
+            TDFocusView()
+            
+        }
 
-        )
     }
     
     // MARK: - 第三列：任务详情

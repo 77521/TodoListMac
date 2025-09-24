@@ -83,6 +83,11 @@ class TDSettingManager: ObservableObject {
         /// 音效类型（1: ok_ding, 2: todofinishvoice）
         static let soundType = "td_sound_type"
 
+        /// 专注时长（分钟）
+        static let focusDuration = "td_focus_duration"
+        /// 休息时长（分钟）
+        static let restDuration = "td_rest_duration"
+
 
     }
     // MARK: - 存储属性（每个都带注释）
@@ -397,6 +402,29 @@ class TDSettingManager: ObservableObject {
             return TDSoundType(rawValue: sharedDefaults?.integer(forKey: Keys.soundType) ?? TDSoundType.okDing.rawValue) ?? .okDing
         }
         set { sharedDefaults?.set(newValue.rawValue, forKey: Keys.soundType); objectWillChange.send() }
+    }
+    
+
+    /// 专注时长（分钟，默认25分钟）
+    var focusDuration: Int {
+        get {
+            if sharedDefaults?.object(forKey: Keys.focusDuration) == nil {
+                return 25 // 默认25分钟
+            }
+            return sharedDefaults?.integer(forKey: Keys.focusDuration) ?? 25
+        }
+        set { sharedDefaults?.set(newValue, forKey: Keys.focusDuration); objectWillChange.send() }
+    }
+    
+    /// 休息时长（分钟，默认5分钟）
+    var restDuration: Int {
+        get {
+            if sharedDefaults?.object(forKey: Keys.restDuration) == nil {
+                return 5 // 默认5分钟
+            }
+            return sharedDefaults?.integer(forKey: Keys.restDuration) ?? 5
+        }
+        set { sharedDefaults?.set(newValue, forKey: Keys.restDuration); objectWillChange.send() }
     }
     
 

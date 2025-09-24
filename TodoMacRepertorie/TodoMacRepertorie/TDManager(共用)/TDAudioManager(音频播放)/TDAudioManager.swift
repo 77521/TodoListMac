@@ -13,6 +13,7 @@ class TDAudioManager: NSObject {
     static let shared = TDAudioManager()
     
     private var currentSound: NSSound?
+    private var backgroundSound: NSSound? // 背景音频
     
     private override init() {
         super.init()
@@ -29,31 +30,62 @@ class TDAudioManager: NSObject {
     ///   - fileName: 音频文件名（包含扩展名）
     ///   - loop: 是否循环播放
     func playAudio(fileName: String, loop: Bool) {
-        // 停止当前播放
-        stopAudio()
-        
-        // 获取音频文件路径
-        guard let audioURL = getAudioURL(fileName: fileName) else {
-            print("找不到音频文件: \(fileName)")
-            return
-        }
-        
-        // 创建 NSSound 实例
-        currentSound = NSSound(contentsOf: audioURL, byReference: false)
-        
-        guard let sound = currentSound else {
-            print("创建音频播放器失败: \(fileName)")
-            return
-        }
-        
-        // 设置循环播放
-        sound.loops = loop
-        
-        // 开始播放（不占用其他应用的音频）
-        if sound.play() {
-            print("开始播放音频: \(fileName), 循环: \(loop)")
+        // 如果是循环播放，作为背景音频
+        if loop {
+            // 停止之前的背景音频
+            backgroundSound?.stop()
+            
+            // 获取音频文件路径
+            guard let audioURL = getAudioURL(fileName: fileName) else {
+                print("找不到音频文件: \(fileName)")
+                return
+            }
+            
+            // 创建背景音频实例
+            backgroundSound = NSSound(contentsOf: audioURL, byReference: false)
+            
+            guard let sound = backgroundSound else {
+                print("创建背景音频播放器失败: \(fileName)")
+                return
+            }
+            
+            // 设置循环播放
+            sound.loops = loop
+            
+            // 开始播放
+            if sound.play() {
+                print("开始播放背景音频: \(fileName), 循环: \(loop)")
+            } else {
+                print("播放背景音频失败: \(fileName)")
+            }
         } else {
-            print("播放音频失败: \(fileName)")
+            // 如果不是循环播放，作为完成音效
+            // 停止之前的完成音效
+            currentSound?.stop()
+            
+            // 获取音频文件路径
+            guard let audioURL = getAudioURL(fileName: fileName) else {
+                print("找不到音频文件: \(fileName)")
+                return
+            }
+            
+            // 创建完成音效实例
+            currentSound = NSSound(contentsOf: audioURL, byReference: false)
+            
+            guard let sound = currentSound else {
+                print("创建完成音效播放器失败: \(fileName)")
+                return
+            }
+            
+            // 设置不循环播放
+            sound.loops = false
+            
+            // 开始播放
+            if sound.play() {
+                print("开始播放完成音效: \(fileName)")
+            } else {
+                print("播放完成音效失败: \(fileName)")
+            }
         }
     }
     
@@ -72,11 +104,13 @@ class TDAudioManager: NSObject {
     func stopAudio() {
         currentSound?.stop()
         currentSound = nil
+        backgroundSound?.stop()
+        backgroundSound = nil
     }
     
     /// 检查是否正在播放
     var isPlaying: Bool {
-        return currentSound?.isPlaying == true
+        return (currentSound?.isPlaying == true) || (backgroundSound?.isPlaying == true)
     }
     
     // MARK: - 私有方法

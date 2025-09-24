@@ -7,6 +7,7 @@
 
 import Foundation
 import OSLog
+import SwiftData
 
 /// 番茄数据管理器
 @MainActor
@@ -90,4 +91,95 @@ final class TDTomatoManager: ObservableObject {
             }
         }
     }
+    
+    // MARK: - 插入专注记录
+    
+    /// 插入专注记录到本地数据库
+    /// - Parameter record: 专注记录
+    func insertTomatoRecord(_ record: TDTomatoRecordModel) {
+        do {
+            // 转换为本地模型
+            let localRecord = record.toLocalModel()
+            
+            // 插入到数据库
+            TDModelContainer.shared.insert(localRecord)
+            try TDModelContainer.shared.save()
+            
+            print("✅ 专注记录已插入到本地数据库")
+        } catch {
+            print("❌ 插入专注记录失败: \(error)")
+        }
+    }
+    
+    // MARK: - 更新专注记录状态
+    
+    /// 更新专注记录状态为已同步
+    /// - Parameter record: 要更新的记录
+    func updateTomatoRecordToSynced(_ record: TDTomatoRecordLocalModel) {
+        record.status = "sync"
+        do {
+            try TDModelContainer.shared.save()
+            print("✅ 专注记录状态已更新为已同步")
+        } catch {
+            print("❌ 更新专注记录状态失败: \(error)")
+        }
+    }
+    
+    // MARK: - 查询专注记录
+    
+    /// 获取需要同步的专注记录（状态为 add 且用户ID匹配）
+    /// - Returns: 需要同步的专注记录数组
+    func getUnsyncedTomatoRecords() -> [TDTomatoRecordLocalModel] {
+        let userId = Int64(TDUserManager.shared.userId)
+        do {
+            let descriptor = FetchDescriptor<TDTomatoRecordLocalModel>(
+                predicate: #Predicate { record in
+                    record.status == "add" && record.userId == userId
+                }
+            )
+            return try TDModelContainer.shared.mainContext.fetch(descriptor)
+        } catch {
+            print("❌ 获取未同步专注记录失败: \(error)")
+            return []
+        }
+    }
+    
+    /// 获取需要同步的专注记录并转换为服务器数据模型的JSON
+    /// - Returns: 服务器数据模型的JSON字符串
+    func getUnsyncedTomatoRecordsAsJson() -> String? {
+        let localRecords = getUnsyncedTomatoRecords()
+        
+        // 转换为服务器数据模型
+        let serverRecords = localRecords.map { $0.toServerModel() }
+        
+        // 转换为JSON
+        return TDSwiftJsonUtil.arrayToJson(serverRecords)
+    }
+
+    // MARK: - 网络请求方法
+    
+    /// 获取今日番茄数据
+    func fetchTodayTomato() async {
+        do {
+            let tomato = try await TDTomatoAPI.shared.getTodayTomato()
+            updateTodayTomato(tomato)
+            os_log(.info, log: logger, "✅ 获取今日番茄数据成功")
+        } catch {
+            os_log(.error, log: logger, "❌ 获取今日番茄数据失败: %@", error.localizedDescription)
+        }
+    }
+    
+    /// 获取番茄钟记录列表
+    func fetchTomatoRecords() async -> [TDTomatoRecordModel] {
+        do {
+            let records = try await TDTomatoAPI.shared.getTomatoRecord()
+            os_log(.info, log: logger, "✅ 获取番茄钟记录成功，共 %d 条", records.count)
+            return records
+        } catch {
+            os_log(.error, log: logger, "❌ 获取番茄钟记录失败: %@", error.localizedDescription)
+            return []
+        }
+    }
+
+    
 }

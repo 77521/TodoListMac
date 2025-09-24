@@ -16,7 +16,10 @@ struct TodoMacRepertorieApp: App {
     @StateObject private var settingManager = TDSettingManager.shared
     @StateObject private var mainViewModel = TDMainViewModel.shared
 
+    @StateObject private var scheduleModel = TDScheduleOverviewViewModel.shared
+    @StateObject private var tomatoManager = TDTomatoManager.shared
 
+    
     
     var body: some Scene {
         WindowGroup {
@@ -26,6 +29,8 @@ struct TodoMacRepertorieApp: App {
                         .environmentObject(themeManager)
                         .environmentObject(settingManager)
                         .environmentObject(mainViewModel)
+                        .environmentObject(scheduleModel)
+                        .environmentObject(tomatoManager)
                 } else {
                     TDLoginView()
                         .frame(width: 932, height: 621)

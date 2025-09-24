@@ -105,43 +105,38 @@ struct TDTaskListView: View {
                 .padding(.top, 60)
             } else {
                 // 分组列表
-                List {
-                    // 过期已达成组
-                    if shouldShowOverdueCompletedGroup {
-                        overdueCompletedGroup
-                    }
-                    // 过期未达成组
-                    if shouldShowOverdueUncompletedGroup {
-                        overdueUncompletedGroup
-                    }
-                    // 今天组
-                    if !todayTasks.isEmpty {
-                        todayGroup
-                    }
-                    // 明天组
-                    if !tomorrowTasks.isEmpty {
-                        tomorrowGroup
-                    }
-                    // 后天组
-                    if !dayAfterTomorrowTasks.isEmpty {
-                        dayAfterTomorrowGroup
-                    }
-                    // 后续日程组
-                    if !futureScheduleTasks.isEmpty {
-                        futureScheduleGroup
-                    }
-                    // 无日期组
-                    if shouldShowNoDateGroup {
-                        noDateGroup
+                ScrollView {
+                    LazyVStack(spacing: 0) {
+                        // 过期已达成组
+                        if shouldShowOverdueCompletedGroup {
+                            overdueCompletedGroup
+                        }
+                        // 过期未达成组
+                        if shouldShowOverdueUncompletedGroup {
+                            overdueUncompletedGroup
+                        }
+                        // 今天组
+                        if !todayTasks.isEmpty {
+                            todayGroup
+                        }
+                        // 明天组
+                        if !tomorrowTasks.isEmpty {
+                            tomorrowGroup
+                        }
+                        // 后天组
+                        if !dayAfterTomorrowTasks.isEmpty {
+                            dayAfterTomorrowGroup
+                        }
+                        // 后续日程组
+                        if !futureScheduleTasks.isEmpty {
+                            futureScheduleGroup
+                        }
+                        // 无日期组
+                        if shouldShowNoDateGroup {
+                            noDateGroup
+                        }
                     }
                 }
-                .listStyle(.plain)
-                .scrollContentBackground(.hidden)
-                .background(Color.clear)
-                // 性能优化配置
-                .environment(\.defaultMinListRowHeight, 44)
-                .environment(\.defaultMinListHeaderHeight, 36)
-                // 禁用滚动指示器，提升性能
                 .scrollIndicators(.hidden)
             }
         }
@@ -319,9 +314,6 @@ struct TDTaskListView: View {
                 }
             }
         )
-        .listRowInsets(EdgeInsets())
-        .listRowBackground(Color.clear)
-        .listRowSeparator(.hidden)
     }
     
     /// 分组头部视图
@@ -446,3 +438,255 @@ struct TDTaskListView: View {
     ))
     .environmentObject(TDThemeManager.shared)
 }
+
+//
+//  TDTaskListView.swift
+//  TodoMacRepertorie
+//
+//  Created by 孬孬 on 2024/12/28.
+//
+
+//import SwiftUI
+//import SwiftData
+//import Foundation
+//
+//
+///// 自定义 DisclosureGroup 样式
+////struct CustomDisclosureGroupStyle: DisclosureGroupStyle {
+////    func makeBody(configuration: Configuration) -> some View {
+////        VStack(alignment: .leading, spacing: 0) {
+////            configuration.label
+////            if configuration.isExpanded {
+////                configuration.content
+////                    .transition(.asymmetric(
+////                        insertion: .opacity.combined(with: .move(edge: .top)).animation(.easeOut(duration: 0.15)),
+////                        removal: .opacity.combined(with: .move(edge: .bottom)).animation(.easeIn(duration: 0.15))
+////                    ))
+////            }
+////        }
+////        .animation(.easeInOut(duration: 0.15), value: configuration.isExpanded)
+////    }
+////}
+//
+//struct CustomDisclosureGroupStyle: DisclosureGroupStyle {
+//    func makeBody(configuration: Configuration) -> some View {
+//        VStack {
+//            // 自定义标签，不显示系统箭头
+//            configuration.label
+//            if configuration.isExpanded {
+//                configuration.content
+//            }
+//        }
+//    }
+//}
+//
+///// 任务列表界面 - 用于最近待办、未分类和用户分类
+//struct TDTaskListView: View {
+//    @Environment(\.modelContext) private var modelContext
+//    
+//    let category: TDSliderBarModel
+//    // 状态变量：控制复制成功Toast的显示
+//    @State private var showCopySuccessToast = false
+//    // 监听多选模式状态变化
+//    @ObservedObject private var mainViewModel = TDMainViewModel.shared
+//    
+//    // 分组展开状态管理
+//    @State private var expandedGroups: Set<String> = ["今天"]
+//
+//    // MARK: - 分组ID（直接使用枚举的rawValue）
+//    // 过期已达成=0, 过期未达成=1, 今天=2, 明天=3, 后天=4, 后续日程=5, 无日期=6
+//    
+//    // 为每个分组定义单独的 @Query，分别查询各个分组的任务数据
+//    @Query private var overdueCompletedTasks: [TDMacSwiftDataListModel]  // 过期已完成任务
+//    @Query private var overdueUncompletedTasks: [TDMacSwiftDataListModel]  // 过期未完成任务
+//    @Query private var todayTasks: [TDMacSwiftDataListModel]  // 今天任务
+//    @Query private var tomorrowTasks: [TDMacSwiftDataListModel]  // 明天任务
+//    @Query private var dayAfterTomorrowTasks: [TDMacSwiftDataListModel]  // 后天任务
+//    @Query private var futureScheduleTasks: [TDMacSwiftDataListModel]  // 后续日程任务
+//    @Query private var noDateTasks: [TDMacSwiftDataListModel]  // 无日期任务
+//    
+//    init(category: TDSliderBarModel) {
+//        self.category = category
+//        
+//        // 根据分类ID初始化查询条件
+//        let categoryId = category.categoryId
+//        
+//        // 初始化各个分组的查询条件
+//        let (overdueCompletedPredicate, overdueCompletedSort) = TDCorrectQueryBuilder.getExpiredCompletedQuery(categoryId: categoryId)
+//        let (overdueUncompletedPredicate, overdueUncompletedSort) = TDCorrectQueryBuilder.getExpiredUncompletedQuery(categoryId: categoryId)
+//        let (todayPredicate, todaySort) = TDCorrectQueryBuilder.getTodayQuery(categoryId: categoryId)
+//        let (tomorrowPredicate, tomorrowSort) = TDCorrectQueryBuilder.getTomorrowQuery(categoryId: categoryId)
+//        let (dayAfterTomorrowPredicate, dayAfterTomorrowSort) = TDCorrectQueryBuilder.getDayAfterTomorrowQuery(categoryId: categoryId)
+//        let (futureSchedulePredicate, futureScheduleSort) = TDCorrectQueryBuilder.getFutureScheduleQuery(categoryId: categoryId)
+//        let (noDatePredicate, noDateSort) = TDCorrectQueryBuilder.getNoDateQuery(categoryId: categoryId)
+//        
+//        // 初始化各个 @Query，分别查询各个分组的任务数据
+//        _overdueCompletedTasks = Query(filter: overdueCompletedPredicate, sort: overdueCompletedSort)
+//        _overdueUncompletedTasks = Query(filter: overdueUncompletedPredicate, sort: overdueUncompletedSort)
+//        _todayTasks = Query(filter: todayPredicate, sort: todaySort)
+//        _tomorrowTasks = Query(filter: tomorrowPredicate, sort: tomorrowSort)
+//        _dayAfterTomorrowTasks = Query(filter: dayAfterTomorrowPredicate, sort: dayAfterTomorrowSort)
+//        _futureScheduleTasks = Query(filter: futureSchedulePredicate, sort: futureScheduleSort)
+//        _noDateTasks = Query(filter: noDatePredicate, sort: noDateSort)
+//    }
+//    
+//    var body: some View {
+//        List {
+//                // 测试分组1 - 今天
+//                DisclosureGroup(
+//                    isExpanded: Binding(
+//                        get: { expandedGroups.contains("今天") },
+//                        set: { isExpanded in
+//                            toggleGroupExpansion(for: "今天")
+//                        }
+//                    ),
+//                    content: {
+//                        ForEach(["完成项目文档", "参加团队会议", "回复客户邮件"], id: \.self) { taskTitle in
+//                            HStack {
+//                                Text(taskTitle)
+//                                    .font(.system(size: 14))
+//                                Spacer()
+//                                Text("今天")
+//                                    .font(.system(size: 12))
+//                                    .foregroundColor(.secondary)
+//                            }
+//                            .padding(.horizontal, 16)
+//                            .padding(.vertical, 8)
+//                            .background(Color.gray)
+//                            .cornerRadius(8)
+//                        }
+//                    },
+//                    label: {
+//                        HStack {
+//                            Text("今天")
+//                                .font(.system(size: 14, weight: .medium))
+//                            Spacer()
+//                            Text("3")
+//                                .font(.system(size: 11, weight: .medium))
+//                                .foregroundColor(.secondary)
+//                                .padding(.horizontal, 6)
+//                                .padding(.vertical, 2)
+//                                .background(
+//                                    RoundedRectangle(cornerRadius: 8)
+//                                        .fill(Color.gray)
+//                                )
+//                        }
+//                        .padding(.horizontal, 16)
+//                        .frame(height: 36)
+//                        .background(Color.blue)
+//                        .contentShape(Rectangle())
+//                        .onTapGesture {
+//                            toggleGroupExpansion(for: "今天")
+//                        }
+//                    }
+//                )
+////                .disclosureGroupStyle(CustomDisclosureGroupStyle())
+//                .overlay(
+//                                    // 用透明视图覆盖系统箭头，保持系统动画
+//                                    HStack {
+//                                        Spacer()
+//                                        Color.clear
+//                                            .frame(width: 20, height: 20)
+//                                    }
+//                                )
+//                // 测试分组2 - 明天
+//                DisclosureGroup(
+//                    isExpanded: Binding(
+//                        get: { expandedGroups.contains("明天") },
+//                        set: { isExpanded in
+//                            toggleGroupExpansion(for: "明天")
+//                        }
+//                    ),
+//                    content: {
+//                        ForEach(101...200, id: \.self) { index in
+//                            TaskRowView1(
+//                                title: "任务 \(index)",
+//                                subtitle: "明天",
+//                                index: index
+//                            )
+//                        }
+//                    },
+//                    label: {
+//                        HStack {
+//                            Text("明天")
+//                                .font(.system(size: 14, weight: .medium))
+//                            Spacer()
+//                            Text("2")
+//                                .font(.system(size: 11, weight: .medium))
+//                                .foregroundColor(.secondary)
+//                                .padding(.horizontal, 6)
+//                                .padding(.vertical, 2)
+//                                .background(
+//                                    RoundedRectangle(cornerRadius: 8)
+//                                        .fill(Color.gray)
+//                                )
+//                        }
+//                        .padding(.horizontal, 16)
+//                        .frame(height: 36)
+//                        .background(Color.green)
+//                        .contentShape(Rectangle())
+//                        .onTapGesture {
+//                            toggleGroupExpansion(for: "明天")
+//                        }
+//                    }
+//                )
+////                .disclosureGroupStyle(CustomDisclosureGroupStyle())
+//        }
+//        .listStyle(.sidebar)
+//    }
+//    
+//    /// 切换分组展开状态
+//    private func toggleGroupExpansion(for groupId: String) {
+//        withAnimation(.easeInOut(duration: 0.2)) {
+//            if expandedGroups.contains(groupId) {
+//                expandedGroups.remove(groupId)
+//            } else {
+//                expandedGroups.insert(groupId)
+//            }
+//        }
+//    }
+//}
+///// 优化的任务行视图 - 使用 Identifiable 和 Equatable 提升性能
+//struct TaskRowView1: View, Identifiable, Equatable {
+//    let id: Int
+//    let title: String
+//    let subtitle: String
+//    
+//    init(title: String, subtitle: String, index: Int) {
+//        self.id = index
+//        self.title = title
+//        self.subtitle = subtitle
+//    }
+//    
+//    var body: some View {
+//        HStack {
+//            Text(title)
+//                .font(.system(size: 14))
+//                .lineLimit(1)
+//            Spacer()
+//            Text(subtitle)
+//                .font(.system(size: 12))
+//                .foregroundColor(.secondary)
+//        }
+//        .padding(.horizontal, 16)
+//        .padding(.vertical, 6)
+//        .background(Color.gray)
+//        .cornerRadius(6)
+//    }
+//    
+////    // Equatable 实现 - 只有内容变化时才重新渲染
+////    static func == (lhs: TaskRowView1, rhs: TaskRowView1) -> Bool {
+////        return lhs.id == rhs.id && lhs.title == rhs.title && lhs.subtitle == rhs.subtitle
+////    }
+//}
+//
+//#Preview {
+//    TDTaskListView(category: TDSliderBarModel(
+//        categoryId: 1,
+//        categoryName: "示例分类",
+//        headerIcon: nil,
+//        categoryColor: "#FF6B6B",
+//        unfinishedCount: 5,
+//        isSelect: false
+//    ))
+//}

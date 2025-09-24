@@ -110,13 +110,8 @@ final class TDMainViewModel: ObservableObject {
         }
         
         Task {
-            do {
-                let tomatoData = try await TDTomatoAPI.shared.getTodayTomato()
-                TDTomatoManager.shared.updateTodayTomato(tomatoData)
-                os_log(.info, log: logger, "✅ 番茄数据获取成功")
-            } catch {
-                os_log(.error, log: logger, "❌ 番茄请求失败: %@", error.localizedDescription)
-            }
+            await TDTomatoManager.shared.fetchTodayTomato()
+            os_log(.info, log: logger, "✅ 番茄数据获取成功")
         }
         
         Task {

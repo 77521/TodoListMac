@@ -20,7 +20,22 @@ class TDQueryConditionManager {
     
 //    private init() {}
     
+    // MARK: - 根据日期查询任务
     
+    /// 根据选择的日期查询任务数据
+    /// - Parameters:
+    ///   - selectedDate: 选择的日期
+    ///   - context: SwiftData 上下文
+    /// - Returns: 任务列表
+    func getTasksByDate(selectedDate: Date, context: ModelContext) async throws -> [TDMacSwiftDataListModel] {
+        let (predicate, sortDescriptors) = TDCorrectQueryBuilder.getDayTodoQuery(selectedDate: selectedDate)
+        let descriptor = FetchDescriptor<TDMacSwiftDataListModel>(
+            predicate: predicate,
+            sortBy: sortDescriptors
+        )
+        return try context.fetch(descriptor)
+    }
+
     // MARK: - 获取本地最大 version 值
     
     /// 获取本地最大 version 值（用于同步流程）

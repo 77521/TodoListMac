@@ -17,24 +17,6 @@ enum CopyType {
     case toSpecificDate  // 创建副本到指定日期
 }
 
-
-
-struct CustomDisclosureGroupStyle: DisclosureGroupStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        VStack(alignment: .leading, spacing: 0) {
-            configuration.label
-            if configuration.isExpanded {
-                configuration.content
-                    .transition(.asymmetric(
-                        insertion: .opacity.combined(with: .move(edge: .top)).animation(.easeOut(duration: 0.3)),
-                        removal: .opacity.combined(with: .move(edge: .top)).animation(.easeIn(duration: 0.25))
-                    ))
-            }
-        }
-        .animation(.easeInOut(duration: 0.4), value: configuration.isExpanded)
-    }
-}
-
 /// 通用任务行视图组件
 struct TDTaskRowView: View , Equatable{
     let task: TDMacSwiftDataListModel
@@ -406,39 +388,39 @@ struct TDTaskRowView: View , Equatable{
             }
         }
         // 左滑功能
-        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-            if !mainViewModel.isMultiSelectMode {
-                // 删除按钮 - 永远显示
-                Button(role: .destructive, action: deleteTask) {
-                    Image(systemName: "trash.fill")
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(.white)
-                }
-                .tint(TDThemeManager.shared.fixedColor(themeId: "new_year_red", level: 5))
-                
-                // 置底按钮 - 只在 DayTodo 且不是最后一行时显示
-                if category?.categoryId == -100 && !isLastRow {
-                    Button(action: moveToBottom) {
-                        Image(systemName: "arrowshape.down.fill")
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(.white)
-                    }
-                    .tint(TDThemeManager.shared.fixedColor(themeId: "wish_orange", level: 5))
-                }
-                
-                // 置顶按钮 - 只在 DayTodo 且不是第一行时显示
-                if category?.categoryId == -100 && !isFirstRow {
-                    Button(action: moveToTop) {
-                        Image(systemName: "arrowshape.up.fill")
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(.white)
-                    }
-                    .tint(Color.fromHex("#404040"))
-                }
-            }
-            
-            
-        }
+//        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+//            if !mainViewModel.isMultiSelectMode {
+//                // 删除按钮 - 永远显示
+//                Button(role: .destructive, action: deleteTask) {
+//                    Image(systemName: "trash.fill")
+//                        .font(.system(size: 16, weight: .medium))
+//                        .foregroundColor(.white)
+//                }
+//                .tint(TDThemeManager.shared.fixedColor(themeId: "new_year_red", level: 5))
+//                
+//                // 置底按钮 - 只在 DayTodo 且不是最后一行时显示
+//                if category?.categoryId == -100 && !isLastRow {
+//                    Button(action: moveToBottom) {
+//                        Image(systemName: "arrowshape.down.fill")
+//                            .font(.system(size: 16, weight: .medium))
+//                            .foregroundColor(.white)
+//                    }
+//                    .tint(TDThemeManager.shared.fixedColor(themeId: "wish_orange", level: 5))
+//                }
+//                
+//                // 置顶按钮 - 只在 DayTodo 且不是第一行时显示
+//                if category?.categoryId == -100 && !isFirstRow {
+//                    Button(action: moveToTop) {
+//                        Image(systemName: "arrowshape.up.fill")
+//                            .font(.system(size: 16, weight: .medium))
+//                            .foregroundColor(.white)
+//                    }
+//                    .tint(Color.fromHex("#404040"))
+//                }
+//            }
+//            
+//            
+//        }
         
         // Performance optimizations
 //        .equatable()

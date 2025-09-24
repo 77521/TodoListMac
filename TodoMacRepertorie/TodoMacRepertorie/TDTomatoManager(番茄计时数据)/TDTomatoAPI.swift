@@ -19,6 +19,13 @@ actor TDTomatoAPI {
             responseType: TDTomatoModel.self
         )
     }
+    
+    // MARK: - 获取番茄钟记录列表
+    func getTomatoRecord() async throws -> [TDTomatoRecordModel] {
+        return try await TDNetworkManager.shared.fetchList(
+            endpoint: "getTomatoRecord"
+        )
+    }
 }
 
 /// 番茄数据模型
