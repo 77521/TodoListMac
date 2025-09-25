@@ -385,8 +385,8 @@ struct TDAddFocusRecordView: View {
         let record = TDTomatoRecordModel(
             userId: userId,
             tomatoId: tomatoId,
-            taskContent: selectedTask?.taskContent,
-            taskId: selectedTask?.taskId,
+            taskContent: selectedTask?.taskContent ?? "null",  // 空值时传 "null"
+            taskId: selectedTask?.taskId ?? "null",          // 空值时传 "null"
             startTime: startTime.fullTimestamp,
             endTime: restEndTime.fullTimestamp,
             focus: true, // 手动添加的记录默认专注成功

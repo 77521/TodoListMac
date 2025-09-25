@@ -26,6 +26,15 @@ actor TDTomatoAPI {
             endpoint: "getTomatoRecord"
         )
     }
+    
+    // MARK: - 同步番茄钟记录到服务器
+    func syncTomatoRecords(_ recordsJson: String) async throws -> [TDTomatoSyncResultModel] {
+        let parameters = ["tomatoJson": recordsJson]
+        return try await TDNetworkManager.shared.fetchList(
+            endpoint: "syncTomato",
+            parameters: parameters
+        )
+    }
 }
 
 /// 番茄数据模型
@@ -33,3 +42,8 @@ struct TDTomatoModel: Codable {
     let tomatoNum: Int
     let tomatoSnowAdd: Int
 } 
+// MARK: - 同步番茄钟记录响应模型
+struct TDTomatoSyncResultModel: Codable {
+    let succeed: Bool
+    let tomatoId: String
+}

@@ -270,15 +270,32 @@ struct TDTaskRowView: View , Equatable{
                         Spacer()
                     }
                     // 专注按钮（右边居中）
-                    Button(action: startFocus) {
+                    
+                    Button {
+                        // 设置专注关联的任务
+                        mainViewModel.setFocusTask(task)
+
+                    } label: {
                         Image(systemName: "timer")
                             .font(.system(size: 14))
                             .foregroundColor(themeManager.color(level: 5))
                             .frame(width: 32, height: 32)
                             .background(themeManager.color(level: 5).opacity(0.1))
                             .clipShape(Circle())
+
                     }
                     .buttonStyle(PlainButtonStyle())
+
+                    
+//                    Button(action: startFocus) {
+//                        Image(systemName: "timer")
+//                            .font(.system(size: 14))
+//                            .foregroundColor(themeManager.color(level: 5))
+//                            .frame(width: 32, height: 32)
+//                            .background(themeManager.color(level: 5).opacity(0.1))
+//                            .clipShape(Circle())
+//                    }
+//                    .buttonStyle(PlainButtonStyle())
                 }
             }
             .padding(.horizontal, 16)

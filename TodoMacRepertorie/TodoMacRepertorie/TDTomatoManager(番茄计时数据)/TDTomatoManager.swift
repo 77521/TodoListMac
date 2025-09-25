@@ -127,6 +127,27 @@ final class TDTomatoManager: ObservableObject {
     
     // MARK: - 查询专注记录
     
+    /// 根据番茄钟ID查询专注记录
+    /// - Parameter tomatoId: 番茄钟ID
+    /// - Returns: 匹配的专注记录，如果没有找到则返回nil
+    func getTomatoRecord(tomatoId: String) -> TDTomatoRecordLocalModel? {
+        let userId = Int64(TDUserManager.shared.userId)
+        
+        do {
+            let descriptor = FetchDescriptor<TDTomatoRecordLocalModel>(
+                predicate: #Predicate { record in
+                    record.tomatoId == tomatoId && record.userId == userId
+                }
+            )
+            let records = try TDModelContainer.shared.mainContext.fetch(descriptor)
+            return records.first
+        } catch {
+            os_log(.error, log: logger, "❌ 根据番茄钟ID查询记录失败: %@", error.localizedDescription)
+            return nil
+        }
+    }
+
+    
     /// 获取需要同步的专注记录（状态为 add 且用户ID匹配）
     /// - Returns: 需要同步的专注记录数组
     func getUnsyncedTomatoRecords() -> [TDTomatoRecordLocalModel] {
@@ -178,6 +199,49 @@ final class TDTomatoManager: ObservableObject {
         } catch {
             os_log(.error, log: logger, "❌ 获取番茄钟记录失败: %@", error.localizedDescription)
             return []
+        }
+    }
+
+    /// 同步未同步的专注记录到服务器
+    func syncUnsyncedRecords() async {
+        do {
+            // 获取未同步的记录JSON
+            guard let recordsJson = getUnsyncedTomatoRecordsAsJson(),
+                  !recordsJson.isEmpty else {
+                os_log(.info, log: logger, "📝 没有需要同步的专注记录")
+                return
+            }
+            
+            // 调用API同步
+            let results = try await TDTomatoAPI.shared.syncTomatoRecords(recordsJson)
+            
+            // 处理同步结果
+            var successCount = 0
+            var failedCount = 0
+            
+            for result in results {
+                if result.succeed {
+                    // 同步成功，通过 tomatoId 查询本地记录并更新状态
+                    if let record = getTomatoRecord(tomatoId: result.tomatoId) {
+                        updateTomatoRecordToSynced(record)
+                        successCount += 1
+                        os_log(.debug, log: logger, "✅ 同步成功，更新记录: %@", result.tomatoId)
+                    } else {
+                        os_log(.info, log: logger, "⚠️ 同步成功但未找到本地记录: %@", result.tomatoId)
+                        failedCount += 1
+                    }
+                } else {
+                    failedCount += 1
+                    os_log(.error, log: logger, "❌ 同步失败: %@", result.tomatoId)
+                }
+            }
+
+            os_log(.info, log: logger, "✅ 专注记录同步完成，成功: %d 条，失败: %d 条", successCount, failedCount)
+            // 同步结束后，更新今日番茄数据
+            await fetchTodayTomato()
+
+        } catch {
+            os_log(.error, log: logger, "❌ 专注记录同步失败: %@", error.localizedDescription)
         }
     }
 

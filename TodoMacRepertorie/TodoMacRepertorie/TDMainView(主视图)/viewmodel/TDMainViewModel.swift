@@ -40,6 +40,9 @@ final class TDMainViewModel: ObservableObject {
     
     /// 当前选中的任务（单选模式）
     @Published var selectedTask: TDMacSwiftDataListModel?
+    
+    /// 专注关联的任务（专门用于专注功能）
+    @Published var focusTask: TDMacSwiftDataListModel?
 
     // MARK: - 私有属性
     
@@ -49,10 +52,22 @@ final class TDMainViewModel: ObservableObject {
     /// 模型容器
     private let modelContainer: TDModelContainer
     
-    private init() {        
+    /// 上次请求的日期（用于检测隔天）
+    private var lastRequestDate: String = ""
+    
+    /// 定时器（用于检测日期变化）
+    private var dateCheckTimer: Timer?
+    
+    /// 应用进入后台的时间
+    private var backgroundTime: Date?
+
+    
+    private init() {
         // 确保在主线程初始化 modelContainer
         assert(Thread.isMainThread, "TDMainViewModel 必须在主线程初始化")
         self.modelContainer = TDModelContainer.shared
+        // 监听应用生命周期
+        setupAppLifecycleObserver()
     }
 
     /// 选择分类
@@ -390,4 +405,69 @@ final class TDMainViewModel: ObservableObject {
         selectedTask = task
     }
 
+    /// 设置专注关联的任务
+    func setFocusTask(_ task: TDMacSwiftDataListModel?) {
+        os_log(.info, log: logger, "🍅 设置专注任务: \(task?.taskContent ?? "无")")
+        focusTask = task
+    }
+
+    
+    /// 设置应用生命周期监听
+      func setupAppLifecycleObserver() {
+          // 监听应用进入后台
+          NotificationCenter.default.addObserver(
+              forName: NSApplication.didResignActiveNotification,
+              object: nil,
+              queue: .main
+          ) { [weak self] _ in
+              Task { @MainActor in
+                  self?.handleAppDidEnterBackground()
+              }
+          }
+          
+          // 监听应用进入前台
+          NotificationCenter.default.addObserver(
+              forName: NSApplication.didBecomeActiveNotification,
+              object: nil,
+              queue: .main
+          ) { [weak self] _ in
+              Task { @MainActor in
+                  self?.handleAppDidEnterForeground()
+              }
+          }
+      }
+      
+      /// 应用进入后台处理
+      private func handleAppDidEnterBackground() {
+          backgroundTime = Date()
+          os_log(.info, log: logger, "📱 应用进入后台，记录时间: \(self.backgroundTime?.toString(format: "HH:mm:ss") ?? "未知")")
+      }
+      
+      /// 应用进入前台处理
+      private func handleAppDidEnterForeground() {
+          guard let backgroundTime = backgroundTime else {
+              os_log(.debug, log: logger, "📱 应用进入前台，但没有后台时间记录")
+              return
+          }
+          
+          let foregroundTime = Date()
+          let timeInterval = foregroundTime.timeIntervalSince(backgroundTime)
+          let secondsAway = Int(timeInterval)
+          
+          os_log(.info, log: logger, "📱 应用进入前台，离开后台时长: \(secondsAway)秒")
+          
+          // 如果离开后台超过8秒，重新请求数据
+          if secondsAway >= 1800 {
+              os_log(.info, log: logger, "🔄 离开后台超过8秒，开始重新请求数据")
+              Task {
+                  await performInitialServerRequests()
+              }
+          } else {
+              os_log(.debug, log: logger, "⏰ 离开后台时间不足8秒，跳过数据请求")
+          }
+
+          // 重置后台时间
+          self.backgroundTime = nil
+      }
+      
 }
