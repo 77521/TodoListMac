@@ -78,6 +78,7 @@ final class TDMainViewModel: ObservableObject {
             selectedCategory = category
             // 切换分类时退出多选模式
             exitMultiSelectMode()
+            selectedTask = nil
 
         }
     }
@@ -403,6 +404,7 @@ final class TDMainViewModel: ObservableObject {
     func selectTask(_ task: TDMacSwiftDataListModel) {
         os_log(.info, log: logger, "🎯 选择任务: \(task.taskContent)")
         selectedTask = task
+
     }
 
     /// 设置专注关联的任务

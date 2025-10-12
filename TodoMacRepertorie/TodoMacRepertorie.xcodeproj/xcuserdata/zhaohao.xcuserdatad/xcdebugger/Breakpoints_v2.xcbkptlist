@@ -3,22 +3,4 @@
    uuid = "EBB527A6-FDB9-48C8-AA0F-4BA1923E8749"
    type = "1"
    version = "2.0">
-   <Breakpoints>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "069BA1C5-BA8D-4880-93AF-FD5F7A8DDBDB"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "TodoMacRepertorie/TDManager(&#x5171;&#x7528;)/TDQueryConditionManager(&#x6570;&#x636e;&#x5e93;&#x67e5;&#x8be2;&#x6761;&#x4ef6;)/TDCorrectQueryBuilder.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "111"
-            endingLineNumber = "111"
-            landmarkName = "getExpiredCompletedQuery(categoryId:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-   </Breakpoints>
 </Bucket>

@@ -417,3 +417,49 @@
 //#Preview {
 //    TDCalendarView()
 //}
+
+//
+//  TDCalendarView.swift
+//  TodoMacRepertorie
+//
+//  Created by 赵浩 on 2025/3/4.
+//
+
+import SwiftUI
+
+/// 日历视图 - 独立的日历组件，支持农历、节日、任务显示
+struct TDCalendarView: View {
+    /// 主题管理器
+    @EnvironmentObject private var themeManager: TDThemeManager
+    
+    /// 设置管理器
+    @EnvironmentObject private var settingManager: TDSettingManager
+    
+    /// 日历管理器
+    @StateObject private var calendarManager = TDCalendarManager.shared
+    
+    /// 日程概览视图模型
+    @EnvironmentObject private var viewModel: TDScheduleOverviewViewModel
+
+    var body: some View {
+        VStack(spacing: 0) {
+            // 星期标题行
+            TDScheduleWeekdayView()
+            
+            // 日历网格
+            TDCalendarGridView()
+        }
+        .task {
+            // 视图出现时更新日历数据
+            try? await calendarManager.updateCalendarData()
+        }
+        
+    }
+}
+
+// MARK: - 预览
+#Preview {
+    TDCalendarView()
+        .environmentObject(TDThemeManager.shared)
+        .environmentObject(TDSettingManager.shared)
+}

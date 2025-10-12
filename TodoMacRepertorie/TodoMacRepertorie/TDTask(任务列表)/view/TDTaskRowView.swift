@@ -125,7 +125,8 @@ struct TDTaskRowView: View , Equatable{
                             
                         }
                         .buttonStyle(PlainButtonStyle())
-                        
+                        .pointingHandCursor()
+
                         // 任务内容
                         VStack(alignment: .leading, spacing: 6) {
                             // 任务标题
@@ -214,6 +215,7 @@ struct TDTaskRowView: View , Equatable{
                                     )
                                 }
                                 .buttonStyle(PlainButtonStyle())
+                                .pointingHandCursor()
                                 .contentShape(Rectangle())
                                 
                                 // 子任务列表
@@ -251,6 +253,7 @@ struct TDTaskRowView: View , Equatable{
                                                         .contentShape(Rectangle())
                                                     }
                                                     .buttonStyle(PlainButtonStyle())
+                                                    .pointingHandCursor()
                                                 }
                                                 
                                                 Text(subTask.content)
@@ -285,6 +288,7 @@ struct TDTaskRowView: View , Equatable{
 
                     }
                     .buttonStyle(PlainButtonStyle())
+                    .pointingHandCursor()
 
                     
 //                    Button(action: startFocus) {
@@ -336,6 +340,7 @@ struct TDTaskRowView: View , Equatable{
             } else {
                 // 单选模式下，选择任务并传递完整数据模型
                 mainViewModel.selectTask(task)
+                
             }
         }
         .contextMenu {

@@ -16,7 +16,7 @@ struct TDTomatoRecordModel: Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
         self.id = try container.decodeIfPresent(Int64.self, forKey: .id)
-        self.userId = try container.decode(Int64.self, forKey: .userId)
+        self.userId = try container.decode(Int.self, forKey: .userId)
         self.tomatoId = try container.decode(String.self, forKey: .tomatoId)
         self.taskContent = try container.decodeIfPresent(String.self, forKey: .taskContent)
         self.taskId = try container.decodeIfPresent(String.self, forKey: .taskId)
@@ -35,7 +35,7 @@ struct TDTomatoRecordModel: Codable {
     /// 记录ID
     let id: Int64?
     /// 用户ID
-    let userId: Int64
+    let userId: Int
     /// 番茄钟ID（唯一标识）
     let tomatoId: String
     /// 任务内容
@@ -64,7 +64,7 @@ struct TDTomatoRecordModel: Codable {
     /// 便利初始化方法（用于本地创建记录）
     init(
         id: Int64? = nil,
-        userId: Int64,
+        userId: Int,
         tomatoId: String,
         taskContent: String? = nil,
         taskId: String? = nil,
@@ -76,7 +76,7 @@ struct TDTomatoRecordModel: Codable {
         restDuration: Int,
         snowAdd: Int = 0,
         syncTime: Int64,
-        status: String = "synced"
+        status: String = "sync"
     ) {
         self.id = id
         self.userId = userId
@@ -102,7 +102,7 @@ class TDTomatoRecordLocalModel {
     /// 记录ID
     var id: Int64?
     /// 用户ID
-    var userId: Int64
+    var userId: Int
     /// 番茄钟ID（唯一标识）
     var tomatoId: String
     /// 任务内容
@@ -130,7 +130,7 @@ class TDTomatoRecordLocalModel {
     
     init(
         id: Int64? = nil,
-        userId: Int64,
+        userId: Int,
         tomatoId: String,
         taskContent: String? = nil,
         taskId: String? = nil,

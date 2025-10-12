@@ -85,6 +85,7 @@ struct TDRepeatCommonOptions: View {
                             .foregroundColor(themeManager.titleTextColor)
                     }
                     .buttonStyle(PlainButtonStyle())
+                    .pointingHandCursor()
                     .frame(width: 30, height: 30)
                     
                     TextField("1", value: $repeatCount, format: .number)
@@ -112,6 +113,7 @@ struct TDRepeatCommonOptions: View {
                             .foregroundColor(themeManager.titleTextColor)
                     }
                     .buttonStyle(PlainButtonStyle())
+                    .pointingHandCursor()
                     .frame(width: 30, height: 30)
                 }
                 .background(themeManager.secondaryBackgroundColor)

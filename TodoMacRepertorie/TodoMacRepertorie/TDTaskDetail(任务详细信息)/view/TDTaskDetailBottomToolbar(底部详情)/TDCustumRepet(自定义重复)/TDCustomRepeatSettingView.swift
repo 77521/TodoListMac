@@ -146,6 +146,7 @@ struct TDCustomRepeatSettingView: View {
                 }
             }
             .buttonStyle(PlainButtonStyle())
+            .pointingHandCursor()
             .help("查看重复设置说明")
             
             Spacer()
@@ -159,6 +160,7 @@ struct TDCustomRepeatSettingView: View {
                     .foregroundColor(themeManager.descriptionTextColor)
             }
             .buttonStyle(PlainButtonStyle())
+            .pointingHandCursor()
             .help("关闭")
         }
         .padding(.horizontal, 20)
@@ -240,6 +242,7 @@ struct TDCustomRepeatSettingView: View {
                                 .stroke(selectedUnit == unit ? themeManager.color(level: 5) : themeManager.separatorColor, lineWidth: 1)
                         )
                 }
+                .pointingHandCursor()
                 .buttonStyle(PlainButtonStyle())
             }
         }

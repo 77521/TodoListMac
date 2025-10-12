@@ -27,7 +27,7 @@ final class TDModelContainer: ObservableObject {
         print("📚 SwiftData容器初始化开始")
         
         // 配置 SwiftData 存储到 App Group
-        let schema = Schema([TDMacSwiftDataListModel.self])
+        let schema = Schema([TDMacSwiftDataListModel.self, TDTomatoRecordLocalModel.self])
         let modelConfiguration = ModelConfiguration(
             schema: schema,
             groupContainer: .identifier(TDAppConfig.appGroupId),

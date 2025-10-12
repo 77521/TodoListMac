@@ -44,25 +44,29 @@ struct TDMoreOptionsButtonView: View {
             Button("复制内容") {
                 handleCopyContent()  // 复制任务内容到剪贴板
             }
-            
+            .pointingHandCursor()
+
             // 创建副本子菜单
             Menu("创建副本") {
                 // 创建副本 - 保持原日期
                 Button("创建副本") {
                     handleCreateCopy(copyType: .normal)
                 }
-                
+                .pointingHandCursor()
+
                 // 根据当前任务的日期判断是否显示"创建到今天"
                 if !isToday {
                     Button("创建到今天") {
                         handleCreateCopy(copyType: .toToday)
                     }
+                    .pointingHandCursor()
                 }
                 
                 // 创建副本到指定日期
                 Button("创建到指定日期") {
                     showDatePickerForCopy = true  // 显示日期选择器
                 }
+                .pointingHandCursor()
             }
             
             // 描述转为子任务功能
@@ -72,6 +76,7 @@ struct TDMoreOptionsButtonView: View {
                     print("描述转为子任务")
                     handleDescriptionToSubtasks()
                 }
+                .pointingHandCursor()
             }
             
             // 子任务转为描述功能
@@ -81,6 +86,7 @@ struct TDMoreOptionsButtonView: View {
                     print("子任务转为描述")
                     handleSubtasksToDescription()
                 }
+                .pointingHandCursor()
             }
             
             // 重复事件修改功能
@@ -90,12 +96,14 @@ struct TDMoreOptionsButtonView: View {
                     print("修改该重复事件组的全部事件")
                     handleModifyRepeatTasks(modifyType: .all)
                 }
-                
+                .pointingHandCursor()
+
                 Button("修改该重复事件组的全部未达成事件") {
                     // TODO: 实现修改该重复事件组的全部未达成事件功能
                     print("修改该重复事件组的全部未达成事件")
                     handleModifyRepeatTasks(modifyType: .incomplete)
                 }
+                .pointingHandCursor()
             }
 
             
@@ -109,14 +117,18 @@ struct TDMoreOptionsButtonView: View {
                     Button("仅删除该事件") {
                         showDeleteConfirmation(deleteType: .single)
                     }
-                    
+                    .pointingHandCursor()
+
                     Button("删除该重复事件组的全部事件") {
                         showDeleteConfirmation(deleteType: .all)
                     }
-                    
+                    .pointingHandCursor()
+
                     Button("删除该重复事件组的全部未达成事件") {
                         showDeleteConfirmation(deleteType: .incomplete)
                     }
+                    .pointingHandCursor()
+
                 }
                 .foregroundColor(.red)  // 删除按钮使用红色
             } else {
@@ -125,6 +137,8 @@ struct TDMoreOptionsButtonView: View {
                     showDeleteConfirmation(deleteType: .single)
                 }
                 .foregroundColor(.red)  // 删除按钮使用红色
+                .pointingHandCursor()
+
             }
 
         } label: {

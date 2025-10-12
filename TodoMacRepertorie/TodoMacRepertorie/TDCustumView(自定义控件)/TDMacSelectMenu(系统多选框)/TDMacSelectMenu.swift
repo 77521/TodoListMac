@@ -38,7 +38,8 @@ struct TDMacSelectMenu: View {
                 }
             }
             .buttonStyle(PlainButtonStyle())
-            
+            .pointingHandCursor()
+
             // 不分类选项
             Button(action: {
                 handleModifyCategory(category: nil)
@@ -52,7 +53,8 @@ struct TDMacSelectMenu: View {
                 }
             }
             .buttonStyle(PlainButtonStyle())
-            
+            .pointingHandCursor()
+
             // 只有当有分类数据时才显示分割线和分类列表
             let categories = TDCategoryManager.shared.loadLocalCategories()
             if !categories.isEmpty {
@@ -73,6 +75,7 @@ struct TDMacSelectMenu: View {
                         }
                     }
                     .buttonStyle(PlainButtonStyle())
+                    .pointingHandCursor()
                 }
             }
         }

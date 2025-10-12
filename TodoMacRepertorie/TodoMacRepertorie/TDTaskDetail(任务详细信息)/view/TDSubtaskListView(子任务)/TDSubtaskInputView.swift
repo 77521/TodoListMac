@@ -57,6 +57,7 @@ struct TDSubtaskInputView: View {
                         .foregroundColor(canAddSubtask ? themeManager.color(level: 5) : themeManager.descriptionTextColor)
                 }
                 .buttonStyle(PlainButtonStyle())
+                .pointingHandCursor()
                 .disabled(!canAddSubtask)
             }
             .padding(.vertical, 8)

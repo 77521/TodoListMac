@@ -355,6 +355,7 @@ struct TDTaskListView: View {
                             .foregroundColor(.secondary)
                     }
                     .buttonStyle(PlainButtonStyle())
+                    .pointingHandCursor()
                 }
                 
                 // 重新安排按钮（如果需要）
@@ -367,6 +368,8 @@ struct TDTaskListView: View {
                             .foregroundColor(.secondary)
                     }
                     .buttonStyle(PlainButtonStyle())
+                    .pointingHandCursor()
+
                 }
             }
             .opacity(hoveredGroups.contains(type.rawValue) ? 1 : 0)

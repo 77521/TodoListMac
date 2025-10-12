@@ -97,15 +97,18 @@ final class TDTomatoManager: ObservableObject {
     /// 插入专注记录到本地数据库
     /// - Parameter record: 专注记录
     func insertTomatoRecord(_ record: TDTomatoRecordModel) {
+        
         do {
             // 转换为本地模型
             let localRecord = record.toLocalModel()
-            
+
             // 插入到数据库
             TDModelContainer.shared.insert(localRecord)
             try TDModelContainer.shared.save()
             
             print("✅ 专注记录已插入到本地数据库")
+            
+            
         } catch {
             print("❌ 插入专注记录失败: \(error)")
         }
@@ -131,7 +134,7 @@ final class TDTomatoManager: ObservableObject {
     /// - Parameter tomatoId: 番茄钟ID
     /// - Returns: 匹配的专注记录，如果没有找到则返回nil
     func getTomatoRecord(tomatoId: String) -> TDTomatoRecordLocalModel? {
-        let userId = Int64(TDUserManager.shared.userId)
+        let userId = TDUserManager.shared.userId
         
         do {
             let descriptor = FetchDescriptor<TDTomatoRecordLocalModel>(
@@ -151,14 +154,29 @@ final class TDTomatoManager: ObservableObject {
     /// 获取需要同步的专注记录（状态为 add 且用户ID匹配）
     /// - Returns: 需要同步的专注记录数组
     func getUnsyncedTomatoRecords() -> [TDTomatoRecordLocalModel] {
-        let userId = Int64(TDUserManager.shared.userId)
+        let userId = TDUserManager.shared.userId
+        print("🔍 查询未同步专注记录:")
+        print("  - 当前用户ID: \(userId)")
+        
         do {
             let descriptor = FetchDescriptor<TDTomatoRecordLocalModel>(
                 predicate: #Predicate { record in
                     record.status == "add" && record.userId == userId
                 }
             )
-            return try TDModelContainer.shared.mainContext.fetch(descriptor)
+            let records = try TDModelContainer.shared.mainContext.fetch(descriptor)
+            print("  - 找到 \(records.count) 条未同步记录")
+            
+            // 打印每条记录的详细信息
+            for (index, record) in records.enumerated() {
+                print("  - 记录 \(index + 1):")
+                print("    * 番茄钟ID: \(record.tomatoId)")
+                print("    * 状态: \(record.status)")
+                print("    * 用户ID: \(record.userId)")
+                print("    * 任务内容: \(record.taskContent ?? "无")")
+            }
+            
+            return records
         } catch {
             print("❌ 获取未同步专注记录失败: \(error)")
             return []
@@ -169,7 +187,12 @@ final class TDTomatoManager: ObservableObject {
     /// - Returns: 服务器数据模型的JSON字符串
     func getUnsyncedTomatoRecordsAsJson() -> String? {
         let localRecords = getUnsyncedTomatoRecords()
-        
+        // 如果没有记录，返回 nil
+        guard !localRecords.isEmpty else {
+            print("📝 没有需要同步的专注记录")
+            return nil
+        }
+
         // 转换为服务器数据模型
         let serverRecords = localRecords.map { $0.toServerModel() }
         

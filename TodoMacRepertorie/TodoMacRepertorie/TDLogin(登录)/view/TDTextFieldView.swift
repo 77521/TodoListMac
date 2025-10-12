@@ -71,7 +71,8 @@ struct TDSecureTextField: View {
                                 })
                                 .frame(width: 20, height: 20)
                                 .buttonStyle(.plain)
-                                
+                                .pointingHandCursor()
+
                                 Button(action: {
                                     
                                 }, label: {
@@ -80,6 +81,7 @@ struct TDSecureTextField: View {
                                         .frame(width: 15, height: 15)
                                 })
                                 .buttonStyle(.plain)
+                                .pointingHandCursor()
                             } else {
                                 
                                 Button(action: { viewModel.sendSmsCode() }) {
@@ -101,6 +103,7 @@ struct TDSecureTextField: View {
                                 .cornerRadius(6)         // 圆角
                                 .buttonStyle(.plain)
                                 .disabled(!viewModel.canSendSms)
+                                .pointingHandCursor()
                             }
                             
                         }

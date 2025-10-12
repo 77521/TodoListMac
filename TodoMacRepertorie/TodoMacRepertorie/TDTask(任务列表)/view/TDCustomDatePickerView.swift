@@ -36,7 +36,8 @@ struct TDCustomDatePickerView: View {
                     Image(systemName: "chevron.left")
                         .foregroundColor(themeManager.titleTextColor)
                 }
-                
+                .pointingHandCursor()
+
                 Spacer()
                 
                 Text(monthYearString(from: currentMonth))
@@ -48,6 +49,7 @@ struct TDCustomDatePickerView: View {
                     Image(systemName: "chevron.right")
                         .foregroundColor(themeManager.titleTextColor)
                 }
+                .pointingHandCursor()
             }
             .padding(.horizontal)
             .padding(.vertical, 8)
@@ -89,6 +91,7 @@ struct TDCustomDatePickerView: View {
                                 .clipShape(Circle())
                         }
                         .buttonStyle(.plain)
+                        .pointingHandCursor()
                     } else {
                         Color.clear
                             .frame(width: 32, height: 32)

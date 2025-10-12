@@ -73,3 +73,38 @@
 // 年重复选择器
 "calendar.gregorian" = "公历";
 "calendar.lunar" = "农历";
+
+// 专注时长预设界面
+"focus_duration_preset_title" = "修改番茄专注时长";
+"focus_duration_label" = "专注时长(分钟)";
+"rest_duration_label" = "休息时长(分钟)";
+"add_preset_button" = "添加预设";
+"restore_default_button" = "恢复默认";
+"focus_duration_placeholder" = "专注时长";
+"rest_duration_placeholder" = "休息时长";
+"focus_duration_exists" = "专注时长 %d 已存在，不能重复添加";
+"rest_duration_exists" = "休息时长 %d 已存在，不能重复添加";
+
+// 专注计时器按钮和提示
+"button_give_up_rest" = "放弃休息";
+"button_give_up_focus" = "放弃专注";
+"button_start_focus" = "开始专注";
+"alert_confirm_give_up_rest" = "确认放弃休息吗?";
+"alert_confirm_give_up_focus" = "确定要放弃本次番茄专注吗?";
+"toast_cannot_modify_duration" = "专注时无法修改时长";
+
+// 声音选择器
+"select_focus_sound" = "选择专注声音";
+
+// 添加专注记录界面
+"add_record_title" = "添加记录";
+"start_time_label" = "开始时间";
+"focus_duration_slider_label" = "专注时长 (分钟)";
+"rest_duration_slider_label" = "休息时长 (分钟)";
+"associated_task_label" = "关联事件";
+"select_task_placeholder" = "选择事件";
+"daily_limit_info" = "每天最多可以手动添加";
+"daily_limit_count" = "条";
+"daily_limit_remaining" = "番茄专注记录，今天还可以添加条数：";
+"cancel_button" = "取消";
+"add_button" = "添加";

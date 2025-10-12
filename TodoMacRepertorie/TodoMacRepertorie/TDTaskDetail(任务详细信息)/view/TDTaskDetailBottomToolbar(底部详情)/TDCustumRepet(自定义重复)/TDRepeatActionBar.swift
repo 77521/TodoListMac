@@ -32,7 +32,8 @@ struct TDRepeatActionBar: View {
                     )
             }
             .buttonStyle(PlainButtonStyle())
-            
+            .pointingHandCursor()
+
             // 创建按钮
             Button(action: onCreate) {
                 Text("创建")
@@ -46,6 +47,8 @@ struct TDRepeatActionBar: View {
                     )
             }
             .buttonStyle(PlainButtonStyle())
+            .pointingHandCursor()
+
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 16)

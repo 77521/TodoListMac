@@ -51,6 +51,8 @@ struct TDRepeatHelpModal: View {
                         .foregroundColor(themeManager.descriptionTextColor)
                 }
                 .buttonStyle(PlainButtonStyle())
+                .pointingHandCursor()
+
             }
             .padding(.horizontal, 20)
             .padding(.top, 20)

@@ -42,7 +42,8 @@ struct TDTaskDetailDateRow: View {
                         )
                 }
                 .buttonStyle(PlainButtonStyle())
-                
+                .pointingHandCursor()
+
                 // 明天按钮
                 Button(action: {
                     let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: Date()) ?? Date()
@@ -58,6 +59,7 @@ struct TDTaskDetailDateRow: View {
                                 .fill(isTomorrowSelected ? themeManager.color(level: 5) : themeManager.secondaryBackgroundColor)
                         )
                 }
+                .pointingHandCursor()
                 .buttonStyle(PlainButtonStyle())
                 
                 // 选择日期按钮
@@ -82,6 +84,7 @@ struct TDTaskDetailDateRow: View {
                     )
                 }
                 .buttonStyle(PlainButtonStyle())
+                .pointingHandCursor()
                 .popover(isPresented: $showDatePicker) {
                     TDCustomDatePickerView(
                         selectedDate: $currentSelectedDate,
@@ -108,6 +111,7 @@ struct TDTaskDetailDateRow: View {
                         )
                 }
                 .buttonStyle(PlainButtonStyle())
+                .pointingHandCursor()
                 Spacer()
             }
             .padding(.horizontal, 8)

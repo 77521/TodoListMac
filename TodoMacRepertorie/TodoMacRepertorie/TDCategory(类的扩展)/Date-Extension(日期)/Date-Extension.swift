@@ -33,6 +33,15 @@ extension Date {
         return calendar.isDate(self, inSameDayAs: dayAfterTomorrow)
     }
     
+    /// 判断是否为当月
+    /// - Returns: 是否为当月
+    var isCurrentMonth: Bool {
+        let calendar = Calendar.current
+        let today = Date()
+        return calendar.component(.month, from: self) == calendar.component(.month, from: today) &&
+               calendar.component(.year, from: self) == calendar.component(.year, from: today)
+    }
+
     /// 判断是否已过期
     var isOverdue: Bool {
         self.compare(Calendar.current.startOfDay(for: Date())) == .orderedAscending
@@ -308,7 +317,14 @@ extension Date {
     }
     
     // MARK: - 日期比较
-    
+    /// 判断两个日期是否为同一天
+    /// - Parameter otherDate: 要比较的另一个日期
+    /// - Returns: 是否为同一天
+    func isSameDay(as otherDate: Date) -> Bool {
+        let calendar = Calendar.current
+        return calendar.isDate(self, inSameDayAs: otherDate)
+    }
+
     /// 是否大于指定日期
     func isGreaterThan(_ date: Date) -> Bool {
         self.compare(date) == .orderedDescending
@@ -419,7 +435,23 @@ extension Date {
         let day = dayOfMonth()
         return "\(month)月\(day)日"
     }
+    /// 获取当月第一天（开始时间）
+    /// - Returns: 当月第一天的开始时间
+    var firstDayOfMonth: Date {
+        let calendar = Calendar.current
+        let components = calendar.dateComponents([.year, .month], from: self)
+        return calendar.date(from: components) ?? self
+    }
     
+    /// 获取当月最后一天（开始时间）
+    /// - Returns: 当月最后一天的开始时间
+    var lastDayOfMonth: Date {
+        let calendar = Calendar.current
+        let firstDay = self.firstDayOfMonth
+        let nextMonth = calendar.date(byAdding: .month, value: 1, to: firstDay) ?? firstDay
+        return calendar.date(byAdding: .day, value: -1, to: nextMonth) ?? self
+    }
+
     
     
     // MARK: - 重复任务相关方法（合并版本）
@@ -570,6 +602,35 @@ extension Date {
         return TDLunarCalendar.lunarToSolar(lunarYear: targetYear, lunarMonth: lunarMonth, lunarDay: lunarDay)
     }
 
+    /// 判断是否在节假日数据中
+    /// - Returns: 是否在节假日数据中（包含节假日和调休）
+    var isInHolidayData: Bool {
+        let timestamp = self.startOfDayTimestamp
+        let holidayList = TDHolidayManager.shared.getHolidayList()
+        
+        return holidayList.contains { $0.date == timestamp }
+    }
+    
+    /// 判断是否为法定节假日
+    /// - Returns: 是否为法定节假日
+    
+    var isHoliday: Bool {
+        // 先判断是否在节假日数据中
+        if !self.isInHolidayData {
+            return false
+        }
+        
+        let timestamp = self.startOfDayTimestamp
+        let holidayList = TDHolidayManager.shared.getHolidayList()
+        
+        // 查找匹配的节假日数据
+        if let holiday = holidayList.first(where: { $0.date == timestamp }) {
+            // 返回 holiday 字段的值（true=法定节假日，false=调休工作日）
+            return holiday.holiday
+        }
+        
+        return false
+    }
 
 
 }

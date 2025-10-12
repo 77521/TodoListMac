@@ -59,6 +59,7 @@ struct TDMonthDaySelectorView: View {
                         )
                 }
                 .buttonStyle(PlainButtonStyle())
+                .pointingHandCursor()
             }
         }
     }

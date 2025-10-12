@@ -71,7 +71,8 @@ struct TDFocusRecordView: View {
                     )
             }
             .buttonStyle(PlainButtonStyle())
-            
+            .pointingHandCursor()
+
             // 关闭按钮
             Button(action: {
                 isPresented = false
@@ -86,6 +87,7 @@ struct TDFocusRecordView: View {
                     )
             }
             .buttonStyle(PlainButtonStyle())
+            .pointingHandCursor()
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 16)
@@ -97,9 +99,17 @@ struct TDFocusRecordView: View {
             alignment: .bottom
         )
         .sheet(isPresented: $showAddRecord) {
-            TDAddFocusRecordView(isPresented: $showAddRecord)
-                .environmentObject(themeManager)
-                .environmentObject(tomatoManager)
+            TDAddFocusRecordView(
+                isPresented: $showAddRecord,
+                onRecordAdded: {
+                    // 记录添加成功后刷新数据
+                    Task {
+                        await loadFocusRecords()
+                    }
+                }
+            )
+            .environmentObject(themeManager)
+            .environmentObject(tomatoManager)
         }
 
     }
@@ -223,6 +233,7 @@ struct FocusRecordRowView: View {
                                 .foregroundColor(themeManager.descriptionTextColor)
                         }
                         .buttonStyle(PlainButtonStyle())
+                        .pointingHandCursor()
                     }
                 }
             }

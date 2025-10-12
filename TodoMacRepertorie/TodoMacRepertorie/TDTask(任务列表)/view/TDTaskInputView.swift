@@ -48,6 +48,7 @@ struct TDTaskInputView: View {
                     .font(.system(size: 20))
             }
             .buttonStyle(.plain)
+            .pointingHandCursor()
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)

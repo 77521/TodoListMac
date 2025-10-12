@@ -77,6 +77,7 @@ struct TDTaskDetailWorkloadView: View {
                                 .padding(.horizontal, 8)
                         }
                         .buttonStyle(PlainButtonStyle())
+                        .pointingHandCursor()
                         .background(
                             // 根据位置设置不同的圆角
                             getRoundedRectangle(for: index)

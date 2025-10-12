@@ -19,7 +19,8 @@ struct TodoMacRepertorieApp: App {
     @StateObject private var scheduleModel = TDScheduleOverviewViewModel.shared
     @StateObject private var tomatoManager = TDTomatoManager.shared
 
-    
+    @StateObject private var toastCenter = TDToastCenter.shared
+
     
     var body: some Scene {
         WindowGroup {
@@ -31,16 +32,47 @@ struct TodoMacRepertorieApp: App {
                         .environmentObject(mainViewModel)
                         .environmentObject(scheduleModel)
                         .environmentObject(tomatoManager)
+                        .environmentObject(toastCenter)
                 } else {
                     TDLoginView()
                         .frame(width: 932, height: 621)
                         .fixedSize()
                 }
             }
+            .tdToastBottom(
+                isPresenting: Binding(
+                    get: { toastCenter.isPresenting && toastCenter.position == .bottom },
+                    set: { toastCenter.isPresenting = $0 }
+                ),
+                message: toastCenter.message,
+                type: toastCenter.type
+            )
+            .tdToastTop(
+                isPresenting: Binding(
+                    get: { toastCenter.isPresenting && toastCenter.position == .top },
+                    set: { toastCenter.isPresenting = $0 }
+                ),
+                message: toastCenter.message,
+                type: toastCenter.type
+            )
+            .tdToastCenter(
+                isPresenting: Binding(
+                    get: { toastCenter.isPresenting && toastCenter.position == .center },
+                    set: { toastCenter.isPresenting = $0 }
+                ),
+                message: toastCenter.message,
+                type: toastCenter.type
+            )
+
         }
         .modelContainer(modelContainer.container)
         .windowStyle(.hiddenTitleBar)
         .windowResizability(.contentSize)
+        
+        
+//        TDToastCenter.shared.show("专注时长已存在，不能重复添加", type: .error, position: .top)   // 顶部
+//        TDToastCenter.shared.show("保存成功")                                                   // 默认底部
+//        TDToastCenter.shared.show("处理中…", type: .info, position: .center)                   // 中间
     }
 }
 

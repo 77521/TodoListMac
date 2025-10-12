@@ -593,6 +593,10 @@ struct TDSliderBarView: View {
                         .foregroundColor(.secondary)
                 }
                 .buttonStyle(PlainButtonStyle())
+                .pointingHandCursor()
+
+                .pointingHandCursor()
+
             }
             .opacity(isCategoryGroupHovered ? 1 : 0)
         }
@@ -758,6 +762,8 @@ struct TDSliderBarView: View {
                             .font(.system(size: 12))
                     }
                     .buttonStyle(PlainButtonStyle())
+                    .pointingHandCursor()
+
                 }
             }
             .padding(.horizontal, 16)

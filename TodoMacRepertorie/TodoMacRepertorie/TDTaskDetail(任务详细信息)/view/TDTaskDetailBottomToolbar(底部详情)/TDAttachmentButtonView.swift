@@ -70,6 +70,7 @@ struct TDAttachmentButtonView: View {
             ))
         }
         .buttonStyle(PlainButtonStyle())
+        .pointingHandCursor()
         .disabled(qiniuManager.isUploading)  // 上传时禁用按钮
         .help(qiniuManager.isUploading ? "正在上传文件..." : "选择附件")  // 鼠标悬停提示
         .fileImporter(

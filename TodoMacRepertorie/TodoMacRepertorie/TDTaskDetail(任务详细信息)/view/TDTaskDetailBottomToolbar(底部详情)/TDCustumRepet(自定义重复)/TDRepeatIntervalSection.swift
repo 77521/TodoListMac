@@ -64,6 +64,7 @@ struct TDRepeatIntervalSection: View {
                                 .foregroundColor(themeManager.descriptionTextColor)
                         }
                         .buttonStyle(PlainButtonStyle())
+                        .pointingHandCursor()
                         .frame(width: 20, height: 15)
                         
                         Button(action: {
@@ -77,6 +78,7 @@ struct TDRepeatIntervalSection: View {
                                 .foregroundColor(themeManager.descriptionTextColor)
                         }
                         .buttonStyle(PlainButtonStyle())
+                        .pointingHandCursor()
                         .frame(width: 20, height: 15)
                     }
                 }

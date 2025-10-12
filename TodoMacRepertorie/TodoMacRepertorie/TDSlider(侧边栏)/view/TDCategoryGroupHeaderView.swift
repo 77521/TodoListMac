@@ -40,6 +40,8 @@ struct TDCategoryGroupView: View {
                                 .foregroundColor(themeManager.color(level: 5))
                         }
                         .buttonStyle(.plain)
+                        .pointingHandCursor()
+
                     }
                     
                     if showSettingButton {
@@ -48,6 +50,8 @@ struct TDCategoryGroupView: View {
                                 .foregroundColor(themeManager.color(level: 5))
                         }
                         .buttonStyle(.plain)
+                        .pointingHandCursor()
+
                     }
                     
                     if showFilterButton {
@@ -56,6 +60,8 @@ struct TDCategoryGroupView: View {
                                 .foregroundColor(themeManager.color(level: 5))
                         }
                         .buttonStyle(.plain)
+                        .pointingHandCursor()
+
                     }
                 }
             }

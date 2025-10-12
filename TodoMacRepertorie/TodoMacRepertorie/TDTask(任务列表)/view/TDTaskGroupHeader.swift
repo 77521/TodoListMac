@@ -31,6 +31,7 @@ struct TDTaskGroupHeader: View {
                     .foregroundColor(themeManager.descriptionTextColor)
             }
             .buttonStyle(.plain)
+            .pointingHandCursor()
         }
     }
 }

@@ -56,6 +56,7 @@ struct TDRepeatSettingView: View {
             }
             .animation(.easeInOut(duration: 0.15), value: task.hasRepeat)
             .buttonStyle(PlainButtonStyle())
+            .pointingHandCursor()
             .help("查看重复任务")  // 鼠标悬停提示
             .sheet(isPresented: $showRepeatDataView) {
                 // 弹窗内容
@@ -72,59 +73,71 @@ struct TDRepeatSettingView: View {
                     print("显示自定义重复设置弹窗")
                     showCustomRepeatSetting = true
                 }
-                
+                .pointingHandCursor()
+
                 Divider()  // 分割线
                 
                 // 基础重复选项
                 Button("每天") {
                     handleCustomRepeat(repeatType: .daily)
                 }
-                
+                .pointingHandCursor()
+
                 // 每周重复（显示任务日期的星期几）
                 Button("每周 (\(task.taskDate.weekdayDisplay()))") {
                     handleCustomRepeat(repeatType: .weekly)
                 }
-                
+                .pointingHandCursor()
+
                 // 每周工作日重复（周一至周五）
                 Button("每周工作日 (周一至周五)") {
                     handleCustomRepeat(repeatType: .workday)
                 }
-                
+                .pointingHandCursor()
+
                 // 每月重复（显示任务日期的几号）
                 Button("每月 (\(task.taskDate.dayOfMonth())日)") {
                     handleCustomRepeat(repeatType: .monthly)
                 }
-                
+                .pointingHandCursor()
+
                 // 每月最后一天重复
                 Button("每月 (最后一天)") {
                     handleCustomRepeat(repeatType: .monthlyLastDay)
                 }
-                
+                .pointingHandCursor()
+
                 // 每月第N个星期几重复
                 Button("每月 (第 \(task.taskDate.weekdayOrdinal()) 个 \(task.taskDate.weekdayDisplay()))") {
                     handleCustomRepeat(repeatType: .monthlyWeekday)
                 }
-                
+                .pointingHandCursor()
+
                 // 每年重复（显示任务日期的月日）
                 Button("每年 (\(task.taskDate.monthDayString()))") {
                     handleCustomRepeat(repeatType: .yearly)
                 }
-                
+                .pointingHandCursor()
+
                 // 每年农历重复（显示任务日期的农历月日）
                 Button("每年 (\(task.taskDate.lunarMonthDay))") {
                     handleCustomRepeat(repeatType: .lunarYearly)
                 }
-                
+                .pointingHandCursor()
+
                 Divider()  // 分割线
                 
                 // 高级重复选项
                 Button("法定工作日") {
                     handleCustomRepeat(repeatType: .legalWorkday)
                 }
-                
+                .pointingHandCursor()
+
                 Button("艾宾浩斯记忆法") {
                     handleCustomRepeat(repeatType: .ebbinghaus)
                 }
+                .pointingHandCursor()
+
             } label: {
                 Image(systemName: "repeat")
                     .font(.system(size: 13, weight: .medium))

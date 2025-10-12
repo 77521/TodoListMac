@@ -11,6 +11,7 @@ import SwiftUI
 struct TDFocusDurationPresetView: View {
     @EnvironmentObject private var themeManager: TDThemeManager
     @EnvironmentObject private var settingManager: TDSettingManager
+
     @StateObject private var presetManager = TDFocusDurationPresetManager.shared
     @Binding var isPresented: Bool
     
@@ -21,42 +22,65 @@ struct TDFocusDurationPresetView: View {
     @FocusState private var isFocusFieldFocused: Bool
     @FocusState private var isRestFieldFocused: Bool
     
+    // 本地 Toast 状态
+    @State private var showToast = false
+    @State private var toastMessage = ""
+
     var body: some View {
         VStack(spacing: 0) {
             // 标题栏
             headerView
-            
+                .padding(.horizontal,15)
+
             // 内容区域
             ScrollView {
                 VStack(spacing: 24) {
                     // 专注时长预设
                     focusDurationSection
+                        .padding(.horizontal,15)
                     
                     // 休息时长预设
                     restDurationSection
+                        .padding(.horizontal,15)
+
                 }
                 .padding(.horizontal, 0)
                 .padding(.vertical, 16)
+                
             }
-            
+            .scrollIndicators(.hidden)
+            .padding(.horizontal,0)
             // 底部按钮
             bottomButtons
+                .padding(.horizontal,15)
+
         }
         .frame(width: 500, height: 400)
-        .padding(.horizontal, 15)
+//        .padding(.horizontal, 10)
         .background(themeManager.backgroundColor)
         .cornerRadius(12)
         .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 5)
+        .onTapGesture {
+            // 点击空白处时结束编辑
+            endEditing()
+        }
         .onAppear {
             // 刷新当前选中的时长
             presetManager.objectWillChange.send()
         }
+        // 本地 Toast 提示（顶部显示）
+        .tdToastTop(
+            isPresenting: $showToast,
+            message: toastMessage,
+            type: .error
+        )
+
     }
     
     // MARK: - 标题栏
     private var headerView: some View {
         HStack {
-            Text("修改番茄专注时长")
+            Text("focus_duration_preset_title".localized)
                 .font(.system(size: 16, weight: .medium))
                 .foregroundColor(themeManager.color(level: 5))
             
@@ -74,6 +98,7 @@ struct TDFocusDurationPresetView: View {
                             .fill(themeManager.secondaryBackgroundColor)
                     )
             }
+            .pointingHandCursor()
             .buttonStyle(PlainButtonStyle())
         }
         .padding(.horizontal, 0)
@@ -90,20 +115,20 @@ struct TDFocusDurationPresetView: View {
     // MARK: - 专注时长预设区域
     private var focusDurationSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("专注时长(分钟)")
+            Text("focus_duration_label".localized)
                 .font(.system(size: 14, weight: .medium))
                 .foregroundColor(themeManager.titleTextColor)
             
             LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 5), spacing: 10) {
                 ForEach(presetManager.focusPresets) { preset in
-                    presetButton(
+                    PresetItemView(
                         text: "\(preset.duration)",
                         isSelected: preset.duration == settingManager.focusDuration,
                         isCustom: preset.isCustom,
                         onTap: {
                             presetManager.setFocusDuration(preset.duration)
                         },
-                        onDelete: preset.isCustom ? {
+                        onDelete: (preset.isCustom && preset.duration != settingManager.focusDuration) ? {
                             presetManager.removeFocusPreset(preset)
                         } : nil
                     )
@@ -113,11 +138,12 @@ struct TDFocusDurationPresetView: View {
                 if isEditingFocus {
                     addPresetInputField(
                         text: $newFocusDuration,
-                        placeholder: "输入专注时长",
+                        placeholder: "focus_duration_placeholder".localized,
                         onCommit: {
                             addFocusPreset()
                         },
-                        focusState: $isFocusFieldFocused
+                        focusState: $isFocusFieldFocused,
+                        isFocusDuration: true
                     )
                 } else {
                     addPresetButton {
@@ -132,20 +158,20 @@ struct TDFocusDurationPresetView: View {
     // MARK: - 休息时长预设区域
     private var restDurationSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("休息时长(分钟)")
+            Text("rest_duration_label".localized)
                 .font(.system(size: 14, weight: .medium))
                 .foregroundColor(themeManager.titleTextColor)
             
             LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 5), spacing: 10) {
                 ForEach(presetManager.restPresets) { preset in
-                    presetButton(
+                    PresetItemView(
                         text: "\(preset.duration)",
                         isSelected: preset.duration == settingManager.restDuration,
                         isCustom: preset.isCustom,
                         onTap: {
                             presetManager.setRestDuration(preset.duration)
                         },
-                        onDelete: preset.isCustom ? {
+                        onDelete: (preset.isCustom && preset.duration != settingManager.restDuration) ? {
                             presetManager.removeRestPreset(preset)
                         } : nil
                     )
@@ -155,11 +181,12 @@ struct TDFocusDurationPresetView: View {
                 if isEditingRest {
                     addPresetInputField(
                         text: $newRestDuration,
-                        placeholder: "输入休息时长",
+                        placeholder: "rest_duration_placeholder".localized,
                         onCommit: {
                             addRestPreset()
                         },
-                        focusState: $isRestFieldFocused
+                        focusState: $isRestFieldFocused,
+                        isFocusDuration: false
                     )
                 } else {
                     addPresetButton {
@@ -171,59 +198,10 @@ struct TDFocusDurationPresetView: View {
         }
     }
     
-    // MARK: - 预设按钮
-    private func presetButton(
-        text: String,
-        isSelected: Bool,
-        isCustom: Bool,
-        onTap: @escaping () -> Void,
-        onDelete: (() -> Void)?
-    ) -> some View {
-        ZStack {
-            // 主按钮
-            Button(action: onTap) {
-                Text(text)
-                    .font(.system(size: 13, weight: .medium))
-                    .foregroundColor(isSelected ? .white : themeManager.titleTextColor)
-                    .frame(maxWidth: .infinity, minHeight: 32)
-                    .padding(.horizontal, 12)
-                    .background(
-                        RoundedRectangle(cornerRadius: 6)
-                            .fill(isSelected ? themeManager.color(level: 5) : themeManager.secondaryBackgroundColor)
-                    )
-            }
-            .buttonStyle(PlainButtonStyle())
-            .zIndex(1) // 确保主按钮在最上层
-            
-            // 删除按钮（仅自定义预设显示，放在右上角圆角处的中间）
-            if let onDelete = onDelete, isCustom {
-                VStack {
-                    HStack {
-                        Spacer()
-                        Button(action: onDelete) {
-                            Image(systemName: "xmark")
-                                .font(.system(size: 10, weight: .medium))
-                                .foregroundColor(.white)
-                                .frame(width: 16, height: 16)
-                                .background(
-                                    Circle()
-                                        .fill(themeManager.descriptionTextColor)
-                                )
-                        }
-                        .buttonStyle(PlainButtonStyle())
-                        .offset(x: 4, y: -4) // 向右上角偏移，放在圆角处的中间
-                    }
-                    Spacer()
-                }
-                .zIndex(2) // 删除按钮在最上层
-            }
-        }
-    }
-    
     // MARK: - 添加预设按钮
     private func addPresetButton(action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            Text("添加预设")
+            Text("add_preset_button".localized)
                 .font(.system(size: 13, weight: .medium))
                 .foregroundColor(themeManager.descriptionTextColor)
                 .frame(maxWidth: .infinity, minHeight: 32)
@@ -238,6 +216,7 @@ struct TDFocusDurationPresetView: View {
                 )
         }
         .buttonStyle(PlainButtonStyle())
+        .pointingHandCursor()
     }
     
     // MARK: - 添加预设输入框
@@ -245,10 +224,11 @@ struct TDFocusDurationPresetView: View {
         text: Binding<String>,
         placeholder: String,
         onCommit: @escaping () -> Void,
-        focusState: FocusState<Bool>.Binding
+        focusState: FocusState<Bool>.Binding,
+        isFocusDuration: Bool = true
     ) -> some View {
         TextField(placeholder, text: text)
-            .font(.system(size: 13, weight: .medium))
+            .font(.system(size: 13))
             .foregroundColor(themeManager.titleTextColor)
             .frame(maxWidth: .infinity, minHeight: 32)
             .padding(.horizontal, 12)
@@ -258,25 +238,86 @@ struct TDFocusDurationPresetView: View {
             )
             .textFieldStyle(PlainTextFieldStyle())
             .focused(focusState)
+//            .onChange(of: text.wrappedValue) { _, newValue in
+//                // 实时验证输入内容
+//                validateInput(newValue)
+//            }
             .onSubmit {
-                // 在提交时验证和限制范围
-                if let value = Int(text.wrappedValue) {
-                    if value < 5 {
-                        text.wrappedValue = "5"
-                    } else if value > 120 {
-                        text.wrappedValue = "120"
+                // 提交时验证并执行操作
+                if isFocusDuration {
+                    validateAndCommit()
+                } else {
+                    validateAndCommitRest()
+                }
+            }
+            .onChange(of: focusState.wrappedValue) { _, isFocused in
+                // 当失去焦点时，执行验证和提交
+                if !isFocused {
+                    if isFocusDuration {
+                        validateAndCommit()
+                    } else {
+                        validateAndCommitRest()
                     }
                 }
-                onCommit()
             }
             .onAppear {
-                // 输入框出现时自动激活
+                // 输入框出现时自动激活焦点
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                     focusState.wrappedValue = true
                 }
             }
     }
     
+    // MARK: - 输入验证
+    private func validateInput(_ input: String) {
+        // 只允许输入数字
+        let filtered = input.filter { $0.isNumber }
+        if filtered != input {
+            newFocusDuration = filtered
+        }
+    }
+    // MARK: - 通用验证方法
+    private func validateDuration(_ input: String, defaultValue: String, minValue: Int = 5, maxValue: Int = 120) -> String {
+        guard let value = Int(input) else {
+            return defaultValue
+        }
+        
+        // 限制范围
+        let clampedValue = max(minValue, min(maxValue, value))
+        return String(clampedValue)
+    }
+
+    // MARK: - 验证并提交
+    private func validateAndCommit() {
+        let validatedValue = validateDuration(newFocusDuration, defaultValue: "25")
+        newFocusDuration = validatedValue
+        addFocusPreset()
+    }
+    
+    // MARK: - 验证并提交休息时长
+    private func validateAndCommitRest() {
+        let validatedValue = validateDuration(newRestDuration, defaultValue: "5")
+        newRestDuration = validatedValue
+        addRestPreset()
+    }
+    
+    // MARK: - 结束编辑
+    private func endEditing() {
+        // 如果当前有输入内容，先保存
+        if isFocusFieldFocused && !newFocusDuration.isEmpty {
+            validateAndCommit()
+        }
+        if isRestFieldFocused && !newRestDuration.isEmpty {
+            validateAndCommitRest()
+        }
+        
+        // 结束所有输入框的编辑状态
+        isFocusFieldFocused = false
+        isRestFieldFocused = false
+        isEditingFocus = false
+        isEditingRest = false
+    }
+
     // MARK: - 添加预设方法
     private func addFocusPreset() {
         guard let duration = Int(newFocusDuration) else { return }
@@ -285,6 +326,9 @@ struct TDFocusDurationPresetView: View {
         if presetManager.focusPresets.contains(where: { $0.duration == duration }) {
             // TODO: 显示重复提示
             print("专注时长 \(duration) 已存在，不能重复添加")
+            toastMessage = String(format: "focus_duration_exists".localized, duration)
+            showToast = true
+
             return
         }
         
@@ -301,6 +345,9 @@ struct TDFocusDurationPresetView: View {
         if presetManager.restPresets.contains(where: { $0.duration == duration }) {
             // TODO: 显示重复提示
             print("休息时长 \(duration) 已存在，不能重复添加")
+            toastMessage = String(format: "rest_duration_exists".localized, duration)
+            showToast = true
+
             return
         }
         
@@ -318,7 +365,7 @@ struct TDFocusDurationPresetView: View {
             Button(action: {
                 presetManager.restoreDefaults()
             }) {
-                Text("恢复默认")
+                Text("restore_default_button".localized)
                     .font(.system(size: 14, weight: .medium))
                     .foregroundColor(.white)
                     .padding(.horizontal, 16)
@@ -329,6 +376,7 @@ struct TDFocusDurationPresetView: View {
                     )
             }
             .buttonStyle(PlainButtonStyle())
+            .pointingHandCursor()
         }
         .padding(.horizontal, 0)
         .padding(.vertical, 16)
@@ -341,6 +389,68 @@ struct TDFocusDurationPresetView: View {
         )
     }
 }
+
+// MARK: - 子视图：单个预设项
+private struct PresetItemView: View {
+    @EnvironmentObject private var themeManager: TDThemeManager
+    let text: String
+    let isSelected: Bool
+    let isCustom: Bool
+    let onTap: () -> Void
+    let onDelete: (() -> Void)?
+    
+    @State private var isHovering: Bool = false
+    
+    var body: some View {
+        ZStack {
+            // 主按钮
+            Button(action: onTap) {
+                Text(text)
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundColor(isSelected ? .white : themeManager.titleTextColor)
+                    .frame(maxWidth: .infinity, minHeight: 32)
+                    .padding(.horizontal, 12)
+                    .background(
+                        RoundedRectangle(cornerRadius: 6)
+                            .fill(isSelected ? themeManager.color(level: 5) : themeManager.secondaryBackgroundColor)
+                    )
+            }
+            .buttonStyle(PlainButtonStyle())
+            .pointingHandCursor()
+            .zIndex(1)
+            
+            // 删除按钮（仅自定义 + 未选中 + 悬停）
+            if let onDelete,
+               isCustom,
+               !isSelected,
+               isHovering {
+                VStack {
+                    HStack {
+                        Spacer()
+                        Button(action: onDelete) {
+                            Image(systemName: "xmark")
+                                .font(.system(size: 9, weight: .medium))
+                                .foregroundColor(.white)
+                                .frame(width: 14, height: 14)
+                                .background(
+                                    Circle()
+                                        .fill(themeManager.descriptionTextColor)
+                                )
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        .pointingHandCursor()
+                    }
+                    Spacer()
+                }
+                .zIndex(2)
+                .clipped()
+            }
+        }
+        .onHover { isHovering = $0 }
+        .clipped()
+    }
+}
+
 
 
 // MARK: - 预览

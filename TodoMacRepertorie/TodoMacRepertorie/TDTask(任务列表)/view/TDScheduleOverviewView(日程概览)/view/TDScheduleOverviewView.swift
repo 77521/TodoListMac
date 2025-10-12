@@ -14,10 +14,15 @@ struct TDScheduleOverviewView: View {
         VStack(spacing: 0) {
             // 顶部工具栏
             TDScheduleTopToolbar()
+                .zIndex(1) // 确保在最上层，阴影效果可见
+            
+            // 日历组件
+            TDCalendarView()
             
             // 内容区域
-            Spacer()
+//            Spacer()
         }
+
     }
 }
 

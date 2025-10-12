@@ -19,6 +19,7 @@ struct TDLoginRuleView: View {
                     .font(.system(size: 12))
             }
             .buttonStyle(.plain)
+            .pointingHandCursor()
             .frame(width: 20, height: 20)
 
             Text("已阅读并同意")
@@ -34,7 +35,8 @@ struct TDLoginRuleView: View {
                     .frame(minWidth: 0, maxWidth: .infinity)
             }
             .buttonStyle(.plain)
-            
+            .pointingHandCursor()
+
             Text("与")
                 .foregroundStyle(Color.labelColor2)
                 .font(.system(size: 12))
@@ -47,6 +49,7 @@ struct TDLoginRuleView: View {
                     .font(.system(size: 12))
             }
             .buttonStyle(.plain)
+            .pointingHandCursor()
         }
     }
 

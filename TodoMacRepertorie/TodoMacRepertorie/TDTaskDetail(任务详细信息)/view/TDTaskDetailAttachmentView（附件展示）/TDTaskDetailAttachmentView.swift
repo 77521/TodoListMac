@@ -287,36 +287,43 @@ struct TDAttachmentItemView: View {
                 Button("打开") {
                     openAttachment()
                 }
-                
+                .pointingHandCursor()
+
                 Button("查看文件夹") {
                     showInFinder()
                 }
-                
+                .pointingHandCursor()
+
                 Button("从浏览器打开") {
                     openInBrowser()
                 }
-                
+                .pointingHandCursor()
+
                 Divider()
                 
                 Button("删除") {
                     onDelete?()
                 }
+                .pointingHandCursor()
                 .foregroundColor(.red)
             } else {
                 // 未下载文件的菜单
                 Button("从浏览器打开") {
                     openInBrowser()
                 }
-                
+                .pointingHandCursor()
+
                 Button("下载到本地") {
                     downloadAttachment()
                 }
-                
+                .pointingHandCursor()
+
                 Divider()
                 
                 Button("删除") {
                     onDelete?()
                 }
+                .pointingHandCursor()
                 .foregroundColor(.red)
             }
         }

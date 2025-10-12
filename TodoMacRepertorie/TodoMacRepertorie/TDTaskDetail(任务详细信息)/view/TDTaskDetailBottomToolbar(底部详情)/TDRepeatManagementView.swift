@@ -85,6 +85,7 @@ struct TDRepeatManagementView: View {
                 }
             }
             .buttonStyle(PlainButtonStyle())
+            .pointingHandCursor()
             .help("查看重复事件说明")
             
             Spacer()
@@ -98,6 +99,7 @@ struct TDRepeatManagementView: View {
                     .foregroundColor(themeManager.descriptionTextColor)
             }
             .buttonStyle(PlainButtonStyle())
+            .pointingHandCursor()
             .help("关闭")
         }
         .padding(.horizontal, 20)
@@ -163,6 +165,7 @@ struct TDRepeatManagementView: View {
                         .fill(.red)
                 )
             }
+            .pointingHandCursor()
             .buttonStyle(PlainButtonStyle())
             .help("删除所有重复事件")
         }
@@ -216,6 +219,8 @@ struct TDRepeatManagementView: View {
                         .foregroundColor(themeManager.descriptionTextColor)
                 }
                 .buttonStyle(PlainButtonStyle())
+                .pointingHandCursor()
+
             }
             .padding(.horizontal, 20)
             .padding(.top, 20)

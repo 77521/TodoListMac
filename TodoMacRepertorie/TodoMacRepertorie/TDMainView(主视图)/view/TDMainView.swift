@@ -19,61 +19,106 @@ struct TDMainView: View {
     @ObservedObject private var dateManager = TDDateManager.shared
 
     // 控制第三列的显示/隐藏
-    @State private var columnVisibility = NavigationSplitViewVisibility.automatic
-    @State private var selectedTask: TDMacSwiftDataListModel?
+    @State private var columnVisibility = NavigationSplitViewVisibility.all
+//    @State private var selectedTask: TDMacSwiftDataListModel?
     
+    // 计算最小宽度：基础宽度 + 第三列宽度（如果显示）
+    private var minWidth: CGFloat {
+        let baseWidth: CGFloat = 260 + 450 // 基础宽度（不包含第三列）
+        return mainViewModel.selectedTask != nil ? baseWidth + 414 : baseWidth
+    }
+
     var body: some View {
-        NavigationSplitView(columnVisibility: $columnVisibility) {
+//        NavigationSplitView(columnVisibility: $columnVisibility) {
+//            // 第一列：分类导航栏
+//            firstColumn
+//            
+//        } content: {
+//            // 第二列：任务列表
+//            secondColumn
+//        } detail: {
+//            // 第三列：任务详情
+//            thirdColumn
+//        }
+//        .frame(minWidth: 1100, minHeight: 700)
+//        .background(Color(.windowBackgroundColor))
+//        .ignoresSafeArea(.container, edges: .all)
+//        .task {
+//            // 针对 macOS 26 强制显示三列
+//            DispatchQueue.main.async {
+//                columnVisibility = .all
+//            }
+//
+//            // 界面加载完成后，立即执行四个初始化请求和同步操作
+//            await mainViewModel.performInitialServerRequests()
+//            // 单独执行同步操作，避免线程优先级冲突
+////            await mainViewModel.performSyncSeparately()
+//
+//        }
+        // 使用 HSplitView 实现三列布局 - 替代 NavigationSplitView
+        HSplitView {
             // 第一列：分类导航栏
             firstColumn
             
-        } content: {
             // 第二列：任务列表
             secondColumn
-        } detail: {
-            // 第三列：任务详情
-            thirdColumn
+            
+//            // 第三列：任务详情
+//            thirdColumn
+            // 第三列：任务详情 - 根据 selectedTask 显示/隐藏
+            // 第三列：任务详情 - 根据 selectedTask 显示/隐藏
+            if mainViewModel.selectedTask != nil {
+                thirdColumn
+                    .transition(.asymmetric(
+                        insertion: .move(edge: .trailing).combined(with: .scale(scale: 0.95, anchor: .trailing)),
+                        removal: .move(edge: .leading).combined(with: .scale(scale: 0.95, anchor: .leading))
+                    ))
+            }
         }
-        .frame(minWidth: 1100, minHeight: 700)
+        .animation(.easeInOut(duration: 0.3), value: mainViewModel.selectedTask != nil)
+        .frame(minWidth: minWidth,idealWidth: minWidth + 80, minHeight: 700)
         .background(Color(.windowBackgroundColor))
         .ignoresSafeArea(.container, edges: .all)
+        .animation(.easeInOut(duration: 0.3), value: mainViewModel.selectedTask != nil)
         .task {
             // 界面加载完成后，立即执行四个初始化请求和同步操作
             await mainViewModel.performInitialServerRequests()
             // 单独执行同步操作，避免线程优先级冲突
 //            await mainViewModel.performSyncSeparately()
-
         }
+        
+
+
     }
     
     // MARK: - 第一列：分类导航栏
     private var firstColumn: some View {
         TDSliderBarView()
-            .frame(minWidth: 216, idealWidth: 216, maxWidth: 280)
+            .frame(minWidth: 260, idealWidth: 260, maxWidth: 260)
             .background(Color(.windowBackgroundColor))
-            .toolbar {
-                ToolbarItemGroup(placement: .automatic) {
-                    Spacer()
-                    
-                    // 更多按钮
-                    Button(action: {
-                        // TODO: 更多操作
-                    }) {
-                        Image(systemName: "ellipsis.circle")
-                            .foregroundColor(.secondary)
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                    
-                    // 设置按钮
-                    Button(action: {
-                        // TODO: 设置操作
-                    }) {
-                        Image(systemName: "gearshape")
-                            .foregroundColor(.secondary)
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                }
-            }
+//            .toolbar {
+//                ToolbarItemGroup(placement: .automatic) {
+//                    Spacer()
+//                    
+//                    // 更多按钮
+//                    Button(action: {
+//                        // TODO: 更多操作
+//                    }) {
+//                        Image(systemName: "ellipsis.circle")
+//                            .foregroundColor(.secondary)
+//                    }
+//                    .buttonStyle(PlainButtonStyle())
+//                    
+//                    // 设置按钮
+//                    Button(action: {
+//                        // TODO: 设置操作
+//                    }) {
+//                        Image(systemName: "gearshape")
+//                            .foregroundColor(.secondary)
+//                    }
+//                    .buttonStyle(PlainButtonStyle())
+//                }
+//            }
     }
     
     // MARK: - 第二列：任务列表
@@ -113,7 +158,7 @@ struct TDMainView: View {
                         TDDayTodoView(selectedDate: dateManager.selectedDate, category: TDSliderBarModel.defaultItems.first(where: { $0.categoryId == -100 }) ?? TDSliderBarModel.defaultItems[0])
                     }
                 }
-                .frame(minWidth: 450, idealWidth: 450, maxWidth: .infinity)
+                    .frame(minWidth: 450, idealWidth: 650, maxWidth: .infinity)
                 .background(Color(.windowBackgroundColor))
                 .ignoresSafeArea(.container, edges: .all)
             )

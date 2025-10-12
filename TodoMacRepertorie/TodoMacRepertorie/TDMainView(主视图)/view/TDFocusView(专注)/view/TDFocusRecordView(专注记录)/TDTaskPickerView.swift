@@ -61,6 +61,7 @@ struct TDTaskPickerView: View {
                             .fill(themeManager.secondaryBackgroundColor)
                     )
             }
+            .pointingHandCursor()
             .buttonStyle(PlainButtonStyle())
         }
         .padding(.horizontal, 20)
@@ -98,6 +99,7 @@ struct TDTaskPickerView: View {
 
             }
             .buttonStyle(PlainButtonStyle())
+            .pointingHandCursor()
             .popover(isPresented: $showDatePicker) {
                 TDCustomDatePickerView(
                     selectedDate: $selectedDate,
@@ -124,6 +126,7 @@ struct TDTaskPickerView: View {
                     .foregroundColor(themeManager.color(level: 5))
             }
             .buttonStyle(PlainButtonStyle())
+            .pointingHandCursor()
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 12)
@@ -270,6 +273,7 @@ struct TaskPickerRowView: View {
                 isSelected ? themeManager.color(level: 5).opacity(0.1) : themeManager.backgroundColor
             )
         }
+        .pointingHandCursor()
         .buttonStyle(PlainButtonStyle())
         .overlay(
             Rectangle()

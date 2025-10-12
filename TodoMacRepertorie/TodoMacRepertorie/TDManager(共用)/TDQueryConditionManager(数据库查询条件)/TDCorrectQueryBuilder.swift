@@ -455,6 +455,102 @@ struct TDCorrectQueryBuilder {
         return (predicate, sortDescriptors)
     }
     
+    /// 获取本地数据查询 - 支持日期、分类、完成状态筛选和多种排序方式
+    /// 注意：标签筛选需要在应用层处理，这里只提供基础筛选
+    /// - Parameters:
+    ///   - dateTimestamp: 日期时间戳
+    ///   - categoryId: 分类ID，>0时添加分类筛选条件
+    ///   - sortType: 排序类型 0:默认 1:提醒时间 2:添加时间a-z 3:添加时间z-a 4:工作量a-z 5:工作量z-a
+    /// - Returns: 查询条件和排序描述符
+    static func getLocalDataQuery(
+        dateTimestamp: Int64,
+        categoryId: Int = 0,
+        sortType: Int = 0
+    ) -> (Predicate<TDMacSwiftDataListModel>, [SortDescriptor<TDMacSwiftDataListModel>]) {
+        
+        let userId = TDUserManager.shared.userId
+        let settingManager = TDSettingManager.shared
+        let showCompleted = settingManager.showCompletedTasks
+        
+        // 构建基础查询条件
+        let predicate: Predicate<TDMacSwiftDataListModel>
+        
+        if categoryId > 0 {
+            // 有分类筛选
+            predicate = #Predicate<TDMacSwiftDataListModel> { task in
+                task.userId == userId && !task.delete &&
+                task.todoTime == dateTimestamp &&
+                task.standbyInt1 == categoryId &&
+                (showCompleted || !task.complete)
+            }
+        } else {
+            // 基础查询条件
+            predicate = #Predicate<TDMacSwiftDataListModel> { task in
+                task.userId == userId && !task.delete &&
+                task.todoTime == dateTimestamp &&
+                (showCompleted || !task.complete)
+            }
+        }
+        
+        // 根据排序类型创建排序描述符
+        // 已完成永远在未完成下方，但已完成内部仍然按照相同的排序规则
+        let sortDescriptors: [SortDescriptor<TDMacSwiftDataListModel>]
+        
+        switch sortType {
+        case 1: // 提醒时间：order by reminderTime asc、taskSort asc
+            sortDescriptors = [
+                SortDescriptor(\TDMacSwiftDataListModel.complete, order: .forward), // 未完成在前，已完成在后
+                SortDescriptor(\TDMacSwiftDataListModel.reminderTime, order: .forward),
+                SortDescriptor(\TDMacSwiftDataListModel.taskSort, order: .forward)
+            ]
+        case 2: // 添加时间a-z：order by createTime asc
+            sortDescriptors = [
+                SortDescriptor(\TDMacSwiftDataListModel.complete, order: .forward), // 未完成在前，已完成在后
+                SortDescriptor(\TDMacSwiftDataListModel.createTime, order: .forward)
+            ]
+        case 3: // 添加时间z-a：order by createTime desc
+            sortDescriptors = [
+                SortDescriptor(\TDMacSwiftDataListModel.complete, order: .forward), // 未完成在前，已完成在后
+                SortDescriptor(\TDMacSwiftDataListModel.createTime, order: .reverse)
+            ]
+        case 4: // 工作量a-z：order by snowAssess asc, taskSort asc
+            sortDescriptors = [
+                SortDescriptor(\TDMacSwiftDataListModel.complete, order: .forward), // 未完成在前，已完成在后
+                SortDescriptor(\TDMacSwiftDataListModel.snowAssess, order: .forward),
+                SortDescriptor(\TDMacSwiftDataListModel.taskSort, order: .forward)
+            ]
+        case 5: // 工作量z-a：order by snowAssess desc, taskSort asc
+            sortDescriptors = [
+                SortDescriptor(\TDMacSwiftDataListModel.complete, order: .forward), // 未完成在前，已完成在后
+                SortDescriptor(\TDMacSwiftDataListModel.snowAssess, order: .reverse),
+                SortDescriptor(\TDMacSwiftDataListModel.taskSort, order: .forward)
+            ]
+        default: // 0: 默认根据 taskSort 值升序
+            sortDescriptors = [
+                SortDescriptor(\TDMacSwiftDataListModel.complete, order: .forward), // 未完成在前，已完成在后
+                SortDescriptor(\TDMacSwiftDataListModel.taskSort, order: .forward)
+            ]
+        }
+        
+        return (predicate, sortDescriptors)
+    }
+       
+    /// 标签筛选辅助方法 - 在应用层使用
+    /// - Parameters:
+    ///   - tasks: 需要筛选的任务数组
+    ///   - tagFilter: 标签筛选条件，为空时不筛选
+    /// - Returns: 筛选后的任务数组
+    static func filterTasksByTag(_ tasks: [TDMacSwiftDataListModel], tagFilter: String) -> [TDMacSwiftDataListModel] {
+        guard !tagFilter.isEmpty else { return tasks }
+        
+        return tasks.filter { task in
+            return task.taskContent.contains(tagFilter)
+        }
+    }
+
+       
+
+    
     /// 搜索方法 - 根据筛选条件查询任务（搜索文字在应用层实现）
     /// 筛选条件：日期、分类、标签、完成状态
     /// 注意：搜索文字功能需要在应用层实现，这里只提供基础筛选
@@ -925,5 +1021,7 @@ struct TDCorrectQueryBuilder {
         
         return (predicate, sortDescriptors)
     }
+    
+    
     
 }

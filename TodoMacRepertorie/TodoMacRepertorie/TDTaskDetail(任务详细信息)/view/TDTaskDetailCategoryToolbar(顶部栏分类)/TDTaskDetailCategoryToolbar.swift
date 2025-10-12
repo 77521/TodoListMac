@@ -149,7 +149,8 @@ struct TDTaskDetailCategoryToolbar: View {
                         }
                     }
                     .buttonStyle(PlainButtonStyle())
-                    
+                    .pointingHandCursor()
+
                     // MARK: - 不分类选项
                     Button(action: {
                         handleModifyCategory(category: nil)
@@ -162,7 +163,8 @@ struct TDTaskDetailCategoryToolbar: View {
                         }
                     }
                     .buttonStyle(PlainButtonStyle())
-                    
+                    .pointingHandCursor()
+
                     // MARK: - 现有分类列表（过滤掉外面已显示的分类）
                     if !availableCategories.isEmpty {
                         Divider()
@@ -181,6 +183,8 @@ struct TDTaskDetailCategoryToolbar: View {
                                 }
                             }
                             .buttonStyle(PlainButtonStyle())
+                            .pointingHandCursor()
+
                         }
                     }
                 } label: {
@@ -210,6 +214,8 @@ struct TDTaskDetailCategoryToolbar: View {
                     .foregroundColor(checkboxColor)
             }
             .buttonStyle(PlainButtonStyle())
+            .pointingHandCursor()
+
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
@@ -292,6 +298,8 @@ private struct CategoryTagView: View {
                 )
         }
         .buttonStyle(PlainButtonStyle())
+        .pointingHandCursor()
+
     }
     
     // 获取背景色

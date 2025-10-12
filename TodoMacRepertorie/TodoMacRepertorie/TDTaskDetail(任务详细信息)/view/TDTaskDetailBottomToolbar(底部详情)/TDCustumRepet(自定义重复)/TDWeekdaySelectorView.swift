@@ -52,6 +52,8 @@ struct TDWeekdaySelectorView: View {
                             )
                     }
                     .buttonStyle(PlainButtonStyle())
+                    .pointingHandCursor()
+
                 }
         }
         .onAppear {

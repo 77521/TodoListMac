@@ -31,7 +31,8 @@ struct TDWeekDatePickerView: View {
 //                        .background(Color.yellow.opacity(0.3))
                 }
                 .buttonStyle(.plain)
-                
+                .pointingHandCursor()
+
                 // 日期显示
                 HStack(spacing: 4) {
                     ForEach(dateManager.currentWeek, id: \.self) { date in
@@ -55,6 +56,7 @@ struct TDWeekDatePickerView: View {
                                 .clipShape(Circle())
                         }
                         .buttonStyle(.plain)
+                        .pointingHandCursor()
                         .frame(width: 24, height: 24)
 
                     }
@@ -73,6 +75,7 @@ struct TDWeekDatePickerView: View {
 //                        .background(Color.yellow.opacity(0.3))
                 }
                 .buttonStyle(.plain)
+                .pointingHandCursor()
             }
 //            .background(Color.green.opacity(0.1))
             
@@ -90,6 +93,7 @@ struct TDWeekDatePickerView: View {
 
             }
             .buttonStyle(.plain)
+            .pointingHandCursor()
 //            .background(Color.red.opacity(0.1))
             .popover(isPresented: $showDatePicker) {
                 TDCustomDatePickerView(
@@ -114,6 +118,8 @@ struct TDWeekDatePickerView: View {
 //                    .background(Color.purple.opacity(0.3))
             }
             .buttonStyle(.plain)
+            .pointingHandCursor()
+
         }
         .frame(height: 35)
         .padding(.horizontal, 12)

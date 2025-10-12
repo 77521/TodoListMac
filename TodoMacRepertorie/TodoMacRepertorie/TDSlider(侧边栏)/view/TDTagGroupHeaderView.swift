@@ -47,6 +47,7 @@ struct TDTagGroupView: View {
                         .foregroundColor(themeManager.descriptionTextColor)
                 }
                 .buttonStyle(.plain)
+                .pointingHandCursor()
             }
         }
         .padding(.vertical, 4)

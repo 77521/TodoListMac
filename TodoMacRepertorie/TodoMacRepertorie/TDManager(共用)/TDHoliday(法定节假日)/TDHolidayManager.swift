@@ -8,7 +8,6 @@
 import Foundation
 import OSLog
 
-@MainActor
 final class TDHolidayManager: ObservableObject {
     
     // MARK: - 日志系统

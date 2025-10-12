@@ -135,6 +135,7 @@ struct TDFocusView: View {
                         .foregroundColor(currentTextColor)
                 }
             }
+            .pointingHandCursor()
             .buttonStyle(PlainButtonStyle())
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -180,6 +181,7 @@ struct TDFocusView: View {
                             .foregroundColor(currentTextColor)
                     }
                     .buttonStyle(PlainButtonStyle())
+                    .pointingHandCursor()
                 }
             }
             .padding(.horizontal, 12)
@@ -218,6 +220,7 @@ struct TDFocusView: View {
             )
         }
         .buttonStyle(PlainButtonStyle())
+        .pointingHandCursor()
         .frame(maxWidth: .infinity, alignment: .trailing)
     }
     
@@ -273,11 +276,11 @@ struct TDFocusView: View {
     /// 按钮文字
     private var buttonText: String {
         if isCompleted {
-            return "放弃休息"
+            return "button_give_up_rest".localized
         } else if isRunning {
-            return "放弃专注"
+            return "button_give_up_focus".localized
         } else {
-            return "开始专注"
+            return "button_start_focus".localized
         }
     }
     
@@ -293,11 +296,11 @@ struct TDFocusView: View {
     /// 弹窗标题
     private var alertTitle: String {
         if isCompleted {
-            return "确认放弃休息吗?"
+            return "alert_confirm_give_up_rest".localized
         } else if isRunning {
-            return "确定要放弃本次番茄专注吗?"
+            return "alert_confirm_give_up_focus".localized
         } else {
-            return "确定要放弃本次番茄专注吗?"
+            return "alert_confirm_give_up_focus".localized
         }
     }
     
@@ -334,7 +337,7 @@ struct TDFocusView: View {
             showDurationPreset = true
         } else {
             // 显示 Toast 提示
-            showToast(message: "专注时无法修改时长")
+            showToast(message: "toast_cannot_modify_duration".localized)
         }
     }
     // MARK: - Toast 提示
@@ -450,7 +453,6 @@ struct TDFocusView: View {
         stopAudioPlayback()
         
         // 创建番茄钟记录并保存
-        // 创建番茄钟记录并保存
         createTomatoRecord()
         
         // 自动同步数据到服务器
@@ -547,7 +549,7 @@ struct TDFocusView: View {
         let restDuration = actualRestTime
         
         // 获取用户ID（这里需要根据实际情况获取）
-        let userId = Int64(TDUserManager.shared.userId)
+        let userId = TDUserManager.shared.userId
         
         // 创建记录
         let now = Date.currentTimestamp

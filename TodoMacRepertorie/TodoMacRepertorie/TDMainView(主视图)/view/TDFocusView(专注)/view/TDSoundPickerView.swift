@@ -17,7 +17,7 @@ struct TDSoundPickerView: View {
         VStack(spacing: 20) {
             // 标题栏
             HStack {
-                Text("选择专注声音")
+                Text("select_focus_sound".localized)
                     .font(.system(size: 16))
                     .foregroundColor(themeManager.titleTextColor)
                 
@@ -36,6 +36,7 @@ struct TDSoundPickerView: View {
                         )
 
                 }
+                .pointingHandCursor()
                 .buttonStyle(PlainButtonStyle())
             }
             .padding(.horizontal, 20)
@@ -91,6 +92,7 @@ struct TDSoundPickerView: View {
             )
         }
         .buttonStyle(PlainButtonStyle())
+        .pointingHandCursor()
     }
 }
 

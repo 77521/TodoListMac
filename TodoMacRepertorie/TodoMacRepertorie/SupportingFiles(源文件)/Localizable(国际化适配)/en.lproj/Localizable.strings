@@ -62,11 +62,46 @@
 "copy_success_simple" = "Copy successful";
 "new_category" = "New";
 
-// Description and Subtask Conversion
+// 描述与子任务转换
 "subtask_limit_reached" = "Subtask limit reached (20), cannot add more";
 "convert_success" = "Conversion successful";
 "description_length_exceeded" = "Description text length exceeds limit after conversion";
 
-// Year Repeat Selector
+// 年重复选择器
 "calendar.gregorian" = "Gregorian";
 "calendar.lunar" = "Lunar";
+
+// 专注时长预设界面
+"focus_duration_preset_title" = "Modify Focus Duration";
+"focus_duration_label" = "Focus Duration (minutes)";
+"rest_duration_label" = "Rest Duration (minutes)";
+"add_preset_button" = "Add Preset";
+"restore_default_button" = "Restore Default";
+"focus_duration_placeholder" = "Focus Duration";
+"rest_duration_placeholder" = "Rest Duration";
+"focus_duration_exists" = "Focus duration %d already exists, cannot add duplicate";
+"rest_duration_exists" = "Rest duration %d already exists, cannot add duplicate";
+
+// 专注计时器按钮和提示
+"button_give_up_rest" = "Give Up Rest";
+"button_give_up_focus" = "Give Up Focus";
+"button_start_focus" = "Start Focus";
+"alert_confirm_give_up_rest" = "Confirm to give up rest?";
+"alert_confirm_give_up_focus" = "Are you sure to give up this focus session?";
+"toast_cannot_modify_duration" = "Cannot modify duration during focus";
+
+// 声音选择器
+"select_focus_sound" = "Select Focus Sound";
+
+// 添加专注记录界面
+"add_record_title" = "Add Record";
+"start_time_label" = "Start Time";
+"focus_duration_slider_label" = "Focus Duration (minutes)";
+"rest_duration_slider_label" = "Rest Duration (minutes)";
+"associated_task_label" = "Associated Task";
+"select_task_placeholder" = "Select Task";
+"daily_limit_info" = "Maximum daily manual records:";
+"daily_limit_count" = "";
+"daily_limit_remaining" = " focus records, remaining today:";
+"cancel_button" = "Cancel";
+"add_button" = "Add";

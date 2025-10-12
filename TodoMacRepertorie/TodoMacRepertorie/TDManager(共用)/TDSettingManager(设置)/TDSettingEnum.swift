@@ -18,24 +18,39 @@ enum TDThemeMode: Int, Codable {
 }
 /// 文字大小
 enum TDFontSize: Int, Codable {
-    /// 跟随系统
-    case system = 1
-    /// 小号 (13pt)
-    case small = 2
-    /// 大号 (15pt)
-    case large = 3
+    /// 9号字体
+    case size9 = 1
+    /// 10号字体
+    case size10 = 2
+    /// 11号字体
+    case size11 = 3
+    /// 12号字体
+    case size12 = 4
     
     var size: CGFloat {
         switch self {
-        case .system:
-            return 14 // 系统默认大小
-        case .small:
-            return 13
-        case .large:
-            return 15
+        case .size9:
+            return 9
+        case .size10:
+            return 10
+        case .size11:
+            return 11
+        case .size12:
+            return 12
         }
     }
 }
+
+/// 日历任务颜色识别模式
+enum TDCalendarTaskColorRecognition: Int, Codable {
+    /// 自动识别
+    case auto = 0
+    /// 黑色
+    case black = 1
+    /// 白色
+    case white = 2
+}
+
 
 /// 语言设置
 enum TDLanguage: Int, Codable {

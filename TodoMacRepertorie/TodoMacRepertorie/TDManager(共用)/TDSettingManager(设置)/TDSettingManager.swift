@@ -61,6 +61,13 @@ class TDSettingManager: ObservableObject {
         static let calendarShowCompletedSeparator = "td_calendar_show_completed_separator"
         /// 日历视图是否显示剩余任务数量
         static let calendarShowRemainingCount = "td_calendar_show_remaining_count"
+        /// 是否启用隐私保护模式
+        static let isPrivacyModeEnabled = "td_is_privacy_mode_enabled"
+        /// 日历任务颜色识别模式
+        static let calendarTaskColorRecognition = "td_calendar_task_color_recognition"
+        /// 是否显示农历
+        static let showLunarCalendar = "td_show_lunar_calendar"
+
         /// DayTodo 是否显示顺序数字
         static let showDayTodoOrderNumber = "td_show_daytodo_order_number1"
 
@@ -100,7 +107,7 @@ class TDSettingManager: ObservableObject {
     
     /// 字体大小
     var fontSize: TDFontSize {
-        get { TDFontSize(rawValue: sharedDefaults?.integer(forKey: Keys.fontSize) ?? TDFontSize.system.rawValue) ?? .system }
+        get { TDFontSize(rawValue: sharedDefaults?.integer(forKey: Keys.fontSize) ?? TDFontSize.size9.rawValue) ?? .size9 }
         set { sharedDefaults?.set(newValue.rawValue, forKey: Keys.fontSize); objectWillChange.send() }
     }
     
@@ -427,6 +434,38 @@ class TDSettingManager: ObservableObject {
         set { sharedDefaults?.set(newValue, forKey: Keys.restDuration); objectWillChange.send() }
     }
     
+    /// 是否启用隐私保护模式（默认关闭）
+    var isPrivacyModeEnabled: Bool {
+        get {
+            if sharedDefaults?.object(forKey: Keys.isPrivacyModeEnabled) == nil {
+                return false // 默认关闭隐私保护模式
+            }
+            return sharedDefaults?.bool(forKey: Keys.isPrivacyModeEnabled) ?? false
+        }
+        set { sharedDefaults?.set(newValue, forKey: Keys.isPrivacyModeEnabled); objectWillChange.send() }
+    }
+
+    /// 日历任务颜色识别模式（默认自动识别）
+    var calendarTaskColorRecognition: TDCalendarTaskColorRecognition {
+        get {
+            if sharedDefaults?.object(forKey: Keys.calendarTaskColorRecognition) == nil {
+                return .auto // 默认自动识别
+            }
+            return TDCalendarTaskColorRecognition(rawValue: sharedDefaults?.integer(forKey: Keys.calendarTaskColorRecognition) ?? 0) ?? .auto
+        }
+        set { sharedDefaults?.set(newValue.rawValue, forKey: Keys.calendarTaskColorRecognition); objectWillChange.send() }
+    }
+    
+    /// 是否显示农历（默认显示）
+    var showLunarCalendar: Bool {
+        get {
+            if sharedDefaults?.object(forKey: Keys.showLunarCalendar) == nil {
+                return true // 默认显示农历
+            }
+            return sharedDefaults?.bool(forKey: Keys.showLunarCalendar) ?? true
+        }
+        set { sharedDefaults?.set(newValue, forKey: Keys.showLunarCalendar); objectWillChange.send() }
+    }
 
     // MARK: - 初始化
     private init() {}

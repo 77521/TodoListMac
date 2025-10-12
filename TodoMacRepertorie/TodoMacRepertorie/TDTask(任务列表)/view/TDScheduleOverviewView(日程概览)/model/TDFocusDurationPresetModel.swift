@@ -159,10 +159,13 @@ class TDFocusDurationPresetManager: ObservableObject {
     
     /// 恢复默认预设
     func restoreDefaults() {
-        focusPresets = TDFocusDurationPresetModel.defaultFocusPresets
-        restPresets = TDFocusDurationPresetModel.defaultRestPresets
-        saveFocusPresets()
-        saveRestPresets()
+        // 使用数据模型中的默认预设
+        let defaultFocusPreset = TDFocusDurationPresetModel.defaultFocusPresets.first!
+        let defaultRestPreset = TDFocusDurationPresetModel.defaultRestPresets.first!
+        
+        // 选中默认的专注时长和休息时长
+        setFocusDuration(defaultFocusPreset.duration)
+        setRestDuration(defaultRestPreset.duration)
     }
     
     /// 获取当前选中的专注时长

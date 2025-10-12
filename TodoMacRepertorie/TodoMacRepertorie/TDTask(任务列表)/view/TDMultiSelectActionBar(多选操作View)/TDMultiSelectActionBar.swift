@@ -50,7 +50,8 @@ struct TDMultiSelectActionBar: View {
                     }
                 }
                 .buttonStyle(PlainButtonStyle())
-                
+                .pointingHandCursor()
+
                 // 选中数量
                 Text("selected_count".localizedFormat(mainViewModel.selectedTasks.count))
                     .font(.system(size: 14))
@@ -78,6 +79,7 @@ struct TDMultiSelectActionBar: View {
                         .contentShape(Rectangle()) // 扩大点击区域
                 }
                 .buttonStyle(PlainButtonStyle()) // 使用无边框按钮样式
+                .pointingHandCursor()
                 .help("select_date".localized) // 鼠标悬停提示文字
                 .popover(isPresented: $showDatePicker) {
                     // 日期选择器弹窗 - 与顶部日期选择器使用相同的组件
@@ -117,6 +119,7 @@ struct TDMultiSelectActionBar: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(PlainButtonStyle())
+                .pointingHandCursor()
                 .help("copy".localized)
                 
                 // 删除按钮
@@ -134,6 +137,7 @@ struct TDMultiSelectActionBar: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(PlainButtonStyle())
+                .pointingHandCursor()
                 .help("delete".localized)
                 
                 // 更多选项按钮 - 使用系统 Menu
@@ -155,6 +159,7 @@ struct TDMultiSelectActionBar: View {
                         Button("modify_category".localized) {
                             showToast = true
                         }
+                        .pointingHandCursor()
                     }
                     
                     // 根据选中任务的完成状态动态显示菜单项
@@ -179,6 +184,7 @@ struct TDMultiSelectActionBar: View {
                                 // TODO: 实现取消达成事件功能
                                 toggleSelectedTasksCompletion(complete: false)
                             }
+                            .pointingHandCursor()
                         }
                     }
                 } label: {
@@ -206,6 +212,8 @@ struct TDMultiSelectActionBar: View {
                         .cornerRadius(6)
                 }
                 .buttonStyle(PlainButtonStyle())
+                .pointingHandCursor()
+
             }
         }
         .padding(.horizontal, 16)

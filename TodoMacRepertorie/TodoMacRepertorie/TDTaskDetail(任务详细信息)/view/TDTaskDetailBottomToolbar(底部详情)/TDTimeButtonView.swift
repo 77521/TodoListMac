@@ -63,6 +63,7 @@ struct TDTimeButtonView: View {
                             .foregroundColor(themeManager.descriptionTextColor)
                     }
                     .buttonStyle(PlainButtonStyle())
+                    .pointingHandCursor()
                     .padding(.leading,6)
                 }
             }
@@ -80,6 +81,7 @@ struct TDTimeButtonView: View {
         }
         .animation(.easeInOut(duration: 0.15), value: task.hasReminder)  // 添加状态变化动画
         .buttonStyle(PlainButtonStyle())
+        .pointingHandCursor()
         .popover(isPresented: $showTimePicker, attachmentAnchor: .point(.top)) {
             TDTimePickerView(
                 isPresented: $showTimePicker,

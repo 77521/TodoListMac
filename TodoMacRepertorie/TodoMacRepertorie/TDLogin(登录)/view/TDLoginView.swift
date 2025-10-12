@@ -352,6 +352,7 @@ struct AccountLoginForm: View {
                     .clipShape(RoundedRectangle(cornerRadius: 5))
             }
             .buttonStyle(.plain)
+            .pointingHandCursor()
             .disabled(viewModel.isLoginLoading)
 
         }
@@ -424,6 +425,7 @@ struct PhoneLoginForm: View {
                     .clipShape(RoundedRectangle(cornerRadius: 5))
             }
             .buttonStyle(.plain)
+            .pointingHandCursor()
             .disabled(viewModel.isLoginLoading)
 
         }

@@ -80,7 +80,8 @@ struct TDSubtaskRowView: View {
                             .foregroundColor(themeManager.descriptionTextColor)
                     }
                     .buttonStyle(PlainButtonStyle())
-                    
+                    .pointingHandCursor()
+
                     // 拖拽手柄
                     Image(systemName: "line.3.horizontal")
                         .font(.system(size: 12))

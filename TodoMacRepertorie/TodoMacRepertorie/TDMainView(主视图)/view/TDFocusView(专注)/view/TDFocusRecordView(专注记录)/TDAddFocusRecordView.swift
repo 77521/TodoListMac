@@ -11,7 +11,9 @@ struct TDAddFocusRecordView: View {
     @EnvironmentObject private var themeManager: TDThemeManager
     @EnvironmentObject private var tomatoManager: TDTomatoManager
     @Binding var isPresented: Bool
-    
+    // 回调参数
+    let onRecordAdded: (() -> Void)?
+
     // 状态管理
     @State private var startTime: Date = Date()
     @State private var focusDuration: Int = 25
@@ -63,7 +65,7 @@ struct TDAddFocusRecordView: View {
     // MARK: - 标题栏
     private var headerView: some View {
         HStack {
-            Text("添加记录")
+            Text("add_record_title".localized)
                 .font(.system(size: 16, weight: .semibold))
                 .foregroundColor(themeManager.color(level: 5))
             
@@ -83,6 +85,7 @@ struct TDAddFocusRecordView: View {
                     )
             }
             .buttonStyle(PlainButtonStyle())
+            .pointingHandCursor()
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 16)
@@ -145,7 +148,7 @@ struct TDAddFocusRecordView: View {
     // MARK: - 专注时长
     private var focusDurationSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("专注时长 (分钟)")
+            Text("focus_duration_slider_label".localized)
                 .font(.system(size: 14))
                 .foregroundColor(themeManager.titleTextColor)
             
@@ -175,7 +178,8 @@ struct TDAddFocusRecordView: View {
                     }
                     .buttonStyle(PlainButtonStyle())
                     .disabled(focusDuration <= minFocusDuration)
-                    
+                    .pointingHandCursor()
+
                     Text("\(focusDuration)")
                         .font(.system(size: 14, weight: .medium))
                         .foregroundColor(themeManager.titleTextColor)
@@ -196,6 +200,7 @@ struct TDAddFocusRecordView: View {
                             )
                     }
                     .buttonStyle(PlainButtonStyle())
+                    .pointingHandCursor()
                     .disabled(focusDuration >= maxFocusDuration)
                 }
             }
@@ -205,7 +210,7 @@ struct TDAddFocusRecordView: View {
     // MARK: - 休息时长
     private var restDurationSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("休息时长 (分钟)")
+            Text("rest_duration_slider_label".localized)
                 .font(.system(size: 14))
                 .foregroundColor(themeManager.titleTextColor)
             
@@ -234,6 +239,7 @@ struct TDAddFocusRecordView: View {
                             )
                     }
                     .buttonStyle(PlainButtonStyle())
+                    .pointingHandCursor()
                     .disabled(restDuration <= minRestDuration)
                     
                     Text("\(restDuration)")
@@ -256,6 +262,7 @@ struct TDAddFocusRecordView: View {
                             )
                     }
                     .buttonStyle(PlainButtonStyle())
+                    .pointingHandCursor()
                     .disabled(restDuration >= maxRestDuration)
                 }
             }
@@ -265,7 +272,7 @@ struct TDAddFocusRecordView: View {
     // MARK: - 关联事件
     private var associatedTaskSection: some View {
         HStack {
-            Text("关联事件")
+            Text("associated_task_label".localized)
                 .font(.system(size: 14))
                 .foregroundColor(themeManager.titleTextColor)
             
@@ -274,21 +281,23 @@ struct TDAddFocusRecordView: View {
             Button(action: {
                 showTaskPicker = true
             }) {
-                Text(selectedTask?.taskContent ?? "选择事件")
+                Text(selectedTask?.taskContent ?? "select_task_placeholder".localized)
                     .font(.system(size: 14))
                     .foregroundColor(themeManager.color(level: 5))
             }
             .buttonStyle(PlainButtonStyle())
+            .pointingHandCursor()
+
         }
     }
     
     // MARK: - 限制信息
     private var limitInfoSection: some View {
-        (Text("每天最多可以手动添加") +
-        Text("\(maxDailyRecords)条")
+        (Text("daily_limit_info".localized) +
+        Text("\(maxDailyRecords)" + "daily_limit_count".localized)
             .foregroundColor(themeManager.color(level: 5)) +
-        Text("番茄专注记录，今天还可以添加条数：") +
-        Text("\(remainingRecords)")
+         Text("daily_limit_remaining".localized) +
+         Text("\(remainingRecords)")
             .foregroundColor(themeManager.color(level: 5)))
         .font(.system(size: 12))
         .foregroundColor(themeManager.descriptionTextColor)
@@ -305,7 +314,7 @@ struct TDAddFocusRecordView: View {
             Button(action: {
                 isPresented = false
             }) {
-                Text("取消")
+                Text("cancel_button".localized)
                     .font(.system(size: 14, weight: .medium))
                     .foregroundColor(themeManager.titleTextColor)
                     .padding(.horizontal, 20)
@@ -325,7 +334,7 @@ struct TDAddFocusRecordView: View {
             Button(action: {
                 addRecord()
             }) {
-                Text("添加")
+                Text("add_button".localized)
                     .font(.system(size: 14, weight: .medium))
                     .foregroundColor(.white)
                     .padding(.horizontal, 20)
@@ -376,7 +385,7 @@ struct TDAddFocusRecordView: View {
         let restEndTime = focusEndTime.adding(minutes: restDuration)
         
         // 获取用户ID
-        let userId = Int64(TDUserManager.shared.userId)
+        let userId = TDUserManager.shared.userId
         
         // 生成番茄钟ID
         let tomatoId = TDAppConfig.generateTaskId()
@@ -399,24 +408,32 @@ struct TDAddFocusRecordView: View {
         )
         
         // 保存到本地数据库
-        TDTomatoManager.shared.insertTomatoRecord(record)
+        tomatoManager.insertTomatoRecord(record)
+        
+        
         // 增加今日手动添加计数
         incrementTodayManualRecordsCount()
+        // 自动同步数据到服务器
+        Task {
+            await tomatoManager.syncUnsyncedRecords()
+            // 调用回调通知父界面刷新数据
+            DispatchQueue.main.async {
+                self.onRecordAdded?()
+            }
 
-        print("✅ 手动添加番茄记录成功:")
-        print("  - 开始时间: \(startTime)")
-        print("  - 专注时长: \(focusDuration)分钟 (\(focusDuration * 60)秒)")
-        print("  - 休息时长: \(restDuration)分钟 (\(restDuration * 60)秒)")
-        print("  - 结束时间: \(restEndTime)")
-        print("  - 关联事件: \(selectedTask?.taskContent ?? "无")")
-        print("  - 番茄钟ID: \(tomatoId)")
+        }
         
         isPresented = false
     }
 }
 
 #Preview {
-    TDAddFocusRecordView(isPresented: .constant(true))
-        .environmentObject(TDThemeManager.shared)
-        .environmentObject(TDTomatoManager.shared)
+    TDAddFocusRecordView(
+        isPresented: .constant(true),
+        onRecordAdded: {
+            print("预览：记录添加成功回调")
+        }
+    )
+    .environmentObject(TDThemeManager.shared)
+    .environmentObject(TDTomatoManager.shared)
 }
