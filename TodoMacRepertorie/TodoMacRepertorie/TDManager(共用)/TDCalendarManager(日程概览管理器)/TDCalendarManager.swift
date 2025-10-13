@@ -283,13 +283,11 @@ final class TDCalendarManager: ObservableObject {
         // 4. 获取农历和节日信息
         let datesWithLunar = await addLunarAndHolidayInfo(to: allDates)
         
-        // 5. 获取任务数据
-        let datesWithTasks = try await addTasksToDate(dates: datesWithLunar)
 
-        // 6. 按周分组（每行7天）
-        // 6. 按周分组（每行7天）
+        // 5. 按周分组（每行7天）
         await MainActor.run {
-            calendarDates = groupByWeek(dates: datesWithTasks, numberOfWeeks: numberOfWeeks)
+            calendarDates = groupByWeek(dates: datesWithLunar, numberOfWeeks: numberOfWeeks)
+
         }
 
 //        calendarDates = groupByWeek(dates: datesWithTasks, numberOfWeeks: numberOfWeeks)
@@ -390,24 +388,6 @@ final class TDCalendarManager: ObservableObject {
             )
         }
     }
-    
-    
-    
-    /// 添加任务数据 - 为每个日期加载对应的任务列表
-    /// - Parameter dates: 需要添加任务的日期模型数组
-    /// - Returns: 包含任务数据的日期模型数组
-    private func addTasksToDate(dates: [TDCalendarDateModel]) async throws -> [TDCalendarDateModel] {
-        let updatedDates = dates
-        
-        for (index, date) in dates.enumerated() {
-            // TODO: 这里需要根据实际的任务查询逻辑来实现
-            // let tasks = try await queryManager.queryTasksByDate(timestamp: date.date.startOfDayTimestamp)
-            // updatedDates[index].tasks = tasks
-        }
-        
-        return updatedDates
-    }
-    
     /// 按周分组 - 将日期数组按每7天一组进行分组
     /// - Parameters:
     ///   - dates: 需要分组的日期数组
@@ -437,25 +417,6 @@ final class TDCalendarManager: ObservableObject {
     /// - Parameter date: 要选中的日期
     func selectDate(_ date: Date) {
         TDScheduleOverviewViewModel.shared.updateCurrentDate(date)
-    }
-    /// 切换到指定月份 - 根据月份设置默认选中日期
-    /// - Parameter date: 目标月份中的任意日期
-    func switchToMonth(_ date: Date) {
-        let smartSelectedDate = getSmartSelectedDate(for: date)
-        TDScheduleOverviewViewModel.shared.updateCurrentDate(smartSelectedDate)
-    }
-    /// 获取智能选中的日期
-    /// - Parameter targetDate: 目标月份中的任意日期
-    /// - Returns: 智能选中的日期
-    private func getSmartSelectedDate(for targetDate: Date) -> Date {
-        // 判断是否切换到当前月份
-        if targetDate.isCurrentMonth {
-            // 切换到当前月份，默认选中今天
-            return Date()
-        } else {
-            // 切换到其他月份，默认选中该月第一天
-            return targetDate.firstDayOfMonth
-        }
     }
 
 

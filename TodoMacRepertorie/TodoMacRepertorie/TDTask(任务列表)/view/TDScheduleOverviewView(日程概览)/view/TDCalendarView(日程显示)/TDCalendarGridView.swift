@@ -63,6 +63,9 @@ struct TDCalendarDayCell: View {
     /// 使用 @Query 来实时监控任务数据
     @Query private var allTasks: [TDMacSwiftDataListModel]
     
+    /// 拖拽状态
+    @State private var draggedTask: TDMacSwiftDataListModel? = nil
+
     /// 当前日期的任务列表
     private var currentDateTasks: [TDMacSwiftDataListModel] {
         let tasks = allTasks
@@ -70,12 +73,10 @@ struct TDCalendarDayCell: View {
         // 应用标签筛选（仅当标签筛选值不为空时）
         if viewModel.tagFilter.isEmpty {
             // 没有标签筛选，直接返回原始任务列表
-            print("📅 \(dateModel.date.formattedString) 任务数量: \(tasks.count) (无标签筛选)")
             return tasks
         } else {
             // 有标签筛选，进行筛选
             let filteredTasks = TDCorrectQueryBuilder.filterTasksByTag(tasks, tagFilter: viewModel.tagFilter)
-            print("📅 \(dateModel.date.formattedString) 任务数量: \(filteredTasks.count) (标签筛选: \(viewModel.tagFilter))")
             return filteredTasks
         }
     }
@@ -90,55 +91,6 @@ struct TDCalendarDayCell: View {
     /// 单元格高度
     let cellHeight: CGFloat
     
-//    /// 计算每行任务的最大字符数（根据设置内的字体大小动态计算）
-//        private func maxCharsPerLine(geometry: GeometryProxy) -> Int {
-//            // 使用GeometryReader的实际宽度
-//            let actualWidth = geometry.size.width
-//            // 减去左右间距（各1pt）
-//            let availableWidth = actualWidth - 2
-//            // 根据字体大小计算字符宽度
-//            let fontSize = settingManager.fontSize.size
-//            // 中文字符宽度约为字体大小的1.0倍，英文字符约为字体大小的0.6倍，取平均值
-//            let avgCharWidth = fontSize * 0.8 // 平均字符宽度
-//            let maxChars = Int(availableWidth / avgCharWidth)
-//            
-//            // 打印调试信息
-//            print("📏 字符长度计算:")
-//            print("  - 实际宽度: \(actualWidth)")
-//            print("  - 可用宽度: \(availableWidth)")
-//            print("  - 字体大小: \(fontSize)")
-//            print("  - 平均字符宽度: \(avgCharWidth)")
-//            print("  - 最大字符数: \(maxChars)")
-//            
-//            return maxChars
-//        }
-//        
-//        /// 截断文本 - 根据隐私保护模式处理
-//        /// - Parameters:
-//        ///   - text: 原始文本
-//        ///   - geometry: 几何信息
-//        /// - Returns: 处理后的文本
-//        private func truncateText(_ text: String, geometry: GeometryProxy) -> String {
-//            let maxChars = maxCharsPerLine(geometry: geometry)
-//            if settingManager.isPrivacyModeEnabled {
-//                // 隐私保护模式：显示第一个字符，其余用*号
-//                if text.count <= 1 {
-//                    return text
-//                } else {
-//                    let firstChar = String(text.prefix(1))
-//                    // 确保至少显示一个字符，其余用*号填充到最大字符数
-//                    let remainingChars = max(1, maxChars - 1) // 至少保留1个字符位置
-//                    let asterisks = String(repeating: "*", count: min(text.count - 1, remainingChars))
-//                    return firstChar + asterisks
-//                }
-//            } else {
-//                // 正常模式：根据长度截断
-//                if text.count <= maxChars {
-//                    return text
-//                }
-//                return String(text.prefix(maxChars))
-//            }
-//        }
     /// 初始化方法 - 根据日期和筛选条件设置查询条件
     init(dateModel: TDCalendarDateModel, cellWidth: CGFloat, cellHeight: CGFloat) {
         self.dateModel = dateModel
@@ -204,7 +156,14 @@ struct TDCalendarDayCell: View {
                             tasks: currentDateTasks,
                             cellWidth: geometry.size.width,
                             cellHeight: cellHeight,
-                            maxTasks: calculateMaxTasks()
+                            maxTasks: calculateMaxTasks(),
+                            onTaskTap: { task in
+                                // 点击任务时：选中当前日期并传递任务给主视图模型
+                                viewModel.selectDateOnly(dateModel.date)
+                                // 调用主视图模型的选择任务方法
+                                TDMainViewModel.shared.selectTask(task)
+                                print("点击了任务: \(task.taskContent), 日期: \(dateModel.date.formattedString)")
+                            }
                         )
 
                     }
@@ -237,60 +196,56 @@ struct TDCalendarDayCell: View {
 //                calendarManager.selectDate(dateModel.date)
                 // 只更新选中状态，不重新查询数据，不切换月份
                 viewModel.selectDateOnly(dateModel.date)
+                // 判断当前日期是否有本地数据
+                if !currentDateTasks.isEmpty {
+                    // 有数据：默认选中第一个任务
+                    let firstTask = currentDateTasks.first!
+                    TDMainViewModel.shared.selectTask(firstTask)
+                    print("点击日期为：\(dateModel.date.formattedString)，选中第一个任务：\(firstTask.taskContent)")
+                } else {
+                    // 没有数据：清空选中的任务
+                    TDMainViewModel.shared.selectedTask = nil
+                    print("点击日期为：\(dateModel.date.formattedString)，该日期无任务数据")
+                }
 
                 print("点击日期为：\(dateModel.date.formattedString)")
             }
+            .onDrop(of: [.text], isTargeted: nil) { providers in
+                // 处理拖拽放置
+                guard let provider = providers.first else { return false }
+                
+                provider.loadItem(forTypeIdentifier: "public.text", options: nil) { (item, error) in
+                    if let data = item as? Data,
+                       let taskId = String(data: data, encoding: .utf8) {
+                        DispatchQueue.main.async {
+                            // 使用 TDQueryConditionManager 根据 taskId 查询任务
+                            Task {
+                                do {
+                                    let queryManager = TDQueryConditionManager()
+                                    let modelContainer = TDModelContainer.shared
+                                    
+                                    if let task = try await queryManager.getLocalTaskByTaskId(
+                                        taskId: taskId,
+                                        context: modelContainer.mainContext
+                                    ) {
+                                        print("🔄 拖拽任务: \(task.taskContent) 到日期: \(dateModel.date.formattedString)")
+                                        await moveTaskToDate(task: task, targetDate: dateModel.date)
+                                    } else {
+                                        print("❌ 未找到任务ID: \(taskId)")
+                                    }
+                                } catch {
+                                    print("❌ 查询任务失败: \(error.localizedDescription)")
+                                }
+                            }
+                        }
+                    }
+                }
+                return true
+            }
+
         }
     
         
-        // MARK: - 任务列表
-        /// 任务列表 - 根据单元格高度动态显示任务数量
-//        private var taskList: some View {
-//            VStack(alignment: .leading, spacing: 1) {
-//                // 根据高度计算可显示的任务数量
-//                let maxTasks = calculateMaxTasks(geometry: geometry)
-//
-//                // 根据设置决定显示逻辑
-//                if settingManager.calendarShowRemainingCount && currentDateTasks.count > maxTasks {
-//                    // 显示剩余数量：显示前(maxTasks-1)个任务 + 剩余数量提示
-//                    let displayTasks = min(maxTasks - 1, currentDateTasks.count)
-//                    let remainingCount = currentDateTasks.count - displayTasks - 1
-//                    
-//                    // 显示任务
-//                    ForEach(Array(currentDateTasks.prefix(displayTasks).enumerated()), id: \.offset) { index, task in
-//                        Text(truncateText(task.taskContent, geometry: geometry))
-//                        //                    Text(task.taskContent)
-//                            .font(.system(size: settingManager.fontSize.size))
-//                            .foregroundColor(task.complete ? themeManager.descriptionTextColor : themeManager.titleTextColor)
-//                            .strikethrough(task.complete)
-//                            .lineLimit(1)
-//                            .onTapGesture {
-//                                print("点击了任务: \(task.taskContent)")
-//                            }
-//                    }
-//                    
-//                    // 显示剩余数量
-//                    if remainingCount > 0 {
-//                        Text("+\(remainingCount)")
-//                            .font(.system(size: settingManager.fontSize.size))
-//                            .foregroundColor(themeManager.color(level: 5))
-//                    }
-//                } else {
-//                    // 不显示剩余数量：显示所有可显示的任务
-//                    ForEach(Array(currentDateTasks.prefix(maxTasks).enumerated()), id: \.offset) { index, task in
-//                        Text(truncateText(task.taskContent, geometry: geometry))
-//                        //                    Text(task.taskContent)
-//                            .font(.system(size: settingManager.fontSize.size))
-//                            .foregroundColor(task.complete ? themeManager.descriptionTextColor : themeManager.titleTextColor)
-//                            .strikethrough(task.complete)
-//                            .lineLimit(1)
-//                            .onTapGesture {
-//                                print("点击了任务: \(task.taskContent)")
-//                            }
-//                    }
-//                }
-//            }
-//        }
     }
     /// 根据单元格高度计算可显示的最大任务数量
     /// - Returns: 可显示的任务数量
@@ -309,7 +264,53 @@ struct TDCalendarDayCell: View {
         return maxTasks
     }
     
+    
+    /// 移动任务到指定日期的核心逻辑
+    /// - Parameters:
+    ///   - task: 要移动的任务
+    ///   - targetDate: 目标日期
+    private func moveTaskToDate(task: TDMacSwiftDataListModel, targetDate: Date) async {
+        let queryManager = TDQueryConditionManager()
+        let modelContainer = TDModelContainer.shared
+        
+        do {
+            // 1. 更新任务的 todoTime 为目标日期的时间戳
+            let targetTimestamp = targetDate.startOfDayTimestamp
+            
+            // 2. 使用 TDQueryConditionManager 的智能计算方法
+            let newTaskSort = try await queryManager.calculateTaskSortForNewTask(
+                todoTime: targetTimestamp,
+                context: modelContainer.mainContext
+            )
+            
+            // 3. 创建更新后的任务对象
+            let updatedTask = task
+            updatedTask.todoTime = targetTimestamp
+            updatedTask.taskSort = newTaskSort
+            
+            // 4. 更新任务到数据库
+            let result = try await queryManager.updateLocalTaskWithModel(
+                updatedTask: updatedTask,
+                context: modelContainer.mainContext
+            )
+            
+            if result == .updated {
+                print("✅ 任务移动成功: \(task.taskContent) 到日期: \(targetDate.formattedString), 新 taskSort: \(newTaskSort)")
+                
+                // 5. 触发数据同步
+                await TDMainViewModel.shared.performSyncSeparately()
+            } else {
+                print("❌ 任务移动失败: 更新结果异常")
+            }
+            
+        } catch {
+            print("❌ 任务移动失败: \(error.localizedDescription)")
+        }
+    }
+
+
 }
+
 
 // MARK: - 预览
 #Preview {
@@ -317,3 +318,88 @@ struct TDCalendarDayCell: View {
         .environmentObject(TDThemeManager.shared)
         .environmentObject(TDSettingManager.shared)
 }
+
+
+
+
+//struct CustomHorizontalPagingBehavior: ScrollTargetBehavior {
+//  enum Direction {
+//    case left, right, none
+//  }
+//
+//  func updateTarget(_ target: inout ScrollTarget, context: TargetContext) {
+//    let scrollViewWidth = context.containerSize.width
+//    let contentWidth = context.contentSize.width
+//
+//    // 如果内容宽度小于或等于ScrollView宽度，对齐到最左边位置
+//    guard contentWidth > scrollViewWidth else {
+//      target.rect.origin.x = 0
+//      return
+//    }
+//
+//    let originalOffset = context.originalTarget.rect.minX
+//    let targetOffset = target.rect.minX
+//
+//    // 通过比较原始偏移量和目标偏移量来确定滚动方向
+//    let direction: Direction = targetOffset > originalOffset ? .left : (targetOffset < originalOffset ? .right : .none)
+//    guard direction != .none else {
+//      target.rect.origin.x = originalOffset
+//      return
+//    }
+//
+//    let thresholdRatio: CGFloat = 1 / 3
+//
+//    // 根据滚动方向计算剩余内容宽度并确定拖动阈值
+//    let remaining: CGFloat = direction == .left
+//      ? (contentWidth - context.originalTarget.rect.maxX)
+//      : (context.originalTarget.rect.minX)
+//
+//    let threshold = remaining <= scrollViewWidth ? remaining * thresholdRatio : scrollViewWidth * thresholdRatio
+//
+//    let dragDistance = originalOffset - targetOffset
+//    var destination: CGFloat = originalOffset
+//
+//    if abs(dragDistance) > threshold {
+//      // 如果拖动距离超过阈值，调整目标到上一页或下一页
+//      destination = dragDistance > 0 ? originalOffset - scrollViewWidth : originalOffset + scrollViewWidth
+//    } else {
+//      // 如果拖动距离在阈值内，根据滚动方向对齐
+//      if direction == .right {
+//        // 向右滚动（向左翻页），向上取整
+//        destination = ceil(originalOffset / scrollViewWidth) * scrollViewWidth
+//      } else {
+//        // 向左滚动（向右翻页），向下取整
+//        destination = floor(originalOffset / scrollViewWidth) * scrollViewWidth
+//      }
+//    }
+//
+//    // 边界处理：确保目标位置在有效范围内并与页面对齐
+//    let maxOffset = contentWidth - scrollViewWidth
+//    let boundedDestination = min(max(destination, 0), maxOffset)
+//
+//    if boundedDestination >= maxOffset * 0.95 {
+//      // 如果接近末尾，贴合到最后可能的位置
+//      destination = maxOffset
+//    } else if boundedDestination <= scrollViewWidth * 0.05 {
+//      // 如果接近开始，贴合到起始位置
+//      destination = 0
+//    } else {
+//      if direction == .right {
+//        // 对于从右向左滚动，从右端计算
+//        let offsetFromRight = maxOffset - boundedDestination
+//        let pageFromRight = round(offsetFromRight / scrollViewWidth)
+//        destination = maxOffset - (pageFromRight * scrollViewWidth)
+//      } else {
+//        // 对于从左向右滚动，保持原始行为
+//        let pageNumber = round(boundedDestination / scrollViewWidth)
+//        destination = min(pageNumber * scrollViewWidth, maxOffset)
+//      }
+//    }
+//
+//    target.rect.origin.x = destination
+//  }
+//}
+//extension ScrollTargetBehavior where Self == CustomHorizontalPagingBehavior {
+//    static var horizontalPaging: CustomHorizontalPagingBehavior { .init() }
+//}
+//

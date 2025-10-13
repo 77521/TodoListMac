@@ -22,6 +22,8 @@ struct TDCalendarTaskList: View {
     /// 主题管理器
     @EnvironmentObject private var themeManager: TDThemeManager
     
+    let onTaskTap: (TDMacSwiftDataListModel) -> Void
+
     var body: some View {
         VStack(alignment: .leading, spacing: 1) {
             // 根据设置决定显示逻辑
@@ -46,7 +48,14 @@ struct TDCalendarTaskList: View {
                         )
                         .onTapGesture {
                             print("点击了任务: \(task.taskContent)")
+                            // 点击任务时调用回调
+                            onTaskTap(task)
                         }
+                        .onDrag {
+                            // 长按拖拽：返回数据提供者
+                            return NSItemProvider(object: task.taskId as NSString)
+                        }
+
                 }
                 
                 // 显示剩余数量
@@ -72,7 +81,15 @@ struct TDCalendarTaskList: View {
                         )
                         .onTapGesture {
                             print("点击了任务: \(task.taskContent)")
+                            // 点击任务时调用回调
+                            onTaskTap(task)
+
                         }
+                        .onDrag {
+                            // 长按拖拽：返回数据提供者
+                            return NSItemProvider(object: task.taskId as NSString)
+                        }
+
                 }
             }
         }
@@ -235,7 +252,8 @@ struct TDCalendarTaskList: View {
         tasks: [],
         cellWidth: 100,
         cellHeight: 100,
-        maxTasks: 5
+        maxTasks: 5,
+        onTaskTap: { _ in }
     )
     .environmentObject(TDSettingManager.shared)
     .environmentObject(TDThemeManager.shared)

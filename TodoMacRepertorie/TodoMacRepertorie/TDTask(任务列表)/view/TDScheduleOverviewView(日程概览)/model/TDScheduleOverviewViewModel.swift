@@ -79,31 +79,49 @@ class TDScheduleOverviewViewModel: ObservableObject {
     /// 上一个月
     func previousMonth() {
         let newDate = currentDate.adding(months: -1)
+        // 智能选择日期：如果是当月选中今天，否则选中1日
+        let targetDate = getSmartSelectedDate(for: newDate)
         // 直接更新日期并重新计算日历数据
         withAnimation(.easeInOut(duration: 0.3)) {
-            currentDate = newDate
+            currentDate = targetDate
         }
         // 手动触发日历数据重新计算
         Task {
             try? await TDCalendarManager.shared.updateCalendarData()
         }
-        os_log(.info, log: logger, "📅 切换到上一个月: %@", newDate.formattedString)
+        os_log(.info, log: logger, "📅 切换到上一个月: %@", targetDate.formattedString)
     }
     
     /// 下一个月
     func nextMonth() {
         let newDate = currentDate.adding(months: 1)
+        // 智能选择日期：如果是当月选中今天，否则选中1日
+        let targetDate = getSmartSelectedDate(for: newDate)
         // 直接更新日期并重新计算日历数据
         withAnimation(.easeInOut(duration: 0.3)) {
-            currentDate = newDate
+            currentDate = targetDate
         }
         // 手动触发日历数据重新计算
         Task {
             try? await TDCalendarManager.shared.updateCalendarData()
         }
-        os_log(.info, log: logger, "📅 切换到下一个月: %@", newDate.formattedString)
+        os_log(.info, log: logger, "📅 切换到下一个月: %@", targetDate.formattedString)
     }
-    
+
+    /// 获取智能选中的日期
+    /// - Parameter targetDate: 目标月份中的任意日期
+    /// - Returns: 智能选中的日期
+    private func getSmartSelectedDate(for targetDate: Date) -> Date {
+        // 判断是否切换到当前月份
+        if targetDate.isCurrentMonth {
+            // 切换到当前月份，默认选中今天
+            return Date()
+        } else {
+            // 切换到其他月份，默认选中该月第一天
+            return targetDate.firstDayOfMonth
+        }
+    }
+
     /// 回到今天
     func backToToday() {
         // 直接更新日期并重新计算日历数据
