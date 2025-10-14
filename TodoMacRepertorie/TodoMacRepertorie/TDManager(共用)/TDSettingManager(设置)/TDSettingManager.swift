@@ -95,6 +95,12 @@ class TDSettingManager: ObservableObject {
         /// 休息时长（分钟）
         static let restDuration = "td_rest_duration"
 
+        
+        /// 数据统计设置
+
+        /// 是否显示专注功能
+        static let showFocusFeature = "td_show_focus_feature"
+
 
     }
     // MARK: - 存储属性（每个都带注释）
@@ -466,6 +472,18 @@ class TDSettingManager: ObservableObject {
         }
         set { sharedDefaults?.set(newValue, forKey: Keys.showLunarCalendar); objectWillChange.send() }
     }
+    
+    /// 是否显示专注功能（默认显示）
+    var showFocusFeature: Bool {
+        get {
+            if sharedDefaults?.object(forKey: Keys.showFocusFeature) == nil {
+                return true // 默认显示专注功能
+            }
+            return sharedDefaults?.bool(forKey: Keys.showFocusFeature) ?? true
+        }
+        set { sharedDefaults?.set(newValue, forKey: Keys.showFocusFeature); objectWillChange.send() }
+    }
+
 
     // MARK: - 初始化
     private init() {}

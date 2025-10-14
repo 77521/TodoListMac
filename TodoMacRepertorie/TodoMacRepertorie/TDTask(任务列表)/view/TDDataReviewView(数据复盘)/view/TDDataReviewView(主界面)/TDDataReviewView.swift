@@ -14,19 +14,17 @@ struct TDDataReviewView: View {
     @Environment(\.modelContext) private var modelContext
     
     var body: some View {
-        VStack {
-            Text("数据复盘界面")
-                .font(.title2)
-                .fontWeight(.semibold)
-                .padding()
+        VStack(spacing: 0) {
+            // 顶部统计视图
+            TDDataReviewTopView()
+                .zIndex(1)
             
-            Text("这里将显示数据统计和复盘")
-                .foregroundColor(.secondary)
-            
-            Spacer()
+            // 数据内容展示区域
+            TDDataReviewContentView()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(.windowBackgroundColor))
+        .background(themeManager.backgroundColor)
     }
 }
 
