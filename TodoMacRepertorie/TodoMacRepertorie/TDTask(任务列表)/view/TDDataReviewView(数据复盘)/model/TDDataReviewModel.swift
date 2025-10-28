@@ -9,6 +9,8 @@ import Foundation
 
 /// 数据复盘数据项模型
 struct TDDataReviewModel: Codable {
+    let id: String              // 唯一标识符，服务器不返回，默认使用 UUID
+
     let modelType: Int          // 模型类型：1-图文卡片，2-双列统计，3-折线图，4-柱状图，5-圆饼图，6-雷达图，88-未开通VIP，-100-热力图
     let layoutId: Int?          // 布局ID：0-左边图标右边文字，1-居中大字和副标题
     let title: String?          // 标题
@@ -34,6 +36,48 @@ struct TDDataReviewModel: Codable {
     
     // 图表数据字段
     let chartList: [TDChartData]? // 图表数据列表
+    
+    // MARK: - 自定义解码器
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        // 如果服务器返回了 id，使用服务器的值；否则生成 UUID
+        self.id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
+        
+        self.modelType = try container.decode(Int.self, forKey: .modelType)
+        self.layoutId = try container.decodeIfPresent(Int.self, forKey: .layoutId)
+        self.title = try container.decodeIfPresent(String.self, forKey: .title)
+        self.subTitle = try container.decodeIfPresent(String.self, forKey: .subTitle)
+        self.content = try container.decodeIfPresent(String.self, forKey: .content)
+        self.summary = try container.decodeIfPresent(String.self, forKey: .summary)
+        self.imageUrl = try container.decodeIfPresent(String.self, forKey: .imageUrl)
+        self.jumpUrl = try container.decodeIfPresent(String.self, forKey: .jumpUrl)
+        self.backColor = try container.decodeIfPresent(String.self, forKey: .backColor)
+        self.tomato = try container.decode(Bool.self, forKey: .tomato)
+        
+        // 双数据卡片字段
+        self.leftTitle = try container.decodeIfPresent(String.self, forKey: .leftTitle)
+        self.leftContent = try container.decodeIfPresent(String.self, forKey: .leftContent)
+        self.leftDataExplain = try container.decodeIfPresent(String.self, forKey: .leftDataExplain)
+        self.leftDataRate = try container.decodeIfPresent(String.self, forKey: .leftDataRate)
+        self.leftBackColor = try container.decodeIfPresent(String.self, forKey: .leftBackColor)
+        self.rightTitle = try container.decodeIfPresent(String.self, forKey: .rightTitle)
+        self.rightContent = try container.decodeIfPresent(String.self, forKey: .rightContent)
+        self.rightDataExplain = try container.decodeIfPresent(String.self, forKey: .rightDataExplain)
+        self.rightDataRate = try container.decodeIfPresent(String.self, forKey: .rightDataRate)
+        self.rightBackColor = try container.decodeIfPresent(String.self, forKey: .rightBackColor)
+        
+        // 图表数据字段
+        self.chartList = try container.decodeIfPresent([TDChartData].self, forKey: .chartList)
+    }
+    
+    private enum CodingKeys: String, CodingKey {
+        case id, modelType, layoutId, title, subTitle, content, summary, imageUrl, jumpUrl, backColor, tomato
+        case leftTitle, leftContent, leftDataExplain, leftDataRate, leftBackColor
+        case rightTitle, rightContent, rightDataExplain, rightDataRate, rightBackColor
+        case chartList
+    }
+
     
     // MARK: - 计算属性
     

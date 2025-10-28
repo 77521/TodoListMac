@@ -73,33 +73,33 @@ struct TDDataReviewCenterTitleCard: View {
 }
 
 // MARK: - 预览
-#Preview {
-    TDDataReviewCenterTitleCard(
-        item: TDDataReviewModel(
-            modelType: 2,
-            layoutId: nil,
-            title: nil,
-            subTitle: nil,
-            content: nil,
-            summary: nil,
-            imageUrl: nil,
-            jumpUrl: nil,
-            backColor: nil,
-            tomato: false,
-            leftTitle: "事件工作量",
-            leftContent: "0",
-            leftDataExplain: "相比前天",
-            leftDataRate: "NaN",
-            leftBackColor: "#11abac",
-            rightTitle: "番茄专注时长",
-            rightContent: "0h",
-            rightDataExplain: "相比前天",
-            rightDataRate: "NaN",
-            rightBackColor: "#ef655b",
-            chartList: nil
-        )
-    )
-    .environmentObject(TDThemeManager.shared)
-    .environmentObject(TDSettingManager.shared)
-    .padding()
-}
+//#Preview {
+//    TDDataReviewCenterTitleCard(
+//        item: TDDataReviewModel(
+//            modelType: 2,
+//            layoutId: nil,
+//            title: nil,
+//            subTitle: nil,
+//            content: nil,
+//            summary: nil,
+//            imageUrl: nil,
+//            jumpUrl: nil,
+//            backColor: nil,
+//            tomato: false,
+//            leftTitle: "事件工作量",
+//            leftContent: "0",
+//            leftDataExplain: "相比前天",
+//            leftDataRate: "NaN",
+//            leftBackColor: "#11abac",
+//            rightTitle: "番茄专注时长",
+//            rightContent: "0h",
+//            rightDataExplain: "相比前天",
+//            rightDataRate: "NaN",
+//            rightBackColor: "#ef655b",
+//            chartList: nil
+//        )
+//    )
+//    .environmentObject(TDThemeManager.shared)
+//    .environmentObject(TDSettingManager.shared)
+//    .padding()
+//}

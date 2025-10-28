@@ -14,6 +14,7 @@
 		0DA3980B2DCAF25300D208A3 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0DA3980A2DCAF25300D208A3 /* WidgetKit.framework */; };
 		0DA3980D2DCAF25300D208A3 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0DA3980C2DCAF25300D208A3 /* SwiftUI.framework */; };
 		0DA3981B2DCAF25500D208A3 /* TDMacWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 0DA398082DCAF25300D208A3 /* TDMacWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		0DFD0A3B2E9F78EA00B06859 /* AAInfographics in Frameworks */ = {isa = PBXBuildFile; productRef = 0DFD0A3A2E9F78EA00B06859 /* AAInfographics */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -36,6 +37,16 @@
 				0DA3981B2DCAF25500D208A3 /* TDMacWidgetExtension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0DFD0A352E9F3C5600B06859 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -169,6 +180,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0D97A0E92E7025870018C27F /* AlertToast in Frameworks */,
+				0DFD0A3B2E9F78EA00B06859 /* AAInfographics in Frameworks */,
 				0D97A0EC2E7026630018C27F /* Qiniu in Frameworks */,
 				0D926C212E81649900859750 /* LunarSwift in Frameworks */,
 			);
@@ -239,6 +251,7 @@
 				AF7D0F182D1EC14D00F83EB9 /* Frameworks */,
 				AF7D0F192D1EC14D00F83EB9 /* Resources */,
 				0DA3981C2DCAF25500D208A3 /* Embed Foundation Extensions */,
+				0DFD0A352E9F3C5600B06859 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -253,6 +266,7 @@
 				0D97A0E82E7025870018C27F /* AlertToast */,
 				0D97A0EB2E7026630018C27F /* Qiniu */,
 				0D926C202E81649900859750 /* LunarSwift */,
+				0DFD0A3A2E9F78EA00B06859 /* AAInfographics */,
 			);
 			productName = TodoMacRepertorie;
 			productReference = AF7D0F1B2D1EC14D00F83EB9 /* TodoMacRepertorie.app */;
@@ -290,6 +304,7 @@
 				0D97A0E72E7025870018C27F /* XCRemoteSwiftPackageReference "AlertToast" */,
 				0D97A0EA2E7026630018C27F /* XCRemoteSwiftPackageReference "objc-sdk" */,
 				0D926C1F2E81649900859750 /* XCRemoteSwiftPackageReference "lunar-swift" */,
+				0DFD0A392E9F78EA00B06859 /* XCRemoteSwiftPackageReference "AAChartKit-Swift" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = AF7D0F1C2D1EC14D00F83EB9 /* Products */;
@@ -650,6 +665,14 @@
 				kind = branch;
 			};
 		};
+		0DFD0A392E9F78EA00B06859 /* XCRemoteSwiftPackageReference "AAChartKit-Swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/AAChartModel/AAChartKit-Swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 9.5.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -672,6 +695,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 0D97A0EA2E7026630018C27F /* XCRemoteSwiftPackageReference "objc-sdk" */;
 			productName = Qiniu;
+		};
+		0DFD0A3A2E9F78EA00B06859 /* AAInfographics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0DFD0A392E9F78EA00B06859 /* XCRemoteSwiftPackageReference "AAChartKit-Swift" */;
+			productName = AAInfographics;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

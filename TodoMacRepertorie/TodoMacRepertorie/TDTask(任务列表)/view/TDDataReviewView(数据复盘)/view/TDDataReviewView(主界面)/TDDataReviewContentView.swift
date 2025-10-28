@@ -17,7 +17,7 @@ struct TDDataReviewContentView: View {
         ZStack {
             ScrollView {
                 LazyVStack(spacing: 20) {
-                    ForEach(viewModel.currentData, id: \.modelType) { item in
+                    ForEach(viewModel.currentData, id: \.id) { item in
                         // 根据不同类型显示不同的视图
                         if item.isDualColumnStats {
                             TDDataReviewDualColumnCard(item: item)
@@ -27,14 +27,14 @@ struct TDDataReviewContentView: View {
                             TDDataReviewCenterTitleCard(item: item)
                         } else if item.isLineChart {
                             TDDataReviewLineChartCard(item: item)
+                        } else if item.isBarChartNormal {
+                            TDDataReviewBarChartCard(item: item)
+                        } else if item.isBarChartDense {
+                            TDDataReviewDenseBarChartCard(item: item)
                         } else if item.isPieChart {
-                            //                        TDDataReviewPieChartCard(item: item)
+                            TDDataReviewPieChartCard(item: item)
                         } else if item.isRadarChart {
-                            //                        TDDataReviewRadarChartCard(item: item)
-                        } else if item.isNoVipCard {
-                            //                        TDDataReviewNoVipCard(item: item)
-                        } else if item.isHeatMap {
-                            //                        TDDataReviewHeatMapCard(item: item)
+                            TDDataReviewRadarChartCard(item: item)
                         } else {
                             // 默认显示
                             //                        TDDataReviewDefaultCard(item: item)

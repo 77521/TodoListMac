@@ -20,7 +20,16 @@ struct TodoMacRepertorieApp: App {
     @StateObject private var tomatoManager = TDTomatoManager.shared
 
     @StateObject private var toastCenter = TDToastCenter.shared
-
+    init() {
+            // 监听任意窗口关闭事件：如果关闭的不是设置窗口，则关闭设置窗口
+            NotificationCenter.default.addObserver(forName: NSWindow.willCloseNotification, object: nil, queue: .main) { notification in
+                guard let closingWindow = notification.object as? NSWindow else { return }
+                // 如果关闭的不是设置窗口，则关闭设置窗口（跟随主窗口）
+                if closingWindow != TDSettingsWindowTracker.shared.settingsWindow {
+                    TDSettingsWindowTracker.shared.settingsWindow?.close()
+                }
+            }
+        }
     
     var body: some Scene {
         WindowGroup {
@@ -69,13 +78,41 @@ struct TodoMacRepertorieApp: App {
         .windowStyle(.hiddenTitleBar)
         .windowResizability(.contentSize)
         
-        
+        // 设置窗口（默认隐藏，只有点击设置按钮时才打开）
+        WindowGroup(id: "Settings") {
+            TDSettingsView()
+                .environmentObject(themeManager)
+                .environmentObject(settingManager)
+            // 设置窗口属性与跟踪
+            .onAppear {
+                DispatchQueue.main.async {
+                    // 记录设置窗口引用
+                    TDSettingsWindowTracker.shared.settingsWindow = NSApp.keyWindow
+                    // 设置为浮动并在失活时隐藏（行为更贴近系统）
+                    TDSettingsWindowTracker.shared.settingsWindow?.level = .floating
+                    TDSettingsWindowTracker.shared.settingsWindow?.hidesOnDeactivate = true
+                }
+            }
+
+
+        }
+        .windowStyle(.hiddenTitleBar)
+        .windowResizability(.contentSize)
+        .defaultPosition(.center)
+        .handlesExternalEvents(matching: Set(arrayLiteral: "Settings"))
+
 //        TDToastCenter.shared.show("专注时长已存在，不能重复添加", type: .error, position: .top)   // 顶部
 //        TDToastCenter.shared.show("保存成功")                                                   // 默认底部
 //        TDToastCenter.shared.show("处理中…", type: .info, position: .center)                   // 中间
     }
 }
 
+// 跟踪设置窗口的简单管理器（弱引用避免循环持有）
+final class TDSettingsWindowTracker {
+    static let shared = TDSettingsWindowTracker()
+    weak var settingsWindow: NSWindow?
+    private init() {}
+}
 
 //
 //  TodoMacRepertorieApp.swift

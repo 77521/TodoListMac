@@ -10,6 +10,7 @@ import SwiftUI
 struct TDUserInfoView: View {
     @StateObject private var userManager = TDUserManager.shared
     @ObservedObject private var themeManager = TDThemeManager.shared
+    @Environment(\.openWindow) private var openWindow
 
     var body: some View {
         HStack(spacing: 8) {
@@ -27,6 +28,19 @@ struct TDUserInfoView: View {
                     .lineLimit(1)
             }
             Spacer()
+            
+            // 设置按钮
+            Button(action: {
+                // 设置按钮点击事件
+                openWindow(id: "Settings")
+            }) {
+                Image(systemName: "gearshape.fill")
+                    .foregroundColor(themeManager.titleTextColor)
+                    .font(.system(size: 14))
+            }
+            .buttonStyle(PlainButtonStyle())
+            .pointingHandCursor()
+
         }
         .padding(.vertical, 8)  // 添加垂直内边距
     }

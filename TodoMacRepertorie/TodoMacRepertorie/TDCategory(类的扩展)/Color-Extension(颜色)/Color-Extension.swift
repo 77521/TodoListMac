@@ -59,6 +59,30 @@ extension Color {
                       Int(color.blueComponent * 255))
     }
     
+    
+    func redComponent() -> Int {
+        return Int(toRGBAComponents().r * 255)
+    }
+    
+    /// 获取颜色的绿色分量值 (0 - 255)
+    /// - Returns: 绿色分量值
+    func greenComponent() -> Int {
+        return Int(toRGBAComponents().g * 255)
+    }
+    
+    /// 获取颜色的蓝色分量值 (0 - 255)
+    /// - Returns: 蓝色分量值
+    func blueComponent() -> Int {
+        return Int(toRGBAComponents().b * 255)
+    }
+    
+    /// 获取颜色的透明度分量值 (0 - 255)
+    /// - Returns: 透明度分量值
+    func alphaComponent() -> Int {
+        return Int(toRGBAComponents().a * 255)
+    }
+
+    
     /// 获取颜色的反色
     func inverted() -> Color {
         guard let components = NSColor(self).cgColor.components else { return self }

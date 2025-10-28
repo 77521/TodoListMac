@@ -1,6 +1,15 @@
 {
-  "originHash" : "f43cfb87f07dd7cc2a9a407d7c6e60db09ec0b9f72e0c929c7739d6d941c8f66",
+  "originHash" : "b3ab5540b2fa462e1ad558b66a0e8f41e3773bb9046272fc3f1f61a4e27560f5",
   "pins" : [
+    {
+      "identity" : "aachartkit-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/AAChartModel/AAChartKit-Swift.git",
+      "state" : {
+        "revision" : "b51e53c3b04372c1ed1906b0ec3ba45733953ef4",
+        "version" : "9.5.0"
+      }
+    },
     {
       "identity" : "alerttoast",
       "kind" : "remoteSourceControl",

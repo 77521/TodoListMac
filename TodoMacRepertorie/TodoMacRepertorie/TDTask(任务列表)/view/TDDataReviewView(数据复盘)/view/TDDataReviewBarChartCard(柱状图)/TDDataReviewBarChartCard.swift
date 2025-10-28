@@ -1,22 +1,21 @@
 //
-//  TDDataReviewLineChartCard.swift
+//  TDDataReviewBarChartCard.swift
 //  TodoMacRepertorie
 //
-//  Created by 赵浩 on 2025/10/14.
+//  Created by 赵浩 on 2025/10/16.
 //
 
 import SwiftUI
-import AAInfographics
-import AppKit
 
-/// 折线图卡片
-struct TDDataReviewLineChartCard: View {
+import AAInfographics
+
+struct TDDataReviewBarChartCard: View {
     @EnvironmentObject private var themeManager: TDThemeManager
     let item: TDDataReviewModel
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            // 标题
+            // 标题和副标题
             if let title = item.title, !title.isEmpty {
                 Text(title)
                     .font(.system(size: 18, weight: .semibold))
@@ -29,22 +28,23 @@ struct TDDataReviewLineChartCard: View {
                     .font(.system(size: 14))
                     .foregroundColor(themeManager.descriptionTextColor)
             }
-            // 折线图
+            // 柱状图
             ZStack {
-                TDAAChartView(
+                TDAABarChartView(
                     data: getChartData(),
                     xAxisLabels: getXAxisLabels()
                 )
-                .frame(height: 200)
+                .frame(height: 300)
                 
                 // 透明遮罩，阻止滚动但允许 tooltip 显示
                 Color.clear
-                    .frame(height: 200)
+                    .frame(height: 300)
                     .contentShape(Rectangle())
                     .onTapGesture {
                         // 空的手势处理，阻止滚动
                     }
             }
+            
             // 信息文案
             if let summary = item.summary, !summary.isEmpty {
                 Text(summary)
@@ -52,17 +52,15 @@ struct TDDataReviewLineChartCard: View {
                     .foregroundColor(themeManager.descriptionTextColor)
                     .multilineTextAlignment(.leading)
                     .padding(.top,-10)
-
             }
 //            else {
-//                // 假的测试文案
-//                Text("这是测试文案，展示工作量趋势分析结果。数据显示最近8天的工分析结果。数据显示最近8天的工分析结果。数据显示最近8天的工分析结果。数据显示最近8天的工分析结果。数据显示最近8天的工分析结果。数据显示最近8天的工分析结果。数据显示最近8天的工分析结果。数据显示最近8天的工作量变化情况，整体呈现稳定上升趋势。")
+//                // 假的测试文案的
+//                Text("这是测试文案，展示周几最勤奋分析结果。数据显示周三奋分析结果。数据显示周三奋分析结果。数据显示周三奋分析结果。数据显示周三奋分析结果。数据显示周三奋分析结果。数据显示周三奋分析结果。数据显示周三的工作量最高，周五的工作量最低。")
 //                    .font(.system(size: 12))
 //                    .foregroundColor(themeManager.descriptionTextColor)
 //                    .multilineTextAlignment(.leading)
 //                    .padding(.top,-10)
 //            }
-
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 16)
@@ -76,27 +74,18 @@ struct TDDataReviewLineChartCard: View {
         )
     }
     
-    /// 获取图表数据
     private func getChartData() -> [Double] {
-        guard let chartList = item.chartList, !chartList.isEmpty else {
-            return []
-        }
-        
+        guard let chartList = item.chartList, !chartList.isEmpty else { return [] }
         return chartList.map { $0.value }
     }
     
-    /// 获取X轴标签
     private func getXAxisLabels() -> [String] {
-        guard let chartList = item.chartList, !chartList.isEmpty else {
-            return []
-        }
-        
+        guard let chartList = item.chartList, !chartList.isEmpty else { return [] }
         return chartList.map { $0.label }
     }
 }
 
-/// 使用 AAInfographics 库的折线图视图
-struct TDAAChartView: NSViewRepresentable {
+struct TDAABarChartView: NSViewRepresentable {
     let data: [Double]
     let xAxisLabels: [String]
     @EnvironmentObject private var themeManager: TDThemeManager
@@ -114,29 +103,13 @@ struct TDAAChartView: NSViewRepresentable {
     }
     
     private func createAAOptions() -> AAOptions {
-        // 获取最大值
-        let maxValue = data.max() ?? 0.0
-        
-        // 计算 Y 轴最大值和最小值
-        var yAxisMax: Double
-        var yAxisMin: Double = 0
-        
-        if maxValue > 12 {
-            yAxisMax = maxValue
-        } else {
-            if maxValue == 0 {
-                yAxisMax = 1.0
-            } else {
-                yAxisMax = maxValue
-            }
-        }
-        
-        // 设置最小值
+        // 获取最大值，如果为0则设为1
+        var maxValue = data.max() ?? 0.0
         if maxValue == 0 {
-            yAxisMin = -1
-        } else {
-            yAxisMin = 0
+            maxValue = 1.0
         }
+        let yAxisMax = maxValue
+
         let blueStopsArr = [
             [0.0, AARgba(themeManager.color(level: 5).redComponent(), themeManager.color(level: 5).greenComponent(), themeManager.color(level: 5).blueComponent(), 0.6)],//颜色字符串设置支持十六进制类型和 rgba 类型
             [0.6, AARgba(themeManager.color(level: 5).redComponent(), themeManager.color(level: 5).greenComponent(), themeManager.color(level: 5).blueComponent(), 0.4)],
@@ -147,10 +120,12 @@ struct TDAAChartView: NSViewRepresentable {
             stops: blueStopsArr
         )
 
+        
         let model = AAChartModel()
-            .chartType(.areaspline)
+            .chartType(.column)
             .title("")
             .subtitle("")
+            .borderRadius(15)
             .backgroundColor("transparent")
             .dataLabelsEnabled(false)
             .legendEnabled(false)
@@ -161,31 +136,22 @@ struct TDAAChartView: NSViewRepresentable {
             .yAxisLabelsEnabled(true)
             .xAxisGridLineWidth(0)
             .yAxisGridLineWidth(1)
-//            .yAxisLineWidth(0)
+            .yAxisLineWidth(0)
+            .yAxisMin(0)
             .yAxisMax(yAxisMax)
-            .yAxisMin(yAxisMin)
             .colorsTheme([themeManager.color(level: 5).opacity(0.5).toHexString()])
             .categories(xAxisLabels)
             .zoomType(.none) // 禁用缩放和滑动
             .series([
                 AASeriesElement()
                     .data(data)
-                    .lineWidth(2)
-                    .color(themeManager.color(level: 5).opacity(0.2).toHexString())
-                    .fillColor(gradientBlueColorDic)
+                    .color(gradientBlueColorDic)
                     .fillOpacity(0.3)
-                    .marker(
-                        AAMarker()
-                            .radius(4)
-                            .fillColor(themeManager.color(level: 5).toHexString())
-                            .lineWidth(1)
-                    )
+
             ])
         
         let aaOptions = model.aa_toAAOptions()
         
-        
-
         // 配置 Y 轴虚线网格
         aaOptions.yAxis?
             .opposite(false)
@@ -217,44 +183,29 @@ struct TDAAChartView: NSViewRepresentable {
 
         return aaOptions
     }
-    
-    
 }
-// MARK: - 预览
+
+//// MARK: - 预览
 //#Preview {
-//    TDDataReviewLineChartCard(
+//    TDDataReviewBarChartCard(
 //        item: TDDataReviewModel(
-//            modelType: 3,
-//            title: "番茄专注时长趋势 (每月)",
+//            id: "1",
+//            title: "周几最勤奋",
+//            subTitle: "展示了这段时间里,你在周一至周日的工作量分布",
+//            modelType: 4,
+//            layoutId: 0,
 //            chartList: [
-//                TDChartData(value: 0, label: "00:00:00"),
-//                TDChartData(value: 0, label: "01:00:00"),
-//                TDChartData(value: 0, label: "02:00:00"),
-//                TDChartData(value: 0, label: "03:00:00"),
-//                TDChartData(value: 0, label: "04:00:00"),
-//                TDChartData(value: 0, label: "05:00:00"),
-//                TDChartData(value: 0, label: "06:00:00"),
-//                TDChartData(value: 0, label: "07:00:00"),
-//                TDChartData(value: 0, label: "08:00:00"),
-//                TDChartData(value: 0, label: "09:00:00"),
-//                TDChartData(value: 1000, label: "10:00:00"),
-//                TDChartData(value: 800, label: "11:00:00"),
-//                TDChartData(value: 1000, label: "12:00:00"),
-//                TDChartData(value: 1000, label: "13:00:00"),
-//                TDChartData(value: 1000, label: "14:00:00"),
-//                TDChartData(value: 1000, label: "15:00:00"),
-//                TDChartData(value: 600, label: "16:00:00"),
-//                TDChartData(value: 800, label: "17:00:00"),
-//                TDChartData(value: 0, label: "18:00:00"),
-//                TDChartData(value: 400, label: "19:00:00"),
-//                TDChartData(value: 0, label: "20:00:00"),
-//                TDChartData(value: 600, label: "21:00:00"),
-//                TDChartData(value: 800, label: "22:00:00"),
-//                TDChartData(value: 1000, label: "23:00:00")
-//            ]
+//                TDChartData(label: "周三", value: 34),
+//                TDChartData(label: "周四", value: 19),
+//                TDChartData(label: "周五", value: 9),
+//                TDChartData(label: "周六", value: 13),
+//                TDChartData(label: "周日", value: 10),
+//                TDChartData(label: "周一", value: 20),
+//                TDChartData(label: "周二", value: 20)
+//            ],
+//            summary: nil
 //        )
 //    )
 //    .environmentObject(TDThemeManager.shared)
-//    .environmentObject(TDSettingManager.shared)
-//    .padding()
+//    .frame(width: 400, height: 300)
 //}
