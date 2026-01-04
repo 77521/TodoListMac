@@ -359,4 +359,19 @@ class TDThemeManager: ObservableObject {
             try? encoded.write(to: themesFileURL)
         }
     }
+    
+    
+    // MARK: - 设置界面扩展色值
+    
+    /// 设置行默认图标背景（用于缺省的圆角方块）
+    var settingsIconDefaultBackgroundHex: String {
+        TDSettingManager.shared.isDarkMode ? "#2F2F31" : "#E8EAED"
+    }
+    
+    /// 设置行默认图标前景色
+    var settingsIconDefaultForegroundHex: String {
+        TDSettingManager.shared.isDarkMode ? "#F5F5F5" : "#1C1C1E"
+    }
+
+    
 }

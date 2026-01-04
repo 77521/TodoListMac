@@ -77,7 +77,7 @@ struct TDMainView: View {
         }
         .animation(.easeInOut(duration: 0.3), value: mainViewModel.selectedTask != nil)
         .frame(minWidth: minWidth,idealWidth: minWidth + 80, minHeight: 700)
-        .background(Color(.windowBackgroundColor))
+        .background(TDVisualEffectView(material: .underWindowBackground))
         .ignoresSafeArea(.container, edges: .all)
         .animation(.easeInOut(duration: 0.3), value: mainViewModel.selectedTask != nil)
         .task {
@@ -95,7 +95,7 @@ struct TDMainView: View {
     private var firstColumn: some View {
         TDSliderBarView()
             .frame(minWidth: 260, idealWidth: 260, maxWidth: 260)
-            .background(Color(.windowBackgroundColor))
+//            .background(TDVisualEffectView(material: .underWindowBackground))
 //            .toolbar {
 //                ToolbarItemGroup(placement: .automatic) {
 //                    Spacer()

@@ -39,7 +39,7 @@ struct TDSliderBarView: View {
             syncStatusView
             
         }
-        .background(Color(.windowBackgroundColor))
+//        .background(Color(.clear))
     }
     
 
@@ -76,7 +76,7 @@ struct TDSliderBarView: View {
             Divider()
                 .padding(.horizontal, 16)
         }
-        .background(Color(.windowBackgroundColor))
+//        .background(Color(.clear))
     }
     
     // MARK: - 主要分类区域
@@ -340,8 +340,8 @@ struct TDSliderBarView: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
         }
-        .ignoresSafeArea(.container, edges: .all)
-        .background(Color(.windowBackgroundColor))
+//        .ignoresSafeArea(.container, edges: .all)
+        .background(Color(.clear))
     }
 
 }

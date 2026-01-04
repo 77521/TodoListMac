@@ -57,8 +57,13 @@ class TDAvatarManager {
     // 保存头像到缓存
     private func saveAvatarToCache(data: Data, userId: Int) async throws {
         guard let cachePath = avatarCachePath(for: userId) else { return }
+        // 覆盖前先清掉旧文件，避免命中旧缓存
+        if fileManager.fileExists(atPath: cachePath.path) {
+            try? fileManager.removeItem(at: cachePath)
+        }
         try data.write(to: cachePath)
     }
+
     
     // 删除缓存的头像
     func deleteLocalAvatar(for userId: Int) {

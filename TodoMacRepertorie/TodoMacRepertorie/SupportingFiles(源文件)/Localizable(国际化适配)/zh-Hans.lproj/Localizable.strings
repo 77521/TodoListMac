@@ -108,3 +108,173 @@
 "daily_limit_remaining" = "番茄专注记录，今天还可以添加条数：";
 "cancel_button" = "取消";
 "add_button" = "添加";
+
+
+// 日历导航
+"back_to_today" = "今天";
+
+// 任务显示
+"task_count" = "%d个任务";
+
+// ==================== 设置（Settings） ====================
+// 主标题
+"settings.title" = "设置"; // 设置页标题
+// 详情占位
+"settings.detail.placeholder.title" = "请选择左侧项目"; // 第二列占位标题
+"settings.detail.placeholder.subtitle" = "先完成第一列，右侧稍后实现"; // 第二列占位副标题
+
+// 分组标题（左侧分节标题）
+"settings.group.account" = "账户与安全"; // 第一组标题
+"settings.group.general" = "通用"; // 第二组标题
+"settings.group.features" = "功能模块"; // 第三组标题
+"settings.group.management" = "管理工具"; // 第四组标题
+"settings.group.legal" = "法律条款"; // 备用（目前未用）
+"settings.group.others" = "更多"; // 第五组标题（快捷键/导出/关于）
+
+// 设置项名称（左侧行标题）
+"settings.section.account_security" = "账户与安全"; // 账户与安全
+"settings.section.premium" = "高级会员"; // 高级会员
+"settings.section.general" = "常规"; // 常规
+"settings.section.feature_modules" = "功能模块"; // 功能模块
+"settings.section.appearance" = "外观"; // 外观
+"settings.section.theme" = "主题"; // 主题
+"settings.section.app_icon" = "应用图标"; // 应用图标
+"settings.section.events" = "事件"; // 事件
+"settings.section.event_settings" = "事件设置"; // 事件设置
+"settings.section.voice_input" = "语音添加与智能识别"; // 语音添加与智能识别
+"settings.section.wechat_reminder" = "微信提醒消息"; // 微信提醒消息
+"settings.section.pomodoro_focus" = "番茄专注"; // 番茄专注
+"settings.section.schedule_overview" = "日程概览"; // 日程概览
+"settings.section.image_file_management" = "图片与文件管理"; // 图片与文件管理
+"settings.section.repeat_event_management" = "重复事件管理"; // 重复事件管理
+"settings.section.smart_recognition" = "智能识别"; // 智能识别
+"settings.section.system_calendar_subscription" = "系统日历订阅管理"; // 系统日历订阅管理
+"settings.section.calendar_reminder_correction" = "日历提醒矫正"; // 日历提醒矫正
+"settings.section.keyboard_shortcuts" = "快捷键"; // 快捷键
+"settings.section.export_data" = "导出事件数据"; // 导出事件数据
+"settings.section.about" = "关于"; // 关于
+"settings.section.universal" = "通用"; // 通用
+"settings.section.user_registration_agreement" = "用户注册协议"; // 备用
+"settings.section.privacy_policy" = "隐私政策"; // 备用
+
+// 账户与安全 - 详情
+"settings.account.nickname.title" = "昵称";
+"settings.account.nickname.placeholder" = "未设置昵称";
+"settings.account.gender.title" = "性别";
+"settings.account.gender.male" = "男";
+"settings.account.gender.female" = "女";
+"settings.account.gender.set" = "设置性别";
+"settings.account.phone.title" = "手机号";
+"settings.account.id.title" = "账号";
+"settings.account.change_password" = "修改密码";
+"settings.account.bind.wechat" = "微信";
+"settings.account.bind.qq" = "QQ";
+"settings.account.bind.apple" = "Apple ID";
+"settings.account.bound" = "已绑定";
+"settings.account.unbound" = "绑定";
+"settings.account.bind.hint" = "请在手机端登录该账号，在设置-账号安全中绑定对应账号";
+"settings.account.bind.wechat.desc" = "请在手机端，登录该账号，在设置-账号与安全 中绑定您的微信";
+"settings.account.bind.qq.desc" = "请在手机端，登录该账号，在设置-账号与安全 中绑定您的QQ";
+"settings.account.bind.apple.desc" = "请在手机端，登录该账号，在设置-账号与安全 中绑定您的Apple ID";
+
+"settings.account.change_password.alert.title" = "修改密码";
+"settings.account.change_password.alert.message" = "请选择验证方式";
+"settings.account.change_password.method.old" = "通过旧密码";
+"settings.account.change_password.method.email" = "通过邮箱（%@）";
+"settings.account.change_password.method.phone" = "通过手机号（%@）";
+
+"settings.account.password.current" = "当前密码";
+"settings.account.password.current.placeholder" = "输入当前密码";
+"settings.account.password.new" = "新密码";
+"settings.account.password.new.placeholder" = "输入新密码";
+
+
+"settings.account.empty" = "未设置";
+"settings.account.set_account_password" = "设置账号与密码";
+"settings.account.bind_phone" = "绑定手机";
+"settings.account.nickname.edit.title" = "修改昵称";
+"settings.account.nickname.edit.placeholder" = "修改昵称";
+"common.cancel" = "取消";
+"common.update" = "修改";
+
+"settings.account.nickname.too_long" = "昵称不能超过15个字符";
+"settings.account.nickname.update.success" = "修改成功";
+"settings.logout.success" = "退出成功";
+"settings.account.delete.success" = "注销成功";
+"settings.account.delete.notice" = "请谨慎使用该功能！注销后，该账号将永久删除，所有该账号下的数据将被抹去，绑定的手机号、微信、QQ等信息将被移除，充值的高级账户也将失效，所造成的损失需要您自己承担。该操作是不可逆的，请三思！";
+"settings.account.delete.confirm" = "确定注销";
+"settings.account.delete.confirm_alert.title" = "确定注销登录";
+"settings.account.delete.confirm_alert.message" = "注销后将退出并删除账号，确认继续？";
+
+
+"settings.logout.title" = "退出登录";
+"settings.logout.message" = "确定要退出登录？";
+"settings.account.delete.title" = "注销登录";
+"settings.account.delete.message" = "确定要注销登录？";
+"settings.account.delete.button" = "注销登录";
+"common.confirm" = "确定";
+"settings.account.phone.bind.title" = "绑定手机号";
+"settings.account.phone.change.title" = "更换手机号";
+"settings.account.phone.input.placeholder" = "请输入手机号";
+"settings.account.phone.get_code" = "获取验证码";
+"settings.account.phone.code.placeholder" = "请输入验证码";
+"settings.account.phone.code.success" = "验证码已发送";
+"settings.account.phone.bind.success" = "绑定成功";
+"common.edit" = "编辑";
+
+"settings.account.phone.invalid" = "请输入正确手机号";
+"settings.account.phone.code.invalid" = "请输入正确的验证码";
+"settings.account.email.invalid" = "请输入正确邮箱格式";
+
+"settings.account.phone.forcebind.title" = "提示";
+"settings.account.phone.forcebind.message" = "该手机号已被其他账号绑定，是否需要强制绑定？强制绑定后，绑定该手机的原账号会被解除绑定，建议先设置账号密码等其他登录方式，否则可能导致无法再登录。";
+"settings.account.phone.forcebind.input_hint" = "请输入此文本完成确认：已知晓";
+"settings.account.phone.forcebind.placeholder" = "已知晓";
+"settings.account.phone.forcebind.retry" = "请重新输入 “已知晓”";
+
+"settings.account.phone.forcebind.confirm" = "强制绑定";
+
+
+"settings.account.bind.title" = "设置账号与密码";
+"settings.account.bind.email.title" = "设置邮箱账号";
+"settings.account.bind.email.placeholder" = "请输入邮箱账号";
+"settings.account.bind.password.title" = "设置密码";
+"settings.account.bind.password.placeholder" = "请输入密码";
+"settings.account.password.short" = "密码至少六位数";
+"settings.account.bind.button" = "设置账号与密码";
+"settings.account.change.title" = "修改账号";
+"settings.account.change.notice" = "注意：每个账户只能修改一次账号";
+"settings.account.change.current" = "当前账号：%@";
+"settings.account.change.locked.tip" = "查询到该账户已使用过账号修改服务，暂时无法再次修改。";
+"settings.account.change.locked.contact" = "如需帮助请联系 contact@evestudio.cn";
+"settings.account.password.title" = "密码";
+"settings.account.password.placeholder" = "请输入密码";
+"settings.account.phone.title" = "手机号";
+"settings.account.sms.code" = "短信验证码";
+"settings.account.email.verify.current" = "校验当前邮箱账号:%@";
+"settings.account.email.code.placeholder" = "请输入验证码";
+"settings.account.email.new.title" = "新的邮箱账号";
+"settings.account.email.new.placeholder" = "输入要修改的新邮箱账号";
+"settings.account.email.new.code.title" = "邮箱验证码";
+"settings.account.change.confirm" = "修改账号";
+"settings.account.change.alert.title" = "每个账户只能修改一次账号内容";
+"settings.account.change.alert.message" = "确认修改账号吗？";
+"settings.account.change.alert.confirm" = "已知晓，确认修改";
+
+
+/// 常规
+"settings.general.language" = "语言";
+"settings.general.language.chinese" = "中文";
+"settings.general.language.english" = "英文";
+"settings.general.follow_system" = "跟随系统";
+"settings.general.sound" = "音效（达成事件）";
+"settings.general.theme" = "主图模式";
+"settings.general.theme.light" = "白天模式";
+"settings.general.theme.dark" = "深色模式";
+
+
+
+"common.alert.title" = "提示";
+
+
+// ==================== FocusSetting 数据漏翻（旧版本兜底） ====================

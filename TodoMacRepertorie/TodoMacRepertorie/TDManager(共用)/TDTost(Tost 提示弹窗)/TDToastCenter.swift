@@ -11,6 +11,8 @@ import SwiftUI
 final class TDToastCenter: ObservableObject {
     static let shared = TDToastCenter()
     @Published var isPresenting: Bool = false
+    @Published var isSettingPresenting: Bool = false
+
     @Published var message: String = ""
     @Published var type: TDToastType = .regular
     // 默认底部显示
@@ -27,4 +29,17 @@ final class TDToastCenter: ObservableObject {
             self.isPresenting = true
         }
     }
+    
+    /// 便捷触发全局 Toast（覆盖式重触发）
+    func td_settingShow(_ message: String, type: TDToastType = .regular, position: TDToastPosition = .bottom) {
+        DispatchQueue.main.async {
+            self.message = message
+            self.type = type
+            self.position = position
+            // 覆盖式重触发，避免重复消息不显示
+//            self.isPresenting = false
+            self.isSettingPresenting = true
+        }
+    }
+
 }

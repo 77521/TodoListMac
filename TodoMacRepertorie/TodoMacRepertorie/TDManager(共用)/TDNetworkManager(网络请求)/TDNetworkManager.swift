@@ -115,7 +115,7 @@ actor TDNetworkManager {
                 case 220:
                     throw TDNetworkError.wechatBound
                 case 113, 114:
-                    throw TDNetworkError.needBindWeChatOrQQ
+                    throw TDNetworkError.needForceBindPhone
                 case 300:
                     throw TDNetworkError.needBindPhone
                 case 5580:

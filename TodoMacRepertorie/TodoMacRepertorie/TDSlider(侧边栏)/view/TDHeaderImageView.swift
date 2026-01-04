@@ -18,11 +18,14 @@ struct TDHeaderImageView: View {
                 AsyncImage(url: localURL) { phase in
                     handleImagePhase(phase)
                 }
-            } else {
-                // 本地没有缓存时加载网络图片
-                AsyncImage(url: avatarURL) { phase in
+            } else if let remoteURL = avatarURL {
+                // 有网络地址时再加载，避免空 URL 进入 loading
+                AsyncImage(url: remoteURL) { phase in
                     handleImagePhase(phase)
                 }
+            } else {
+                // 无头像地址时直接展示占位
+                placeholderView
             }
         }
         .frame(width: 28, height: 28)
@@ -32,31 +35,30 @@ struct TDHeaderImageView: View {
     private func handleImagePhase(_ phase: AsyncImagePhase) -> some View {
         switch phase {
         case .empty:
-            Circle()
-                .fill(Color(white: 0.9))
-                .overlay(
-                    ProgressView()
-                        .scaleEffect(0.6)
-                        .frame(width: 16, height: 16)
-                )
+            placeholderView
         case .success(let image):
             image
                 .resizable()
                 .scaledToFill()
                 .clipShape(Circle())
         case .failure:
-            Circle()
-                .fill(Color(white: 0.9))
-                .overlay(
-                    Image(systemName: "person.crop.circle.fill")
-                        .resizable()
-                        .scaledToFit()
-                        .foregroundColor(.gray)
-                        .padding(6)
-                )
+            placeholderView
         @unknown default:
             EmptyView()
         }
     }
+    
+    private var placeholderView: some View {
+        Circle()
+            .fill(Color(white: 0.9))
+            .overlay(
+                Image(systemName: "person.crop.circle.fill")
+                    .resizable()
+                    .scaledToFit()
+                    .foregroundColor(.gray)
+                    .padding(6)
+            )
+    }
+
 }
 

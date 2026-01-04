@@ -106,6 +106,21 @@ public extension View {
             position: .bottom
         )
     }
+    
+    // 设置窗口底部显示
+    func tdSettingToastBottom(
+        isPresenting: Binding<Bool>,
+        message: String,
+        type: TDToastType = .regular
+    ) -> some View {
+        tdToast(
+            isPresenting: isPresenting,
+            message: message,
+            type: type,
+            position: .bottom
+        )
+    }
+
 }
 
 

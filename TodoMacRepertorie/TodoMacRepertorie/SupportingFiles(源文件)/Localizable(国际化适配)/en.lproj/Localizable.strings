@@ -105,3 +105,172 @@
 "daily_limit_remaining" = " focus records, remaining today:";
 "cancel_button" = "Cancel";
 "add_button" = "Add";
+
+// Calendar Navigation
+"back_to_today" = "Today";
+
+// Task Display
+"task_count" = "%d tasks";
+
+// ==================== Settings ====================
+// Title
+"settings.title" = "Settings"; // Settings page title
+// Detail placeholder
+"settings.detail.placeholder.title" = "Select an item"; // Right column placeholder title
+"settings.detail.placeholder.subtitle" = "First implement the left column; details coming soon"; // Right column placeholder subtitle
+
+// Group headers (left sidebar)
+"settings.group.account" = "Account & Security"; // Group 1
+"settings.group.general" = "General"; // Group 2
+"settings.group.features" = "Features"; // Group 3
+"settings.group.management" = "Management Tools"; // Group 4
+"settings.group.legal" = "Legal"; // Reserved
+"settings.group.others" = "More"; // Group 5
+
+// Section names (left sidebar rows)
+"settings.section.account_security" = "Account & Security"; // Account & Security
+"settings.section.premium" = "Premium Membership"; // Premium
+"settings.section.general" = "General"; // General
+"settings.section.feature_modules" = "Feature Modules"; // Feature Modules
+"settings.section.appearance" = "Appearance"; // Appearance
+"settings.section.theme" = "Themes"; // Themes
+"settings.section.app_icon" = "App Icon"; // App Icon
+"settings.section.events" = "Events"; // Events
+"settings.section.event_settings" = "Event Settings"; // Event Settings
+"settings.section.voice_input" = "Voice Input & Recognition"; // Voice Input
+"settings.section.wechat_reminder" = "WeChat Notifications"; // WeChat Reminder
+"settings.section.pomodoro_focus" = "Pomodoro Focus"; // Pomodoro
+"settings.section.schedule_overview" = "Schedule Overview"; // Overview
+"settings.section.image_file_management" = "Images & Files"; // Image/File
+"settings.section.repeat_event_management" = "Repeat Events"; // Repeats
+"settings.section.smart_recognition" = "Smart Recognition"; // Smart Recognition
+"settings.section.system_calendar_subscription" = "System Calendar Subscription"; // System Calendar
+"settings.section.calendar_reminder_correction" = "Calendar Reminder Correction"; // Correction
+"settings.section.keyboard_shortcuts" = "Keyboard Shortcuts"; // Shortcuts
+"settings.section.export_data" = "Export Events"; // Export
+"settings.section.about" = "About"; // About
+"settings.section.universal" = "Universal"; // Universal
+"settings.section.user_registration_agreement" = "User Agreement"; // Reserved
+"settings.section.privacy_policy" = "Privacy Policy"; // Reserved
+
+// Account & Security - Detail
+"settings.account.nickname.title" = "Nickname";
+"settings.account.nickname.placeholder" = "Not set";
+"settings.account.gender.title" = "Gender";
+"settings.account.gender.male" = "Male";
+"settings.account.gender.female" = "Female";
+"settings.account.gender.set" = "Set gender";
+"settings.account.phone.title" = "Phone";
+"settings.account.id.title" = "Account";
+"settings.account.change_password" = "Change Password";
+"settings.account.bind.wechat" = "WeChat";
+"settings.account.bind.qq" = "QQ";
+"settings.account.bind.apple" = "Apple ID";
+"settings.account.bound" = "Linked";
+"settings.account.unbound" = "Link";
+"settings.account.bind.hint" = "Please log in on your phone and go to Settings > Account Security to link this account.";
+"settings.account.bind.wechat.desc" = "On mobile, log in to this account and bind WeChat in Settings > Account & Security.";
+"settings.account.bind.qq.desc" = "On mobile, log in to this account and bind QQ in Settings > Account & Security.";
+"settings.account.bind.apple.desc" = "On mobile, log in to this account and bind Apple ID in Settings > Account & Security.";
+
+"settings.account.change_password.alert.title" = "Change Password";
+"settings.account.change_password.alert.message" = "Please choose a verification method";
+"settings.account.change_password.method.old" = "Via old password";
+"settings.account.change_password.method.email" = "Via email (%@)";
+"settings.account.change_password.method.phone" = "Via phone (%@)";
+
+"settings.account.password.current" = "Current password";
+"settings.account.password.current.placeholder" = "Enter current password";
+"settings.account.password.new" = "New password";
+"settings.account.password.new.placeholder" = "Enter new password";
+
+
+"settings.account.empty" = "Not set";
+"settings.account.set_account_password" = "Set account & password";
+"settings.account.bind_phone" = "Link phone";
+"settings.account.nickname.edit.title" = "Edit nickname";
+"settings.account.nickname.edit.placeholder" = "Edit nickname";
+"common.cancel" = "Cancel";
+"common.update" = "Update";
+
+"settings.account.nickname.too_long" = "Nickname cannot exceed 15 characters";
+"settings.account.nickname.update.success" = "Updated successfully";
+"settings.logout.success" = "Logged out successfully";
+"settings.account.delete.success" = "Account deleted successfully";
+
+"settings.account.delete.notice" = "Please proceed with caution! After deletion, this account will be permanently removed. All data under this account will be wiped, and bound phone, WeChat, QQ, etc. will be removed. Premium access will be invalid. You will bear any loss. This operation is irreversible, please think twice!";
+"settings.account.delete.confirm" = "Confirm Deletion";
+"settings.account.delete.confirm_alert.title" = "Confirm logout and delete?";
+"settings.account.delete.confirm_alert.message" = "You will be logged out and the account will be deleted. Continue?";
+
+
+"settings.logout.title" = "Log Out";
+"settings.logout.message" = "Are you sure you want to log out?";
+"settings.account.delete.title" = "Delete Account";
+"settings.account.delete.message" = "Are you sure you want to delete your account?";
+"settings.account.delete.button" = "Delete Account";
+"common.confirm" = "Confirm";
+
+"settings.account.phone.bind.title" = "Bind phone";
+"settings.account.phone.change.title" = "Change phone";
+"settings.account.phone.input.placeholder" = "Enter phone number";
+"settings.account.phone.get_code" = "Get code";
+"settings.account.phone.code.placeholder" = "Enter verification code";
+"settings.account.phone.code.success" = "Verification code sent";
+"settings.account.phone.bind.success" = "Binding succeeded";
+"common.edit" = "Edit";
+
+"settings.account.phone.invalid" = "Please enter a valid phone number";
+"settings.account.phone.code.invalid" = "Please enter a valid verification code";
+"settings.account.email.invalid" = "Please enter a valid email address";
+
+"settings.account.phone.forcebind.title" = "Notice";
+"settings.account.phone.forcebind.message" = "This phone number is already bound to another account. Do you want to force bind? After forcing, it will unbind from the original account. Please set another login method (e.g. password) first, otherwise you may be unable to log in.";
+"settings.account.phone.forcebind.input_hint" = "Enter this text to confirm: 已知晓";
+"settings.account.phone.forcebind.placeholder" = "已知晓";
+"settings.account.phone.forcebind.retry" = "Please re-enter “已知晓”";
+
+"settings.account.phone.forcebind.confirm" = "Force bind";
+
+"settings.account.bind.title" = "Set account and password";
+"settings.account.bind.email.title" = "Set email account";
+"settings.account.bind.email.placeholder" = "Enter email account";
+"settings.account.bind.password.title" = "Set password";
+"settings.account.bind.password.placeholder" = "Enter password";
+"settings.account.bind.button" = "Set account and password";
+"settings.account.change.title" = "Change account";
+"settings.account.change.notice" = "Note: Each account can only be changed once";
+"settings.account.change.current" = "Current account: %@";
+"settings.account.change.locked.tip" = "This account has already used the change service and cannot be changed again for now.";
+"settings.account.change.locked.contact" = "For help, contact contact@evestudio.cn";
+"settings.account.password.title" = "Password";
+"settings.account.password.placeholder" = "Enter password";
+"settings.account.password.short" = "Password must be at least 6 characters";
+
+"settings.account.phone.title" = "Phone number";
+"settings.account.sms.code" = "SMS code";
+"settings.account.email.verify.current" = "Verify current email: %@";
+"settings.account.email.code.placeholder" = "Enter verification code";
+"settings.account.email.new.title" = "New email account";
+"settings.account.email.new.placeholder" = "Enter the new email account";
+"settings.account.email.new.code.title" = "Email verification code";
+"settings.account.change.confirm" = "Change account";
+"settings.account.change.alert.title" = "Each account can only change its account once";
+"settings.account.change.alert.message" = "Are you sure you want to change the account?";
+"settings.account.change.alert.confirm" = "Acknowledge and confirm";
+
+
+// 常规
+"settings.general.language" = "Language";
+"settings.general.language.chinese" = "Chinese";
+"settings.general.language.english" = "English";
+"settings.general.follow_system" = "Follow system";
+"settings.general.sound" = "Sound (completion)";
+"settings.general.theme" = "Theme mode";
+"settings.general.theme.light" = "Light mode";
+"settings.general.theme.dark" = "Dark mode";
+
+
+"common.alert.title" = "Notice";
+
+// ==================== FocusSetting (legacy fallback) ====================

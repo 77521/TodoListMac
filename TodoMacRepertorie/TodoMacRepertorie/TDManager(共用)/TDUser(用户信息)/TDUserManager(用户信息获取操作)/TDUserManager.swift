@@ -221,7 +221,13 @@ class TDUserManager: ObservableObject {
     
     /// 获取用户头像URL
     var avatarURL: URL? {
-        guard let avatarPath = currentUser?.head else { return nil }
+        if let userId = currentUser?.userId,
+           let localURL = TDAvatarManager.shared.getLocalAvatarURL(for: userId) {
+            return localURL
+        }
+        guard let avatarPath = currentUser?.head,
+              !avatarPath.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        else { return nil }
         return URL(string: avatarPath)
     }
     

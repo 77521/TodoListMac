@@ -131,8 +131,8 @@ class TDLoginViewModel: ObservableObject {
             smsCodeError = "请输入验证码"
             return false
         }
-        if smsCode.count != 6 {
-            smsCodeError = "请输入6位验证码"
+        if smsCode.count != 4 {
+            smsCodeError = "请输入4位验证码"
             return false
         }
         smsCodeError = ""

@@ -62,3 +62,13 @@ extension View {
     }
 }
 
+// MARK: - 抖动辅助
+extension Binding where Value == Bool {
+    /// 触发一次抖动效果（用于错误提示）
+    func triggerShake() {
+        wrappedValue.toggle()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            wrappedValue.toggle()
+        }
+    }
+}

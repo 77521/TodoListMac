@@ -32,7 +32,7 @@ struct TDUserInfoView: View {
             // 设置按钮
             Button(action: {
                 // 设置按钮点击事件
-                openWindow(id: "Settings")
+                TDSettingsWindowTracker.shared.presentSettingsWindow(using: openWindow)
             }) {
                 Image(systemName: "gearshape.fill")
                     .foregroundColor(themeManager.titleTextColor)

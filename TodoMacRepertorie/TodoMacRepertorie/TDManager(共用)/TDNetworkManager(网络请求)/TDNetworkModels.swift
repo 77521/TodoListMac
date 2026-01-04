@@ -17,6 +17,7 @@ enum TDNetworkError: Error {
     case notVIPMember
     case wechatBound
     case needBindWeChatOrQQ
+    case needForceBindPhone   // 手机号被其他账号绑定，需强制绑定确认
     case needBindPhone
     case needVIP
     case emptyData
@@ -40,6 +41,8 @@ enum TDNetworkError: Error {
             return "微信号已被绑定"
         case .needBindWeChatOrQQ:
             return "需要绑定微信或QQ"
+        case .needForceBindPhone:
+            return "手机号已被绑定"
         case .needBindPhone:
             return "需要绑定手机号"
         case .needVIP:

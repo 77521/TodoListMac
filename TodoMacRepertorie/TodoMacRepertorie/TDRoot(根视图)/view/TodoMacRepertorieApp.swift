@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import AppKit
 
 @main
 struct TodoMacRepertorieApp: App {
@@ -20,17 +21,44 @@ struct TodoMacRepertorieApp: App {
     @StateObject private var tomatoManager = TDTomatoManager.shared
 
     @StateObject private var toastCenter = TDToastCenter.shared
-    init() {
-            // 监听任意窗口关闭事件：如果关闭的不是设置窗口，则关闭设置窗口
-            NotificationCenter.default.addObserver(forName: NSWindow.willCloseNotification, object: nil, queue: .main) { notification in
-                guard let closingWindow = notification.object as? NSWindow else { return }
-                // 如果关闭的不是设置窗口，则关闭设置窗口（跟随主窗口）
-                if closingWindow != TDSettingsWindowTracker.shared.settingsWindow {
-                    TDSettingsWindowTracker.shared.settingsWindow?.close()
-                }
-            }
-        }
+    @StateObject private var settingsSidebarStore = TDSettingsSidebarStore.shared
+
     
+    /// 当前语言对应的 Locale，系统以外仅中/英，系统且非中英时回落中文
+    private var currentLocale: Locale {
+        switch settingManager.language {
+        case .system:
+            let preferred = Locale.preferredLanguages.first?.lowercased() ?? ""
+            if preferred.contains("en") {
+                return Locale(identifier: "en")
+            } else if preferred.contains("zh") {
+                return Locale(identifier: "zh-Hans")
+            } else {
+                return Locale(identifier: "zh-Hans")
+            }
+        case .chinese:
+            return Locale(identifier: "zh-Hans")
+        case .english:
+            return Locale(identifier: "en")
+        }
+    }
+    
+    /// 期望的颜色模式：跟随设置（系统/白天/夜间）
+    private var preferredScheme: ColorScheme? {
+        switch settingManager.themeMode {
+        case .system:
+            if NSApp.effectiveAppearance.isDarkMode {
+                return .dark
+            } else {
+                return .light
+            }
+        case .light:
+            return .light
+        case .dark:
+            return .dark
+        }
+    }
+
     var body: some Scene {
         WindowGroup {
             Group {
@@ -42,12 +70,21 @@ struct TodoMacRepertorieApp: App {
                         .environmentObject(scheduleModel)
                         .environmentObject(tomatoManager)
                         .environmentObject(toastCenter)
+                        .background(
+                            TDWindowAccessor { window in
+                                TDSettingsWindowTracker.shared.registerMainWindow(window)
+                            }
+                        )
+
                 } else {
                     TDLoginView()
                         .frame(width: 932, height: 621)
                         .fixedSize()
                 }
             }
+            .preferredColorScheme(preferredScheme)
+            .environment(\.locale, currentLocale)
+
             .tdToastBottom(
                 isPresenting: Binding(
                     get: { toastCenter.isPresenting && toastCenter.position == .bottom },
@@ -78,26 +115,38 @@ struct TodoMacRepertorieApp: App {
         .windowStyle(.hiddenTitleBar)
         .windowResizability(.contentSize)
         
-        // 设置窗口（默认隐藏，只有点击设置按钮时才打开）
+        
         WindowGroup(id: "Settings") {
             TDSettingsView()
                 .environmentObject(themeManager)
                 .environmentObject(settingManager)
-            // 设置窗口属性与跟踪
-            .onAppear {
-                DispatchQueue.main.async {
-                    // 记录设置窗口引用
-                    TDSettingsWindowTracker.shared.settingsWindow = NSApp.keyWindow
-                    // 设置为浮动并在失活时隐藏（行为更贴近系统）
-                    TDSettingsWindowTracker.shared.settingsWindow?.level = .floating
-                    TDSettingsWindowTracker.shared.settingsWindow?.hidesOnDeactivate = true
+                .environmentObject(mainViewModel)
+                .environmentObject(scheduleModel)
+                .environmentObject(tomatoManager)
+                .environmentObject(userManager)
+                .environmentObject(settingsSidebarStore)
+                .background(
+                    TDWindowAccessor { window in
+                        TDSettingsWindowTracker.shared.attachSettingsWindow(window)
+                    }
+                )
+                .onDisappear {
+                    TDSettingsWindowTracker.shared.clearSettingsWindow()
                 }
-            }
-
-
+                .tdSettingToastBottom(
+                    isPresenting: Binding(
+                        get: { toastCenter.isSettingPresenting && toastCenter.position == .bottom },
+                        set: { toastCenter.isSettingPresenting = $0 }
+                    ),
+                    message: toastCenter.message,
+                    type: toastCenter.type
+                )
+                .preferredColorScheme(preferredScheme)
+                .environment(\.locale, currentLocale)
         }
         .windowStyle(.hiddenTitleBar)
         .windowResizability(.contentSize)
+        .defaultSize(width: 700, height: 660)
         .defaultPosition(.center)
         .handlesExternalEvents(matching: Set(arrayLiteral: "Settings"))
 
@@ -107,81 +156,117 @@ struct TodoMacRepertorieApp: App {
     }
 }
 
-// 跟踪设置窗口的简单管理器（弱引用避免循环持有）
+
+// MARK: - 设置窗口追踪
 final class TDSettingsWindowTracker {
     static let shared = TDSettingsWindowTracker()
+    
+    private var appTerminateObserver: Any?
+    private var mainWindowCloseObserver: Any?
+    private var settingsWindowCloseObserver: Any?
+
+    weak var mainWindow: NSWindow?
     weak var settingsWindow: NSWindow?
-    private init() {}
+    
+    private init() {
+        appTerminateObserver = NotificationCenter.default.addObserver(
+            forName: NSApplication.willTerminateNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.closeSettingsWindow()
+        }
+    }
+
+    
+    func registerMainWindow(_ window: NSWindow?) {
+        guard let window else { return }
+        guard window !== mainWindow else { return }
+        mainWindow = window
+        
+        if let observer = mainWindowCloseObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
+        mainWindowCloseObserver = NotificationCenter.default.addObserver(
+            forName: NSWindow.willCloseNotification,
+            object: window,
+            queue: .main
+        ) { [weak self] _ in
+            self?.closeSettingsWindow()
+        }
+    }
+    
+    func attachSettingsWindow(_ window: NSWindow?) {
+        guard let window else { return }
+        settingsWindow = window
+        window.isReleasedWhenClosed = false
+        window.titleVisibility = .hidden
+        window.titlebarAppearsTransparent = true
+        window.standardWindowButton(.zoomButton)?.isHidden = true
+        window.standardWindowButton(.miniaturizeButton)?.isHidden = true
+        window.styleMask.insert(.fullSizeContentView)
+        window.level = .floating
+        window.hidesOnDeactivate = true
+        window.isMovableByWindowBackground = true
+        window.title = ""
+        
+        if let observer = settingsWindowCloseObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
+        settingsWindowCloseObserver = NotificationCenter.default.addObserver(
+            forName: NSWindow.willCloseNotification,
+            object: window,
+            queue: .main
+        ) { [weak self] _ in
+            self?.clearSettingsWindow()
+        }
+
+    }
+    
+    func clearSettingsWindow() {
+        settingsWindow = nil
+        if let observer = settingsWindowCloseObserver {
+            NotificationCenter.default.removeObserver(observer)
+            settingsWindowCloseObserver = nil
+        }
+
+    }
+    
+    func presentSettingsWindow(using openWindow: OpenWindowAction) {
+        if let window = settingsWindow {
+            window.makeKeyAndOrderFront(nil)
+            NSApp.activate(ignoringOtherApps: true)
+        } else {
+            openWindow(id: "Settings")
+        }
+    }
+    
+    func closeSettingsWindow() {
+        settingsWindow?.close()
+        settingsWindow = nil
+    }
 }
 
-//
-//  TodoMacRepertorieApp.swift
-//  TodoMacRepertorie
-//
-//  Created by 孬孬 on 2024/12/27.
-//
-
-//import SwiftUI
-//import SwiftData
-//
-//@main
-//struct TodoMacRepertorieApp: App {
-//    // 模型容器
-//    @StateObject private var modelContainer = TDModelContainer.shared
-//
-//    // 用户管理器
-//    @StateObject private var userManager = TDUserManager.shared
-//    
-//    // 用户管理器
-//    @Environment(\.openWindow) private var openWindow
-//    @Environment(\.dismissWindow) private var dismissWindow
-//
-//    
-//    var body: some Scene {
-//        // 登录窗口
-//        WindowGroup(id: "Login") {
-//            TDLoginView()
-//                .frame(width: 932, height: 621)
-//                .fixedSize()
-//                .onAppear {
-//                    if userManager.isLoggedIn {
-//                        openWindow(id: "Main")
-//                        dismissWindow(id: "Login")
-//                    }
-//                }
-//                .onChange(of: userManager.isLoggedIn) { oldValue, newValue in
-//                    if newValue {
-//                        openWindow(id: "Main")
-//                        dismissWindow(id: "Login")
-//                    }
-//                }
-//        }
-//        .windowStyle(.hiddenTitleBar)
-//        .windowResizability(.contentSize)
-//        .modelContainer(modelContainer.modelContainer)
-//
-//        // 主窗口
-//        WindowGroup(id: "Main") {
-//            TDMainView()
-//                .frame(minWidth: 1100, minHeight: 700)
-//                .environment(\.modelContext, modelContainer.mainContext)
-//                .onAppear {
-//                    if !userManager.isLoggedIn {
-//                        openWindow(id: "Login")
-//                        dismissWindow(id: "Main")
-//                    }
-//                }
-//                .onChange(of: userManager.isLoggedIn) { oldValue, newValue in
-//                    if !newValue {
-//                        openWindow(id: "Login")
-//                        dismissWindow(id: "Main")
-//                    }
-//                }
-//
-//        }
-//        .windowStyle(.hiddenTitleBar)
-//        .modelContainer(modelContainer.modelContainer)
-//        
-//    }
-//
-//}
+// MARK: - Window Accessor
+struct TDWindowAccessor: NSViewRepresentable {
+    var onResolve: (NSWindow?) -> Void
+    
+    func makeNSView(context: Context) -> TDWindowAccessorView {
+        let view = TDWindowAccessorView()
+        view.onResolve = onResolve
+        return view
+    }
+    
+    func updateNSView(_ nsView: TDWindowAccessorView, context: Context) {}
+    
+    final class TDWindowAccessorView: NSView {
+        var onResolve: ((NSWindow?) -> Void)?
+        
+        override func viewDidMoveToWindow() {
+            super.viewDidMoveToWindow()
+            DispatchQueue.main.async { [weak self] in
+                self?.onResolve?(self?.window)
+            }
+        }
+    }
+}
