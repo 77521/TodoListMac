@@ -262,15 +262,144 @@
 
 // 常规
 "settings.general.language" = "Language";
-"settings.general.language.chinese" = "Chinese";
+"settings.general.language.chinese" = "简体中文";
 "settings.general.language.english" = "English";
 "settings.general.follow_system" = "Follow system";
 "settings.general.sound" = "Sound (completion)";
 "settings.general.theme" = "Theme mode";
 "settings.general.theme.light" = "Light mode";
 "settings.general.theme.dark" = "Dark mode";
+"settings.general.language.relogin.title" = "Changing language requires re-login. Proceed?";
+
+// 功能模块
+"settings.general.tomato.title" = "Tomato Focus Module";
+"settings.general.tomato.footer" = "If you only need the to-do feature, you can turn off the Tomato Focus module. After turning off, the Tomato Focus tab will no longer be shown.";
+"settings.general.schedule.title" = "Schedule Overview Module";
+"settings.general.schedule.footer" = "After turning off, the Schedule Overview module will no longer be shown.";
+
+// 主题颜色
+"settings.theme.page.title" = "Appearance";
+"settings.theme.page.subtitle" = "Pick your favorite theme color";
+"settings.theme.vip_hint" = "Switching theme colors is for Premium members. Non-members will see an upgrade prompt.";
+"settings.theme.option.mars_green.name" = "Mars Green";
+"settings.theme.option.mars_green.desc" = "Chosen as the most popular color worldwide after a six-month global survey.";
+"settings.theme.option.new_year_red.name" = "New Year Red";
+"settings.theme.option.new_year_red.desc" = "Passion, energy, romance—an auspicious celebratory red.";
+"settings.theme.option.coral_red.name" = "Coral Red";
+"settings.theme.option.coral_red.desc" = "Pantone Color of the Year 2019; vibrant with a rich warmth.";
+"settings.theme.option.wish_orange.name" = "Wish Orange";
+"settings.theme.option.wish_orange.desc" = "The warmest hue in warm tones—rich, joyful, and full of good wishes.";
+"settings.theme.option.grass_blue.name" = "Grass Blue";
+"settings.theme.option.grass_blue.desc" = "Artistic, fresh, and elegant grass blue.";
+"settings.theme.option.peach_pink.name" = "Peach Pink";
+"settings.theme.option.peach_pink.desc" = "Cute and sweet, gentle yet pure.";
+"settings.theme.option.classic_blue.name" = "Classic Blue";
+"settings.theme.option.classic_blue.desc" = "Pantone Color of the Year 2020; timeless and enduringly elegant.";
+"settings.theme.option.premium_gray.name" = "Premium Gray";
+"settings.theme.option.premium_gray.desc" = "Quiet, ethereal, and subdued—like a world falling silent.";
+
+// 应用图标
+"settings.appicon.page.title" = "App Icons";
+"settings.appicon.page.subtitle" = "Pick the app icon you like";
+"settings.appicon.page.footer" = "After switching, Dock and Launchpad icons update together; it may take a few seconds.";
+"settings.appicon.dock.show_icon" = "Show app icon in Dock";
+"settings.appicon.dock.show_badge" = "Show today's unfinished count on Dock icon";
+"settings.appicon.option.mars_green.title" = "Mars Green";
+"settings.appicon.option.mars_green.desc" = "White horse icon by Todo List—ride on and get things done.";
+"settings.appicon.option.new_year_red.title" = "New Year Red";
+"settings.appicon.option.new_year_red.desc" = "Passionate red to kick off the year with good luck.";
+"settings.appicon.option.coral_red.title" = "Coral Red";
+"settings.appicon.option.coral_red.desc" = "Gentle yet powerful coral tone.";
+"settings.appicon.option.wish_orange.title" = "Wish Orange";
+"settings.appicon.option.wish_orange.desc" = "Warm and joyful orange.";
+"settings.appicon.option.grass_blue.title" = "Grass Blue";
+"settings.appicon.option.grass_blue.desc" = "Artistic, fresh, and classic.";
+"settings.appicon.option.peach_pink.title" = "Peach Pink";
+"settings.appicon.option.peach_pink.desc" = "Cute, sweet, and gentle.";
+"settings.appicon.option.classic_blue.title" = "Classic Blue";
+"settings.appicon.option.classic_blue.desc" = "Timeless and elegant blue.";
+"settings.appicon.option.premium_gray.title" = "Premium Gray";
+"settings.appicon.option.premium_gray.desc" = "Calm and restrained gray.";
+"settings.appicon.option.time_ring.title" = "Time Ring";
+"settings.appicon.option.time_ring.desc" = "A ring design around the flow of time.";
+"settings.vip.modal.subtitle.appicon" = "Upgrade to Premium to customize your app icon.";
+
+// 事件设置
+"settings.event.title" = "Event Settings";
+"settings.event.today_badge" = "Show today’s remaining badge";
+"settings.event.checkbox_follow_color" = "Checkbox follows list color";
+"settings.event.remember_last_category" = "Remember last category when adding";
+"settings.event.week_start" = "Week starts on";
+"settings.event.week_start.sunday" = "Sunday";
+"settings.event.week_start.monday" = "Monday";
+"settings.event.new_event_position" = "New events are added to";
+"settings.event.position.bottom" = "Bottom";
+"settings.event.position.top" = "Top";
+"settings.event.show_completed" = "Show completed events";
+"settings.event.show_completed_strikethrough" = "Show strikethrough for completed";
+"settings.event.show_order_number" = "Show sequence number";
+"settings.event.show_description" = "Show description";
+"settings.event.show_holiday_mark" = "Show public holiday mark";
+"settings.event.description_lines" = "Description lines";
+"settings.event.lines.1" = "1 line";
+"settings.event.lines.2" = "2 lines";
+"settings.event.lines.3" = "3 lines";
+"settings.event.lines.4" = "4 lines";
+"settings.event.lines.5" = "5 lines";
+"settings.event.subtask_expand" = "Subtasks expand by default";
+"settings.event.subtask_auto_complete" = "Auto-complete when all subtasks done";
+"settings.event.sound" = "Completion sound";
+"settings.event.default_reminder" = "Default reminder time";
+"settings.event.reminder.desc" = "To keep Todo clean without background ads, reminders are synced via system Calendar, same as adding an event reminder there.";
+"settings.event.reminder.guide" = "Reminder setup guide";
+
+"settings.event.list.header" = "List display settings";
+"settings.event.list.past_range" = "Past completed display range";
+"settings.event.list.past_desc" = "Only affects list-type views, showing a portion of past completed items.\nYou can view more history in DayTodo, Schedule Overview, or Search.";
+
+"settings.event.list.overdue_range" = "Overdue display range";
+"settings.event.list.future_range" = "Future schedule range";
+"settings.event.list.repeat_limit" = "Max repeat items to show";
+"settings.event.list.show_inbox_no_date" = "Show inbox items (no date)";
+"settings.event.list.show_completed_no_date" = "Show completed no-date items";
+"settings.event.list.sidebar_heatmap" = "Sidebar workload heatmap";
+"settings.event.list.lock_privacy" = "Lock screen widget privacy";
+"settings.event.lock_privacy.desc" = "In recent, uncategorized, and list views, you can set future range, repeat max count, and whether to show no-date items.";
+
+// 日程概览设置
+"settings.schedule.background" = "Entry background";
+"settings.schedule.background.workload" = "Task workload";
+"settings.schedule.background.category" = "List color";
+"settings.schedule.color_recognition" = "List color recognition";
+"settings.schedule.color_recognition.auto" = "Auto";
+"settings.schedule.color_recognition.black" = "Black";
+"settings.schedule.color_recognition.white" = "White";
+"settings.schedule.font_size" = "Font size";
+"settings.schedule.font_size.small" = "Small";
+"settings.schedule.font_size.default" = "Default";
+"settings.schedule.font_size.large" = "Large";
+"settings.schedule.font_size.xlarge" = "Largest";
+"settings.schedule.remaining_count" = "Show remaining count on last line";
+"settings.schedule.show_lunar" = "Show lunar calendar";
+"settings.schedule.share_show_all" = "Share all events";
+"settings.schedule.privacy_mode" = "Privacy screenshot mode";
+"settings.schedule.privacy_mode.desc" = "When you need to share screenshots, enable this to mask events in the month view with asterisks.";
+
+// 番茄专注设置
+"settings.pomodoro.focus_duration" = "Focus duration";
+"settings.pomodoro.rest_duration" = "Rest duration";
+"settings.pomodoro.keep_screen_on" = "Keep screen awake while focusing";
+"settings.pomodoro.push_notification" = "Push notifications";
+"settings.pomodoro.push_notification.desc" = "Receive a push when the pomodoro finishes. To ensure timely alerts, keep the app running in background and enable notifications in system settings.";
+"settings.pomodoro.play_finish_sound" = "Play completion sound";
+"settings.pomodoro.learn" = "Learn about Pomodoro";
 
 
 "common.alert.title" = "Notice";
+
+//开通 VIP 之前的弹窗
+"settings.vip.modal.title" = "Upgrade to Premium, unlock all features";
+"settings.vip.modal.cta" = "Upgrade now";
+"settings.vip.modal.subtitle.theme" = "Theme switching is for Premium members. Please upgrade to continue.";
 
 // ==================== FocusSetting (legacy fallback) ====================

@@ -75,8 +75,8 @@ class TDSliderBarViewModel: ObservableObject {
         logger.info("📱 侧边栏ViewModel初始化开始")
         
         // 初始化默认系统分类
-        items = TDSliderBarModel.defaultItems
-        
+        items = TDSliderBarModel.defaultItems(settingManager: TDSettingManager.shared)
+
         // 选择默认分类
         if let dayTodo = items.first(where: { $0.categoryId == -100 }) {
             selectedCategory = dayTodo
@@ -153,6 +153,21 @@ class TDSliderBarViewModel: ObservableObject {
         logger.debug("🔄 更新分类数据，共\(categories.count)项")
         updateCategoryItems(categories)
     }
+    
+    /// 因设置变更（如日程概览开关）重建默认系统项，并合并用户分类
+    func rebuildForSettingsChange() {
+        let localCategories = TDCategoryManager.shared.loadLocalCategories()
+        updateCategoryItems(localCategories)
+        // 如果当前选中的是日程概览且已关闭，则切回 DayTodo
+        if !TDSettingManager.shared.enableScheduleOverview,
+           selectedCategory?.categoryId == -102 {
+            if let dayTodo = items.first(where: { $0.categoryId == -100 }) {
+                selectedCategory = dayTodo
+            }
+        }
+    }
+
+    
     /// 加载本地分类数据
     private func loadLocalCategories() {
         logger.debug("💾 加载本地分类数据")
@@ -171,8 +186,8 @@ class TDSliderBarViewModel: ObservableObject {
         logger.debug("🔄 更新分类列表数据")
         
         // 合并系统默认分类和用户创建的分类
-        var newItems = TDSliderBarModel.defaultItems
-        
+        var newItems = TDSliderBarModel.defaultItems(settingManager: TDSettingManager.shared)
+
         // 在分类清单后插入用户创建的分类
         if let categoryListIndex = newItems.firstIndex(where: { $0.categoryId == -104 }) {
             // 创建包含"未分类"的完整分类列表

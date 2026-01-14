@@ -58,6 +58,19 @@ struct TDSettingsView: View {
             TDAccountSecurityView()
         case .general:
             TDGeneralSettingsView()
+        case .featureModules:
+            TDGeneralModulesView()
+        case .theme:
+            TDThemeSelectionView()
+        case .appIcon:
+            TDAppIconSelectionView()
+        case .eventSettings:
+            TDEventSettingsView()
+        case .scheduleOverview:
+            TDScheduleOverviewSettingsView()
+        case .pomodoroFocus:
+            TDPomodoroSettingsView()
+
         default:
             TDSettingsPlaceholderColumn()
         }

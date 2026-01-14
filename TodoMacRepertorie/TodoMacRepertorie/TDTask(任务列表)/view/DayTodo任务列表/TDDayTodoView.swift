@@ -472,6 +472,9 @@ struct TDDayTodoView: View {
 //}
 
 #Preview {
-    TDDayTodoView(selectedDate: Date(), category: TDSliderBarModel.defaultItems.first(where: { $0.categoryId == -100 }) ?? TDSliderBarModel.defaultItems[0])
+    TDDayTodoView(selectedDate: Date(), category: {
+        let defaults = TDSliderBarModel.defaultItems(settingManager: TDSettingManager.shared)
+        return defaults.first(where: { $0.categoryId == -100 }) ?? defaults[0]
+    }())
         .environmentObject(TDThemeManager.shared)
 }

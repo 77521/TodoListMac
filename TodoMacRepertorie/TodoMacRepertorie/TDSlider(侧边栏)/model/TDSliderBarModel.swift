@@ -57,28 +57,47 @@ struct TDSliderBarModel: Identifiable, Codable, Equatable {
     }
 
     
-    // MARK: - 系统默认项目
-    static let defaultItems: [TDSliderBarModel] = [
-        // DayTodo
-        TDSliderBarModel(categoryId: -100, categoryName: "DayTodo", headerIcon: "calendar"),
-        // 最近待办
-        TDSliderBarModel(categoryId: -101, categoryName: "最近待办", headerIcon: "clock"),
-        // 日程概览
-        TDSliderBarModel(categoryId: -102, categoryName: "日程概览", headerIcon: "calendar.day.timeline.left"),
-        // 待办箱
-        TDSliderBarModel(categoryId: -103, categoryName: "待办箱", headerIcon: "tray"),
-        // 分类清单(分组)
-        TDSliderBarModel(categoryId: -104, categoryName: "分类清单", headerIcon: "list.bullet"),
-        // 标签(分组)
-        TDSliderBarModel(categoryId: -105, categoryName: "标签", headerIcon: "tag"),
-        // 数据统计
-        TDSliderBarModel(categoryId: -106, categoryName: "数据统计", headerIcon: "chart.bar"),
-        // 最近已完成
-        TDSliderBarModel(categoryId: -107, categoryName: "最近已完成", headerIcon: "checkmark.circle"),
-        // 回收站
-        TDSliderBarModel(categoryId: -108, categoryName: "回收站", headerIcon: "trash")
-    ]
-    
+//    // MARK: - 系统默认项目
+//    static let defaultItems: [TDSliderBarModel] = [
+//        // DayTodo
+//        TDSliderBarModel(categoryId: -100, categoryName: "DayTodo", headerIcon: "calendar"),
+//        // 最近待办
+//        TDSliderBarModel(categoryId: -101, categoryName: "最近待办", headerIcon: "clock"),
+//        // 日程概览
+//        TDSliderBarModel(categoryId: -102, categoryName: "日程概览", headerIcon: "calendar.day.timeline.left"),
+//        // 待办箱
+//        TDSliderBarModel(categoryId: -103, categoryName: "待办箱", headerIcon: "tray"),
+//        // 分类清单(分组)
+//        TDSliderBarModel(categoryId: -104, categoryName: "分类清单", headerIcon: "list.bullet"),
+//        // 标签(分组)
+//        TDSliderBarModel(categoryId: -105, categoryName: "标签", headerIcon: "tag"),
+//        // 数据统计
+//        TDSliderBarModel(categoryId: -106, categoryName: "数据统计", headerIcon: "chart.bar"),
+//        // 最近已完成
+//        TDSliderBarModel(categoryId: -107, categoryName: "最近已完成", headerIcon: "checkmark.circle"),
+//        // 回收站
+//        TDSliderBarModel(categoryId: -108, categoryName: "回收站", headerIcon: "trash")
+//    ]
+//
+    // MARK: - 系统默认项目（按设置动态决定是否包含日程概览）
+    static func defaultItems(settingManager: TDSettingManager = .shared) -> [TDSliderBarModel] {
+        var items: [TDSliderBarModel] = [
+            TDSliderBarModel(categoryId: -100, categoryName: "DayTodo", headerIcon: "calendar"),
+            TDSliderBarModel(categoryId: -101, categoryName: "最近待办", headerIcon: "clock"),
+            TDSliderBarModel(categoryId: -103, categoryName: "待办箱", headerIcon: "tray"),
+            TDSliderBarModel(categoryId: -104, categoryName: "分类清单", headerIcon: "list.bullet"),
+            TDSliderBarModel(categoryId: -105, categoryName: "标签", headerIcon: "tag"),
+            TDSliderBarModel(categoryId: -106, categoryName: "数据统计", headerIcon: "chart.bar"),
+            TDSliderBarModel(categoryId: -107, categoryName: "最近已完成", headerIcon: "checkmark.circle"),
+            TDSliderBarModel(categoryId: -108, categoryName: "回收站", headerIcon: "trash")
+        ]
+        if settingManager.enableScheduleOverview {
+            let schedule = TDSliderBarModel(categoryId: -102, categoryName: "日程概览", headerIcon: "calendar.day.timeline.left")
+            items.insert(schedule, at: 2) // 插入在待办箱前
+        }
+        return items
+    }
+
     // MARK: - 初始化方法
     
     /// 创建系统默认项目

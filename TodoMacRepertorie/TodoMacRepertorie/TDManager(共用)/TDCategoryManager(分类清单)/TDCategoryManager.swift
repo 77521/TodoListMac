@@ -38,7 +38,7 @@ class TDCategoryManager: ObservableObject {
             return categories
         } catch {
             print("加载本地分类数据失败：\(error)")
-            return TDSliderBarModel.defaultItems
+            return TDSliderBarModel.defaultItems(settingManager: TDSettingManager.shared)
         }
     }
     

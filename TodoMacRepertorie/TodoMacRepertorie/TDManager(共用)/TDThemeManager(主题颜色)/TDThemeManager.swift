@@ -243,7 +243,15 @@ class TDThemeManager: ObservableObject {
             switchTheme(to: "mars_green")
         }
     }
-    
+    /// 根据会员状态校验主题（非会员强制回到默认主题）
+    /// - Parameter isVip: 当前账号是否为会员
+    func enforceVipTheme(isVip: Bool) {
+        // 非会员且当前主题不是默认主题时，强制切回马尔斯绿
+        if !isVip && selectedThemeId != "mars_green" {
+            switchTheme(to: "mars_green")
+        }
+    }
+
     // MARK: - 颜色获取
     /// 获取指定层级的颜色
     func color(level: Int) -> Color {

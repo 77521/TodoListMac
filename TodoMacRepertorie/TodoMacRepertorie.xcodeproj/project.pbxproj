@@ -71,6 +71,7 @@
 			membershipExceptions = (
 				"/Localized: SupportingFiles(源文件)/Localizable(国际化适配)/Localizable.strings",
 				"SupportingFiles(源文件)/Assets.xcassets",
+				"SupportingFiles(源文件)/ImageAssets/ImageAssets.xcassets",
 				"TDCategory(类的扩展)/Color-Extension(颜色)/Color-Extension.swift",
 				"TDCategory(类的扩展)/Date-Extension(日期)/Date-Extension.swift",
 				"TDCategory(类的扩展)/Image-Extension(图片)/Image-Extension.swift",
@@ -547,18 +548,20 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_ENTITLEMENTS = TodoMacRepertorie/TodoMacRepertorie.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"$(SRCROOT)/TodoMacRepertorie/SupportingFiles(源文件)/Preview Content/Preview Assets.xcassets\"";
+				DEVELOPMENT_ASSET_PATHS = "\"$(SRCROOT)/TodoMacRepertorie/SupportingFiles(源文件)/Assets.xcassets\"";
 				DEVELOPMENT_TEAM = ARQ4QZ8Q3D;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TodoMacRepertorie/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Todo清单";
 				INFOPLIST_KEY_NSCalendarsUsageDescription = "需要访问日历以添加任务提醒";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -580,18 +583,20 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_ENTITLEMENTS = TodoMacRepertorie/TodoMacRepertorie.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"$(SRCROOT)/TodoMacRepertorie/SupportingFiles(源文件)/Preview Content/Preview Assets.xcassets\"";
+				DEVELOPMENT_ASSET_PATHS = "\"$(SRCROOT)/TodoMacRepertorie/SupportingFiles(源文件)/Assets.xcassets\"";
 				DEVELOPMENT_TEAM = ARQ4QZ8Q3D;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TodoMacRepertorie/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Todo清单";
 				INFOPLIST_KEY_NSCalendarsUsageDescription = "需要访问日历以添加任务提醒";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (

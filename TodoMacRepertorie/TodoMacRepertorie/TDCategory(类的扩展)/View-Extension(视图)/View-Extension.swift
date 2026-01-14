@@ -72,3 +72,52 @@ extension Binding where Value == Bool {
         }
     }
 }
+
+//// MARK: - 主题色开关样式（可复用）
+//struct ThemedSwitchToggleStyle: ToggleStyle {
+//    let onColor: Color
+//    
+//    func makeBody(configuration: Configuration) -> some View {
+//        HStack {
+//            configuration.label
+//            Spacer()
+//            ZStack(alignment: configuration.isOn ? .trailing : .leading) {
+//                RoundedRectangle(cornerRadius: 10, style: .continuous)
+//                    .fill(configuration.isOn ? onColor : Color.secondary.opacity(0.35))
+//                    .frame(width: 38, height: 20)
+//                Circle()
+//                    .fill(Color.white)
+//                    .frame(width: 16, height: 16)
+//                    .padding(2)
+//            }
+//            .animation(.easeInOut(duration: 0.15), value: configuration.isOn)
+//            .onTapGesture {
+//                configuration.isOn.toggle()
+//            }
+//        }
+//    }
+//}
+// MARK: - 主题色开关样式（可复用）
+struct ThemedSwitchToggleStyle: ToggleStyle {
+    let onColor: Color
+    
+    func makeBody(configuration: Configuration) -> some View {
+        HStack(spacing: 6) {
+            configuration.label
+            ZStack(alignment: configuration.isOn ? .trailing : .leading) {
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .fill(configuration.isOn ? onColor : Color.secondary.opacity(0.35))
+                    .frame(width: 38, height: 20)
+                Circle()
+                    .fill(Color.white)
+                    .frame(width: 16, height: 16)
+                    .padding(2)
+            }
+            .contentShape(Rectangle())
+            .onTapGesture {
+                configuration.isOn.toggle()
+            }
+            .animation(.easeInOut(duration: 0.15), value: configuration.isOn)
+        }
+    }
+}

@@ -16,6 +16,7 @@ struct TodoMacRepertorieApp: App {
     @StateObject private var themeManager = TDThemeManager.shared
     @StateObject private var settingManager = TDSettingManager.shared
     @StateObject private var mainViewModel = TDMainViewModel.shared
+    @StateObject private var appIconManager = TDAppIconManager.shared
 
     @StateObject private var scheduleModel = TDScheduleOverviewViewModel.shared
     @StateObject private var tomatoManager = TDTomatoManager.shared
@@ -23,42 +24,54 @@ struct TodoMacRepertorieApp: App {
     @StateObject private var toastCenter = TDToastCenter.shared
     @StateObject private var settingsSidebarStore = TDSettingsSidebarStore.shared
 
-    
-    /// 当前语言对应的 Locale，系统以外仅中/英，系统且非中英时回落中文
-    private var currentLocale: Locale {
-        switch settingManager.language {
-        case .system:
-            let preferred = Locale.preferredLanguages.first?.lowercased() ?? ""
-            if preferred.contains("en") {
-                return Locale(identifier: "en")
-            } else if preferred.contains("zh") {
-                return Locale(identifier: "zh-Hans")
-            } else {
-                return Locale(identifier: "zh-Hans")
-            }
-        case .chinese:
-            return Locale(identifier: "zh-Hans")
-        case .english:
-            return Locale(identifier: "en")
-        }
-    }
+    // 跟随系统时记录当前系统深色状态（固定模式不会受系统影响）
+    @State private var isSystemDark: Bool = false
     
     /// 期望的颜色模式：跟随设置（系统/白天/夜间）
     private var preferredScheme: ColorScheme? {
         switch settingManager.themeMode {
         case .system:
-            if NSApp.effectiveAppearance.isDarkMode {
-                return .dark
-            } else {
-                return .light
-            }
+            // 跟随系统：根据当前记录的系统深浅色返回
+            return isSystemDark ? .dark : .light
         case .light:
             return .light
         case .dark:
             return .dark
         }
     }
+    /// 同步 App 外观到系统（跟随/强制明/暗）
+    private func applyAppearance() {
+        switch settingManager.themeMode {
+        case .system:
+            // 跟随系统：清空自定义外观，让 App 完全由系统控制
+            NSApp.appearance = nil
+            // 立即读取当前系统深浅色，确保切换时即时一致
+            isSystemDark = systemIsDark()
+            // 通知依赖主题的视图刷新
+            themeManager.objectWillChange.send()
+            settingManager.objectWillChange.send()
 
+        case .light:
+            // 强制白天：固定浅色，不受系统影响
+            NSApp.appearance = NSAppearance(named: .aqua)
+            isSystemDark = false
+        case .dark:
+            // 强制夜间：固定深色，不受系统影响
+            NSApp.appearance = NSAppearance(named: .darkAqua)
+            isSystemDark = true
+        }
+    }
+
+    
+    /// 获取当前系统深浅色（直接读取系统偏好，避免被 App 级 appearance 干扰）
+    private func systemIsDark() -> Bool {
+        if let style = UserDefaults.standard.string(forKey: "AppleInterfaceStyle")?.lowercased() {
+            return style.contains("dark")
+        }
+        return false
+    }
+
+    
     var body: some Scene {
         WindowGroup {
             Group {
@@ -83,7 +96,7 @@ struct TodoMacRepertorieApp: App {
                 }
             }
             .preferredColorScheme(preferredScheme)
-            .environment(\.locale, currentLocale)
+//            .environment(\.locale, currentLocale)
 
             .tdToastBottom(
                 isPresenting: Binding(
@@ -109,6 +122,39 @@ struct TodoMacRepertorieApp: App {
                 message: toastCenter.message,
                 type: toastCenter.type
             )
+            // 启动时同步一次外观与系统深浅色
+            .onAppear {
+                isSystemDark = systemIsDark()
+                applyAppearance()
+                // 启动时同步应用图标与 Dock 设置，保证默认就是上次选中的图标
+                appIconManager.syncFromSettings()
+
+            }
+            // 当 App 内部主题模式变更时，立即应用对应外观
+            // 当 App 内部主题模式变更时，立即应用对应外观
+            .onChange(of: settingManager.themeMode) { _, newValue in
+                if newValue == .system {
+                    // 切回跟随系统时先同步当前系统深浅色
+                    isSystemDark = systemIsDark()
+
+                } else {
+                    // 固定模式直接覆盖
+                    isSystemDark = (newValue == .dark)
+                }
+                applyAppearance()
+            }
+            // 跟随系统：监听系统外观变化，系统切换浅/深色时仅更新状态（避免循环）
+            .onReceive(NSApp.publisher(for: \.effectiveAppearance)) { _ in
+                // 仅在“跟随系统”模式下响应，避免固定模式循环触发
+                
+                guard settingManager.themeMode == .system else { return }
+                let nowDark = systemIsDark()
+                if nowDark != isSystemDark {
+                    isSystemDark = nowDark
+                    applyAppearance()
+
+                }
+            }
 
         }
         .modelContainer(modelContainer.container)
@@ -142,7 +188,35 @@ struct TodoMacRepertorieApp: App {
                     type: toastCenter.type
                 )
                 .preferredColorScheme(preferredScheme)
-                .environment(\.locale, currentLocale)
+//                .environment(\.locale, currentLocale)
+            // 启动时同步一次外观与系统深浅色
+            .onAppear {
+                isSystemDark = systemIsDark()
+                applyAppearance()
+            }
+            // 当 App 内部主题模式变更时，立即应用对应外观
+            .onChange(of: settingManager.themeMode) { _, newValue in
+                if newValue == .system {
+                    // 切回跟随系统时先同步当前系统深浅色
+                    isSystemDark = systemIsDark()
+
+                } else {
+                    // 固定模式直接覆盖
+                    isSystemDark = (newValue == .dark)
+                }
+                applyAppearance()
+            }
+            // 跟随系统：监听系统外观变化，系统切换浅/深色时仅更新状态（避免循环）
+            .onReceive(NSApp.publisher(for: \.effectiveAppearance)) { _ in
+                // 仅在“跟随系统”模式下响应，避免固定模式循环触发
+                guard settingManager.themeMode == .system else { return }
+                let nowDark = systemIsDark()
+                if nowDark != isSystemDark {
+                    isSystemDark = nowDark
+                    applyAppearance()
+                }
+            }
+
         }
         .windowStyle(.hiddenTitleBar)
         .windowResizability(.contentSize)

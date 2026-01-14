@@ -51,6 +51,22 @@ enum TDCalendarTaskColorRecognition: Int, Codable {
     case white = 2
 }
 
+/// 默认提醒时间（分钟偏移，0 表示发生时）
+enum TDDefaultReminder: Int, CaseIterable {
+    case atTime = 0
+    case five = 5
+    case ten = 10
+    case fifteen = 15
+    
+    var title: String {
+        switch self {
+        case .atTime: return "发生时"
+        case .five: return "5分钟前"
+        case .ten: return "10分钟前"
+        case .fifteen: return "15分钟前"
+        }
+    }
+}
 
 /// 语言设置
 enum TDLanguage: Int, Codable {
@@ -63,7 +79,7 @@ enum TDLanguage: Int, Codable {
 }
 
 // MARK: - 过期任务显示范围枚举
-enum TDExpiredRange: Int, Codable {
+enum TDExpiredRange: Int, Codable, CaseIterable {
     case hide = 0      // 不显示
     case sevenDays = 7 // 7天内
     case thirtyDays = 30 // 30天内

@@ -155,7 +155,8 @@ struct TDMainView: View {
                         }
                     } else {
                         // 如果没有选中分类，默认显示DayTodo
-                        TDDayTodoView(selectedDate: dateManager.selectedDate, category: TDSliderBarModel.defaultItems.first(where: { $0.categoryId == -100 }) ?? TDSliderBarModel.defaultItems[0])
+                        let defaults = TDSliderBarModel.defaultItems(settingManager: settingManager)
+                        TDDayTodoView(selectedDate: dateManager.selectedDate, category: defaults.first(where: { $0.categoryId == -100 }) ?? defaults[0])
                     }
                 }
                     .frame(minWidth: 450, idealWidth: 650, maxWidth: .infinity)
@@ -163,9 +164,11 @@ struct TDMainView: View {
                 .ignoresSafeArea(.container, edges: .all)
             )
             Spacer(minLength: 0)
-            // 专注界面
-            TDFocusView()
-            
+            // 专注界面（按设置开关显示）
+            if settingManager.enableTomatoFocus {
+                TDFocusView()
+            }
+
         }
 
     }

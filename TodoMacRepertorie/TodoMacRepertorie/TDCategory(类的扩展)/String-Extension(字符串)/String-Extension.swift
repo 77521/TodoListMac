@@ -34,10 +34,37 @@ extension String {
             .joined()
     }
     
-    /// 国际化处理
+    /// 国际化处理（跟随设置内语言选择，而不是系统语言）
     var localized: String {
-        NSLocalizedString(self, comment: "")
+        // 从设置管理器获取当前选择的语言
+        let lang = TDSettingManager.shared.language
+        let code: String?
+        switch lang {
+        case .system:
+            // 仅支持中/英，系统若非中/英则回落中文
+            let preferred = Locale.preferredLanguages.first?.lowercased() ?? ""
+            if preferred.contains("en") {
+                code = "en"
+            } else if preferred.contains("zh") {
+                code = "zh-Hans"
+            } else {
+                code = "zh-Hans"
+            }
+        case .chinese:
+            code = "zh-Hans"
+        case .english:
+            code = "en"
+        }
+        // 如果有指定语言码，则加载对应 lproj bundle
+        if let code,
+           let path = Bundle.main.path(forResource: code, ofType: "lproj"),
+           let bundle = Bundle(path: path) {
+            return bundle.localizedString(forKey: self, value: nil, table: nil)
+        }
+        // 默认走系统语言
+        return NSLocalizedString(self, comment: "")
     }
+    
     
     func localizedFormat(_ arguments: CVarArg...) -> String {
         String(format: localized, arguments: arguments)
@@ -54,7 +81,7 @@ extension String {
         let suffix = digits.suffix(4)
         return "\(prefix)****\(suffix)"
     }
-
+    
     /// 校验邮箱格式是否有效
     /// - Returns: 邮箱格式是否匹配
     func isValidEmailFormat() -> Bool {
@@ -68,7 +95,7 @@ extension String {
         let regex = "^1\\d{10}$"
         return NSPredicate(format: "SELF MATCHES %@", regex).evaluate(with: trimmed)
     }
-
+    
     /// 前缀 “Todo清单：” 的国际化文案
     var tdPrefixed: String {
         "\("app_name".localized)：\(self.localized)"
@@ -85,11 +112,11 @@ extension String {
         }
         return "Mac"
     }
-
-//    // MARK: - 字符串工具扩展
-//    func localized(bundle: Bundle = .main, tableName: String = "Calendar") -> String {
-//        return NSLocalizedString(self, tableName: tableName, bundle: bundle, value: "", comment: "")
-//    }
+    
+    //    // MARK: - 字符串工具扩展
+    //    func localized(bundle: Bundle = .main, tableName: String = "Calendar") -> String {
+    //        return NSLocalizedString(self, tableName: tableName, bundle: bundle, value: "", comment: "")
+    //    }
 }
 
 // 用于 SwiftData，让布尔值可排序

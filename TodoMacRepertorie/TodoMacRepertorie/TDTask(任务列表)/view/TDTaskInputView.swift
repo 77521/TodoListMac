@@ -10,6 +10,8 @@ import SwiftUI
 struct TDTaskInputView: View {
     @StateObject private var mainViewModel = TDMainViewModel.shared
     @StateObject private var themeManager = TDThemeManager.shared
+    @StateObject private var settingManager = TDSettingManager.shared
+
     @State private var taskContent: String = ""
     @State private var offset: CGFloat = 0
     @State private var isShaking = false

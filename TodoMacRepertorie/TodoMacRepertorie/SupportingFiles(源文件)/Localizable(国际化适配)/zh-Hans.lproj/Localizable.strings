@@ -264,17 +264,146 @@
 
 /// 常规
 "settings.general.language" = "语言";
-"settings.general.language.chinese" = "中文";
-"settings.general.language.english" = "英文";
+"settings.general.language.chinese" = "简体中文";
+"settings.general.language.english" = "English";
 "settings.general.follow_system" = "跟随系统";
 "settings.general.sound" = "音效（达成事件）";
 "settings.general.theme" = "主图模式";
 "settings.general.theme.light" = "白天模式";
 "settings.general.theme.dark" = "深色模式";
+"settings.general.language.relogin.title" = "更改语言需重新登录才能生效，是否确定更改？";
 
+// 功能模块
+"settings.general.tomato.title" = "番茄专注模块";
+"settings.general.tomato.footer" = "如果您仅需要使用待办事项功能，您可以关闭番茄专注模块，关闭后，将不再显示番茄专注选项卡";
+"settings.general.schedule.title" = "日程概览模块";
+"settings.general.schedule.footer" = "关闭后，将不再显示日程概览模块";
+
+// 主题颜色
+"settings.theme.page.title" = "外观";
+"settings.theme.page.subtitle" = "选择你喜欢的主题颜色";
+"settings.theme.vip_hint" = "切换主题颜色为会员专属功能，非会员点击将弹窗提示开通";
+"settings.theme.option.mars_green.name" = "马尔斯绿";
+"settings.theme.option.mars_green.desc" = "经历为期6个月的全球调研后，选出的全球最受欢迎的色彩";
+"settings.theme.option.new_year_red.name" = "新年红";
+"settings.theme.option.new_year_red.desc" = "热情、活力、浪漫、盘然等美好的意义，一种喜庆祥和的色彩";
+"settings.theme.option.coral_red.name" = "珊瑚红";
+"settings.theme.option.coral_red.desc" = "2019年Pantone年度色出炉，充满活力而又醇厚的一种红色";
+"settings.theme.option.wish_orange.name" = "心想事橙";
+"settings.theme.option.wish_orange.desc" = "暖色系中最温暖的颜色，富足、快乐而幸福，让我们心想事橙";
+"settings.theme.option.grass_blue.name" = "千草蓝";
+"settings.theme.option.grass_blue.desc" = "文艺、清新、典雅的千草蓝色";
+"settings.theme.option.peach_pink.name" = "桃桃粉";
+"settings.theme.option.peach_pink.desc" = "可爱甜美、温柔而纯真";
+"settings.theme.option.classic_blue.name" = "经典蓝";
+"settings.theme.option.classic_blue.desc" = "2020年Pantone年度色出炉，经典蓝是永恒、持久的优雅色调";
+"settings.theme.option.premium_gray.name" = "高级灰";
+"settings.theme.option.premium_gray.desc" = "寂寞、空灵、混沌，仿佛世界都沉寂了";
+
+// 应用图标
+"settings.appicon.page.title" = "应用图标";
+"settings.appicon.page.subtitle" = "选择你喜欢的应用图标";
+"settings.appicon.page.footer" = "更换图标后，Dock 与 Launchpad 会同步更新，需几秒钟生效。";
+"settings.appicon.dock.show_icon" = "在 Dock 中显示应用图标";
+"settings.appicon.dock.show_badge" = "在 Dock 图标中显示今天未完成任务数量";
+"settings.appicon.option.mars_green.title" = "马尔斯绿";
+"settings.appicon.option.mars_green.desc" = "由 Todo 清单自主设计的白马图形，寓意着马上去做~";
+"settings.appicon.option.new_year_red.title" = "新年红";
+"settings.appicon.option.new_year_red.desc" = "热情活力的红，开启新一年的好运气";
+"settings.appicon.option.coral_red.title" = "珊瑚红";
+"settings.appicon.option.coral_red.desc" = "柔和又有力量的红色调";
+"settings.appicon.option.wish_orange.title" = "心想事橙";
+"settings.appicon.option.wish_orange.desc" = "温暖橙色，富足且快乐";
+"settings.appicon.option.grass_blue.title" = "千草蓝";
+"settings.appicon.option.grass_blue.desc" = "文艺清新，经典耐看";
+"settings.appicon.option.peach_pink.title" = "桃桃粉";
+"settings.appicon.option.peach_pink.desc" = "可爱甜美，温柔纯真";
+"settings.appicon.option.classic_blue.title" = "经典蓝";
+"settings.appicon.option.classic_blue.desc" = "永恒优雅的经典蓝";
+"settings.appicon.option.premium_gray.title" = "高级灰";
+"settings.appicon.option.premium_gray.desc" = "克制低调的灰，沉稳耐看";
+"settings.appicon.option.time_ring.title" = "时间之环";
+"settings.appicon.option.time_ring.desc" = "围绕时间流转的环形设计";
+"settings.vip.modal.subtitle.appicon" = "开通高级账户，支持修改个性化应用图标。";
+
+// 事件设置
+"settings.event.title" = "事件设置";
+"settings.event.today_badge" = "今日未完成角标显示";
+"settings.event.checkbox_follow_color" = "勾选框跟随清单颜色";
+"settings.event.remember_last_category" = "记忆上次分类选择";
+"settings.event.week_start" = "星期开始于";
+"settings.event.week_start.sunday" = "周日";
+"settings.event.week_start.monday" = "周一";
+"settings.event.new_event_position" = "新事件默认排在";
+"settings.event.position.bottom" = "底部";
+"settings.event.position.top" = "顶部";
+"settings.event.show_completed" = "显示已完成事件";
+"settings.event.show_completed_strikethrough" = "显示已完成事件删除线";
+"settings.event.show_order_number" = "显示事件的顺序数字";
+"settings.event.show_description" = "显示事件描述";
+"settings.event.show_holiday_mark" = "显示法定节假日标记";
+"settings.event.description_lines" = "事件描述显示行数";
+"settings.event.lines.1" = "1 行";
+"settings.event.lines.2" = "2 行";
+"settings.event.lines.3" = "3 行";
+"settings.event.lines.4" = "4 行";
+"settings.event.lines.5" = "5 行";
+"settings.event.subtask_expand" = "子任务默认展开";
+"settings.event.subtask_auto_complete" = "子任务全部完成时，自动完成事件";
+"settings.event.sound" = "事件达成音效";
+"settings.event.default_reminder" = "默认提醒时间";
+"settings.event.reminder.desc" = "为了实现无后台无广告绿色纯洁，Tdod清单的事件提醒是协同系统日历来实现的，效果相当于主动在日历中设置一个提醒";
+"settings.event.reminder.guide" = "事件提醒设置指南";
+
+"settings.event.list.header" = "列表清单显示设置";
+"settings.event.list.past_range" = "过往已达成的显示范围";
+"settings.event.list.past_desc" = "该设置仅表示列表型清单中，过往已达成事件的部分展示数量。\\n您可前往DayTodo、日程概览、搜索等视图查询更多历史事件。";
+
+"settings.event.list.overdue_range" = "过期事件的显示范围";
+"settings.event.list.future_range" = "后续日程的显示范围";
+"settings.event.list.repeat_limit" = "重复事件显示最大个数";
+"settings.event.list.show_inbox_no_date" = "显示待办箱事件（无日期）";
+"settings.event.list.show_completed_no_date" = "显示已达成的无日期事件";
+"settings.event.list.sidebar_heatmap" = "侧滑栏工作量热力图";
+"settings.event.list.lock_privacy" = "锁屏小组件隐私模式";
+"settings.event.lock_privacy.desc" = "在最近待办、未分类和分类清单视图下，你可以设定后续日程的显示范围、重复事件最大显示数量、是否显示无日期事件等";
+
+// 日程概览设置
+"settings.schedule.background" = "条目背景色";
+"settings.schedule.background.workload" = "事件工作量";
+"settings.schedule.background.category" = "清单颜色";
+"settings.schedule.color_recognition" = "清单颜色识别";
+"settings.schedule.color_recognition.auto" = "自动识别";
+"settings.schedule.color_recognition.black" = "黑色";
+"settings.schedule.color_recognition.white" = "白色";
+"settings.schedule.font_size" = "文字大小";
+"settings.schedule.font_size.small" = "小";
+"settings.schedule.font_size.default" = "默认";
+"settings.schedule.font_size.large" = "较大";
+"settings.schedule.font_size.xlarge" = "最大";
+"settings.schedule.remaining_count" = "最后一行显示剩余数量";
+"settings.schedule.show_lunar" = "显示农历";
+"settings.schedule.share_show_all" = "分享显示全部事件";
+"settings.schedule.privacy_mode" = "隐私晒图模式";
+"settings.schedule.privacy_mode.desc" = "当您需要截屏晒图时，可以选择临时开启。日程概览月视图中的事件将用星号替代";
+
+// 番茄专注设置
+"settings.pomodoro.focus_duration" = "番茄时长";
+"settings.pomodoro.rest_duration" = "休息时长";
+"settings.pomodoro.keep_screen_on" = "专注时屏幕常亮";
+"settings.pomodoro.push_notification" = "推送通知";
+"settings.pomodoro.push_notification.desc" = "番茄专注完成时，将获得消息推送提醒。为及时收到提醒，建议将 APP 锁定在后台，并在系统中开启通知权限。";
+"settings.pomodoro.play_finish_sound" = "播放完成提示音";
+"settings.pomodoro.learn" = "了解番茄工作法";
 
 
 "common.alert.title" = "提示";
 
+//开通 VIP 之前的弹窗
+"settings.vip.modal.title" = "开通高级账户，解锁全部功能";
+"settings.vip.modal.cta" = "立即开通";
+"settings.vip.modal.subtitle.theme" = "切换主题颜色为高级会员专享功能，请先开通后再试";
+
+//
 
 // ==================== FocusSetting 数据漏翻（旧版本兜底） ====================

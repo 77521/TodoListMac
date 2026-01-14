@@ -63,6 +63,9 @@ class TDSettingManager: ObservableObject {
         static let calendarShowRemainingCount = "td_calendar_show_remaining_count"
         /// 是否启用隐私保护模式
         static let isPrivacyModeEnabled = "td_is_privacy_mode_enabled"
+        /// 晒图时是否展示全部事件（针对日程概览的分享/截屏）
+        static let scheduleShareShowAllEvents = "td_schedule_share_show_all_events"
+
         /// 日历任务颜色识别模式
         static let calendarTaskColorRecognition = "td_calendar_task_color_recognition"
         /// 是否显示农历
@@ -89,17 +92,56 @@ class TDSettingManager: ObservableObject {
         static let enableSound = "td_enable_sound"
         /// 音效类型（1: ok_ding, 2: todofinishvoice）
         static let soundType = "td_sound_type"
+        /// 番茄专注：屏幕常亮
+        static let focusKeepScreenOn = "td_focus_keep_screen_on"
+        /// 番茄专注：推送通知
+        static let focusPushEnabled = "td_focus_push_enabled"
+        /// 番茄专注：播放完成提示音
+        static let focusPlayFinishSound = "td_focus_play_finish_sound"
 
         /// 专注时长（分钟）
         static let focusDuration = "td_focus_duration"
         /// 休息时长（分钟）
         static let restDuration = "td_rest_duration"
 
+        /// 模块：番茄专注开关
+        static let enableTomatoFocus = "td_enable_tomato_focus"
+        /// 模块：日程概览开关
+        static let enableScheduleOverview = "td_enable_schedule_overview"
         
         /// 数据统计设置
 
         /// 是否显示专注功能
         static let showFocusFeature = "td_show_focus_feature"
+
+        /// 应用图标选择
+        static let appIconId = "td_app_icon_id"
+        /// Dock 中显示图标
+        static let showDockIcon = "td_show_dock_icon"
+        /// Dock 图标显示未完成任务数量
+        static let showDockBadge = "td_show_dock_badge"
+
+        
+        /// 今日未完成角标显示
+        static let showTodayBadge = "td_show_today_badge"
+        /// 记忆上次分类选择
+        static let rememberLastCategory = "td_remember_last_category"
+        /// 显示法定节假日标记
+        static let showHolidayMark = "td_show_holiday_mark"
+        /// 子任务默认展开
+        static let expandSubtask = "td_expand_subtask"
+        /// 子任务全部完成时自动完成事件
+        static let autoCompleteWhenSubtasksDone = "td_auto_complete_when_subtasks_done"
+        /// 事件描述显示行数
+        static let taskDescriptionLinesNew = "td_task_description_lines_new"
+        /// 默认提醒时间（枚举）
+        static let defaultReminderOffsetNew = "td_default_reminder_offset"
+        /// 显示待办箱事件（无日期）
+        static let showInboxNoDate = "td_show_inbox_no_date"
+        /// 显示已达成的无日期事件
+        static let showCompletedNoDate = "td_show_completed_no_date"
+        /// 侧滑栏工作量热力图
+        static let showSidebarHeatmap = "td_show_sidebar_heatmap"
 
 
     }
@@ -161,6 +203,16 @@ class TDSettingManager: ObservableObject {
         set { sharedDefaults?.set(newValue, forKey: Keys.newTaskAddToTop); objectWillChange.send() }
     }
 
+    /// 记忆上次分类选择（默认关闭）
+    var rememberLastCategory: Bool {
+        get {
+            if sharedDefaults?.object(forKey: Keys.rememberLastCategory) == nil { return false }
+            return sharedDefaults?.bool(forKey: Keys.rememberLastCategory) ?? false
+        }
+        set { sharedDefaults?.set(newValue, forKey: Keys.rememberLastCategory); objectWillChange.send() }
+    }
+
+    
     /// 是否显示本地日历数据
     var showLocalCalendarEvents: Bool {
         get {
@@ -171,7 +223,15 @@ class TDSettingManager: ObservableObject {
         }
         set { sharedDefaults?.set(newValue, forKey: Keys.showLocalCalendarEvents); objectWillChange.send() }
     }
-    
+    /// 显示法定节假日标记（默认开启）
+    var showHolidayMark: Bool {
+        get {
+            if sharedDefaults?.object(forKey: Keys.showHolidayMark) == nil { return true }
+            return sharedDefaults?.bool(forKey: Keys.showHolidayMark) ?? true
+        }
+        set { sharedDefaults?.set(newValue, forKey: Keys.showHolidayMark); objectWillChange.send() }
+    }
+
     
     /// 已完成过期任务显示范围
     var expiredRangeCompleted: TDExpiredRange {
@@ -189,6 +249,17 @@ class TDSettingManager: ObservableObject {
     var repeatTasksLimit: TDRepeatTasksLimit {
         get { TDRepeatTasksLimit(rawValue: sharedDefaults?.integer(forKey: Keys.repeatTasksLimit) ?? TDRepeatTasksLimit.five.rawValue) ?? .five }
         set { sharedDefaults?.set(newValue.rawValue, forKey: Keys.repeatTasksLimit); objectWillChange.send() }
+    }
+    /// 默认提醒时间（分钟偏移，0 表示发生时，默认 5 分钟前）
+    var defaultReminderOffset: TDDefaultReminder {
+        get {
+            let raw = sharedDefaults?.integer(forKey: "td_default_reminder_offset") ?? TDDefaultReminder.five.rawValue
+            return TDDefaultReminder(rawValue: raw) ?? .five
+        }
+        set {
+            sharedDefaults?.set(newValue.rawValue, forKey: "td_default_reminder_offset")
+            objectWillChange.send()
+        }
     }
     
     /// 后续日程显示范围
@@ -214,6 +285,16 @@ class TDSettingManager: ObservableObject {
         set { sharedDefaults?.set(newValue, forKey: Keys.showCompletedNoDateEvents); objectWillChange.send() }
     }
 
+    /// 晒图时是否展示全部事件（默认展示全部，便于分享）
+    var scheduleShareShowAllEvents: Bool {
+        get {
+            if sharedDefaults?.object(forKey: Keys.scheduleShareShowAllEvents) == nil {
+                return true
+            }
+            return sharedDefaults?.bool(forKey: Keys.scheduleShareShowAllEvents) ?? true
+        }
+        set { sharedDefaults?.set(newValue, forKey: Keys.scheduleShareShowAllEvents); objectWillChange.send() }
+    }
 
     /// 日历视图任务背景色模式
     var calendarTaskBackgroundMode: TDTaskBackgroundMode {
@@ -248,7 +329,11 @@ class TDSettingManager: ObservableObject {
     var isDarkMode: Bool {
         switch themeMode {
         case .system:
-            return NSApp.effectiveAppearance.isDarkMode
+            if let style = UserDefaults.standard.string(forKey: "AppleInterfaceStyle")?.lowercased() {
+                return style.contains("dark")
+            }
+            return false
+
         case .light:
             return false
         case .dark:
@@ -333,14 +418,22 @@ class TDSettingManager: ObservableObject {
     /// 任务描述显示行数（默认3行）
     var taskDescriptionLines: Int {
         get {
-            if sharedDefaults?.object(forKey: Keys.taskDescriptionLines) == nil {
-                return 3 // 默认3行
+            // 兼容旧 key，优先读取新 key
+            if let value = sharedDefaults?.object(forKey: Keys.taskDescriptionLinesNew) as? Int {
+                return min(max(value, 1), 5)
             }
-            return sharedDefaults?.integer(forKey: Keys.taskDescriptionLines) ?? 3
+            if let legacy = sharedDefaults?.object(forKey: Keys.taskDescriptionLines) as? Int {
+                return min(max(legacy, 1), 5)
+            }
+            return 3 // 默认3行
         }
-        set { sharedDefaults?.set(newValue, forKey: Keys.taskDescriptionLines); objectWillChange.send() }
+        set {
+            let clamped = min(max(newValue, 1), 5)
+            sharedDefaults?.set(clamped, forKey: Keys.taskDescriptionLinesNew)
+            objectWillChange.send()
+        }
     }
-    
+
     /// 是否显示任务描述（默认显示）
     var showTaskDescription: Bool {
         get {
@@ -352,6 +445,16 @@ class TDSettingManager: ObservableObject {
         set { sharedDefaults?.set(newValue, forKey: Keys.showTaskDescription); objectWillChange.send() }
     }
     
+    /// 今日未完成角标显示（默认开启）
+    var showTodayBadge: Bool {
+        get {
+            if sharedDefaults?.object(forKey: Keys.showTodayBadge) == nil { return true }
+            return sharedDefaults?.bool(forKey: Keys.showTodayBadge) ?? true
+        }
+        set { sharedDefaults?.set(newValue, forKey: Keys.showTodayBadge); objectWillChange.send() }
+    }
+
+    
     /// 任务已完成标题是否显示删除线（默认显示）
     var showCompletedTaskStrikethrough: Bool {
         get {
@@ -362,6 +465,25 @@ class TDSettingManager: ObservableObject {
         }
         set { sharedDefaults?.set(newValue, forKey: Keys.showCompletedTaskStrikethrough); objectWillChange.send() }
     }
+    
+    /// 子任务默认展开（默认开启）
+    var expandSubtask: Bool {
+        get {
+            if sharedDefaults?.object(forKey: Keys.expandSubtask) == nil { return true }
+            return sharedDefaults?.bool(forKey: Keys.expandSubtask) ?? true
+        }
+        set { sharedDefaults?.set(newValue, forKey: Keys.expandSubtask); objectWillChange.send() }
+    }
+    /// 子任务全部完成时自动完成事件（默认开启）
+    var autoCompleteWhenSubtasksDone: Bool {
+        get {
+            if sharedDefaults?.object(forKey: Keys.autoCompleteWhenSubtasksDone) == nil { return true }
+            return sharedDefaults?.bool(forKey: Keys.autoCompleteWhenSubtasksDone) ?? true
+        }
+        set { sharedDefaults?.set(newValue, forKey: Keys.autoCompleteWhenSubtasksDone); objectWillChange.send() }
+    }
+
+    
     /// 选中框是否跟随分类清单颜色（默认不跟随）
     var checkboxFollowCategoryColor: Bool {
         get {
@@ -406,6 +528,66 @@ class TDSettingManager: ObservableObject {
         set { sharedDefaults?.set(newValue, forKey: Keys.enableSound); objectWillChange.send() }
     }
     
+    /// 模块：番茄专注开关（默认开启）
+    var enableTomatoFocus: Bool {
+        get {
+            if sharedDefaults?.object(forKey: Keys.enableTomatoFocus) == nil {
+                return true
+            }
+            return sharedDefaults?.bool(forKey: Keys.enableTomatoFocus) ?? true
+        }
+        set { sharedDefaults?.set(newValue, forKey: Keys.enableTomatoFocus); objectWillChange.send() }
+    }
+
+    /// 模块：日程概览开关（默认开启）
+    var enableScheduleOverview: Bool {
+        get {
+            if sharedDefaults?.object(forKey: Keys.enableScheduleOverview) == nil {
+                return true
+            }
+            return sharedDefaults?.bool(forKey: Keys.enableScheduleOverview) ?? true
+        }
+        set { sharedDefaults?.set(newValue, forKey: Keys.enableScheduleOverview); objectWillChange.send() }
+    }
+
+    /// 当前选择的应用图标 ID（默认马尔斯绿）
+    var appIconId: String {
+        get { sharedDefaults?.string(forKey: Keys.appIconId) ?? "mars_green" }
+        set { sharedDefaults?.set(newValue, forKey: Keys.appIconId); objectWillChange.send() }
+    }
+
+    /// 是否在 Dock 中显示应用图标（默认显示）
+    var showDockIcon: Bool {
+        get {
+            if sharedDefaults?.object(forKey: Keys.showDockIcon) == nil {
+                return true
+            }
+            return sharedDefaults?.bool(forKey: Keys.showDockIcon) ?? true
+        }
+        set { sharedDefaults?.set(newValue, forKey: Keys.showDockIcon); objectWillChange.send() }
+    }
+
+    /// 是否在 Dock 图标显示今天未完成任务数量（默认显示）
+    var showDockBadge: Bool {
+        get {
+            if sharedDefaults?.object(forKey: Keys.showDockBadge) == nil {
+                return true
+            }
+            return sharedDefaults?.bool(forKey: Keys.showDockBadge) ?? true
+        }
+        set { sharedDefaults?.set(newValue, forKey: Keys.showDockBadge); objectWillChange.send() }
+    }
+    
+    /// 侧滑栏工作量热力图（默认开启）
+    var showSidebarHeatmap: Bool {
+        get {
+            if sharedDefaults?.object(forKey: Keys.showSidebarHeatmap) == nil { return true }
+            return sharedDefaults?.bool(forKey: Keys.showSidebarHeatmap) ?? true
+        }
+        set { sharedDefaults?.set(newValue, forKey: Keys.showSidebarHeatmap); objectWillChange.send() }
+    }
+
+
     /// 音效类型（默认使用 ok_ding）
     var soundType: TDSoundType {
         get {
@@ -426,9 +608,13 @@ class TDSettingManager: ObservableObject {
             }
             return sharedDefaults?.integer(forKey: Keys.focusDuration) ?? 25
         }
-        set { sharedDefaults?.set(newValue, forKey: Keys.focusDuration); objectWillChange.send() }
+        set {
+            let clamped = min(max(newValue, 5), 120) // 限制为 5~120 分钟
+            sharedDefaults?.set(clamped, forKey: Keys.focusDuration)
+            objectWillChange.send()
+        }
     }
-    
+
     /// 休息时长（分钟，默认5分钟）
     var restDuration: Int {
         get {
@@ -437,8 +623,46 @@ class TDSettingManager: ObservableObject {
             }
             return sharedDefaults?.integer(forKey: Keys.restDuration) ?? 5
         }
-        set { sharedDefaults?.set(newValue, forKey: Keys.restDuration); objectWillChange.send() }
+        set {
+            let clamped = min(max(newValue, 5), 120) // 限制为 5~120 分钟
+            sharedDefaults?.set(clamped, forKey: Keys.restDuration)
+            objectWillChange.send()
+        }
     }
+
+    /// 番茄专注：专注时屏幕常亮（默认开启）
+    var focusKeepScreenOn: Bool {
+        get {
+            if sharedDefaults?.object(forKey: Keys.focusKeepScreenOn) == nil {
+                return true
+            }
+            return sharedDefaults?.bool(forKey: Keys.focusKeepScreenOn) ?? true
+        }
+        set { sharedDefaults?.set(newValue, forKey: Keys.focusKeepScreenOn); objectWillChange.send() }
+    }
+    
+    /// 番茄专注：推送通知（默认开启）
+    var focusPushEnabled: Bool {
+        get {
+            if sharedDefaults?.object(forKey: Keys.focusPushEnabled) == nil {
+                return true
+            }
+            return sharedDefaults?.bool(forKey: Keys.focusPushEnabled) ?? true
+        }
+        set { sharedDefaults?.set(newValue, forKey: Keys.focusPushEnabled); objectWillChange.send() }
+    }
+    
+    /// 番茄专注：播放完成提示音（默认开启）
+    var focusPlayFinishSound: Bool {
+        get {
+            if sharedDefaults?.object(forKey: Keys.focusPlayFinishSound) == nil {
+                return true
+            }
+            return sharedDefaults?.bool(forKey: Keys.focusPlayFinishSound) ?? true
+        }
+        set { sharedDefaults?.set(newValue, forKey: Keys.focusPlayFinishSound); objectWillChange.send() }
+    }
+
     
     /// 是否启用隐私保护模式（默认关闭）
     var isPrivacyModeEnabled: Bool {

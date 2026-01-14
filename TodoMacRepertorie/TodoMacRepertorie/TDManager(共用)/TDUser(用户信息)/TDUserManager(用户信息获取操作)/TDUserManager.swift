@@ -43,6 +43,9 @@ class TDUserManager: ObservableObject {
            let user = try? JSONDecoder().decode(TDUserModel.self, from: userData) {
             self.currentUser = user
             self.isLoggedIn = true
+            // 非会员则强制恢复默认主题，防止上次 VIP 主题残留
+            TDThemeManager.shared.enforceVipTheme(isVip: user.isVIP)
+
         } else {
             self.currentUser = nil
             self.isLoggedIn = false
@@ -81,6 +84,8 @@ class TDUserManager: ObservableObject {
 
         // 发送用户登录通知
         NotificationCenter.default.post(name: .userDidLogin, object: nil)
+        // 非会员则强制恢复默认主题，防止上次 VIP 主题残留
+        TDThemeManager.shared.enforceVipTheme(isVip: user.isVIP)
 
         
         
@@ -139,6 +144,9 @@ class TDUserManager: ObservableObject {
            let user = try? JSONDecoder().decode(TDUserModel.self, from: userData) {
             self.currentUser = user
             self.isLoggedIn = true
+            // 非会员则强制恢复默认主题，防止上次 VIP 主题残留
+            TDThemeManager.shared.enforceVipTheme(isVip: user.isVIP)
+
         } else {
             self.currentUser = nil
             self.isLoggedIn = false
