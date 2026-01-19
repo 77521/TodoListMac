@@ -166,7 +166,7 @@ struct TDSettingsPickerRow<T: Hashable>: View {
         private func pillWidth(for text: String) -> CGFloat {
         let font = NSFont.systemFont(ofSize: 13, weight: .regular)
         let longest = options.map { ($0.0 as NSString).size(withAttributes: [.font: font]).width }.max() ?? 60
-        let padding: CGFloat = 18 + 15// 左右总 padding
+        let padding: CGFloat = 18 + 18// 左右总 padding
         let minW: CGFloat = 64
         let maxW: CGFloat = 200
         return min(max(longest + padding, minW), maxW)

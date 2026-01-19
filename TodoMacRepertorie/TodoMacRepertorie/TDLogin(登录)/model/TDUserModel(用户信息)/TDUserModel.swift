@@ -58,7 +58,8 @@ struct TDUserModel: Codable {
     let vipDeadTime: Int64
     let weChatId: String
     let wechatAddOpen: Bool  // 改为Bool
-    let wechatBindOpenid: String
+    // 后端可能返回 null，改为可选避免解码失败
+    let wechatBindOpenid: String?
     let wechatReminderOpen: Bool  // 改为Bool
     let wechatReminderPrivacy: Bool  // 改为Bool
     let welcomeTF: Int

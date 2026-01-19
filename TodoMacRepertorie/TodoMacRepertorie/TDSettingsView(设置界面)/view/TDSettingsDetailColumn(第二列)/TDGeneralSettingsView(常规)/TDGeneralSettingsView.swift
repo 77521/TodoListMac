@@ -186,7 +186,7 @@ struct TDGeneralSettingsView: View {
     private func pillWidth(for text: String) -> CGFloat {
         let font = NSFont.systemFont(ofSize: 13, weight: .regular)
         let size = (text as NSString).size(withAttributes: [.font: font])
-        let padding: CGFloat = 18 + 15// 左右总 padding
+        let padding: CGFloat = 18 + 18// 左右总 padding
         let minWidth: CGFloat = 64
         let maxWidth: CGFloat = 200
         return min(max(size.width + padding, minWidth), maxWidth)
