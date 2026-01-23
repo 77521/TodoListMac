@@ -36,6 +36,7 @@ struct TDScheduleOverviewSettingsView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
+                headerSection
 
                 TDSettingsCardContainer {
                     VStack(spacing: 0) {
@@ -229,6 +230,21 @@ struct TDScheduleOverviewSettingsView: View {
         let maxWidth: CGFloat = 200
         return min(max(size.width + padding, minWidth), maxWidth)
     }
+    
+    // MARK: - 头部说明
+    private var headerSection: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("settings.schedule.header.title".localized)
+                .font(.system(size: 22, weight: .semibold))
+                .foregroundColor(themeManager.titleTextColor)
+            
+            Text("settings.schedule.header.subtitle".localized)
+                .font(.system(size: 13))
+                .foregroundColor(themeManager.descriptionTextColor)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
 }
 
 

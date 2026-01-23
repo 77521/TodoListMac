@@ -964,7 +964,7 @@ struct TDCorrectQueryBuilder {
         
         // 创建 Predicate：用户ID + 未删除 + standbyStr1 不为空
         let predicate = #Predicate<TDMacSwiftDataListModel> { task in
-            task.userId == userId && !task.delete && task.standbyStr1 != nil && task.standbyStr1 != ""
+            task.userId == userId && !task.delete && task.standbyStr1 != nil && task.standbyStr1 != "" && task.standbyStr1 != "null"
         }
         
         // 排序：按 todoTime 升序
@@ -977,7 +977,29 @@ struct TDCorrectQueryBuilder {
         
         return fetchDescriptor
     }
-    
+    /// 查询包含附件的任务（基础条件：当前用户 + 未删除 + standbyStr4 非空/非 null）
+    /// 附件是否为空、以及图片/非图片的区分由应用层过滤，这里只做基础筛选与排序
+    static func getTasksWithAttachmentsFetchDescriptor() -> FetchDescriptor<TDMacSwiftDataListModel> {
+        let userId = TDUserManager.shared.userId
+        
+        // 基础 Predicate：用户ID + 未删除 + standbyStr4 非空/非 null
+        let predicate = #Predicate<TDMacSwiftDataListModel> { task in
+            task.userId == userId &&
+            !task.delete &&
+            task.standbyStr4 != nil &&
+            task.standbyStr4 != "" &&
+            task.standbyStr4 != "null"
+        }
+        
+        // 这里不在 Predicate 中直接判断附件数组是否为空，避免复杂类型在持久层判空可能带来的兼容性问题
+        // 改为拉取后在应用层根据 attachmentList.count 进行过滤
+        let sortDescriptors = [
+            SortDescriptor(\TDMacSwiftDataListModel.createTime, order: .reverse)
+        ]
+        
+        return FetchDescriptor(predicate: predicate, sortBy: sortDescriptors)
+    }
+
     /// 查询指定日期的最大 taskSort 值
     /// 基础查询条件：userid = 登录用户 Id, delete = false, todoTime = 传入的时间戳
     /// 排序：按 taskSort 降序，取第一个（最大值）

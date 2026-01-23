@@ -37,6 +37,8 @@ struct TDEventSettingsView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
+                headerSection
+
                 // 第一组：事件设置
                 VStack(spacing: 4) {
                     Text("settings.event.title".localized)
@@ -393,7 +395,20 @@ struct TDEventSettingsView: View {
             .padding(.vertical, 50)
         }
     }
-    
+    // MARK: - 头部说明
+    private var headerSection: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("settings.event.header.title".localized)
+                .font(.system(size: 22, weight: .semibold))
+                .foregroundColor(themeManager.titleTextColor)
+            
+            Text("settings.event.header.subtitle".localized)
+                .font(.system(size: 13))
+                .foregroundColor(themeManager.descriptionTextColor)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
     private var currentWeekStartLabel: String {
         settingManager.isFirstDayMonday ? "settings.event.week_start.monday".localized : "settings.event.week_start.sunday".localized
     }

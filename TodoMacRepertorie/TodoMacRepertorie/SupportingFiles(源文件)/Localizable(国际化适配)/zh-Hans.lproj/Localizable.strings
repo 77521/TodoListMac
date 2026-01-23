@@ -196,6 +196,7 @@
 "settings.account.nickname.edit.placeholder" = "修改昵称";
 "common.cancel" = "取消";
 "common.update" = "修改";
+"common.loading" = "加载中...";
 
 "settings.account.nickname.too_long" = "昵称不能超过15个字符";
 "settings.account.nickname.update.success" = "修改成功";
@@ -395,6 +396,66 @@
 "settings.pomodoro.push_notification.desc" = "番茄专注完成时，将获得消息推送提醒。为及时收到提醒，建议将 APP 锁定在后台，并在系统中开启通知权限。";
 "settings.pomodoro.play_finish_sound" = "播放完成提示音";
 "settings.pomodoro.learn" = "了解番茄工作法";
+"common.minutes" = "分钟";
+
+
+// 重复事件管理
+"settings.repeat_management.page.title" = "重复事件管理";
+"settings.repeat_management.page.subtitle" = "查看所有包含重复ID的任务分组，点击进入管理";
+"settings.repeat_management.empty" = "暂无重复事件";
+
+// 图片附件管理
+"settings.asset_management.page.title" = "图片与文件管理";
+"settings.asset_management.page.subtitle" = "集中管理图片与文件资源，快速分类、预览与整理";
+"settings.asset.card.photos" = "图片库";
+"settings.asset.card.photos.desc" = "查看和管理所有已上传的图片资源。";
+"settings.asset.card.files" = "文件库";
+"settings.asset.card.files.desc" = "浏览文档、表格、压缩包等非图片文件。";
+"settings.asset.card.recent" = "最近使用";
+"settings.asset.card.recent.desc" = "快速访问最近管理或查看过的资源。";
+"settings.asset.card.favorites" = "收藏夹";
+"settings.asset.card.favorites.desc" = "收藏常用资源，随时快速打开。";
+"settings.asset.card.trash" = "回收站";
+"settings.asset.card.trash.desc" = "查看已删除的资源，必要时可恢复。";
+"settings.asset.card.offline" = "离线可用";
+"settings.asset.card.offline.desc" = "将重要资源设为离线，断网仍可访问。";
+"settings.asset_management.card.action" = "查看详情";
+"settings.asset.tab.photos" = "图片";
+"settings.asset.tab.files" = "文件";
+"settings.asset.filter.duplicates" = "过滤重复项";
+"settings.asset.section.photos" = "图片";
+"settings.asset.section.files" = "文件";
+"settings.asset.empty.photos" = "暂无图片附件";
+"settings.asset.empty.files" = "暂无文件附件";
+"settings.asset.open.image" = "查看大图";
+"settings.asset.open.file" = "查看文件";
+"settings.asset.open.browser" = "从浏览器打开";
+"settings.asset.download" = "下载到本地";
+"settings.asset.show.finder" = "在 Finder 中显示";
+"settings.asset.open.local" = "本地打开";
+"settings.asset.view.url" = "查看图片地址";
+"settings.general.header.title" = "常规设置";
+"settings.general.header.subtitle" = "语言、声音与主题外观的基础偏好。";
+
+"settings.modules.header.title" = "功能模块";
+"settings.modules.header.subtitle" = "选择是否在产品中启用番茄专注与日程概览模块。";
+
+"settings.event.header.title" = "事件设置";
+"settings.event.header.subtitle" = "控制任务创建、显示、提醒与列表范围等细节。";
+
+"settings.schedule.header.title" = "日程概览";
+"settings.schedule.header.subtitle" = "定制日历卡片的颜色、字号与展示信息，保持视图清晰可读。";
+
+"settings.pomodoro.header.title" = "番茄专注";
+"settings.pomodoro.header.subtitle" = "配置专注与休息时长、通知与提示音，帮助保持专注节奏。";
+
+// 通用
+"settings.universal.header.title" = "通用";
+"settings.universal.header.subtitle" = "常用系统级开关。";
+"settings.universal.auto_launch.title" = "开机自启动";
+"settings.universal.auto_launch.unsupported" = "仅支持 macOS 13 及以上版本的开机自启动。";
+"settings.universal.auto_launch.failed" = "开机自启动切换失败，请稍后重试。";
+
 
 
 "common.alert.title" = "提示";

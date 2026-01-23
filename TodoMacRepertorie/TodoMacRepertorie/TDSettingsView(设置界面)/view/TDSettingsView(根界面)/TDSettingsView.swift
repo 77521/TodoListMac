@@ -6,12 +6,17 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct TDSettingsView: View {
     @EnvironmentObject private var themeManager: TDThemeManager
     @EnvironmentObject private var settingManager: TDSettingManager
     @EnvironmentObject private var sidebarStore: TDSettingsSidebarStore
     @State private var columnVisibility: NavigationSplitViewVisibility = .all
+    
+    @Environment(\.modelContext) private var modelContext
+
+    
     private let sidebarWidth: CGFloat = 240
 
     var body: some View {
@@ -70,6 +75,14 @@ struct TDSettingsView: View {
             TDScheduleOverviewSettingsView()
         case .pomodoroFocus:
             TDPomodoroSettingsView()
+        case .repeatManagement:
+            TDRepeatManagementSettingsView()
+        case .assetManagement:
+            TDAssetManagementView()
+        case .universal:
+            TDUniversalSettingsView() 
+        case .about:
+            TDAboutView()
 
         default:
             TDSettingsPlaceholderColumn()

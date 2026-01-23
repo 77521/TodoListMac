@@ -23,7 +23,8 @@ struct TDPomodoroSettingsView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
-                
+                headerSection
+
                 TDSettingsCardContainer {
                     VStack(spacing: 0) {
                         // 番茄时长
@@ -105,7 +106,20 @@ struct TDPomodoroSettingsView: View {
             .padding(.vertical, 50)
         }
     }
-    
+    // MARK: - 头部说明
+    private var headerSection: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("settings.pomodoro.header.title".localized)
+                .font(.system(size: 22, weight: .semibold))
+                .foregroundColor(themeManager.titleTextColor)
+            
+            Text("settings.pomodoro.header.subtitle".localized)
+                .font(.system(size: 13))
+                .foregroundColor(themeManager.descriptionTextColor)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
     // MARK: - 行视图构造
     /// 可复用的时长选择行（自定义胶囊宽度）
     private func durationRow(

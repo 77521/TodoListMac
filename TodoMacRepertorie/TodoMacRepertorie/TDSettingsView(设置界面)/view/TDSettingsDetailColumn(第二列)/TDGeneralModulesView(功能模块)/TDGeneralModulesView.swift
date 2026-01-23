@@ -21,6 +21,8 @@ struct TDGeneralModulesView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 14) {
+                headerSection
+
                 // 第一组：番茄专注模块
                 TDSettingsCardContainer {
                     TDSettingsToggleRow(
@@ -59,7 +61,20 @@ struct TDGeneralModulesView: View {
             TDSliderBarViewModel.shared.rebuildForSettingsChange()
         }
     }
-    
+    // MARK: - 头部说明
+    private var headerSection: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("settings.modules.header.title".localized)
+                .font(.system(size: 22, weight: .semibold))
+                .foregroundColor(themeManager.titleTextColor)
+            
+            Text("settings.modules.header.subtitle".localized)
+                .font(.system(size: 13))
+                .foregroundColor(themeManager.descriptionTextColor)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
 }
 
 

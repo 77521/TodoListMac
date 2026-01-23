@@ -93,7 +93,7 @@ struct TDSettingSidebarDataBuilder {
                 items: [
                     TDSettingSidebarItem(id: .eventSettings, titleKey: "settings.section.event_settings", iconSystemName: "checkmark.circle"),
                     TDSettingSidebarItem(id: .scheduleOverview, titleKey: "settings.section.schedule_overview", iconSystemName: "calendar"),
-                    TDSettingSidebarItem(id: .smartRecognition, titleKey: "settings.section.smart_recognition", iconSystemName: "waveform"),
+//                    TDSettingSidebarItem(id: .smartRecognition, titleKey: "settings.section.smart_recognition", iconSystemName: "waveform"),
                     TDSettingSidebarItem(id: .pomodoroFocus, titleKey: "settings.section.pomodoro_focus", iconSystemName: "timer")
                 ]
             ),
@@ -109,7 +109,7 @@ struct TDSettingSidebarDataBuilder {
                 id: .more,
                 titleKey: TDSettingGroupID.more.localizationKey,
                 items: [
-                    TDSettingSidebarItem(id: .shortcuts, titleKey: "settings.section.keyboard_shortcuts", iconSystemName: "command.square"),
+//                    TDSettingSidebarItem(id: .shortcuts, titleKey: "settings.section.keyboard_shortcuts", iconSystemName: "command.square"),
                     TDSettingSidebarItem(id: .universal, titleKey: "settings.section.universal", iconSystemName: "gearshape.2"),
                     TDSettingSidebarItem(id: .about, titleKey: "settings.section.about", iconSystemName: "info.circle")
                 ]

@@ -654,5 +654,77 @@ extension TDQueryConditionManager {
         print("批量更新完成")
     }
 
+    /// 获取去重后的重复事件入口列表（每个重复ID只保留一条）
+    /// - Parameter context: SwiftData 上下文
+    /// - Returns: 去重后的事件数组
+    func getUniqueDuplicateEntries(
+        context: ModelContext
+    ) async throws -> [TDMacSwiftDataListModel] {
+        // 1. 使用基础查询获取所有含重复ID的事件（未删除、按时间排序）
+        let descriptor = TDCorrectQueryBuilder.getUniqueDuplicateIdsQuery()
+        let tasks = try context.fetch(descriptor)
+        
+        // 2. 在应用层去重：同一个 standbyStr1 只保留第一条
+        var visitedIds = Set<String>()
+        var uniqueEntries: [TDMacSwiftDataListModel] = []
+        
+        for task in tasks {
+            guard let repeatId = task.standbyStr1, !repeatId.isEmpty else { continue }
+            if visitedIds.insert(repeatId).inserted {
+                uniqueEntries.append(task)
+            }
+        }
+        
+        return uniqueEntries
+    }
+
 }
 
+
+// MARK: - 附件数据查询与分组
+extension TDQueryConditionManager {
+    
+    /// 获取包含附件的任务，并根据附件类型（图片/非图片）拆分返回
+    /// - Parameters:
+    ///   - filterDuplicates: 是否按 standbyStr1 去重（只保留同一重复ID的第一条）
+    ///   - context: SwiftData 上下文
+    /// - Returns: (图片附件任务数组, 非图片附件任务数组)
+    /// - Note: 基础查询已过滤：当前用户 + 未删除 + standbyStr4 非空/非"null"，且在持久层不再判 attachmentList
+    func getTasksWithAttachments(
+        filterDuplicates: Bool = false,
+        context: ModelContext
+    ) async throws -> ([TDMacSwiftDataListModel], [TDMacSwiftDataListModel]) {
+        
+        // 1) 获取基础查询描述符（已保证 standbyStr4 合规）
+        let fetchDescriptor = TDCorrectQueryBuilder.getTasksWithAttachmentsFetchDescriptor()
+        let tasks = try context.fetch(fetchDescriptor)
+        
+        // 2) 如需按 standbyStr1 去重：standbyStr1 非空时只保留第一条
+        var filtered = tasks
+        if filterDuplicates {
+            var visited = Set<String>()
+            filtered = filtered.filter { task in
+                if let rid = task.standbyStr1, !rid.isEmpty {
+                    if visited.contains(rid) { return false }
+                    visited.insert(rid)
+                }
+                return true
+            }
+        }
+        
+        // 3) 根据附件 isPhoto 属性拆分：含图片附件的任务、含非图片附件的任务
+        var photoTasks: [TDMacSwiftDataListModel] = []
+        var fileTasks: [TDMacSwiftDataListModel] = []
+        
+        for task in filtered {
+            let attachments = task.attachmentList
+            let hasPhoto = attachments.contains { $0.isPhoto }
+            let hasFile = attachments.contains { !$0.isPhoto }
+            
+            if hasPhoto { photoTasks.append(task) }
+            if hasFile { fileTasks.append(task) }
+        }
+        
+        return (photoTasks, fileTasks)
+    }
+}

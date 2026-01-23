@@ -192,6 +192,7 @@
 "settings.account.nickname.edit.placeholder" = "Edit nickname";
 "common.cancel" = "Cancel";
 "common.update" = "Update";
+"common.loading" = "Loading...";
 
 "settings.account.nickname.too_long" = "Nickname cannot exceed 15 characters";
 "settings.account.nickname.update.success" = "Updated successfully";
@@ -393,6 +394,65 @@
 "settings.pomodoro.push_notification.desc" = "Receive a push when the pomodoro finishes. To ensure timely alerts, keep the app running in background and enable notifications in system settings.";
 "settings.pomodoro.play_finish_sound" = "Play completion sound";
 "settings.pomodoro.learn" = "Learn about Pomodoro";
+"common.minutes" = "minutes";
+
+// 重复事件管理
+"settings.repeat_management.page.title" = "Repeat Event Management";
+"settings.repeat_management.page.subtitle" = "View tasks that share a repeat ID and open the group";
+"settings.repeat_management.empty" = "No repeat events yet";
+
+// 图片附件管理
+"settings.asset_management.page.title" = "Images & Files";
+"settings.asset_management.page.subtitle" = "Manage all images and files in one place for quick browsing and organizing.";
+"settings.asset.card.photos" = "Photo Library";
+"settings.asset.card.photos.desc" = "View and manage all uploaded images.";
+"settings.asset.card.files" = "File Library";
+"settings.asset.card.files.desc" = "Browse documents, spreadsheets, archives, and other files.";
+"settings.asset.card.recent" = "Recently Used";
+"settings.asset.card.recent.desc" = "Quick access to recently viewed or managed resources.";
+"settings.asset.card.favorites" = "Favorites";
+"settings.asset.card.favorites.desc" = "Pin frequently used resources for fast access.";
+"settings.asset.card.trash" = "Trash";
+"settings.asset.card.trash.desc" = "Review deleted resources and restore when needed.";
+"settings.asset.card.offline" = "Offline";
+"settings.asset.card.offline.desc" = "Mark important resources for offline use.";
+"settings.asset_management.card.action" = "Open";
+"settings.asset.tab.photos" = "Photos";
+"settings.asset.tab.files" = "Files";
+"settings.asset.filter.duplicates" = "Filter duplicates";
+"settings.asset.section.photos" = "Photos";
+"settings.asset.section.files" = "Files";
+"settings.asset.empty.photos" = "No photo attachments";
+"settings.asset.empty.files" = "No file attachments";
+"settings.asset.open.image" = "View image";
+"settings.asset.open.file" = "Open file";
+"settings.asset.open.browser" = "Open in browser";
+"settings.asset.download" = "Download locally";
+"settings.asset.show.finder" = "Show in Finder";
+"settings.asset.open.local" = "Open locally";
+"settings.asset.view.url" = "View image URL";
+"settings.general.header.title" = "General";
+"settings.general.header.subtitle" = "Basics for language, sound, and theme appearance.";
+
+"settings.modules.header.title" = "Modules";
+"settings.modules.header.subtitle" = "Choose whether to enable Pomodoro focus and schedule overview.";
+
+"settings.event.header.title" = "Event Settings";
+"settings.event.header.subtitle" = "Control task creation, display, reminders, and list ranges.";
+
+"settings.schedule.header.title" = "Schedule Overview";
+"settings.schedule.header.subtitle" = "Tune calendar colors, font size, and info display for clarity.";
+
+"settings.pomodoro.header.title" = "Pomodoro Focus";
+"settings.pomodoro.header.subtitle" = "Configure focus/rest durations, notifications, and sounds to stay on rhythm.";
+
+// 通用
+"settings.universal.header.title" = "General";
+"settings.universal.header.subtitle" = "Common system-level toggles.";
+"settings.universal.auto_launch.title" = "Launch at login";
+"settings.universal.auto_launch.unsupported" = "Login item is supported on macOS 13+ only.";
+"settings.universal.auto_launch.failed" = "Failed to toggle launch at login. Please try again.";
+
 
 
 "common.alert.title" = "Notice";

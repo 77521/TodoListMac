@@ -9,6 +9,17 @@ import SwiftUI
 import SwiftData
 import AppKit
 
+// 禁用系统窗口恢复：即使上次退出前打开了设置窗口，冷启动也不会自动恢复
+final class TDAppDelegate: NSObject, NSApplicationDelegate {
+    func applicationShouldRestoreApplicationState(_ app: NSApplication) -> Bool { false }
+    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }
+    
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        // 启动时关闭所有窗口的系统恢复能力
+        NSApp.windows.forEach { $0.isRestorable = false }
+    }
+}
+
 @main
 struct TodoMacRepertorieApp: App {
     @StateObject private var modelContainer = TDModelContainer.shared
@@ -223,6 +234,8 @@ struct TodoMacRepertorieApp: App {
         .defaultSize(width: 700, height: 660)
         .defaultPosition(.center)
         .handlesExternalEvents(matching: Set(arrayLiteral: "Settings"))
+        // 设置窗口也需要 SwiftData 容器，否则模型查询会缺上下文
+        .modelContainer(modelContainer.container)
 
 //        TDToastCenter.shared.show("专注时长已存在，不能重复添加", type: .error, position: .top)   // 顶部
 //        TDToastCenter.shared.show("保存成功")                                                   // 默认底部
@@ -257,7 +270,9 @@ final class TDSettingsWindowTracker {
         guard let window else { return }
         guard window !== mainWindow else { return }
         mainWindow = window
-        
+        // 主窗口不参与系统窗口恢复，避免下次冷启动自动拉起设置窗口
+        window.isRestorable = false
+
         if let observer = mainWindowCloseObserver {
             NotificationCenter.default.removeObserver(observer)
         }
@@ -274,13 +289,17 @@ final class TDSettingsWindowTracker {
         guard let window else { return }
         settingsWindow = window
         window.isReleasedWhenClosed = false
+        window.isRestorable = false
         window.titleVisibility = .hidden
         window.titlebarAppearsTransparent = true
         window.standardWindowButton(.zoomButton)?.isHidden = true
         window.standardWindowButton(.miniaturizeButton)?.isHidden = true
         window.styleMask.insert(.fullSizeContentView)
-        window.level = .floating
-        window.hidesOnDeactivate = true
+        // 让设置窗口保持常规级别，不随应用失焦而隐藏
+        window.level = .normal
+        window.hidesOnDeactivate = false
+        // 切换 Space / 切到其他 App 再回来时保持当前空间，避免“消失”
+        window.collectionBehavior.insert([.fullScreenNone, .moveToActiveSpace])
         window.isMovableByWindowBackground = true
         window.title = ""
         

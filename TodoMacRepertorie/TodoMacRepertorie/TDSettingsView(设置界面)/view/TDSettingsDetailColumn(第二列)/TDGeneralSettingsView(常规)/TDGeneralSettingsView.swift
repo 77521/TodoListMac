@@ -32,6 +32,8 @@ struct TDGeneralSettingsView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 14) {
+                headerSection
+
                 TDSettingsCardContainer {
                     languageRow
 
@@ -192,6 +194,19 @@ struct TDGeneralSettingsView: View {
         return min(max(size.width + padding, minWidth), maxWidth)
     }
 
+    // MARK: - 头部说明
+    private var headerSection: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("settings.general.header.title".localized)
+                .font(.system(size: 22, weight: .semibold))
+                .foregroundColor(themeManager.titleTextColor)
+            
+            Text("settings.general.header.subtitle".localized)
+                .font(.system(size: 13))
+                .foregroundColor(themeManager.descriptionTextColor)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
 
 }
 
