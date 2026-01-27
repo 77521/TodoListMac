@@ -87,7 +87,6 @@
 				"TDLogin(登录)/view/TDTextFieldView.swift",
 				"TDLogin(登录)/viewModel/TDLoginViewModel.swift",
 				"TDMainView(主视图)/view/TDFocusView(专注)/model/TDTomatoRecordModel.swift",
-				"TDMainView(主视图)/viewmodel/TDMainViewModel.swift",
 				"TDManager(共用)/TDAppConfig(App设置)/TDAppConfig.swift",
 				"TDManager(共用)/TDCalendarManager(日程概览管理器)/TDCalendarManager.swift",
 				"TDManager(共用)/TDCalendarService(本地日历)/TDCalendarService.swift",
@@ -114,7 +113,6 @@
 				"TDManager(共用)/TDUser(用户信息)/TDUserSyncManager(用户同步)/TDUserSyncManager.swift",
 				"TDSlider(侧边栏)/model/TDCategoryAPI.swift",
 				"TDSlider(侧边栏)/model/TDSliderBarModel.swift",
-				"TDSlider(侧边栏)/viewModel/TDSliderBarViewModel.swift",
 				"TDTask(任务列表)/model/TDDateManager.swift",
 				"TDTask(任务列表)/model/TDGetCurrentVersionModel.swift",
 				"TDTask(任务列表)/model/TDMacSwiftDataListModel.swift",
@@ -126,7 +124,6 @@
 				"TDTask(任务列表)/view/TDScheduleOverviewView(日程概览)/model/TDCalendarDateModel.swift",
 				"TDTask(任务列表)/view/TDScheduleOverviewView(日程概览)/model/TDScheduleOverviewViewModel.swift",
 				"TDTask(任务列表)/view/TDTaskGroupHeader.swift",
-				"TDTask(任务列表)/view/TDTaskInputView.swift",
 				"TDTask(任务列表)/viewModel/TDMacListViewModel.swift",
 				"TDTask(任务列表)/viewModel/TDTaskGroupModel.swift",
 				"TDTomatoManager(番茄计时数据)/TDTomatoAPI.swift",
@@ -569,7 +566,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 3.75;
 				PRODUCT_BUNDLE_IDENTIFIER = com.Mac.Todolist.TodoMacRepertorie;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -604,7 +601,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 3.75;
 				PRODUCT_BUNDLE_IDENTIFIER = com.Mac.Todolist.TodoMacRepertorie;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

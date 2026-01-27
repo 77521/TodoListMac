@@ -52,8 +52,18 @@ struct TDSecureTextField: View {
                             Group{
                                 if isSecureTextEntry && viewModel.currentType == .account{
                                     SecureField(placeString, text: $text)
+                                        .onSubmit {
+                                            // 账号登录：按下 Enter 键执行登录
+                                            viewModel.loginWithAccount()
+                                        }
+
                                 }else{
                                     TextField(placeString, text: $text)
+                                        .onSubmit {
+                                            // 账号登录：按下 Enter 键执行登录
+                                            viewModel.loginWithAccount()
+                                        }
+
                                 }
                             }
                             .textFieldStyle(.plain)

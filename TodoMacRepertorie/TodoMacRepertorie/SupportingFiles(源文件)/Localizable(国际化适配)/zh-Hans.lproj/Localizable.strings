@@ -65,6 +65,45 @@
 "copy_success_simple" = "复制成功";
 "new_category" = "新建";
 
+// 侧滑栏
+// 用户菜单
+"user.menu.settings" = "设置";
+"user.menu.feedback" = "反馈与建议";
+"user.menu.academy" = "白马学院";
+"user.menu.about" = "关于";
+"user.menu.logout" = "退出登录";
+// 侧滑栏 列表
+"category.manage" = "管理";
+
+// 新建清单
+"category.new.title" = "新建";
+"category.new.tab.category" = "分类清单";
+"category.new.tab.folder" = "文件夹";
+"category.new.folder.parent" = "归属文件夹";
+"category.new.folder.parent.none" = "无";
+"category.new.name.placeholder" = "分类名称";
+"category.new.suggest.work" = "工作";
+"category.new.suggest.life" = "生活";
+"category.new.suggest.study" = "学习";
+"category.new.suggest.media" = "书影音";
+"category.new.suggest.project" = "项目-X";
+
+"category.new.toast.add_folder_success" = "添加文件夹成功";
+"category.new.toast.add_category_success" = "添加分类清单成功";
+"category.new.toast.color_duplicate" = "已存在该色值的颜色，请换个颜色吧。";
+// 分类清单右键菜单
+"category.context.delete.confirm" = "删除该 (%@) 分类清单后，分类里的事件会全部保留，是否确定删除？";
+"category.context.update.success" = "编辑成功";
+"category.context.delete.success" = "删除成功";
+// 编辑分类/文件夹（编辑弹窗）
+"category.edit.category.title" = "编辑分类清单";
+"category.edit.folder.title" = "编辑文件夹";
+"category.edit.folderPicker.title" = "选择文件夹";
+"category.edit.folderPicker.none" = "无文件夹";
+"category.edit.colorPicker.title" = "选择颜色";
+
+
+
 // 描述与子任务转换
 "subtask_limit_reached" = "子任务数量已达上限（20个），无法添加更多";
 "convert_success" = "转换成功";
@@ -369,6 +408,37 @@
 "settings.event.list.lock_privacy" = "锁屏小组件隐私模式";
 "settings.event.lock_privacy.desc" = "在最近待办、未分类和分类清单视图下，你可以设定后续日程的显示范围、重复事件最大显示数量、是否显示无日期事件等";
 
+"settings.expired_range.hide" = "不显示";
+"settings.expired_range.7" = "7天内";
+"settings.expired_range.30" = "30天内";
+"settings.expired_range.100" = "100天内";
+
+
+"settings.reminder.at_time" = "发生时";
+"settings.reminder.five" = "5分钟前";
+"settings.reminder.ten" = "10分钟前";
+"settings.reminder.fifteen" = "15分钟前";
+
+"settings.repeat_limit.all" = "全部";
+"settings.repeat_limit.one" = "1个";
+"settings.repeat_limit.two" = "2个";
+"settings.repeat_limit.five" = "5个";
+"settings.repeat_limit.ten" = "10个";
+
+"settings.future_range.7" = "7天";
+"settings.future_range.30" = "30天";
+"settings.future_range.90" = "三个月";
+"settings.future_range.365" = "1年";
+"settings.future_range.all" = "全部";
+
+"settings.task_background.workload" = "事件工作量";
+"settings.task_background.category" = "清单颜色";
+
+"settings.sound.ok_ding" = "叮声";
+"settings.sound.default" = "默认";
+
+
+
 // 日程概览设置
 "settings.schedule.background" = "条目背景色";
 "settings.schedule.background.workload" = "事件工作量";
@@ -464,6 +534,8 @@
 "settings.vip.modal.title" = "开通高级账户，解锁全部功能";
 "settings.vip.modal.cta" = "立即开通";
 "settings.vip.modal.subtitle.theme" = "切换主题颜色为高级会员专享功能，请先开通后再试";
+"settings.vip.modal.subtitle.add_folder" = "添加文件夹为高级会员专享功能，请先开通后再试";
+"settings.vip.modal.subtitle.category_limit" = "非会员最多只能添加 3 个分类清单，开通高级账户解锁不限数量。";
 
 //
 

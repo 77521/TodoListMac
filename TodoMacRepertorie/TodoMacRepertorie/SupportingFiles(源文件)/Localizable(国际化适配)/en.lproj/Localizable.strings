@@ -62,6 +62,46 @@
 "copy_success_simple" = "Copy successful";
 "new_category" = "New";
 
+// 侧滑栏
+// 用户菜单
+"user.menu.settings" = "Settings";
+"user.menu.feedback" = "Feedback & Suggestions";
+"user.menu.academy" = "White Horse Academy";
+"user.menu.about" = "About";
+"user.menu.logout" = "Log Out";
+
+// 侧滑栏 列表
+"category.manage" = "Manage";
+
+// 新建清单
+"category.new.title" = "New";
+"category.new.tab.category" = "Category";
+"category.new.tab.folder" = "Folder";
+"category.new.folder.parent" = "Parent Folder";
+"category.new.folder.parent.none" = "None";
+"category.new.name.placeholder" = "Category Name";
+"category.new.suggest.work" = "Work";
+"category.new.suggest.life" = "Life";
+"category.new.suggest.study" = "Study";
+"category.new.suggest.media" = "Media";
+"category.new.suggest.project" = "Project-X";
+
+"category.new.toast.add_folder_success" = "Folder added successfully";
+"category.new.toast.add_category_success" = "Category list added successfully";
+"category.new.toast.color_duplicate" = "This color is already used. Please choose a different one.";
+
+// 分类清单右键菜单
+"category.context.delete.confirm" = "After deleting %@, all events in this list will be kept. Delete anyway?";
+"category.context.update.success" = "Updated successfully";
+"category.context.delete.success" = "Deleted successfully";
+// 编辑分类/文件夹（编辑弹窗）
+"category.edit.category.title" = "Edit Category List";
+"category.edit.folder.title" = "Edit Folder";
+"category.edit.folderPicker.title" = "Folder";
+"category.edit.folderPicker.none" = "None";
+"category.edit.colorPicker.title" = "Color";
+
+
 // 描述与子任务转换
 "subtask_limit_reached" = "Subtask limit reached (20), cannot add more";
 "convert_success" = "Conversion successful";
@@ -367,6 +407,36 @@
 "settings.event.list.lock_privacy" = "Lock screen widget privacy";
 "settings.event.lock_privacy.desc" = "In recent, uncategorized, and list views, you can set future range, repeat max count, and whether to show no-date items.";
 
+"settings.expired_range.hide" = "Hide";
+"settings.expired_range.7" = "Within 7 days";
+"settings.expired_range.30" = "Within 30 days";
+"settings.expired_range.100" = "Within 100 days";
+
+
+"settings.reminder.at_time" = "At time of event";
+"settings.reminder.five" = "5 minutes before";
+"settings.reminder.ten" = "10 minutes before";
+"settings.reminder.fifteen" = "15 minutes before";
+
+"settings.repeat_limit.all" = "All";
+"settings.repeat_limit.one" = "1 item";
+"settings.repeat_limit.two" = "2 items";
+"settings.repeat_limit.five" = "5 items";
+"settings.repeat_limit.ten" = "10 items";
+
+"settings.future_range.7" = "7 days";
+"settings.future_range.30" = "30 days";
+"settings.future_range.90" = "3 months";
+"settings.future_range.365" = "1 year";
+"settings.future_range.all" = "All";
+
+"settings.task_background.workload" = "Workload color";
+"settings.task_background.category" = "List color";
+
+"settings.sound.ok_ding" = "Ding";
+"settings.sound.default" = "Default";
+
+
 // 日程概览设置
 "settings.schedule.background" = "Entry background";
 "settings.schedule.background.workload" = "Task workload";
@@ -461,5 +531,7 @@
 "settings.vip.modal.title" = "Upgrade to Premium, unlock all features";
 "settings.vip.modal.cta" = "Upgrade now";
 "settings.vip.modal.subtitle.theme" = "Theme switching is for Premium members. Please upgrade to continue.";
+"settings.vip.modal.subtitle.add_folder" = "Creating folders is a Premium feature. Please upgrade to continue.";
+"settings.vip.modal.subtitle.category_limit" = "Free users can add up to 3 categories. Upgrade to Premium for unlimited categories.";
 
 // ==================== FocusSetting (legacy fallback) ====================

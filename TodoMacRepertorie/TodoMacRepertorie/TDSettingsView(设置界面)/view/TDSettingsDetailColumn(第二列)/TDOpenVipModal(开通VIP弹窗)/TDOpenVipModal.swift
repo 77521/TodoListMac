@@ -44,14 +44,29 @@ struct TDOpenVipModal: View {
     /// 弹窗内容：图片 + 标题 + 副标题 + CTA
     private var modalContent: some View {
         VStack(spacing: 0) {
-            // 顶部展示图片（铺满上左右，紧贴边界）
-            Image(imageName.isEmpty ? "openvip_default_icon" : imageName)
-                .resizable()
-                .scaledToFill()
-                .frame(height: 200)
-                .frame(maxWidth: .infinity)
-                .clipped()
-            
+            ZStack(alignment: .topTrailing) {
+                Image(imageName.isEmpty ? "openvip_default_icon" : imageName)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(height: 200)
+                    .frame(maxWidth: .infinity)
+                    .clipped()
+                
+                // 右上角关闭按钮（避免只能开通不能关闭）
+                Button(action: { isPresented = false }) {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundColor(.white)
+                        .padding(8)
+                        .background(
+                            Circle()
+                                .fill(Color.black.opacity(0.35))
+                        )
+                }
+                .buttonStyle(.plain)
+                .padding(12)
+            }
+
             // 文案与按钮区
             VStack(spacing: 16) {
                 // 大标题（写死文案，但走国际化）

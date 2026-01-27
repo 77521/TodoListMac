@@ -61,13 +61,29 @@ class TDSliderBarViewModel: ObservableObject {
     
     /// 是否显示添加分类或设置 Sheet
     @Published var showSheet = false
-    
+    // MARK: - 分类清单：新增/编辑/删除（把业务逻辑集中在 ViewModel）
+    /// 当前正在编辑的分类/文件夹（用于 sheet(item:)）
+    @Published var editingCategory: TDSliderBarModel?
+
+    /// 当前准备删除的分类/文件夹（用于 alert）
+    @Published var deletingCategory: TDSliderBarModel?
+
+    /// 是否显示删除确认弹窗
+    @Published var showDeleteAlert: Bool = false
+
+    /// VIP 弹窗控制（供新建弹窗复用）
+    @Published var showVipModal: Bool = false
+    @Published var vipSubtitleKey: String = "settings.vip.modal.subtitle.theme"
+
     /// 是否显示标签筛选 Sheet
     @Published var showTagFilter = false
     
     /// 标签数组
     @Published var tagsArr: [TDSliderBarModel] = []
     
+    /// 文件夹展开状态字典（key: folderId, value: 是否展开）
+    @Published var folderExpandedStates: [Int: Bool] = [:]
+
 
     // MARK: - 初始化方法
     
@@ -143,6 +159,132 @@ class TDSliderBarViewModel: ObservableObject {
         showSheet = true
     }
     
+    // MARK: - 右键菜单：编辑/删除入口
+    func beginEditCategory(_ category: TDSliderBarModel) {
+        editingCategory = category
+    }
+
+    func requestDeleteCategory(_ category: TDSliderBarModel) {
+        deletingCategory = category
+        showDeleteAlert = true
+    }
+
+    func cancelDeleteCategory() {
+        deletingCategory = nil
+        showDeleteAlert = false
+    }
+
+    // MARK: - 删除分类/文件夹
+    func confirmDeleteCategory() async {
+        guard let category = deletingCategory else { return }
+        let shouldSelectDayTodoAfterDelete = selectedCategory?.categoryId == category.categoryId
+        do {
+            try await TDCategoryAPI.shared.deleteCategory(categoryId: category.categoryId)
+            let serverCategories = try await TDCategoryAPI.shared.getCategoryList()
+            await TDCategoryManager.shared.saveCategories(serverCategories)
+            updateCategories(serverCategories)
+            if shouldSelectDayTodoAfterDelete,
+               let dayTodo = items.first(where: { $0.categoryId == -100 }) {
+                selectedCategory = dayTodo
+            }
+            TDToastCenter.shared.show("category.context.delete.success", type: .success, position: .bottom)
+            cancelDeleteCategory()
+        } catch {
+            let message: String
+            if let netError = error as? TDNetworkError {
+                message = netError.errorMessage
+            } else {
+                message = error.localizedDescription
+            }
+            TDToastCenter.shared.show(message, type: .error, position: .bottom)
+        }
+    }
+
+    // MARK: - 编辑分类/文件夹
+    /// - Returns: 是否保存成功（成功后 View 可自行关闭 sheet）
+    func saveCategoryChanges(categoryId: Int, name: String, color: String, isFolder: Bool, folderId: Int?) async -> Bool {
+        do {
+            try await TDCategoryAPI.shared.updateCategoryInfo(
+                categoryId: categoryId,
+                name: name,
+                color: color,
+                isFolder: isFolder ? true : nil,
+                folderId: folderId
+            )
+            let serverCategories = try await TDCategoryAPI.shared.getCategoryList()
+            await TDCategoryManager.shared.saveCategories(serverCategories)
+            updateCategories(serverCategories)
+            TDToastCenter.shared.show("category.context.update.success", type: .success, position: .bottom)
+            return true
+        } catch {
+            let message: String
+            if let netError = error as? TDNetworkError {
+                message = netError.errorMessage
+            } else {
+                message = error.localizedDescription
+            }
+            TDToastCenter.shared.show(message, type: .error, position: .bottom)
+            return false
+        }
+    }
+
+    // MARK: - 新增分类/文件夹（含 VIP/重复色校验）
+    /// - Returns: 是否创建成功（成功后 View 可自行关闭 sheet）
+    func createCategory(name: String, color: String, isFolder: Bool, parentFolderId: Int?) async -> Bool {
+        // VIP 限制：
+        // 1）创建文件夹：必须是 VIP
+        if isFolder, !TDUserManager.shared.isVIP {
+            vipSubtitleKey = "settings.vip.modal.subtitle.add_folder"
+            showVipModal = true
+            return false
+        }
+        // 2）创建分类清单：非 VIP 最多 3 个
+        if !isFolder, !TDUserManager.shared.isVIP {
+            let count = TDCategoryManager.shared.userCreatedCategoryCount()
+            if count >= 3 {
+                vipSubtitleKey = "settings.vip.modal.subtitle.category_limit"
+                showVipModal = true
+                return false
+            }
+        }
+
+        // 本地重复色值校验
+        if TDCategoryManager.shared.hasDuplicateColor(color) {
+            TDToastCenter.shared.show("category.new.toast.color_duplicate", type: .error, position: .bottom)
+            return false
+        }
+
+        do {
+            try await TDCategoryAPI.shared.addCategory(
+                name: name,
+                color: color,
+                isFolder: isFolder,
+                parentFolderId: parentFolderId
+            )
+
+            let serverCategories = try await TDCategoryAPI.shared.getCategoryList()
+            await TDCategoryManager.shared.saveCategories(serverCategories)
+            updateCategories(serverCategories)
+            TDToastCenter.shared.show(
+                isFolder ? "category.new.toast.add_folder_success" : "category.new.toast.add_category_success",
+                type: .success,
+                position: .bottom
+            )
+            return true
+        } catch {
+            let message: String
+            if let netError = error as? TDNetworkError {
+                message = netError.errorMessage
+            } else {
+                message = error.localizedDescription
+            }
+            TDToastCenter.shared.show(message, type: .error, position: .bottom)
+            return false
+        }
+    }
+    
+
+    
     /// 显示标签筛选弹窗
     func showTagFilterSheet() {
         showTagFilter = true
@@ -190,10 +332,13 @@ class TDSliderBarViewModel: ObservableObject {
 
         // 在分类清单后插入用户创建的分类
         if let categoryListIndex = newItems.firstIndex(where: { $0.categoryId == -104 }) {
+            // 使用新的逻辑处理分类清单数据（按照 iOS 逻辑）
+            let processedCategories = TDCategoryManager.shared.getFolderWithSubCategories(from: categories)
+            
             // 创建包含"未分类"的完整分类列表
             var fullCategories = [TDSliderBarModel.uncategorized] // 第一项永远是"未分类"
-            fullCategories.append(contentsOf: categories) // 后面是服务器获取的分类
-            
+            fullCategories.append(contentsOf: processedCategories) // 后面是处理后的分类（包含文件夹和子分类）
+
             newItems.insert(contentsOf: fullCategories, at: categoryListIndex + 1)
         }
         
@@ -212,10 +357,13 @@ class TDSliderBarViewModel: ObservableObject {
     
     /// 验证选中的分类是否还有效
     private func validateSelectedCategory() {
-        if let selected = selectedCategory,
-           !items.contains(where: { $0.categoryId == selected.categoryId }) {
-            
-            logger.warning("⚠️ 选中的分类不存在，重置为DayTodo")
+        guard let selected = selectedCategory else { return }
+        
+        // 递归检查分类是否存在（包括文件夹的 children）
+        let exists = findCategoryInItems(categoryId: selected.categoryId, in: items)
+        
+        if !exists {
+            logger.warning("⚠️ 选中的分类不存在，重置为DayTodo: \(selected.categoryName) (ID: \(selected.categoryId))")
             
             // 选中 DayTodo
             if let dayTodo = items.first(where: { $0.categoryId == -100 }) {
@@ -224,26 +372,106 @@ class TDSliderBarViewModel: ObservableObject {
         }
     }
     
+    /// 递归查找分类是否存在（包括文件夹的 children）
+    /// - Parameters:
+    ///   - categoryId: 要查找的分类ID
+    ///   - items: 要搜索的分类数组
+    /// - Returns: 是否存在
+    private func findCategoryInItems(categoryId: Int, in items: [TDSliderBarModel]) -> Bool {
+        // 先检查 items 数组本身
+        for item in items {
+            if item.categoryId == categoryId {
+                return true
+            }
+            
+            // 递归检查子分类
+            if let children = item.children {
+                if findCategoryInItems(categoryId: categoryId, in: children) {
+                    return true
+                }
+            }
+        }
+        
+        return false
+    }
+
     /// 更新列表项的选中状态
     private func updateItemsSelection(_ category: TDSliderBarModel) {
+        logger.debug("🔄 开始更新选中状态: \(category.categoryName) (ID: \(category.categoryId))")
+        
         // 使用临时变量避免频繁触发 didSet
         var updatedItems = items
         var hasChanges = false
+        var selectedItemName: String? = nil
+        var deselectedItemNames: [String] = []
         
+        // 遍历所有项，更新选中状态
         for i in 0..<updatedItems.count {
+            // 更新当前项的选中状态
             let shouldSelect = updatedItems[i].categoryId == category.categoryId
             if updatedItems[i].isSelect != shouldSelect {
                 updatedItems[i].isSelect = shouldSelect
                 hasChanges = true
+                if shouldSelect {
+                    selectedItemName = updatedItems[i].categoryName
+                } else {
+                    // 记录被取消选中的项（这是正常的单选行为）
+                    deselectedItemNames.append(updatedItems[i].categoryName)
+                }
+            }
+            
+            // 更新子分类的选中状态（重要：子分类在 children 数组中）
+            if var children = updatedItems[i].children {
+                var childrenChanged = false
+                
+                // 遍历子分类，更新选中状态
+                for j in 0..<children.count {
+                    let childShouldSelect = children[j].categoryId == category.categoryId
+                    if children[j].isSelect != childShouldSelect {
+                        children[j].isSelect = childShouldSelect
+                        childrenChanged = true
+                        if childShouldSelect {
+                            selectedItemName = children[j].categoryName
+                        } else {
+                            // 记录被取消选中的子分类
+                            deselectedItemNames.append(children[j].categoryName)
+                        }
+                    }
+                }
+                
+                // 如果有变化，创建新的 children 数组并赋值（确保 SwiftUI 检测到变化）
+                if childrenChanged {
+                    updatedItems[i].children = children
+                    hasChanges = true
+                }
             }
         }
         
-        // 只有在真正有变化时才更新
+        // 输出清晰的日志
         if hasChanges {
+            if let selected = selectedItemName {
+                logger.debug("✅ 选中: \(selected) (ID: \(category.categoryId))")
+            }
+            if !deselectedItemNames.isEmpty {
+                logger.debug("ℹ️ 取消选中其他项（单选行为）: \(deselectedItemNames.joined(separator: ", "))")
+            }
             items = updatedItems
+        } else {
+            logger.debug("ℹ️ 没有需要更新的选中状态")
+        }
+    }
+    /// 切换文件夹展开状态
+    func toggleFolderExpanded(folderId: Int) {
+        withAnimation(.easeInOut(duration: 0.3)) {
+            folderExpandedStates[folderId] = !(folderExpandedStates[folderId] ?? false)
         }
     }
     
+    /// 获取文件夹是否展开
+    func isFolderExpanded(folderId: Int) -> Bool {
+        return folderExpandedStates[folderId] ?? false
+    }
+
     // MARK: - 清理方法
     
     deinit {

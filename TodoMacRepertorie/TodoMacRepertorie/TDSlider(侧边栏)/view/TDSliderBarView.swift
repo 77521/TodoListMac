@@ -16,6 +16,7 @@ struct TDSliderBarView: View {
     @State private var hoveredCategoryId: Int? = nil
     @State private var isCategoryGroupHovered: Bool = false
 
+    
     var body: some View {
         VStack(spacing: 0) {
             // 顶部固定区域（不滚动）
@@ -39,6 +40,32 @@ struct TDSliderBarView: View {
             syncStatusView
             
         }
+        .sheet(isPresented: $viewModel.showSheet) {
+            TDNewCategorySheet(isPresented: $viewModel.showSheet)
+                .environmentObject(themeManager)
+        }
+        .sheet(item: $viewModel.editingCategory) { item in
+            TDEditCategorySheet(
+                isPresented: Binding(
+                    get: { viewModel.editingCategory != nil },
+                    set: { if !$0 { viewModel.editingCategory = nil } }
+                ),
+                category: item,
+                onSaved: {}
+            )
+            .environmentObject(themeManager)
+        }
+        .alert("common.alert.title".localized, isPresented: $viewModel.showDeleteAlert) {
+            Button("delete".localized, role: .destructive) {
+                Task { await viewModel.confirmDeleteCategory() }
+            }
+            Button("common.cancel".localized, role: .cancel) {
+                viewModel.cancelDeleteCategory()
+            }
+        } message: {
+            Text("category.context.delete.confirm".localizedFormat(viewModel.deletingCategory?.categoryName ?? ""))
+        }
+
 //        .background(Color(.clear))
     }
     
@@ -112,12 +139,53 @@ struct TDSliderBarView: View {
         DisclosureGroup(
             isExpanded: $viewModel.isCategoryGroupExpanded,
             content: {
-                ForEach(viewModel.items.filter { $0.categoryId >= -1 }) { category in
-                    categoryRowView(category)
-                        .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 0))
+                // 用户分类列表（排除新建和管理）
+                ForEach(viewModel.items.filter { $0.categoryId >= -1 && $0.categoryId != -2000 && $0.categoryId != -2001 }) { category in
+                    if category.isFolder {
+                        // 文件夹：使用 DisclosureGroup 展示子分类（即使没有子分类也要显示）
+                        let isExpanded = Binding(
+                            get: { viewModel.isFolderExpanded(folderId: category.categoryId) },
+                            set: { _ in viewModel.toggleFolderExpanded(folderId: category.categoryId) }
+                        )
+                        
+                        DisclosureGroup(
+                            isExpanded: isExpanded,
+                            content: {
+                                if let children = category.children, !children.isEmpty {
+                                    ForEach(children) { child in
+                                        categoryRowView(child)
+                                            .listRowInsets(EdgeInsets(top: 0, leading: -11, bottom: 0, trailing: 0))
+                                            .listRowBackground(Color.clear)
+                                            .listRowSeparator(.hidden)
+                                    }
+                                }
+                            },
+                            label: {
+                                folderRowView(category, folderId: category.categoryId, isExpanded: isExpanded)
+                            }
+                        )
+                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                         .listRowBackground(Color.clear)
                         .listRowSeparator(.hidden)
+                    } else {
+                        // 普通分类或顶级分类
+                        categoryRowView(category)
+                            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                            .listRowBackground(Color.clear)
+                            .listRowSeparator(.hidden)
+                    }
                 }
+                
+                // 新建和管理项（在最后）
+//                categoryRowView(TDSliderBarModel.newCategory)
+//                    .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 0))
+//                    .listRowBackground(Color.clear)
+//                    .listRowSeparator(.hidden)
+//                
+//                categoryRowView(TDSliderBarModel.manageCategory)
+//                    .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 0))
+//                    .listRowBackground(Color.clear)
+//                    .listRowSeparator(.hidden)
             },
             label: {
                 categoryGroupHeaderView
@@ -127,6 +195,7 @@ struct TDSliderBarView: View {
         .listRowBackground(Color.clear)
         .listRowSeparator(.hidden)
     }
+
     
     // MARK: - 分类组头部
     private var categoryGroupHeaderView: some View {
@@ -142,7 +211,7 @@ struct TDSliderBarView: View {
             Spacer()
             
             // 按钮组（鼠标悬停时显示）
-            HStack(spacing: 4) {
+            HStack(spacing: 10) {
                 Button(action: {
                     viewModel.showSheet = true
                 }) {
@@ -151,7 +220,8 @@ struct TDSliderBarView: View {
                         .foregroundColor(.secondary)
                 }
                 .buttonStyle(PlainButtonStyle())
-                
+                .pointingHandCursor()
+
                 Button(action: {
                     viewModel.showSheet = true
                 }) {
@@ -166,7 +236,7 @@ struct TDSliderBarView: View {
             .opacity(isCategoryGroupHovered ? 1 : 0)
         }
         .padding(.vertical, 8)
-        .padding(.horizontal, 16)
+        .padding(.leading, 8)
         .contentShape(Rectangle())
         .onHover { isHovered in
             withAnimation(.easeInOut(duration: 0.2)) {
@@ -204,6 +274,69 @@ struct TDSliderBarView: View {
         .listRowSeparator(.hidden)
     }
     
+    // MARK: - 文件夹行视图（点击只展开/关闭，不选中）
+    private func folderRowView(_ folder: TDSliderBarModel, folderId: Int, isExpanded: Binding<Bool>) -> some View {
+        HStack(spacing: 6) {
+            // 文件夹图标
+            Image(systemName: "folder.fill")
+                .foregroundColor(
+                    folder.categoryColor.flatMap { Color.fromHex($0) } ?? themeManager.color(level: 5)
+                )
+                .font(.system(size: 14))
+
+            // 文件夹名称
+            Text(folder.categoryName)
+                .font(.system(size: 14))
+                .foregroundColor(themeManager.titleTextColor)
+            
+            Spacer()
+            
+            // 数量标签
+            if let count = folder.unfinishedCount, count > 0 {
+                Text("\(count)")
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundColor(themeManager.color(level: 5))
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(themeManager.color(level: 1))
+                    )
+            }
+        }
+        .padding(.vertical, 8)
+        .padding(.leading, 8)
+        .padding(.trailing, 16)
+        .background(
+            RoundedRectangle(cornerRadius: 6)
+                .fill(backgroundColorForCategory(folder))
+        )
+        .contentShape(Rectangle())
+        .onTapGesture {
+            // 点击整个文件夹行时触发展开/关闭
+            withAnimation(.easeInOut(duration: 0.2)) {
+                isExpanded.wrappedValue.toggle()
+            }
+        }
+        .onHover { isHovered in
+            withAnimation(.easeInOut(duration: 0.2)) {
+                hoveredCategoryId = isHovered ? folder.categoryId : nil
+            }
+        }
+        .contextMenu {
+            if folder.isServerCategoryListItem {
+                Button("common.edit".localized) {
+                    viewModel.beginEditCategory(folder)
+                }
+                Button("delete".localized, role: .destructive) {
+                    viewModel.requestDeleteCategory(folder)
+                }
+            }
+        }
+
+        // 注意：文件夹的点击事件由 DisclosureGroup 处理，这里不需要 onTapGesture
+    }
+
     // MARK: - 分类行视图
     private func categoryRowView(_ category: TDSliderBarModel) -> some View {
         HStack(spacing: 8) {
@@ -246,22 +379,44 @@ struct TDSliderBarView: View {
             }
         }
         .padding(.vertical, 8)
-        .padding(.horizontal, 16)
+        .padding(.horizontal, 8)
         .background(
             RoundedRectangle(cornerRadius: 6)
                 .fill(backgroundColorForCategory(category))
         )
         .contentShape(Rectangle())
         .onTapGesture {
-            viewModel.selectCategory(category)
+            // 新建和管理项的特殊处理
+            if category.categoryId == -2000 {
+                // 新建
+                viewModel.showAddCategorySheet()
+            } else if category.categoryId == -2001 {
+                // 管理
+                viewModel.showAddCategorySheet() // 暂时使用同一个 sheet，后续可以改为管理界面
+            } else {
+                // 普通分类
+                viewModel.selectCategory(category)
+            }
         }
         .onHover { isHovered in
             withAnimation(.easeInOut(duration: 0.2)) {
                 hoveredCategoryId = isHovered ? category.categoryId : nil
             }
         }
+        .contextMenu {
+            if category.isServerCategoryListItem {
+                Button("common.edit".localized) {
+                    viewModel.beginEditCategory(category)
+                }
+                Button("delete".localized, role: .destructive) {
+                    viewModel.requestDeleteCategory(category)
+                }
+            }
+        }
+
     }
     
+
     // MARK: - 背景色计算
     private func backgroundColorForCategory(_ category: TDSliderBarModel) -> Color {
         let isSelected = category.isSelect ?? false

@@ -25,8 +25,13 @@ final class TDToastCenter: ObservableObject {
             self.type = type
             self.position = position
             // 覆盖式重触发，避免重复消息不显示
+            // 避免与设置窗口 Toast 同时占用同一套 message/type/position 状态
+            self.isSettingPresenting = false
+            // 覆盖式重触发，避免重复消息不显示
+
 //            self.isPresenting = false
             self.isPresenting = true
+            
         }
     }
     
@@ -36,8 +41,8 @@ final class TDToastCenter: ObservableObject {
             self.message = message
             self.type = type
             self.position = position
-            // 覆盖式重触发，避免重复消息不显示
-//            self.isPresenting = false
+            // 避免与主窗口 Toast 同时占用同一套 message/type/position 状态
+            self.isPresenting = false
             self.isSettingPresenting = true
         }
     }

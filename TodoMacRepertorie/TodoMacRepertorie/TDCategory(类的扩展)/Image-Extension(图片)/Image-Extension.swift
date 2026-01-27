@@ -85,37 +85,67 @@ extension Image {
     
     
     /// 从系统图标名称创建指定颜色的图片
-    /// - Parameters:
-    ///   - systemName: 系统图标名称
-    ///   - color: 图标颜色
-    ///   - size: 图标尺寸，默认 12x12
-    /// - Returns: 生成的图片
-    static func fromSystemName(_ systemName: String, color: Color, size: CGFloat = 12) -> Image {
-        // 获取系统图标
-        guard let nsImage = NSImage(systemSymbolName: systemName, accessibilityDescription: nil) else {
-            // 如果获取失败，返回一个空的图片
-            return Image(nsImage: NSImage())
+        /// - Parameters:
+        ///   - systemName: 系统图标名称
+        ///   - color: 图标颜色
+        ///   - size: 图标尺寸，默认 12x12
+        /// - Returns: 生成的图片
+        static func fromSystemName(_ systemName: String, color: Color, size: CGFloat = 12) -> Image {
+            // 获取系统图标
+            guard let templateImage = NSImage(systemSymbolName: systemName, accessibilityDescription: nil) else {
+                // 如果获取失败，返回一个空的图片
+                return Image(nsImage: NSImage())
+            }
+            
+            // 计算绘制区域（居中绘制，保持宽高比）
+            let imageSize = templateImage.size
+            let scale = min(size / imageSize.width, size / imageSize.height)
+            let scaledWidth = imageSize.width * scale
+            let scaledHeight = imageSize.height * scale
+            let x = (size - scaledWidth) / 2
+            let y = (size - scaledHeight) / 2
+            let drawRect = NSRect(x: x, y: y, width: scaledWidth, height: scaledHeight)
+            
+            // 创建位图表示（使用正确的参数）
+            guard let bitmapRep = NSBitmapImageRep(
+                bitmapDataPlanes: nil,
+                pixelsWide: Int(size),
+                pixelsHigh: Int(size),
+                bitsPerSample: 8,
+                samplesPerPixel: 4,
+                hasAlpha: true,
+                isPlanar: false,
+                colorSpaceName: .deviceRGB,
+                bytesPerRow: Int(size) * 4,
+                bitsPerPixel: 32
+            ) else {
+                return Image(nsImage: NSImage())
+            }
+            
+            // 创建新的图片并添加位图表示
+            let coloredImage = NSImage(size: CGSize(width: size, height: size))
+            coloredImage.addRepresentation(bitmapRep)
+            
+            // 开始绘制
+            coloredImage.lockFocus()
+            defer { coloredImage.unlockFocus() }
+            
+            // 先绘制模板图片（黑色）
+            templateImage.isTemplate = true
+            templateImage.draw(in: drawRect, from: NSRect(origin: .zero, size: imageSize), operation: .sourceOver, fraction: 1.0)
+            
+            // 然后使用颜色填充，使用 sourceAtop 操作（只在已有内容的地方应用颜色）
+            let nsColor = NSColor(color)
+            nsColor.set()
+            
+            // 使用路径填充并应用混合模式
+            let path = NSBezierPath(rect: drawRect)
+            NSGraphicsContext.current?.compositingOperation = .sourceAtop
+            path.fill()
+            
+            return Image(nsImage: coloredImage)
         }
         
-        // 设置图标为模板模式（这样可以用颜色着色）
-        nsImage.isTemplate = true
-        
-        // 创建新的图片并应用颜色
-        let coloredImage = NSImage(size: CGSize(width: size, height: size))
-        coloredImage.lockFocus()
-        
-        // 设置颜色
-        NSColor(color).set()
-        
-        // 绘制原图标，调整到指定大小
-        let rect = NSRect(origin: .zero, size: CGSize(width: size, height: size))
-        nsImage.draw(in: rect, from: NSRect(origin: .zero, size: nsImage.size), operation: .sourceIn, fraction: 1.0)
-        
-        coloredImage.unlockFocus()
-        
-        return Image(nsImage: coloredImage)
-    }
-    
     /// 从系统图标名称创建指定十六进制颜色的图片
     /// - Parameters:
     ///   - systemName: 系统图标名称

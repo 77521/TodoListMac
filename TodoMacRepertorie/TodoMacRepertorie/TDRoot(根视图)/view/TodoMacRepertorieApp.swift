@@ -109,34 +109,37 @@ struct TodoMacRepertorieApp: App {
             .preferredColorScheme(preferredScheme)
 //            .environment(\.locale, currentLocale)
 
-            .tdToastBottom(
-                isPresenting: Binding(
-                    get: { toastCenter.isPresenting && toastCenter.position == .bottom },
-                    set: { toastCenter.isPresenting = $0 }
-                ),
-                message: toastCenter.message,
-                type: toastCenter.type
-            )
-            .tdToastTop(
-                isPresenting: Binding(
-                    get: { toastCenter.isPresenting && toastCenter.position == .top },
-                    set: { toastCenter.isPresenting = $0 }
-                ),
-                message: toastCenter.message,
-                type: toastCenter.type
-            )
-            .tdToastCenter(
-                isPresenting: Binding(
-                    get: { toastCenter.isPresenting && toastCenter.position == .center },
-                    set: { toastCenter.isPresenting = $0 }
-                ),
-                message: toastCenter.message,
-                type: toastCenter.type
-            )
+//            .tdToastBottom(
+//                isPresenting: Binding(
+//                    get: { toastCenter.isPresenting && toastCenter.position == .bottom },
+//                    set: { toastCenter.isPresenting = $0 }
+//                ),
+//                message: toastCenter.message,
+//                type: toastCenter.type
+//            )
+//            .tdToastTop(
+//                isPresenting: Binding(
+//                    get: { toastCenter.isPresenting && toastCenter.position == .top },
+//                    set: { toastCenter.isPresenting = $0 }
+//                ),
+//                message: toastCenter.message,
+//                type: toastCenter.type
+//            )
+//            .tdToastCenter(
+//                isPresenting: Binding(
+//                    get: { toastCenter.isPresenting && toastCenter.position == .center },
+//                    set: { toastCenter.isPresenting = $0 }
+//                ),
+//                message: toastCenter.message,
+//                type: toastCenter.type
+//            )
             // 启动时同步一次外观与系统深浅色
             .onAppear {
                 isSystemDark = systemIsDark()
                 applyAppearance()
+                // Toast 通过顶层透明 Panel 显示，避免被 sheet 遮罩盖住
+                TDToastOverlayWindowManager.shared.start()
+
                 // 启动时同步应用图标与 Dock 设置，保证默认就是上次选中的图标
                 appIconManager.syncFromSettings()
 

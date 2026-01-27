@@ -51,14 +51,23 @@ extension Color {
     }
     
     /// 将颜色转换为十六进制字符串
-    func toHexString() -> String {
+    /// - Parameter includeAlpha: 是否包含透明度，默认 false（6位），true 时返回8位（AARRGGBB格式）
+    func toHexString(includeAlpha: Bool = false) -> String {
         guard let color = NSColor(self).usingColorSpace(.sRGB) else { return "#000000" }
-        return String(format: "#%02X%02X%02X",
-                      Int(color.redComponent * 255),
-                      Int(color.greenComponent * 255),
-                      Int(color.blueComponent * 255))
+        if includeAlpha {
+            return String(format: "#%02X%02X%02X%02X",
+                          Int(color.alphaComponent * 255),
+                          Int(color.redComponent * 255),
+                          Int(color.greenComponent * 255),
+                          Int(color.blueComponent * 255))
+        } else {
+            return String(format: "#%02X%02X%02X",
+                          Int(color.redComponent * 255),
+                          Int(color.greenComponent * 255),
+                          Int(color.blueComponent * 255))
+        }
     }
-    
+
     
     func redComponent() -> Int {
         return Int(toRGBAComponents().r * 255)

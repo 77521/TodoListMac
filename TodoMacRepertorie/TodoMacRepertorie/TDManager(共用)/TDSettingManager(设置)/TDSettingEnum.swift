@@ -60,10 +60,10 @@ enum TDDefaultReminder: Int, CaseIterable {
     
     var title: String {
         switch self {
-        case .atTime: return "发生时"
-        case .five: return "5分钟前"
-        case .ten: return "10分钟前"
-        case .fifteen: return "15分钟前"
+        case .atTime: return "settings.reminder.at_time".localized
+        case .five: return "settings.reminder.five".localized
+        case .ten: return "settings.reminder.ten".localized
+        case .fifteen: return "settings.reminder.fifteen".localized
         }
     }
 }
@@ -87,10 +87,10 @@ enum TDExpiredRange: Int, Codable, CaseIterable {
     
     var description: String {
         switch self {
-        case .hide: return "不显示"
-        case .sevenDays: return "7天内"
-        case .thirtyDays: return "30天内"
-        case .hundredDays: return "100天内"
+        case .hide: return "settings.expired_range.hide".localized
+        case .sevenDays: return "settings.expired_range.7".localized
+        case .thirtyDays: return "settings.expired_range.30".localized
+        case .hundredDays: return "settings.expired_range.100".localized
         }
     }
     
@@ -107,15 +107,15 @@ enum TDRepeatTasksLimit: Int, CaseIterable {
     var title: String {
         switch self {
         case .all:
-            return "全部"
+            return "settings.repeat_limit.all".localized
         case .one:
-            return "1个"
+            return "settings.repeat_limit.one".localized
         case .two:
-            return "2个"
+            return "settings.repeat_limit.two".localized
         case .five:
-            return "5个"
+            return "settings.repeat_limit.five".localized
         case .ten:
-            return "10个"
+            return "settings.repeat_limit.ten".localized
         }
     }
 }
@@ -129,11 +129,11 @@ enum TDFutureDateRange: Int, CaseIterable {
     
     var title: String {
         switch self {
-        case .sevenDays: return "7天"
-        case .thirtyDays: return "30天"
-        case .threeMonths: return "三个月"
-        case .oneYear: return "1年"
-        case .all: return "全部"
+        case .sevenDays: return "settings.future_range.7".localized
+        case .thirtyDays: return "settings.future_range.30".localized
+        case .threeMonths: return "settings.future_range.90".localized
+        case .oneYear: return "settings.future_range.365".localized
+        case .all: return "settings.future_range.all".localized
         }
     }
 }
@@ -145,8 +145,8 @@ enum TDTaskBackgroundMode: Int, CaseIterable {
     
     var title: String {
         switch self {
-        case .workload: return "事件工作量"
-        case .category: return "清单颜色"
+        case .workload: return "settings.task_background.workload".localized
+        case .category: return "settings.task_background.category".localized
         }
     }
 }
@@ -171,9 +171,10 @@ enum TDSoundType: Int, CaseIterable {
     var displayName: String {
         switch self {
         case .okDing:
-            return "叮声"
+            return "settings.sound.ok_ding".localized
         case .todoFinishVoice:
-            return "完成音效"
+            return "settings.sound.default".localized
+        
         }
     }
 }

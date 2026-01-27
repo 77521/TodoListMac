@@ -72,25 +72,25 @@ struct TDEventSettingsView: View {
                             )
                         )
                         TDSettingsDivider()
-                        HStack {
-                            Text("settings.event.new_event_position".localized)
-                                .foregroundColor(themeManager.titleTextColor)
-                            Spacer()
-                            Picker("", selection: Binding(
-                                get: { settingManager.isNewTaskAddToTop },
-                                set: { settingManager.isNewTaskAddToTop = $0 }
-                            )) {
-                                Text("settings.event.position.bottom".localized).tag(false)
-                                Text("settings.event.position.top".localized).tag(true)
-                            }
-                            .labelsHidden()
-                            .pickerStyle(.menu)
-                            .frame(width: pillWidth(for: currentNewEventPositionLabel))
-                            .fixedSize(horizontal: true, vertical: false)
-                        }
-                        .padding(.vertical, 10)
-                        .contentShape(Rectangle())
-                        TDSettingsDivider()
+//                        HStack {
+//                            Text("settings.event.new_event_position".localized)
+//                                .foregroundColor(themeManager.titleTextColor)
+//                            Spacer()
+//                            Picker("", selection: Binding(
+//                                get: { settingManager.isNewTaskAddToTop },
+//                                set: { settingManager.isNewTaskAddToTop = $0 }
+//                            )) {
+//                                Text("settings.event.position.bottom".localized).tag(false)
+//                                Text("settings.event.position.top".localized).tag(true)
+//                            }
+//                            .labelsHidden()
+//                            .pickerStyle(.menu)
+//                            .frame(width: pillWidth(for: currentNewEventPositionLabel))
+//                            .fixedSize(horizontal: true, vertical: false)
+//                        }
+//                        .padding(.vertical, 10)
+//                        .contentShape(Rectangle())
+//                        TDSettingsDivider()
                         HStack {
                             Text("settings.event.new_event_position".localized)
                                 .foregroundColor(themeManager.titleTextColor)
@@ -393,6 +393,11 @@ struct TDEventSettingsView: View {
             }
             .padding(.horizontal, 18)
             .padding(.vertical, 50)
+            // 切换音效时立即预览
+            .onChange(of: settingManager.soundType) { _, newValue in
+                TDAudioManager.shared.playAudio(fileName: newValue.fileName)
+            }
+
         }
     }
     // MARK: - 头部说明
