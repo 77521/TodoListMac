@@ -242,6 +242,9 @@ class TDQueryConditionManager {
         if localTask == nil {
             // 本地没有数据，直接插入
             context.insert(serverTask)
+            // 同步时顺便建立/更新标签索引（不在这里 save，由批次末尾统一 save）
+            try TDTagIndexService.shared.indexTask(serverTask, context: context)
+
             return .inserted
             
         } else {
@@ -300,6 +303,10 @@ class TDQueryConditionManager {
         localTask.reminderTimeString = serverTask.reminderTimeString
         localTask.subTaskList = serverTask.subTaskList
         localTask.attachmentList = serverTask.attachmentList
+        
+        // 同步更新标签索引（在 save 前写入同一个 context）
+        try TDTagIndexService.shared.indexTask(localTask, context: context)
+
         // 保存到数据库
         try context.save()
 
@@ -407,6 +414,16 @@ class TDQueryConditionManager {
         return try context.fetch(descriptor)
     }
 
+    /// 根据标签 key 查询包含该标签的事件（标签管理弹窗专用）
+    /// - Parameters:
+    ///   - tagKey: 例如 "#爱你"
+    ///   - context: SwiftData 上下文
+    /// - Returns: 当前用户下，taskContent 包含该标签的任务数组
+    func getTasksByTagKey(tagKey: String, context: ModelContext) async throws -> [TDMacSwiftDataListModel] {
+        let (predicate, sortDescriptors) = TDCorrectQueryBuilder.getTasksByTagKeyQuery(tagKey)
+        let fetchDescriptor = FetchDescriptor(predicate: predicate, sortBy: sortDescriptors)
+        return try context.fetch(fetchDescriptor)
+    }
     
 
 }
@@ -554,6 +571,9 @@ extension TDQueryConditionManager {
             localTask.subTaskList = updatedTask.subTaskList
             localTask.attachmentList = updatedTask.attachmentList
             
+            // 本地编辑也要同步更新标签索引
+            try TDTagIndexService.shared.indexTask(localTask, context: context)
+
             print("本地更新任务（完整模型），taskId: \(updatedTask.taskId), version: \(newVersion)")
             
             // 5. 保存上下文

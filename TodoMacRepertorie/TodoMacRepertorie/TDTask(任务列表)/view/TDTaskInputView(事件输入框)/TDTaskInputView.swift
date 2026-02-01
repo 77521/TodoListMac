@@ -32,14 +32,15 @@ struct TDTaskInputView: View {
             }
             
             // 输入框
-            TextField("task_input_placeholder".localized, text: $taskContent)
-                .textFieldStyle(PlainTextFieldStyle())
-                .font(.system(size: 14))
-                .foregroundColor(themeManager.titleTextColor)
-                .onSubmit {
+            TDHashtagEditor(
+                text: $taskContent,
+                placeholder: "task_input_placeholder".localized,
+                fontSize: 13,
+                onCommit: {
                     createTaskIfNeeded()
-
                 }
+            )
+            .environmentObject(themeManager)
             
             // 添加按钮
             Button(action: {
@@ -54,8 +55,12 @@ struct TDTaskInputView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
-        .background(themeManager.backgroundColor)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        // 注意：这里不能用 clipShape 去裁剪整个输入框容器，
+        // 否则 `#标签弹窗` 会被裁剪掉看不见。用圆角背景即可。
+        .background(
+            RoundedRectangle(cornerRadius: 8)
+                .fill(themeManager.backgroundColor)
+        )
         .shadow(color: themeManager.titleTextColor.opacity(0.2), radius: 4, x: 0, y: 2)
         .offset(x: offset)
         .onChange(of: isShaking) { oldValue, newValue in

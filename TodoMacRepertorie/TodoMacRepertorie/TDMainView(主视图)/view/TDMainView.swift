@@ -127,6 +127,15 @@ struct TDMainView: View {
             // 主要内容区域
             AnyView(
                 Group {
+                    
+                    if let tagKey = mainViewModel.selectedTagKey, !tagKey.isEmpty {
+                        // 标签模式：复用 TDTaskListView，只是查询条件多一个 tagFilter
+                        TDTaskListView(
+                            category: TDSliderBarModel(categoryId: -9999, categoryName: tagKey, headerIcon: "tag"),
+                            tagFilter: tagKey
+                        )
+                    } else {
+                    
                     if let selectedCategory = mainViewModel.selectedCategory {
                         switch selectedCategory.categoryId {
                         case -100: // DayTodo
@@ -158,6 +167,7 @@ struct TDMainView: View {
                         let defaults = TDSliderBarModel.defaultItems(settingManager: settingManager)
                         TDDayTodoView(selectedDate: dateManager.selectedDate, category: defaults.first(where: { $0.categoryId == -100 }) ?? defaults[0])
                     }
+                }
                 }
                     .frame(minWidth: 450, idealWidth: 650, maxWidth: .infinity)
                 .background(Color(.windowBackgroundColor))

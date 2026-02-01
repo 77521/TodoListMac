@@ -27,7 +27,12 @@ final class TDModelContainer: ObservableObject {
         print("📚 SwiftData容器初始化开始")
         
         // 配置 SwiftData 存储到 App Group
-        let schema = Schema([TDMacSwiftDataListModel.self, TDTomatoRecordLocalModel.self])
+        let schema = Schema([
+            TDMacSwiftDataListModel.self,
+            TDTomatoRecordLocalModel.self,
+            TDTagModel.self,
+            TDTaskTagModel.self
+        ])
         let modelConfiguration = ModelConfiguration(
             schema: schema,
             groupContainer: .identifier(TDAppConfig.appGroupId),
@@ -37,6 +42,8 @@ final class TDModelContainer: ObservableObject {
         do {
             modelContainer = try ModelContainer(for: schema, configurations: [modelConfiguration])
             mainContext = ModelContext(modelContainer)
+            // 标签索引是派生数据：如检测到旧库结构（新增字段导致），启动时重建一次以兼容多账号隔离
+            TDTagIndexService.shared.migrateLegacyTagIndexIfNeeded(context: mainContext)
             print("✅ SwiftData容器初始化成功")
         } catch {
             print("❌ SwiftData容器初始化失败: \(error)")

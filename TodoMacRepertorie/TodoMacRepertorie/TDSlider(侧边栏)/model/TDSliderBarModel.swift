@@ -30,6 +30,8 @@ struct TDSliderBarModel: Identifiable, Codable, Equatable {
     var unfinishedCount: Int?  // 未完成数量
     var isSelect: Bool?   // 是否选中
     var children: [TDSliderBarModel]?
+    /// 标签专用：用于唯一标识（避免 UI 使用 categoryId 产生冲突/误合并）
+    var tagKey: String?
 
     var id: Int { categoryId }
 
@@ -46,7 +48,9 @@ struct TDSliderBarModel: Identifiable, Codable, Equatable {
          isExpanded: Bool? = false,
          children: [TDSliderBarModel]? = nil,
          folderIs: Bool? = nil,
-         folderId: Int? = nil) {
+         folderId: Int? = nil,
+         tagKey: String? = nil) {
+        
         self.categoryId = categoryId
         self.categoryName = categoryName
         self.headerIcon = headerIcon
@@ -60,6 +64,7 @@ struct TDSliderBarModel: Identifiable, Codable, Equatable {
         self.children = children
         self.folderIs = folderIs
         self.folderId = folderId
+        self.tagKey = tagKey
 
     }
 
@@ -112,6 +117,8 @@ struct TDSliderBarModel: Identifiable, Codable, Equatable {
         self.categoryId = categoryId
         self.categoryName = categoryName
         self.headerIcon = headerIcon
+        self.tagKey = nil
+
     }
     
     /// 创建未分类项目
@@ -121,7 +128,7 @@ struct TDSliderBarModel: Identifiable, Codable, Equatable {
     
     /// 创建所有标签项目
     static var allTags: TDSliderBarModel {
-        TDSliderBarModel(categoryId: -1000, categoryName: "所有标签", headerIcon: "tag")
+        TDSliderBarModel(categoryId: -1000, categoryName: "所有标签", headerIcon: "tag", unfinishedCount: nil, tagKey: "__all_tags__")
     }
     
     /// 创建新建分类项目
@@ -157,4 +164,10 @@ struct TDSliderBarModel: Identifiable, Codable, Equatable {
         categoryId > 0
     }
 
+}
+extension TDSliderBarModel {
+    /// SwiftUI 展示层唯一 id（优先使用 tagKey，避免哈希/取模/碰撞导致丢项）
+    var sidebarUniqueId: String {
+        tagKey ?? "cat_\(categoryId)"
+    }
 }

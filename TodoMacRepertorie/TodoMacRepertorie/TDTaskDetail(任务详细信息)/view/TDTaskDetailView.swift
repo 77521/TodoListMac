@@ -18,8 +18,10 @@ struct TDTaskDetailView: View {
     @Environment(\.modelContext) private var modelContext
     
     // 焦点状态管理
-    @FocusState private var isTitleFocused: Bool
     @FocusState private var isDescriptionFocused: Bool
+
+    // MARK: - #标签弹窗状态（标题输入框）
+    // 已改为统一组件 `TDHashtagEditor`，这里不再需要额外状态
 
     // 计算属性：用于处理任务描述的绑定（和标题完全一样的逻辑）
     private var taskDescribeBinding: Binding<String> {
@@ -54,39 +56,22 @@ struct TDTaskDetailView: View {
                     LazyVStack (spacing: 0){
                         
                         // 标题
-                        TextField("准备写什么", text: $task.taskContent, axis: .vertical)
-                            .textFieldStyle(.plain)
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(themeManager.titleTextColor)
-                            .fixedSize(horizontal: false, vertical: true) // 固定垂直尺寸
-                            .padding(.vertical, 8)
-                            .padding(.horizontal, 12)
-                            .focused($isTitleFocused)
-                            .background(
-                                RoundedRectangle(cornerRadius: 8)
-//                                    .fill(Color.purple)
-                                    .fill(Color.clear)
-                            )
-                            .onChange(of: task.taskContent) { _, newValue in
-                                // 实时检查并截取超过80个字符的内容
-                                if newValue.count > 80 {
-                                    task.taskContent = String(newValue.prefix(80))
-                                }
+                        TDHashtagEditor(
+                            text: $task.taskContent,
+                            placeholder: "task.detail.title.placeholder".localized,
+                            fontSize: 13,
+                            onCommit: {
+                                // 与原逻辑一致：回车同步一次
+                                syncTaskData(operation: "任务标题")
                             }
-//                            .onSubmit {
-//                                // 结束编辑时同步数据
-//                                syncTaskData(operation: "任务标题")
-//                            }
-                            .onChange(of: isTitleFocused) { _, isFocused in
-                                // 当标题输入框失去焦点时同步数据
-                                if !isFocused {
-                                    syncTaskData(operation: "任务标题")
-                                }
-                            }
+                        )
+                        .environmentObject(themeManager)
+                        .padding(.vertical, 8)
+                        .padding(.horizontal, 12)
 
 
                         // 描述
-                        TextField("添加描述", text: taskDescribeBinding, axis: .vertical)
+                        TextField("task.detail.description.placeholder".localized, text: taskDescribeBinding, axis: .vertical)
                             .textFieldStyle(.plain)
                             .font(.system(size: 14))
                             .foregroundColor(themeManager.descriptionTextColor)
@@ -271,30 +256,30 @@ private struct CategoryTagView: View {
 ///// 任务详情视图 - 第三列
 //struct TDTaskDetailView: View {
 //    @Bindable var task: TDMacSwiftDataListModel
-//    
+//
 //    @EnvironmentObject private var themeManager: TDThemeManager
 //    @EnvironmentObject private var mainViewModel: TDMainViewModel
 //    @Environment(\.modelContext) private var modelContext
-//    
+//
 //    // 状态变量
 //    @State private var showCategoryPicker = false
-//    
+//
 //    // 计算属性：根据任务分类状态和本地分类数据动态计算显示的分类
 //    private var displayCategories: [TDSliderBarModel] {
 //        var categories: [TDSliderBarModel] = []
-//        
+//
 //        // 从 TDCategoryManager 获取本地分类数据
 //        let allCategories = TDCategoryManager.shared.loadLocalCategories()
-//        
+//
 //        // 获取任务的分类ID
 //        let taskCategoryId = task.standbyInt1
-//        
+//
 //        if taskCategoryId > 0 {
 //            // 任务有分类：第一个显示当前分类，后面两个显示其他分类
 //            if let currentCategory = allCategories.first(where: { $0.categoryId == taskCategoryId }) {
 //                categories.append(currentCategory)
 //            }
-//            
+//
 //            // 添加其他分类（最多2个）
 //            let otherCategories = allCategories
 //                .filter { $0.categoryId > 0 && $0.categoryId != taskCategoryId }
@@ -307,15 +292,15 @@ private struct CategoryTagView: View {
 //                .prefix(3)
 //            categories.append(contentsOf: firstThreeCategories)
 //        }
-//        
+//
 //        return Array(categories.prefix(3))
 //    }
-//    
+//
 //    // 计算属性：是否显示更多分类按钮
 //    private var shouldShowMoreCategories: Bool {
 //        let allCategories = TDCategoryManager.shared.loadLocalCategories()
 //        let taskCategoryId = task.standbyInt1
-//        
+//
 //        if taskCategoryId > 0 {
 //            // 任务有分类：检查是否还有其他分类未显示
 //            let remainingCategories = allCategories.filter { category in
@@ -332,19 +317,19 @@ private struct CategoryTagView: View {
 //            return !remainingCategories.isEmpty
 //        }
 //    }
-//    
+//
 //    // 计算属性：是否显示未分类标签
 //    private var shouldShowUncategorized: Bool {
 //        let allCategories = TDCategoryManager.shared.loadLocalCategories()
 //        // 只有当本地没有分类数据，且任务也没有分类时才显示
 //        return allCategories.isEmpty && task.standbyInt1 <= 0
 //    }
-//    
+//
 //    // 计算属性：获取可用分类列表（用于更多分类菜单）
 //    private var availableCategories: [TDSliderBarModel] {
 //        let allCategories = TDCategoryManager.shared.loadLocalCategories()
 //        let taskCategoryId = task.standbyInt1
-//        
+//
 //        if taskCategoryId > 0 {
 //            // 任务有分类：返回除了已显示的三个分类之外的所有分类
 //            return allCategories.filter { category in
@@ -359,7 +344,7 @@ private struct CategoryTagView: View {
 //            }
 //        }
 //    }
-//    
+//
 //    /// 处理分类标签点击
 //    private func handleCategoryTap(_ category: TDSliderBarModel) {
 //        if category.categoryId == 0 {
@@ -391,21 +376,21 @@ private struct CategoryTagView: View {
 //            }
 //        }
 //    }
-//    
+//
 //    var body: some View {
 //        VStack(spacing: 0) {
 //            // 顶部分类工具栏
 //            categoryToolbar
-//            
+//
 //            // 中间区域 - 暂时不写
 //            Spacer()
-//            
+//
 //            // 底部工具栏
 //            bottomToolbar
 //        }
 //        .background(Color(.windowBackgroundColor))
 //    }
-//    
+//
 //    // MARK: - 顶部分类工具栏
 //    private var categoryToolbar: some View {
 //        HStack(spacing: 8) {
@@ -419,7 +404,7 @@ private struct CategoryTagView: View {
 //                    }
 //                )
 //            }
-//            
+//
 //            // 未分类标签（当任务没有分类且本地没有分类数据时显示）
 //            if shouldShowUncategorized {
 //                CategoryTagView(
@@ -430,7 +415,7 @@ private struct CategoryTagView: View {
 //                    }
 //                )
 //            }
-//            
+//
 //            // 下拉箭头（只有本地有分类数据时才显示）
 //            if shouldShowMoreCategories {
 //                Menu {
@@ -447,7 +432,7 @@ private struct CategoryTagView: View {
 //                        }
 //                    }
 //                    .buttonStyle(PlainButtonStyle())
-//                    
+//
 //                    // MARK: - 不分类选项
 //                    Button(action: {
 //                        handleModifyCategory(category: nil)
@@ -460,11 +445,11 @@ private struct CategoryTagView: View {
 //                        }
 //                    }
 //                    .buttonStyle(PlainButtonStyle())
-//                    
+//
 //                    // MARK: - 现有分类列表（过滤掉外面已显示的分类）
 //                    if !availableCategories.isEmpty {
 //                        Divider()
-//                        
+//
 //                        ForEach(availableCategories, id: \.categoryId) { category in
 //                            Button(action: {
 //                                handleModifyCategory(category: category)
@@ -473,7 +458,7 @@ private struct CategoryTagView: View {
 //                                    Image.fromHexColor(category.categoryColor ?? "#c3c3c3", width: 14, height: 14, cornerRadius: 7.0)
 //                                        .resizable()
 //                                        .frame(width: 14.0, height: 14.0)
-//                                    
+//
 //                                    Text(String(category.categoryName.prefix(8)))
 //                                        .font(.system(size: 12))
 //                                }
@@ -495,9 +480,9 @@ private struct CategoryTagView: View {
 //                .menuStyle(.button)
 //                .frame(width: 80)
 //            }
-//            
+//
 //            Spacer()
-//            
+//
 //            // 复选框
 //            Button(action: {
 //                // 切换任务完成状态
@@ -516,7 +501,7 @@ private struct CategoryTagView: View {
 //            // 不再需要初始化选中状态，因为现在直接使用task的分类状态
 //        }
 //    }
-//    
+//
 //    // 获取复选框颜色
 //    private func getCheckboxColor() -> Color {
 //        let allCategories = TDCategoryManager.shared.loadLocalCategories()
@@ -526,11 +511,11 @@ private struct CategoryTagView: View {
 //                return Color.fromHex(category.categoryColor ?? "#007AFF")
 //            }
 //        }
-//        
+//
 //        // 没有选中分类：显示主题颜色描述颜色
 //        return themeManager.descriptionTextColor
 //    }
-//    
+//
 //    // MARK: - 底部工具栏
 //    private var bottomToolbar: some View {
 //        HStack(spacing: 16) {
@@ -544,9 +529,9 @@ private struct CategoryTagView: View {
 //            }
 //            .buttonStyle(PlainButtonStyle())
 //            .help("创建副本")
-//            
+//
 //            Spacer()
-//            
+//
 //            // 删除按钮
 //            Button(action: {
 //                // TODO: 删除任务
@@ -558,7 +543,7 @@ private struct CategoryTagView: View {
 //            }
 //            .buttonStyle(PlainButtonStyle())
 //            .help("删除任务")
-//            
+//
 //            // 更多选项按钮
 //            Menu {
 //                // 复制内容
@@ -566,7 +551,7 @@ private struct CategoryTagView: View {
 //                    // TODO: 实现复制内容功能
 //                    print("复制内容: \(task.taskContent)")
 //                }
-//                
+//
 //                // 创建副本
 //                Menu("创建副本") {
 //                    Button("创建副本") {
@@ -574,7 +559,7 @@ private struct CategoryTagView: View {
 //                        // 创建副本 - 保持原日期
 ////                        handleCreateCopy(copyType: .normal)
 //                    }
-//                    
+//
 //                    // 根据当前任务的日期判断是否显示"创建到今天"
 ////                    if !isToday {
 ////                        Button("创建到今天") {
@@ -583,28 +568,28 @@ private struct CategoryTagView: View {
 //////                            handleCreateCopy(copyType: .toToday)
 ////                        }
 ////                    }
-//                    
+//
 //                    Button("创建到指定日期") {
 //                        // TODO: 实现创建到指定日期功能
 //                        // 创建副本到指定日期 - 显示日期选择器
 ////                        showDatePickerForCopy = true
 //                    }
 //                }
-//                
+//
 //                // 描述转为子任务
 //                Button("描述转为子任务") {
 //                    // TODO: 实现描述转为子任务功能
 //                    print("描述转为子任务")
 //                }
-//                
+//
 //                // 子任务转为描述
 //                Button("子任务转为描述") {
 //                    // TODO: 实现子任务转为描述功能
 //                    print("子任务转为描述")
 //                }
-//                
+//
 //                Divider()
-//                
+//
 //                // 删除
 //                Button("删除") {
 //                    // TODO: 实现删除功能
@@ -638,16 +623,16 @@ private struct CategoryTagView: View {
 ////            VStack(spacing: 16) {
 ////                Text("选择日期")
 ////                    .font(.headline)
-////                
+////
 ////                DatePicker("选择日期", selection: $selectedCopyDate, displayedComponents: .date)
 ////                    .datePickerStyle(.graphical)
-////                
+////
 ////                HStack(spacing: 12) {
 ////                    Button("取消") {
 ////                        showDatePickerForCopy = false
 ////                    }
 ////                    .buttonStyle(.bordered)
-////                    
+////
 ////                    Button("确定") {
 ////                        handleCreateCopy(copyType: .toSpecificDate)
 ////                        showDatePickerForCopy = false
@@ -661,20 +646,20 @@ private struct CategoryTagView: View {
 //    }
 //
 //    // MARK: - 私有方法
-//    
+//
 //    /// 切换任务完成状态
 //    private func toggleTaskCompletion() {
 //        Task {
 //            do {
 //                let updatedTask = task
 //                updatedTask.complete = !task.complete
-//                
+//
 //                let queryManager = TDQueryConditionManager()
 //                let result = try await queryManager.updateLocalTaskWithModel(
 //                    updatedTask: updatedTask,
 //                    context: modelContext
 //                )
-//                
+//
 //                if result == .updated {
 //                    print("切换任务状态成功: \(task.taskContent)")
 //                    await TDMainViewModel.shared.performSyncSeparately()
@@ -684,7 +669,7 @@ private struct CategoryTagView: View {
 //            }
 //        }
 //    }
-//    
+//
 //    /// 处理分类修改
 //    private func handleModifyCategory(category: TDSliderBarModel?) {
 //        if let category = category {
@@ -710,12 +695,12 @@ private struct CategoryTagView: View {
 //            print("取消分类, 选中状态: \(task.standbyInt1)")
 //        }
 //    }
-//    
+//
 //    /// 初始化选中状态
 //    private func initializeSelectedState() {
 //        // 根据任务的当前分类设置选中状态
 //        let taskCategoryId = task.standbyInt1
-//        
+//
 //        // 只有当任务确实有分类时，才设置选中状态
 //        if taskCategoryId > 0 {
 //            task.standbyInt1 = taskCategoryId
@@ -735,9 +720,9 @@ private struct CategoryTagView: View {
 //    let category: TDSliderBarModel
 //    let isSelected: Bool
 //    let onTap: () -> Void
-//    
+//
 //    @EnvironmentObject private var themeManager: TDThemeManager
-//    
+//
 //    var body: some View {
 //        Button(action: onTap) {
 //            Text(category.categoryName)
@@ -752,7 +737,7 @@ private struct CategoryTagView: View {
 //        }
 //        .buttonStyle(PlainButtonStyle())
 //    }
-//    
+//
 //    // 获取背景色
 //    private func getBackgroundColor() -> Color {
 //        if isSelected {
@@ -763,7 +748,7 @@ private struct CategoryTagView: View {
 //            return themeManager.secondaryBackgroundColor
 //        }
 //    }
-//    
+//
 //    // 获取字体颜色
 //    private func getTextColor() -> Color {
 //        if isSelected {

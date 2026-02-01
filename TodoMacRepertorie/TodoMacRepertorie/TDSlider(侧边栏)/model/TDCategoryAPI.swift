@@ -73,7 +73,7 @@ actor TDCategoryAPI {
 
 
     // MARK: - 更新分类排序
-    func updateCategorySort(categoryId: Int, newSort: Int) async throws {
+    func updateCategorySort(categoryId: Int, newSort: Double) async throws {
         let parameters: [String: Any] = [
             "categoryId": categoryId,
             "newListSort": newSort

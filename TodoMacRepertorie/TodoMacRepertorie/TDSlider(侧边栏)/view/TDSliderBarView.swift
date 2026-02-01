@@ -14,9 +14,25 @@ struct TDSliderBarView: View {
     
     // 悬停状态管理
     @State private var hoveredCategoryId: Int? = nil
-    @State private var isCategoryGroupHovered: Bool = false
 
     
+    // MARK: - 分类清单拖拽状态
+    @State private var draggedCategoryListItemId: Int? = nil
+    @State private var highlightedFolderId: Int? = nil
+
+    // 侧边栏图标统一占位（让整列图标竖向对齐）
+    /// 行内元素间距（箭头↔图标、图标↔文字）固定为 8
+    private let sidebarInterItemSpacing: CGFloat = 8
+    /// 子分类相对文件夹额外缩进 8
+    private let sidebarChildIndent: CGFloat = 15
+    /// 行内容整体靠左（不是 listRowInsets 整行缩进）
+    private let sidebarRowLeadingPadding: CGFloat = 6
+    private let sidebarRowTrailingPadding: CGFloat = 10 // 右侧额外 +13（在原基础上再 +5）
+    /// 展开箭头占位：固定正方形（即使不显示也占位）
+    private let sidebarDisclosureSide: CGFloat = 2
+    /// 图标占位：固定正方形（文件夹图标/实心圆/空心圆/系统图标尺寸一致）
+    private let sidebarIconSide: CGFloat = 14
+
     var body: some View {
         VStack(spacing: 0) {
             // 顶部固定区域（不滚动）
@@ -29,7 +45,9 @@ struct TDSliderBarView: View {
                 
                 // 分类清单组
                 categoryListSection
-                
+                // 标签管理组（在分类清单下面）
+                tagManageSection
+
                 // 工具选项
                 utilitySection
             }
@@ -55,6 +73,10 @@ struct TDSliderBarView: View {
             )
             .environmentObject(themeManager)
         }
+        // 点击「所有标签」后弹出标签管理弹窗（见：TDSliderBarViewModel.handleTagTap）
+        .sheet(isPresented: $viewModel.showTagFilter) {
+            TDTagFilterSheet(isPresented: $viewModel.showTagFilter)
+        }
         .alert("common.alert.title".localized, isPresented: $viewModel.showDeleteAlert) {
             Button("delete".localized, role: .destructive) {
                 Task { await viewModel.confirmDeleteCategory() }
@@ -65,8 +87,6 @@ struct TDSliderBarView: View {
         } message: {
             Text("category.context.delete.confirm".localizedFormat(viewModel.deletingCategory?.categoryName ?? ""))
         }
-
-//        .background(Color(.clear))
     }
     
 
@@ -136,121 +156,128 @@ struct TDSliderBarView: View {
     
     // MARK: - 分类清单组
     private var categoryListSection: some View {
-        DisclosureGroup(
-            isExpanded: $viewModel.isCategoryGroupExpanded,
-            content: {
+        Group {
+            // 自定义组头（避免 DisclosureGroup 自带箭头/缩进影响对齐）
+            TDCategoryListGroupHeaderView(
+                themeManager: themeManager,
+                isExpanded: $viewModel.isCategoryGroupExpanded,
+                sidebarInterItemSpacing: sidebarInterItemSpacing,
+                sidebarDisclosureSide: sidebarDisclosureSide,
+                sidebarIconSide: sidebarIconSide,
+                sidebarRowLeadingPadding: sidebarRowLeadingPadding,
+                sidebarRowTrailingPadding: sidebarRowTrailingPadding,
+                onAdd: { viewModel.showSheet = true }
+            )
+            .listRowInsets(EdgeInsets())
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
+
+            if viewModel.isCategoryGroupExpanded {
                 // 用户分类列表（排除新建和管理）
                 ForEach(viewModel.items.filter { $0.categoryId >= -1 && $0.categoryId != -2000 && $0.categoryId != -2001 }) { category in
                     if category.isFolder {
-                        // 文件夹：使用 DisclosureGroup 展示子分类（即使没有子分类也要显示）
-                        let isExpanded = Binding(
-                            get: { viewModel.isFolderExpanded(folderId: category.categoryId) },
-                            set: { _ in viewModel.toggleFolderExpanded(folderId: category.categoryId) }
-                        )
-                        
-                        DisclosureGroup(
-                            isExpanded: isExpanded,
-                            content: {
-                                if let children = category.children, !children.isEmpty {
-                                    ForEach(children) { child in
-                                        categoryRowView(child)
-                                            .listRowInsets(EdgeInsets(top: 0, leading: -11, bottom: 0, trailing: 0))
-                                            .listRowBackground(Color.clear)
-                                            .listRowSeparator(.hidden)
-                                    }
-                                }
-                            },
-                            label: {
-                                folderRowView(category, folderId: category.categoryId, isExpanded: isExpanded)
-                            }
-                        )
-                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                        // 文件夹：自定义展开（避免 DisclosureGroup 自带缩进导致不对齐）
+                        let expanded = viewModel.isFolderExpanded(folderId: category.categoryId)
+
+                        folderRowView(category, isExpanded: expanded) {
+                            viewModel.toggleFolderExpanded(folderId: category.categoryId)
+                        }
+                        .onDrag {
+                            // 长按/拖拽文件夹：如果当前是展开状态，先关闭（避免拖拽时 children 抖动/误触）
+                            viewModel.collapseFolderIfExpanded(folderId: category.categoryId)
+                            viewModel.beginCategoryListDragIfNeeded()
+                            draggedCategoryListItemId = category.categoryId
+                            return NSItemProvider(object: "\(category.categoryId)" as NSString)
+                        }
+                        .onDrop(of: [.text], delegate: SidebarCategoryListDropDelegate(
+                            destinationId: category.categoryId,
+                            destinationIsFolder: true,
+                            viewModel: viewModel,
+                            draggedId: $draggedCategoryListItemId,
+                            highlightedFolderId: $highlightedFolderId
+                        ))
+                        .listRowInsets(EdgeInsets())
                         .listRowBackground(Color.clear)
                         .listRowSeparator(.hidden)
+
+                        if expanded, let children = category.children, !children.isEmpty {
+                            ForEach(children) { child in
+                                categoryRowView(child, leadingIndent: sidebarChildIndent, enableCategoryListReorder: true)
+                                    .listRowInsets(EdgeInsets())
+                                    .listRowBackground(Color.clear)
+                                    .listRowSeparator(.hidden)
+                            }
+                        }
                     } else {
                         // 普通分类或顶级分类
-                        categoryRowView(category)
-                            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                        categoryRowView(category, enableCategoryListReorder: true)
+                            .listRowInsets(EdgeInsets())
                             .listRowBackground(Color.clear)
                             .listRowSeparator(.hidden)
                     }
                 }
-                
-                // 新建和管理项（在最后）
-//                categoryRowView(TDSliderBarModel.newCategory)
-//                    .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 0))
-//                    .listRowBackground(Color.clear)
-//                    .listRowSeparator(.hidden)
-//                
-//                categoryRowView(TDSliderBarModel.manageCategory)
-//                    .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 0))
-//                    .listRowBackground(Color.clear)
-//                    .listRowSeparator(.hidden)
-            },
-            label: {
-                categoryGroupHeaderView
-            }
-        )
-        .listRowInsets(EdgeInsets())
-        .listRowBackground(Color.clear)
-        .listRowSeparator(.hidden)
-    }
-
-    
-    // MARK: - 分类组头部
-    private var categoryGroupHeaderView: some View {
-        HStack {
-            Image(systemName: "folder")
-                .foregroundColor(themeManager.color(level: 5))
-                .font(.system(size: 14))
-            
-            Text("分类清单")
-                .font(.system(size: 14))
-                .foregroundColor(themeManager.titleTextColor)
-            
-            Spacer()
-            
-            // 按钮组（鼠标悬停时显示）
-            HStack(spacing: 10) {
-                Button(action: {
-                    viewModel.showSheet = true
-                }) {
-                    Image(systemName: "plus")
-                        .font(.system(size: 12))
-                        .foregroundColor(.secondary)
-                }
-                .buttonStyle(PlainButtonStyle())
-                .pointingHandCursor()
-
-                Button(action: {
-                    viewModel.showSheet = true
-                }) {
-                    Image(systemName: "gearshape")
-                        .font(.system(size: 12))
-                        .foregroundColor(themeManager.titleTextColor)
-                }
-                .buttonStyle(PlainButtonStyle())
-                .pointingHandCursor()
-                
-            }
-            .opacity(isCategoryGroupHovered ? 1 : 0)
-        }
-        .padding(.vertical, 8)
-        .padding(.leading, 8)
-        .contentShape(Rectangle())
-        .onHover { isHovered in
-            withAnimation(.easeInOut(duration: 0.2)) {
-                isCategoryGroupHovered = isHovered
-            }
-        }
-        .onTapGesture {
-            withAnimation(.easeInOut(duration: 0.2)) {
-                viewModel.isCategoryGroupExpanded.toggle()
+                // 仅在拖拽分类清单时启用平滑移动动画（避免影响普通选中/数量刷新）
+                .animation(draggedCategoryListItemId == nil ? nil : .easeInOut(duration: 0.12), value: viewModel.items)
             }
         }
     }
-
     
+    // MARK: - 标签管理组
+    private var tagManageSection: some View {
+        Group {
+            TDTagManageGroupHeaderView(
+                themeManager: themeManager,
+                isExpanded: $viewModel.isTagGroupExpanded,
+                sortOption: $viewModel.tagSortOption,
+                sidebarInterItemSpacing: sidebarInterItemSpacing,
+                sidebarDisclosureSide: sidebarDisclosureSide,
+                sidebarIconSide: sidebarIconSide,
+                sidebarRowLeadingPadding: sidebarRowLeadingPadding,
+                sidebarRowTrailingPadding: sidebarRowTrailingPadding
+            )
+            .listRowInsets(EdgeInsets())
+            .listRowBackground(Color.clear)
+            .listRowSeparator(.hidden)
+            
+            if viewModel.isTagGroupExpanded {
+                // 标签列表（第一个永远是“所有标签”）
+                TDTagFlowLayout(spacing: 6, lineSpacing: 6) {
+                    ForEach(viewModel.sortedTagsArr, id: \.sidebarUniqueId) { tag in
+                        let isAllTags = tag.tagKey == TDSliderBarModel.allTags.tagKey
+                        let isSelected = (!isAllTags && tag.tagKey != nil && tag.tagKey == viewModel.selectedTagKey)
+                        Button {
+                            viewModel.handleTagTap(tag)
+                        } label: {
+                            Text(tag.categoryName)
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundColor(isSelected ? .white : themeManager.color(level: 5))
+                                .lineLimit(1)
+                                .fixedSize(horizontal: true, vertical: false)
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 6)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .fill(isSelected ? themeManager.color(level: 5) : themeManager.secondaryBackgroundColor)
+                                )
+                        }
+                        .buttonStyle(.plain)
+                        .pointingHandCursor()
+
+                    }
+                }
+                // 与分组标题对齐：跳过“箭头+图标”占位
+                .padding(.leading, sidebarIconSide)
+                .padding(.trailing, sidebarRowTrailingPadding)
+                .padding(.vertical, 6)
+                .listRowInsets(EdgeInsets())
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
+            }
+
+
+        }
+    }
+
     // MARK: - 工具选项区域
     private var utilitySection: some View {
         Group {
@@ -275,18 +302,25 @@ struct TDSliderBarView: View {
     }
     
     // MARK: - 文件夹行视图（点击只展开/关闭，不选中）
-    private func folderRowView(_ folder: TDSliderBarModel, folderId: Int, isExpanded: Binding<Bool>) -> some View {
-        HStack(spacing: 6) {
+    private func folderRowView(_ folder: TDSliderBarModel, isExpanded: Bool, onToggle: @escaping () -> Void) -> some View {
+        let childCategoryCount = (folder.children ?? []).filter { !$0.isFolder }.count
+
+       return HStack(spacing: sidebarInterItemSpacing) {
+            // 左侧保留占位（对齐用），展开箭头放到最右侧
+            Color.clear
+                .frame(width: sidebarDisclosureSide, height: sidebarDisclosureSide)
+
             // 文件夹图标
             Image(systemName: "folder.fill")
                 .foregroundColor(
                     folder.categoryColor.flatMap { Color.fromHex($0) } ?? themeManager.color(level: 5)
                 )
-                .font(.system(size: 14))
+                .font(.system(size: sidebarIconSide))
+                .frame(width: sidebarIconSide, height: sidebarIconSide, alignment: .center)
 
             // 文件夹名称
             Text(folder.categoryName)
-                .font(.system(size: 14))
+                .font(.system(size: 13))
                 .foregroundColor(themeManager.titleTextColor)
             
             Spacer()
@@ -303,20 +337,38 @@ struct TDSliderBarView: View {
                             .fill(themeManager.color(level: 1))
                     )
             }
+            // 该文件夹下的分类清单数量（0 也显示）
+           HStack(alignment: .center, spacing: 10) {
+               Text("\(childCategoryCount)")
+                   .font(.system(size: 12))
+                   .foregroundColor(themeManager.descriptionTextColor)
+
+               // 展开箭头（放右侧）
+               Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
+                   .foregroundColor(themeManager.descriptionTextColor)
+                   .font(.system(size: 11, weight: .semibold))
+                   .padding(.trailing,2)
+                   .frame(width: sidebarDisclosureSide, height: sidebarDisclosureSide, alignment: .center)
+
+           }
         }
         .padding(.vertical, 8)
-        .padding(.leading, 8)
-        .padding(.trailing, 16)
+        .padding(.leading, sidebarRowLeadingPadding)
+        .padding(.trailing, sidebarRowTrailingPadding)
         .background(
             RoundedRectangle(cornerRadius: 6)
-                .fill(backgroundColorForCategory(folder))
+                .fill(backgroundColorForFolder(folder))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 6)
+                .stroke(
+                    (highlightedFolderId == folder.categoryId) ? themeManager.color(level: 5) : Color.clear,
+                    lineWidth: 1.5
+                )
         )
         .contentShape(Rectangle())
         .onTapGesture {
-            // 点击整个文件夹行时触发展开/关闭
-            withAnimation(.easeInOut(duration: 0.2)) {
-                isExpanded.wrappedValue.toggle()
-            }
+            onToggle()
         }
         .onHover { isHovered in
             withAnimation(.easeInOut(duration: 0.2)) {
@@ -333,34 +385,61 @@ struct TDSliderBarView: View {
                 }
             }
         }
-
-        // 注意：文件夹的点击事件由 DisclosureGroup 处理，这里不需要 onTapGesture
     }
-
+    
+    // MARK: - 文件夹背景色计算（不显示选中效果，只显示悬停效果）
+    private func backgroundColorForFolder(_ folder: TDSliderBarModel) -> Color {
+        let isHovered = hoveredCategoryId == folder.categoryId
+        
+        // 文件夹不显示选中效果，只显示悬停效果
+        if isHovered {
+            if let categoryColor = folder.categoryColor {
+                // 服务器文件夹：使用文件夹颜色 + 0.2 透明度
+                return Color.fromHex(categoryColor).opacity(0.2)
+            } else {
+                // 默认文件夹：使用主题颜色 + 0.2 透明度
+                return themeManager.color(level: 5).opacity(0.2)
+            }
+        }
+        
+        // 默认：无背景色
+        return Color.clear
+    }
+    
     // MARK: - 分类行视图
-    private func categoryRowView(_ category: TDSliderBarModel) -> some View {
-        HStack(spacing: 8) {
+    private func categoryRowView(_ category: TDSliderBarModel, leadingIndent: CGFloat = 0, enableCategoryListReorder: Bool = false) -> some View {
+        HStack(spacing: sidebarInterItemSpacing) {
+            if leadingIndent > 0 {
+                Color.clear
+                    .frame(width: leadingIndent)
+            }
+
+            // 预留展开箭头占位，让所有行（含文件夹/子分类/普通分类）整体对齐
+            Color.clear
+                .frame(width: sidebarDisclosureSide, height: sidebarDisclosureSide)
+
             // 图标或颜色圆圈
             if category.categoryId == 0 {
                 // 未分类：使用空心圆圈
                 Circle()
                     .stroke(themeManager.color(level: 6), lineWidth: 1)
-                    .frame(width: 12, height: 12)
+                    .frame(width: sidebarIconSide, height: sidebarIconSide)
             } else if category.categoryId > 0, let categoryColor = category.categoryColor {
                 // 服务器分类：使用实心颜色圆圈
                 Circle()
                     .fill(Color.fromHex(categoryColor))
-                    .frame(width: 12, height: 12)
+                    .frame(width: sidebarIconSide, height: sidebarIconSide)
             } else {
                 // 系统分类：使用图标
                 Image(systemName: category.headerIcon ?? "circle")
                     .foregroundColor(themeManager.color(level: 5))
-                    .font(.system(size: 14))
+                    .font(.system(size: sidebarIconSide))
+                    .frame(width: sidebarIconSide, height: sidebarIconSide, alignment: .center)
             }
 
             // 分类名称
             Text(category.categoryName)
-                .font(.system(size: 14))
+                .font(.system(size: 13))
                 .foregroundColor(themeManager.titleTextColor)
             
             Spacer()
@@ -379,7 +458,8 @@ struct TDSliderBarView: View {
             }
         }
         .padding(.vertical, 8)
-        .padding(.horizontal, 8)
+        .padding(.leading, sidebarRowLeadingPadding)
+        .padding(.trailing, sidebarRowTrailingPadding)
         .background(
             RoundedRectangle(cornerRadius: 6)
                 .fill(backgroundColorForCategory(category))
@@ -413,10 +493,15 @@ struct TDSliderBarView: View {
                 }
             }
         }
-
+        .modifier(CategoryListDragDropModifier(
+            enable: enableCategoryListReorder,
+            category: category,
+            viewModel: viewModel,
+            draggedId: $draggedCategoryListItemId,
+            highlightedFolderId: $highlightedFolderId
+        ))
     }
     
-
     // MARK: - 背景色计算
     private func backgroundColorForCategory(_ category: TDSliderBarModel) -> Color {
         let isSelected = category.isSelect ?? false
@@ -499,6 +584,112 @@ struct TDSliderBarView: View {
         .background(Color(.clear))
     }
 
+}
+
+// MARK: - 分类清单拖拽：DropDelegate
+
+private struct SidebarCategoryListDropDelegate: DropDelegate {
+    let destinationId: Int
+    let destinationIsFolder: Bool
+    let viewModel: TDSliderBarViewModel
+    @Binding var draggedId: Int?
+    @Binding var highlightedFolderId: Int?
+
+    func dropEntered(info: DropInfo) {
+        guard let draggedId, draggedId > 0, draggedId != destinationId else { return }
+
+        // 目标是文件夹：分类悬停仅高亮，实际“放入文件夹”在 performDrop 做
+        if destinationIsFolder {
+            if let draggedItem = viewModel.categorySource.first(where: { $0.categoryId == draggedId }),
+               draggedItem.isFolder == false {
+                highlightedFolderId = destinationId
+                return
+            }
+            // 拖拽的是文件夹：按顶级排序实时移动
+            highlightedFolderId = nil
+            viewModel.hoverMoveCategoryListItem(draggedId: draggedId, destinationId: destinationId)
+            return
+        }
+
+        highlightedFolderId = nil
+        viewModel.hoverMoveCategoryListItem(draggedId: draggedId, destinationId: destinationId)
+    }
+
+    func dropUpdated(info: DropInfo) -> DropProposal? {
+        DropProposal(operation: .move)
+    }
+
+    func performDrop(info: DropInfo) -> Bool {
+        guard let draggedId, draggedId > 0 else {
+            highlightedFolderId = nil
+            return true
+        }
+
+        if destinationIsFolder {
+            // 放入文件夹：默认末尾
+            viewModel.dropCategoryIntoFolder(draggedId: draggedId, folderId: destinationId)
+        }
+
+        highlightedFolderId = nil
+        self.draggedId = nil
+
+        Task {
+            await viewModel.commitCategoryListDrag()
+        }
+        return true
+    }
+
+    func dropExited(info: DropInfo) {
+        if destinationIsFolder, highlightedFolderId == destinationId {
+            highlightedFolderId = nil
+        }
+    }
+}
+
+// MARK: - 分类清单拖拽：统一 modifier（只对“分类清单”启用）
+
+private struct CategoryListDragDropModifier: ViewModifier {
+    let enable: Bool
+    let category: TDSliderBarModel
+    let viewModel: TDSliderBarViewModel
+    @Binding var draggedId: Int?
+    @Binding var highlightedFolderId: Int?
+
+    func body(content: Content) -> some View {
+        guard enable else { return AnyView(content) }
+
+        // 仅允许拖拽服务器分类清单（categoryId > 0）；未分类(0)和系统项(负数)不允许拖拽
+        let canDrag = category.isServerCategoryListItem && category.categoryId != 0
+
+        if canDrag {
+            return AnyView(
+                content
+                    .onDrag {
+                        viewModel.beginCategoryListDragIfNeeded()
+                        draggedId = category.categoryId
+                        return NSItemProvider(object: "\(category.categoryId)" as NSString)
+                    }
+                    .onDrop(of: [.text], delegate: SidebarCategoryListDropDelegate(
+                        destinationId: category.categoryId,
+                        destinationIsFolder: false,
+                        viewModel: viewModel,
+                        draggedId: $draggedId,
+                        highlightedFolderId: $highlightedFolderId
+                    ))
+            )
+        } else {
+            return AnyView(
+                content
+                    .onDrop(of: [.text], delegate: SidebarCategoryListDropDelegate(
+                        destinationId: category.categoryId,
+                        destinationIsFolder: false,
+                        viewModel: viewModel,
+                        draggedId: $draggedId,
+                        highlightedFolderId: $highlightedFolderId
+                    ))
+            )
+        }
+    }
 }
 
 

@@ -15,6 +15,8 @@ struct TDTaskListView: View {
     @Environment(\.modelContext) private var modelContext
     
     let category: TDSliderBarModel
+    let tagFilter: String
+
     // 状态变量：控制复制成功Toast的显示
     @State private var showCopySuccessToast = false
     // 监听多选模式状态变化
@@ -36,20 +38,21 @@ struct TDTaskListView: View {
     @State private var expandedGroups: Set<Int> = Self.getDefaultExpandedGroups()
     @State private var hoveredGroups: Set<Int> = []
     
-    init(category: TDSliderBarModel) {
+    init(category: TDSliderBarModel, tagFilter: String = "") {
         self.category = category
+        self.tagFilter = tagFilter
         
         // 根据分类ID初始化查询条件
         let categoryId = category.categoryId
         
         // 初始化各个分组的查询条件
-        let (overdueCompletedPredicate, overdueCompletedSort) = TDCorrectQueryBuilder.getExpiredCompletedQuery(categoryId: categoryId)
-        let (overdueUncompletedPredicate, overdueUncompletedSort) = TDCorrectQueryBuilder.getExpiredUncompletedQuery(categoryId: categoryId)
-        let (todayPredicate, todaySort) = TDCorrectQueryBuilder.getTodayQuery(categoryId: categoryId)
-        let (tomorrowPredicate, tomorrowSort) = TDCorrectQueryBuilder.getTomorrowQuery(categoryId: categoryId)
-        let (dayAfterTomorrowPredicate, dayAfterTomorrowSort) = TDCorrectQueryBuilder.getDayAfterTomorrowQuery(categoryId: categoryId)
-        let (futureSchedulePredicate, futureScheduleSort) = TDCorrectQueryBuilder.getFutureScheduleQuery(categoryId: categoryId)
-        let (noDatePredicate, noDateSort) = TDCorrectQueryBuilder.getNoDateQuery(categoryId: categoryId)
+        let (overdueCompletedPredicate, overdueCompletedSort) = TDCorrectQueryBuilder.getExpiredCompletedQuery(categoryId: categoryId, tagFilter: tagFilter)
+        let (overdueUncompletedPredicate, overdueUncompletedSort) = TDCorrectQueryBuilder.getExpiredUncompletedQuery(categoryId: categoryId, tagFilter: tagFilter)
+        let (todayPredicate, todaySort) = TDCorrectQueryBuilder.getTodayQuery(categoryId: categoryId, tagFilter: tagFilter)
+        let (tomorrowPredicate, tomorrowSort) = TDCorrectQueryBuilder.getTomorrowQuery(categoryId: categoryId, tagFilter: tagFilter)
+        let (dayAfterTomorrowPredicate, dayAfterTomorrowSort) = TDCorrectQueryBuilder.getDayAfterTomorrowQuery(categoryId: categoryId, tagFilter: tagFilter)
+        let (futureSchedulePredicate, futureScheduleSort) = TDCorrectQueryBuilder.getFutureScheduleQuery(categoryId: categoryId, tagFilter: tagFilter)
+        let (noDatePredicate, noDateSort) = TDCorrectQueryBuilder.getNoDateQuery(categoryId: categoryId, tagFilter: tagFilter)
         
         // 初始化各个 @Query，分别查询各个分组的任务数据
         _overdueCompletedTasks = Query(filter: overdueCompletedPredicate, sort: overdueCompletedSort)
@@ -60,7 +63,7 @@ struct TDTaskListView: View {
         _futureScheduleTasks = Query(filter: futureSchedulePredicate, sort: futureScheduleSort)
         _noDateTasks = Query(filter: noDatePredicate, sort: noDateSort)
     }
-    
+
     // MARK: - 静态方法
     
     /// 获取默认展开状态的分组ID集合

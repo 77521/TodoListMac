@@ -44,6 +44,10 @@
 "no_date" = "No date";
 "inbox" = "Inbox";
 
+// 任务详情（第三列）
+"task.detail.title.placeholder" = "What do you want to do?";
+"task.detail.description.placeholder" = "Add a description";
+
 // 多选模式
 "select_at_least_one_event" = "Please select at least one event";
 "select_all" = "Select All";
@@ -72,6 +76,9 @@
 
 // 侧滑栏 列表
 "category.manage" = "Manage";
+"tag.manage.group.title" = "Tag management";
+"tag.manage.sort.by_time" = "Sort by time";
+"tag.manage.sort.by_count" = "Sort by count";
 
 // 新建清单
 "category.new.title" = "New";
@@ -100,6 +107,24 @@
 "category.edit.folderPicker.title" = "Folder";
 "category.edit.folderPicker.none" = "None";
 "category.edit.colorPicker.title" = "Color";
+
+// 标签管理弹窗（点击「所有标签」）
+"tag.filter.sheet.title" = "Tags";
+"tag.filter.search.placeholder" = "Search tags…";
+"tag.filter.help.1" = "1. Type the tag after # and end with a space";
+"tag.filter.help.2" = "2. Click All Tags in the sidebar to manage";
+"tag.filter.sort.by_count" = "By event count";
+"tag.filter.sort.by_time" = "By time";
+"tag.filter.order.desc" = "Descending";
+"tag.filter.order.asc" = "Ascending";
+"tag.filter.reset" = "Reset";
+"tag.filter.event_count_format" = "%d events";
+
+// 标签管理列表右键菜单
+"tag.context.remove_tag" = "Remove tag from all events";
+"tag.context.remove_hash" = "Remove # symbol from all events";
+"tag.context.toast.removed_tag" = "Updated %d events";
+"tag.context.toast.removed_hash" = "Updated %d events";
 
 
 // 描述与子任务转换

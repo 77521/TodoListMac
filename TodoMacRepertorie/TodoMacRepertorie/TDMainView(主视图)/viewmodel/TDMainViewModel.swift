@@ -28,6 +28,9 @@ final class TDMainViewModel: ObservableObject {
     /// 当前选中的分类
     @Published var selectedCategory: TDSliderBarModel?
     
+    /// 当前选中的标签（用于第二栏展示标签筛选后的本地数据）
+    @Published var selectedTagKey: String?
+
     // MARK: - 多选模式相关属性
     
     /// 是否处于多选模式
@@ -75,6 +78,8 @@ final class TDMainViewModel: ObservableObject {
         os_log(.info, log: logger, "🎯 主视图模型接收到分类选择: \(category.categoryName) (ID: \(category.categoryId))")
         // 使用 Task 来避免在 View 更新过程中修改 @Published 属性
         Task { @MainActor in
+            // 选择分类时：退出“标签模式”
+            selectedTagKey = nil
             selectedCategory = category
             // 切换分类时退出多选模式
             exitMultiSelectMode()
@@ -82,6 +87,20 @@ final class TDMainViewModel: ObservableObject {
 
         }
     }
+    
+    /// 选择标签（非“所有标签”）
+    /// - 选择标签时：清空分类选中，第二栏改为展示标签筛选结果
+    func selectTag(tagKey: String) {
+        os_log(.info, log: logger, "🏷️ 主视图模型接收到标签选择: %@", tagKey)
+        Task { @MainActor in
+            selectedCategory = nil
+            selectedTagKey = tagKey
+            exitMultiSelectMode()
+            selectedTask = nil
+        }
+    }
+    
+
     
     /// 是否首次登录
     private var isFirstLogin: Bool {

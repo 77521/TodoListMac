@@ -47,6 +47,10 @@
 "no_date" = "没有日期";
 "inbox" = "待办箱";
 
+// 任务详情（第三列）
+"task.detail.title.placeholder" = "准备写什么";
+"task.detail.description.placeholder" = "添加描述";
+
 // 多选模式
 "select_at_least_one_event" = "至少选择一个事件";
 "select_all" = "全选";
@@ -74,6 +78,9 @@
 "user.menu.logout" = "退出登录";
 // 侧滑栏 列表
 "category.manage" = "管理";
+"tag.manage.group.title" = "标签管理";
+"tag.manage.sort.by_time" = "按时间排序";
+"tag.manage.sort.by_count" = "按数量排序";
 
 // 新建清单
 "category.new.title" = "新建";
@@ -101,6 +108,24 @@
 "category.edit.folderPicker.title" = "选择文件夹";
 "category.edit.folderPicker.none" = "无文件夹";
 "category.edit.colorPicker.title" = "选择颜色";
+
+// 标签管理弹窗（点击「所有标签」）
+"tag.filter.sheet.title" = "标签";
+"tag.filter.search.placeholder" = "搜索标签…";
+"tag.filter.help.1" = "1、在#符号后标签内容，用空格结束";
+"tag.filter.help.2" = "2、在侧滑栏点击所有标签，进行管理";
+"tag.filter.sort.by_count" = "按事件数量";
+"tag.filter.sort.by_time" = "按时间";
+"tag.filter.order.desc" = "降序";
+"tag.filter.order.asc" = "升序";
+"tag.filter.reset" = "重置筛选";
+"tag.filter.event_count_format" = "%d 个事件";
+
+// 标签管理列表右键菜单
+"tag.context.remove_tag" = "从所有事件中移除标签";
+"tag.context.remove_hash" = "从所有事件中移除 # 符号";
+"tag.context.toast.removed_tag" = "已更新 %d 个事件";
+"tag.context.toast.removed_hash" = "已更新 %d 个事件";
 
 
 

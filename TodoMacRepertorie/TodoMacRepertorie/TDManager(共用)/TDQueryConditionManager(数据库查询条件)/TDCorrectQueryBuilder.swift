@@ -66,7 +66,7 @@ struct TDCorrectQueryBuilder {
         let userId = TDUserManager.shared.userId
         let showCompleted = settingManager.showCompletedTasks
         let dateTimestamp = selectedDate.startOfDayTimestamp
-//        
+        //
         let predicate = #Predicate<TDMacSwiftDataListModel> { task in
             task.userId == userId && !task.delete && task.todoTime == dateTimestamp &&
             (showCompleted || !task.complete)
@@ -82,8 +82,10 @@ struct TDCorrectQueryBuilder {
     
     // MARK: - 优化的分组查询方法
     
+    // MARK: - 优化的分组查询方法
+    
     /// 查询过期已完成任务（优化版本）
-    static func getExpiredCompletedQuery(categoryId: Int) -> (Predicate<TDMacSwiftDataListModel>, [SortDescriptor<TDMacSwiftDataListModel>]) {
+    static func getExpiredCompletedQuery(categoryId: Int, tagFilter: String = "") -> (Predicate<TDMacSwiftDataListModel>, [SortDescriptor<TDMacSwiftDataListModel>]) {
         let settingManager = TDSettingManager.shared
         let userId = TDUserManager.shared.userId
         let showCompleted = settingManager.showCompletedTasks
@@ -111,21 +113,31 @@ struct TDCorrectQueryBuilder {
             predicate = #Predicate<TDMacSwiftDataListModel> { task in
                 task.userId == userId && !task.delete && task.complete &&
                 (showCompleted || !task.complete) &&
-                task.todoTime >= completedStartTimestamp && task.todoTime < todayTimestamp
+                task.todoTime >= completedStartTimestamp && task.todoTime < todayTimestamp &&
+                (tagFilter.isEmpty || task.taskContent.localizedStandardContains(tagFilter))
             }
         case 0: // 未分类
             predicate = #Predicate<TDMacSwiftDataListModel> { task in
                 task.userId == userId && !task.delete && task.complete &&
                 (showCompleted || !task.complete) &&
                 task.todoTime >= completedStartTimestamp && task.todoTime < todayTimestamp &&
-                task.standbyInt1 == 0
+                task.standbyInt1 == 0 &&
+                (tagFilter.isEmpty || task.taskContent.localizedStandardContains(tagFilter))
+            }
+        case -9999: // 标签模式：不限制分类
+            predicate = #Predicate<TDMacSwiftDataListModel> { task in
+                task.userId == userId && !task.delete && task.complete &&
+                (showCompleted || !task.complete) &&
+                task.todoTime >= completedStartTimestamp && task.todoTime < todayTimestamp &&
+                (tagFilter.isEmpty || task.taskContent.localizedStandardContains(tagFilter))
             }
         default: // 分类清单
             predicate = #Predicate<TDMacSwiftDataListModel> { task in
                 task.userId == userId && !task.delete && task.complete &&
                 (showCompleted || !task.complete) &&
                 task.todoTime >= completedStartTimestamp && task.todoTime < todayTimestamp &&
-                task.standbyInt1 == categoryId
+                task.standbyInt1 == categoryId &&
+                (tagFilter.isEmpty || task.taskContent.localizedStandardContains(tagFilter))
             }
         }
         
@@ -138,7 +150,7 @@ struct TDCorrectQueryBuilder {
     }
     
     /// 查询过期未完成任务（优化版本）
-    static func getExpiredUncompletedQuery(categoryId: Int) -> (Predicate<TDMacSwiftDataListModel>, [SortDescriptor<TDMacSwiftDataListModel>]) {
+    static func getExpiredUncompletedQuery(categoryId: Int, tagFilter: String = "") -> (Predicate<TDMacSwiftDataListModel>, [SortDescriptor<TDMacSwiftDataListModel>]) {
         let settingManager = TDSettingManager.shared
         let userId = TDUserManager.shared.userId
         let showCompleted = settingManager.showCompletedTasks
@@ -166,21 +178,31 @@ struct TDCorrectQueryBuilder {
             predicate = #Predicate<TDMacSwiftDataListModel> { task in
                 task.userId == userId && !task.delete && !task.complete &&
                 (showCompleted || !task.complete) &&
-                task.todoTime >= uncompletedStartTimestamp && task.todoTime < todayTimestamp
+                task.todoTime >= uncompletedStartTimestamp && task.todoTime < todayTimestamp &&
+                (tagFilter.isEmpty || task.taskContent.localizedStandardContains(tagFilter))
             }
         case 0: // 未分类
             predicate = #Predicate<TDMacSwiftDataListModel> { task in
                 task.userId == userId && !task.delete && !task.complete &&
                 (showCompleted || !task.complete) &&
                 task.todoTime >= uncompletedStartTimestamp && task.todoTime < todayTimestamp &&
-                task.standbyInt1 == 0
+                task.standbyInt1 == 0 &&
+                (tagFilter.isEmpty || task.taskContent.localizedStandardContains(tagFilter))
+            }
+        case -9999: // 标签模式：不限制分类
+            predicate = #Predicate<TDMacSwiftDataListModel> { task in
+                task.userId == userId && !task.delete && !task.complete &&
+                (showCompleted || !task.complete) &&
+                task.todoTime >= uncompletedStartTimestamp && task.todoTime < todayTimestamp &&
+                (tagFilter.isEmpty || task.taskContent.localizedStandardContains(tagFilter))
             }
         default: // 分类清单
             predicate = #Predicate<TDMacSwiftDataListModel> { task in
                 task.userId == userId && !task.delete && !task.complete &&
                 (showCompleted || !task.complete) &&
                 task.todoTime >= uncompletedStartTimestamp && task.todoTime < todayTimestamp &&
-                task.standbyInt1 == categoryId
+                task.standbyInt1 == categoryId &&
+                (tagFilter.isEmpty || task.taskContent.localizedStandardContains(tagFilter))
             }
         }
         
@@ -193,7 +215,7 @@ struct TDCorrectQueryBuilder {
     }
     
     /// 查询今天任务（优化版本）
-    static func getTodayQuery(categoryId: Int) -> (Predicate<TDMacSwiftDataListModel>, [SortDescriptor<TDMacSwiftDataListModel>]) {
+    static func getTodayQuery(categoryId: Int, tagFilter: String = "") -> (Predicate<TDMacSwiftDataListModel>, [SortDescriptor<TDMacSwiftDataListModel>]) {
         let settingManager = TDSettingManager.shared
         let userId = TDUserManager.shared.userId
         let showCompleted = settingManager.showCompletedTasks
@@ -207,21 +229,31 @@ struct TDCorrectQueryBuilder {
             predicate = #Predicate<TDMacSwiftDataListModel> { task in
                 task.userId == userId && !task.delete &&
                 (showCompleted || !task.complete) &&
-                task.todoTime == todayTimestamp
+                task.todoTime == todayTimestamp &&
+                (tagFilter.isEmpty || task.taskContent.localizedStandardContains(tagFilter))
             }
         case 0: // 未分类
             predicate = #Predicate<TDMacSwiftDataListModel> { task in
                 task.userId == userId && !task.delete &&
                 (showCompleted || !task.complete) &&
                 task.todoTime == todayTimestamp &&
-                task.standbyInt1 == 0
+                task.standbyInt1 == 0 &&
+                (tagFilter.isEmpty || task.taskContent.localizedStandardContains(tagFilter))
+            }
+        case -9999: // 标签模式：不限制分类
+            predicate = #Predicate<TDMacSwiftDataListModel> { task in
+                task.userId == userId && !task.delete &&
+                (showCompleted || !task.complete) &&
+                task.todoTime == todayTimestamp &&
+                (tagFilter.isEmpty || task.taskContent.localizedStandardContains(tagFilter))
             }
         default: // 分类清单
             predicate = #Predicate<TDMacSwiftDataListModel> { task in
                 task.userId == userId && !task.delete &&
                 (showCompleted || !task.complete) &&
                 task.todoTime == todayTimestamp &&
-                task.standbyInt1 == categoryId
+                task.standbyInt1 == categoryId &&
+                (tagFilter.isEmpty || task.taskContent.localizedStandardContains(tagFilter))
             }
         }
         
@@ -234,7 +266,7 @@ struct TDCorrectQueryBuilder {
     }
     
     /// 查询明天任务（优化版本）
-    static func getTomorrowQuery(categoryId: Int) -> (Predicate<TDMacSwiftDataListModel>, [SortDescriptor<TDMacSwiftDataListModel>]) {
+    static func getTomorrowQuery(categoryId: Int, tagFilter: String = "") -> (Predicate<TDMacSwiftDataListModel>, [SortDescriptor<TDMacSwiftDataListModel>]) {
         let settingManager = TDSettingManager.shared
         let userId = TDUserManager.shared.userId
         let showCompleted = settingManager.showCompletedTasks
@@ -248,21 +280,31 @@ struct TDCorrectQueryBuilder {
             predicate = #Predicate<TDMacSwiftDataListModel> { task in
                 task.userId == userId && !task.delete &&
                 (showCompleted || !task.complete) &&
-                task.todoTime == tomorrowTimestamp
+                task.todoTime == tomorrowTimestamp &&
+                (tagFilter.isEmpty || task.taskContent.localizedStandardContains(tagFilter))
             }
         case 0: // 未分类
             predicate = #Predicate<TDMacSwiftDataListModel> { task in
                 task.userId == userId && !task.delete &&
                 (showCompleted || !task.complete) &&
                 task.todoTime == tomorrowTimestamp &&
-                task.standbyInt1 == 0
+                task.standbyInt1 == 0 &&
+                (tagFilter.isEmpty || task.taskContent.localizedStandardContains(tagFilter))
+            }
+        case -9999: // 标签模式：不限制分类
+            predicate = #Predicate<TDMacSwiftDataListModel> { task in
+                task.userId == userId && !task.delete &&
+                (showCompleted || !task.complete) &&
+                task.todoTime == tomorrowTimestamp &&
+                (tagFilter.isEmpty || task.taskContent.localizedStandardContains(tagFilter))
             }
         default: // 分类清单
             predicate = #Predicate<TDMacSwiftDataListModel> { task in
                 task.userId == userId && !task.delete &&
                 (showCompleted || !task.complete) &&
                 task.todoTime == tomorrowTimestamp &&
-                task.standbyInt1 == categoryId
+                task.standbyInt1 == categoryId &&
+                (tagFilter.isEmpty || task.taskContent.localizedStandardContains(tagFilter))
             }
         }
         
@@ -275,7 +317,7 @@ struct TDCorrectQueryBuilder {
     }
     
     /// 查询后天任务（优化版本）
-    static func getDayAfterTomorrowQuery(categoryId: Int) -> (Predicate<TDMacSwiftDataListModel>, [SortDescriptor<TDMacSwiftDataListModel>]) {
+    static func getDayAfterTomorrowQuery(categoryId: Int, tagFilter: String = "") -> (Predicate<TDMacSwiftDataListModel>, [SortDescriptor<TDMacSwiftDataListModel>]) {
         let settingManager = TDSettingManager.shared
         let userId = TDUserManager.shared.userId
         let showCompleted = settingManager.showCompletedTasks
@@ -289,21 +331,31 @@ struct TDCorrectQueryBuilder {
             predicate = #Predicate<TDMacSwiftDataListModel> { task in
                 task.userId == userId && !task.delete &&
                 (showCompleted || !task.complete) &&
-                task.todoTime == dayAfterTomorrowTimestamp
+                task.todoTime == dayAfterTomorrowTimestamp &&
+                (tagFilter.isEmpty || task.taskContent.localizedStandardContains(tagFilter))
             }
         case 0: // 未分类
             predicate = #Predicate<TDMacSwiftDataListModel> { task in
                 task.userId == userId && !task.delete &&
                 (showCompleted || !task.complete) &&
                 task.todoTime == dayAfterTomorrowTimestamp &&
-                task.standbyInt1 == 0
+                task.standbyInt1 == 0 &&
+                (tagFilter.isEmpty || task.taskContent.localizedStandardContains(tagFilter))
+            }
+        case -9999: // 标签模式：不限制分类
+            predicate = #Predicate<TDMacSwiftDataListModel> { task in
+                task.userId == userId && !task.delete &&
+                (showCompleted || !task.complete) &&
+                task.todoTime == dayAfterTomorrowTimestamp &&
+                (tagFilter.isEmpty || task.taskContent.localizedStandardContains(tagFilter))
             }
         default: // 分类清单
             predicate = #Predicate<TDMacSwiftDataListModel> { task in
                 task.userId == userId && !task.delete &&
                 (showCompleted || !task.complete) &&
                 task.todoTime == dayAfterTomorrowTimestamp &&
-                task.standbyInt1 == categoryId
+                task.standbyInt1 == categoryId &&
+                (tagFilter.isEmpty || task.taskContent.localizedStandardContains(tagFilter))
             }
         }
         
@@ -316,7 +368,7 @@ struct TDCorrectQueryBuilder {
     }
     
     /// 查询后续日程任务（优化版本）
-    static func getFutureScheduleQuery(categoryId: Int) -> (Predicate<TDMacSwiftDataListModel>, [SortDescriptor<TDMacSwiftDataListModel>]) {
+    static func getFutureScheduleQuery(categoryId: Int, tagFilter: String = "") -> (Predicate<TDMacSwiftDataListModel>, [SortDescriptor<TDMacSwiftDataListModel>]) {
         let settingManager = TDSettingManager.shared
         let userId = TDUserManager.shared.userId
         let showCompleted = settingManager.showCompletedTasks
@@ -336,21 +388,31 @@ struct TDCorrectQueryBuilder {
                 predicate = #Predicate<TDMacSwiftDataListModel> { task in
                     task.userId == userId && !task.delete &&
                     (showCompleted || !task.complete) &&
-                    task.todoTime > dayAfterTomorrowTimestamp
+                    task.todoTime > dayAfterTomorrowTimestamp &&
+                    (tagFilter.isEmpty || task.taskContent.localizedStandardContains(tagFilter))
                 }
             case 0: // 未分类
                 predicate = #Predicate<TDMacSwiftDataListModel> { task in
                     task.userId == userId && !task.delete &&
                     (showCompleted || !task.complete) &&
                     task.todoTime > dayAfterTomorrowTimestamp &&
-                    task.standbyInt1 == 0
+                    task.standbyInt1 == 0 &&
+                    (tagFilter.isEmpty || task.taskContent.localizedStandardContains(tagFilter))
+                }
+            case -9999: // 标签模式：不限制分类
+                predicate = #Predicate<TDMacSwiftDataListModel> { task in
+                    task.userId == userId && !task.delete &&
+                    (showCompleted || !task.complete) &&
+                    task.todoTime > dayAfterTomorrowTimestamp &&
+                    (tagFilter.isEmpty || task.taskContent.localizedStandardContains(tagFilter))
                 }
             default: // 分类清单
                 predicate = #Predicate<TDMacSwiftDataListModel> { task in
                     task.userId == userId && !task.delete &&
                     (showCompleted || !task.complete) &&
                     task.todoTime > dayAfterTomorrowTimestamp &&
-                    task.standbyInt1 == categoryId
+                    task.standbyInt1 == categoryId &&
+                    (tagFilter.isEmpty || task.taskContent.localizedStandardContains(tagFilter))
                 }
             }
         } else {
@@ -363,21 +425,31 @@ struct TDCorrectQueryBuilder {
                 predicate = #Predicate<TDMacSwiftDataListModel> { task in
                     task.userId == userId && !task.delete &&
                     (showCompleted || !task.complete) &&
-                    task.todoTime > dayAfterTomorrowTimestamp && task.todoTime <= futureEndTimestamp
+                    task.todoTime > dayAfterTomorrowTimestamp && task.todoTime <= futureEndTimestamp &&
+                    (tagFilter.isEmpty || task.taskContent.localizedStandardContains(tagFilter))
                 }
             case 0: // 未分类
                 predicate = #Predicate<TDMacSwiftDataListModel> { task in
                     task.userId == userId && !task.delete &&
                     (showCompleted || !task.complete) &&
                     task.todoTime > dayAfterTomorrowTimestamp && task.todoTime <= futureEndTimestamp &&
-                    task.standbyInt1 == 0
+                    task.standbyInt1 == 0 &&
+                    (tagFilter.isEmpty || task.taskContent.localizedStandardContains(tagFilter))
+                }
+            case -9999: // 标签模式：不限制分类
+                predicate = #Predicate<TDMacSwiftDataListModel> { task in
+                    task.userId == userId && !task.delete &&
+                    (showCompleted || !task.complete) &&
+                    task.todoTime > dayAfterTomorrowTimestamp && task.todoTime <= futureEndTimestamp &&
+                    (tagFilter.isEmpty || task.taskContent.localizedStandardContains(tagFilter))
                 }
             default: // 分类清单
                 predicate = #Predicate<TDMacSwiftDataListModel> { task in
                     task.userId == userId && !task.delete &&
                     (showCompleted || !task.complete) &&
                     task.todoTime > dayAfterTomorrowTimestamp && task.todoTime <= futureEndTimestamp &&
-                    task.standbyInt1 == categoryId
+                    task.standbyInt1 == categoryId &&
+                    (tagFilter.isEmpty || task.taskContent.localizedStandardContains(tagFilter))
                 }
             }
         }
@@ -392,7 +464,7 @@ struct TDCorrectQueryBuilder {
     }
     
     /// 查询无日期任务（优化版本）
-    static func getNoDateQuery(categoryId: Int) -> (Predicate<TDMacSwiftDataListModel>, [SortDescriptor<TDMacSwiftDataListModel>]) {
+    static func getNoDateQuery(categoryId: Int, tagFilter: String = "") -> (Predicate<TDMacSwiftDataListModel>, [SortDescriptor<TDMacSwiftDataListModel>]) {
         let settingManager = TDSettingManager.shared
         let userId = TDUserManager.shared.userId
         let showNoDate = settingManager.showNoDateEvents
@@ -414,21 +486,31 @@ struct TDCorrectQueryBuilder {
             predicate = #Predicate<TDMacSwiftDataListModel> { task in
                 task.userId == userId && !task.delete &&
                 (showCompletedNoDate || !task.complete) &&
-                task.todoTime == 0
+                task.todoTime == 0 &&
+                (tagFilter.isEmpty || task.taskContent.localizedStandardContains(tagFilter))
             }
         case 0: // 未分类
             predicate = #Predicate<TDMacSwiftDataListModel> { task in
                 task.userId == userId && !task.delete &&
                 (showCompletedNoDate || !task.complete) &&
                 task.todoTime == 0 &&
-                task.standbyInt1 == 0
+                task.standbyInt1 == 0 &&
+                (tagFilter.isEmpty || task.taskContent.localizedStandardContains(tagFilter))
+            }
+        case -9999: // 标签模式：不限制分类
+            predicate = #Predicate<TDMacSwiftDataListModel> { task in
+                task.userId == userId && !task.delete &&
+                (showCompletedNoDate || !task.complete) &&
+                task.todoTime == 0 &&
+                (tagFilter.isEmpty || task.taskContent.localizedStandardContains(tagFilter))
             }
         default: // 分类清单
             predicate = #Predicate<TDMacSwiftDataListModel> { task in
                 task.userId == userId && !task.delete &&
                 (showCompletedNoDate || !task.complete) &&
                 task.todoTime == 0 &&
-                task.standbyInt1 == categoryId
+                task.standbyInt1 == categoryId &&
+                (tagFilter.isEmpty || task.taskContent.localizedStandardContains(tagFilter))
             }
         }
         
@@ -439,6 +521,7 @@ struct TDCorrectQueryBuilder {
         
         return (predicate, sortDescriptors)
     }
+    
     
     /// 查询本地所有未同步数据
     /// 查询条件：status != "sync"，userid = 当前登录用户 Id
@@ -534,7 +617,7 @@ struct TDCorrectQueryBuilder {
         
         return (predicate, sortDescriptors)
     }
-       
+    
     /// 标签筛选辅助方法 - 在应用层使用
     /// - Parameters:
     ///   - tasks: 需要筛选的任务数组
@@ -547,9 +630,9 @@ struct TDCorrectQueryBuilder {
             return task.taskContent.contains(tagFilter)
         }
     }
-
-       
-
+    
+    
+    
     
     /// 搜索方法 - 根据筛选条件查询任务（搜索文字在应用层实现）
     /// 筛选条件：日期、分类、标签、完成状态
@@ -999,7 +1082,39 @@ struct TDCorrectQueryBuilder {
         
         return FetchDescriptor(predicate: predicate, sortBy: sortDescriptors)
     }
+    
+    
+    // MARK: - 标签管理专用查询
 
+    /// 根据标签 key 查询包含该标签的事件
+    ///
+    /// 使用场景：
+    /// - 标签管理弹窗右键操作「从所有事件中移除标签 / 移除 #」
+    ///
+    /// 查询条件（仅本地库）：
+    /// - userId = 当前登录用户
+    /// - delete = false
+    /// - status != "delete"（避免逻辑删除的数据参与批量处理）
+    /// - taskContent 包含传入的 tagKey（例如 "#爱你"）
+    static func getTasksByTagKeyQuery(_ tagKey: String) -> (Predicate<TDMacSwiftDataListModel>, [SortDescriptor<TDMacSwiftDataListModel>]) {
+        let userId = TDUserManager.shared.userId
+        let key = tagKey
+        let predicate = #Predicate<TDMacSwiftDataListModel> { task in
+            task.userId == userId
+            && !task.delete
+            && task.status != "delete"
+            && task.taskContent.localizedStandardContains(key)
+        }
+
+        // 排序不重要（批量操作只需要集合），这里按 createTime 倒序，方便调试排查
+        let sortDescriptors = [
+            SortDescriptor(\TDMacSwiftDataListModel.createTime, order: .reverse)
+        ]
+
+        return (predicate, sortDescriptors)
+    }
+
+    
     /// 查询指定日期的最大 taskSort 值
     /// 基础查询条件：userid = 登录用户 Id, delete = false, todoTime = 传入的时间戳
     /// 排序：按 taskSort 降序，取第一个（最大值）
