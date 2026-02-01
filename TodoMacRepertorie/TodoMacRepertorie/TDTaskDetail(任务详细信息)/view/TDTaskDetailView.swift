@@ -18,7 +18,8 @@ struct TDTaskDetailView: View {
     @Environment(\.modelContext) private var modelContext
     
     // 焦点状态管理
-    @FocusState private var isDescriptionFocused: Bool
+    // 描述编辑状态（用于失焦同步）
+    @State private var isDescriptionEditing: Bool = false
 
     // MARK: - #标签弹窗状态（标题输入框）
     // 已改为统一组件 `TDHashtagEditor`，这里不再需要额外状态
@@ -70,37 +71,33 @@ struct TDTaskDetailView: View {
                         .padding(.horizontal, 12)
 
 
-                        // 描述
-                        TextField("task.detail.description.placeholder".localized, text: taskDescribeBinding, axis: .vertical)
-                            .textFieldStyle(.plain)
-                            .font(.system(size: 14))
-                            .foregroundColor(themeManager.descriptionTextColor)
-                            .fixedSize(horizontal: false, vertical: true) // 固定垂直尺寸
-                            .padding(.vertical, 8)
-                            .padding(.horizontal, 12)
-                            .focused($isDescriptionFocused)
-                            .background(
-                                RoundedRectangle(cornerRadius: 8)
-//                                    .fill(Color.blue)
-                                    .fill(Color.clear)
-
-                            )
+                        TDPlainTextEditor(
+                            text: taskDescribeBinding,
+                            placeholder: "task.detail.description.placeholder".localized,
+                            fontSize: 14,
+                            onCommit: {
+                                // 回车同步一次
+                                syncTaskData(operation: "任务描述")
+                            },
+                            onEditingChanged: { editing in
+                                isDescriptionEditing = editing
+                            }
+                        )
+                        .environmentObject(themeManager)
+                        .padding(.vertical, 8)
+                        .padding(.horizontal, 12)
                             .onChange(of: task.taskDescribe) { _, newValue in
                                 // 实时检查并截取超过80个字符的内容
                                 if let describe = newValue, describe.count > 80 {
                                     task.taskDescribe = String(describe.prefix(80))
                                 }
                             }
-//                            .onSubmit {
-//                                // 结束编辑时同步数据
-//                                syncTaskData(operation: "任务描述")
-//                            }
-                            .onChange(of: isDescriptionFocused) { _, isFocused in
-                                // 当描述输入框失去焦点时同步数据
-                                if !isFocused {
-                                    syncTaskData(operation: "任务描述")
-                                }
+                        .onChange(of: isDescriptionEditing) { _, editing in
+                            // 当描述输入框失去焦点时同步数据
+                            if !editing {
+                                syncTaskData(operation: "任务描述")
                             }
+                        }
 
                         // 日期选择行
                         TDTaskDetailDateRow(

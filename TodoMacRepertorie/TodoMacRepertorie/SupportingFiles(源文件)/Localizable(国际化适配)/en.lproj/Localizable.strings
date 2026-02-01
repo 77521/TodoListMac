@@ -44,6 +44,20 @@
 "no_date" = "No date";
 "inbox" = "Inbox";
 
+// 任务列表：更多菜单（输入框右侧）
+"task.list.more.sort.menu" = "Sort (%@)";
+"task.list.sort.custom" = "Custom";
+"task.list.sort.reminder_time" = "Reminder time";
+"task.list.sort.create_time_asc" = "Created (old→new)";
+"task.list.sort.create_time_desc" = "Created (new→old)";
+"task.list.sort.workload_asc" = "Workload (low→high)";
+"task.list.sort.workload_desc" = "Workload (high→low)";
+"task.list.more.show_completed" = "Show completed";
+"task.list.more.checkbox_follow_category_color" = "Checkbox follows list color";
+"task.list.more.print_current_list" = "Print current list";
+"task.list.more.event_settings" = "More event settings";
+
+
 // 任务详情（第三列）
 "task.detail.title.placeholder" = "What do you want to do?";
 "task.detail.description.placeholder" = "Add a description";

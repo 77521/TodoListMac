@@ -47,6 +47,20 @@
 "no_date" = "没有日期";
 "inbox" = "待办箱";
 
+// 任务列表：更多菜单（输入框右侧）
+"task.list.more.sort.menu" = "排序（%@）";
+"task.list.sort.custom" = "自定义";
+"task.list.sort.reminder_time" = "提醒时间";
+"task.list.sort.create_time_asc" = "添加时间 (早→晚)";
+"task.list.sort.create_time_desc" = "添加时间 (晚→早)";
+"task.list.sort.workload_asc" = "工作量 (少→多)";
+"task.list.sort.workload_desc" = "工作量 (多→少)";
+"task.list.more.show_completed" = "显示已完成";
+"task.list.more.checkbox_follow_category_color" = "勾选框跟随清单颜色";
+"task.list.more.print_current_list" = "打印本页清单";
+"task.list.more.event_settings" = "更多事件设置";
+
+
 // 任务详情（第三列）
 "task.detail.title.placeholder" = "准备写什么";
 "task.detail.description.placeholder" = "添加描述";

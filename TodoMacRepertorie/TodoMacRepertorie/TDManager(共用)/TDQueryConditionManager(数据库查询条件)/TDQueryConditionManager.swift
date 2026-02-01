@@ -509,7 +509,9 @@ extension TDQueryConditionManager {
 
             // 4. 插入到数据库
             context.insert(task)
-            
+            // 4.1 新增任务也要建立/更新标签索引（用于侧滑栏标签展示、标签管理等）
+            try TDTagIndexService.shared.indexTask(task, context: context)
+
             // 5. 保存上下文
             try context.save()
             

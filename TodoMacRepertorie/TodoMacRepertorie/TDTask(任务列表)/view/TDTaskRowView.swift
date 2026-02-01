@@ -39,7 +39,9 @@ struct TDTaskRowView: View , Equatable{
     // 监听多选模式状态变化
     @ObservedObject private var mainViewModel = TDMainViewModel.shared
     
-    
+    /// 监听设置变化，确保列表样式能实时刷新（描述开关/行数/已完成删除线等）
+    @ObservedObject private var settingManager = TDSettingManager.shared
+
     @EnvironmentObject private var themeManager: TDThemeManager
     @Environment(\.modelContext) private var modelContext
     
@@ -133,16 +135,17 @@ struct TDTaskRowView: View , Equatable{
                             Text(task.taskContent)
                                 .font(.system(size: 14))
                                 .foregroundColor(task.taskTitleColor)
-                                .strikethrough(task.taskTitleStrikethrough)
+                                // 已完成删除线：按设置实时生效
+                                .strikethrough(task.complete ? settingManager.showCompletedTaskStrikethrough : false)
                                 .opacity(task.complete ? 0.6 : 1.0)
-                                .lineLimit(TDSettingManager.shared.taskTitleLines)
-                            
+                                .lineLimit(settingManager.taskTitleLines)
+
                             // 任务描述（根据设置和内容决定是否显示）
-                            if task.shouldShowTaskDescription {
+                            if settingManager.showTaskDescription && !(task.taskDescribe?.isEmpty ?? true) {
                                 Text(task.taskDescribe ?? "")
                                     .font(.system(size: 13))
                                     .foregroundColor(themeManager.descriptionTextColor)
-                                    .lineLimit(TDSettingManager.shared.taskDescriptionLines)
+                                    .lineLimit(settingManager.taskDescriptionLines)
                             }
                             
                             // 任务日期（今天、明天、后天显示文字，其他显示日期）
@@ -810,7 +813,7 @@ struct TDTaskRowView: View , Equatable{
 
                 // 2. 重置副本的基本信息
                 copiedTask.standbyStr1 = ""  // 清空重复事件ID
-                
+                copiedTask.complete = false
                 // 3. 根据副本类型设置日期
                 switch copyType {
                 case .normal:

@@ -60,6 +60,29 @@ extension View {
             }
         }
     }
+    // MARK: - View 扩展 - 输入框光标（I-beam）
+    /// 鼠标悬停时显示输入光标（I-beam）
+    /// - 说明：用于解决某些容器（例如 List/Overlay）导致文本编辑器无法正确切换光标的问题
+    func iBeamCursor() -> some View {
+        self.onHover { isHovering in
+            if isHovering {
+                NSCursor.iBeam.push()
+            } else {
+                NSCursor.pop()
+            }
+        }
+    }
+
+    /// 鼠标悬停时显示输入光标（I-beam）（带条件）
+    func iBeamCursor(when condition: Bool) -> some View {
+        self.onHover { isHovering in
+            if condition && isHovering {
+                NSCursor.iBeam.push()
+            } else if condition {
+                NSCursor.pop()
+            }
+        }
+    }
 
 }
 

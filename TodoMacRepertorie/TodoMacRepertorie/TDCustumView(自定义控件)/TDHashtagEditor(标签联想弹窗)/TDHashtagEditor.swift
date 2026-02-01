@@ -84,7 +84,7 @@ struct TDHashtagEditor: View {
                     .foregroundColor(themeManager.descriptionTextColor.opacity(0.9))
                     // 注意：placeholder 需要比插入点稍微靠右一点，
                     // 这样“删空后显示 placeholder”时，光标不会压在占位文字上面。
-                    .padding(.leading, 14)
+                    .padding(.leading, 10)
                     // 向上微调 1-2pt（更贴近系统输入框观感）
                     .padding(.top, 4)
                     .allowsHitTesting(false)

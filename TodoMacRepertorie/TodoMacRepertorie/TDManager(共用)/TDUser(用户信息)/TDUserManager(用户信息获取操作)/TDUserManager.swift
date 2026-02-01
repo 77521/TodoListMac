@@ -130,6 +130,11 @@ class TDUserManager: ObservableObject {
         }
         // 清除本地分类数据
         TDCategoryManager.shared.clearLocalCategories()
+        // 清除“记忆的上次分类清单选择”（退出登录后永远默认未分类）
+        if let userId {
+            TDSettingManager.shared.clearLastSelectedCategoryId(for: userId)
+        }
+
         // 清除当前登录 userId
         UserDefaults.standard.removeObject(forKey: "last_login_userid")
         // 发送用户退出登录通知
@@ -163,6 +168,8 @@ class TDUserManager: ObservableObject {
         self.currentUser = nil
         self.isLoggedIn = false
         self.currentUserId = nil
+        // 清除“记忆的上次分类清单选择”（退出登录后永远默认未分类）
+        TDSettingManager.shared.clearLastSelectedCategoryId(for: userId)
         UserDefaults.standard.removeObject(forKey: "last_login_userid")
         NotificationCenter.default.post(name: .userDidLogout, object: nil)
     }

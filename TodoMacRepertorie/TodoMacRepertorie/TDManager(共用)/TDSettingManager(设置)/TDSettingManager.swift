@@ -84,6 +84,8 @@ class TDSettingManager: ObservableObject {
         static let showCompletedTaskStrikethrough = "td_show_completed_task_strikethrough"
         /// 选中框是否跟随分类清单颜色
         static let checkboxFollowCategoryColor = "td_checkbox_follow_category_color"
+        /// 任务列表排序方式（0:自定义 1:提醒时间 2:添加时间早→晚 3:添加时间晚→早 4:工作量少→多 5:工作量多→少）
+        static let taskListSortType = "td_task_list_sort_type"
 
         
         /// 是否开启震动
@@ -126,6 +128,10 @@ class TDSettingManager: ObservableObject {
         static let showTodayBadge = "td_show_today_badge"
         /// 记忆上次分类选择
         static let rememberLastCategory = "td_remember_last_category"
+        /// 记忆上次选择的“分类清单”（按 userId 分开存储）
+        /// - 注意：这个 key 只是前缀，最终 key 会拼上 userId：`td_last_selected_category_id_<userId>`
+        static let lastSelectedCategoryIdPrefix = "td_last_selected_category_id_"
+
         /// 显示法定节假日标记
         static let showHolidayMark = "td_show_holiday_mark"
         /// 子任务默认展开
@@ -211,6 +217,34 @@ class TDSettingManager: ObservableObject {
         }
         set { sharedDefaults?.set(newValue, forKey: Keys.rememberLastCategory); objectWillChange.send() }
     }
+    // MARK: - 分类清单选择记忆（按用户维度）
+    /// 获取“上次选择的分类清单 id”
+    /// - Parameter userId: 当前登录用户 id
+    /// - Returns: categoryId（>0 表示某个分类清单；0/未存表示未分类）
+    func getLastSelectedCategoryId(for userId: Int) -> Int {
+        guard userId > 0 else { return 0 }
+        let key = "\(Keys.lastSelectedCategoryIdPrefix)\(userId)"
+        return sharedDefaults?.integer(forKey: key) ?? 0
+    }
+
+    /// 记录“上次选择的分类清单 id”
+    /// - Parameter categoryId: categoryId（>0 表示某个分类清单；0 表示未分类）
+    /// - Parameter userId: 当前登录用户 id
+    func setLastSelectedCategoryId(_ categoryId: Int, for userId: Int) {
+        guard userId > 0 else { return }
+        let key = "\(Keys.lastSelectedCategoryIdPrefix)\(userId)"
+        sharedDefaults?.set(categoryId, forKey: key)
+        objectWillChange.send()
+    }
+
+    /// 清除“上次选择的分类清单 id”（通常用于退出登录 / 清理数据）
+    func clearLastSelectedCategoryId(for userId: Int) {
+        guard userId > 0 else { return }
+        let key = "\(Keys.lastSelectedCategoryIdPrefix)\(userId)"
+        sharedDefaults?.removeObject(forKey: key)
+        objectWillChange.send()
+    }
+
 
     
     /// 是否显示本地日历数据
@@ -313,6 +347,17 @@ class TDSettingManager: ObservableObject {
         set { sharedDefaults?.set(newValue, forKey: Keys.calendarShowCompletedSeparator); objectWillChange.send() }
     }
     
+    /// 任务列表排序方式（默认：自定义）
+    var taskListSortType: Int {
+        get {
+            if sharedDefaults?.object(forKey: Keys.taskListSortType) == nil {
+                return 0
+            }
+            return sharedDefaults?.integer(forKey: Keys.taskListSortType) ?? 0
+        }
+        set { sharedDefaults?.set(newValue, forKey: Keys.taskListSortType); objectWillChange.send() }
+    }
+
     /// 日历视图是否显示剩余任务数量
     var calendarShowRemainingCount: Bool {
         get {

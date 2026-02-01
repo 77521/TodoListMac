@@ -11,12 +11,39 @@ import LunarSwift
 /// 农历工具类 - 基于 LunarSwift 库的农历转换
 class TDLunarCalendar {
     
+    // MARK: - Private helpers
+    
+    /// 将 `Date` 可靠地转换为 `Solar`（强制使用公历，避免 `Calendar.current` 非公历时组件异常）
+    private static func makeSolar(from date: Date) -> Solar {
+        let gregorian = Calendar(identifier: .gregorian)
+        let components = gregorian.dateComponents(in: TimeZone.current, from: date)
+        
+        let year = components.year ?? 0
+        let month = components.month ?? 0
+        let day = components.day ?? 0
+        let hour = components.hour ?? 0
+        let minute = components.minute ?? 0
+        let second = components.second ?? 0
+        
+        // 兜底：LunarSwift 内部对非法日期可能直接 fatalError，这里先挡住明显非法的输入
+        guard (1...9999).contains(year),
+              (1...12).contains(month),
+              (1...31).contains(day),
+              (0...23).contains(hour),
+              (0...59).contains(minute),
+              (0...59).contains(second) else {
+            return Solar.fromYmdHms(year: 1970, month: 1, day: 1, hour: 0, minute: 0, second: 0)
+        }
+        
+        return Solar.fromYmdHms(year: year, month: month, day: day, hour: hour, minute: minute, second: second)
+    }
+
     
     // MARK: - 阳历转农历
     
     static func solarToLunar(_ date: Date) -> Lunar {
-        // 使用 LunarSwift 库的 Solar 和 Lunar 方法
-        let solar = Solar.fromDate(date: date)
+        // 注意：不要直接用 Solar.fromDate(date:)（它可能依赖 Calendar.current，某些场景会取到异常组件导致偶发崩溃）
+        let solar = makeSolar(from: date)
         let lunar = Lunar.fromSolar(solar: solar)
         
         return lunar
@@ -68,8 +95,8 @@ class TDLunarCalendar {
     /// - Returns: 显示文本
     static func getSmartDisplay(for date: Date) -> String {
         let lunar = solarToLunar(date)
-        let solar = Solar.fromDate(date: date)
-        
+        let solar = makeSolar(from: date)
+
         // 1. 优先检查法定节假日（这里需要接入法定节假日API，暂时跳过）
         // TODO: 接入法定节假日API
         
