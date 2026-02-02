@@ -22,58 +22,82 @@ class TDTaskDetailModel: ObservableObject {
     
     // MARK: - 计算属性
     
-    /// 根据任务分类状态和本地分类数据动态计算显示的分类
-    var displayCategories: [TDSliderBarModel] {
-        var categories: [TDSliderBarModel] = []
+    /// iOS 同步逻辑：顶部 3 个 + menu 数据（参照 `td_getTopDisplayAndMenuDatasWithPriorityCategoryId:`）
+    private var topDisplayAndMenuData: (display: [TDSliderBarModel], menu: [TDSliderBarModel]) {
+        let priorityCategoryId = task.standbyInt1
         
-        // 从 TDCategoryManager 获取本地分类数据
-        let allCategories = TDCategoryManager.shared.loadLocalCategories()
-        
-        // 获取任务的分类ID
-        let taskCategoryId = task.standbyInt1
-        
-        if taskCategoryId > 0 {
-            // 任务有分类：第一个显示当前分类，后面两个显示其他分类
-            if let currentCategory = allCategories.first(where: { $0.categoryId == taskCategoryId }) {
-                categories.append(currentCategory)
-            }
-            
-            // 添加其他分类（最多2个）
-            let otherCategories = allCategories
-                .filter { $0.categoryId > 0 && $0.categoryId != taskCategoryId }
-                .prefix(2)
-            categories.append(contentsOf: otherCategories)
-        } else {
-            // 任务无分类：显示前三个本地分类
-            let firstThreeCategories = allCategories
-                .filter { $0.categoryId > 0 }
-                .prefix(3)
-            categories.append(contentsOf: firstThreeCategories)
+        // 只取服务器真实数据，并过滤已删除
+        let all = TDCategoryManager.shared.loadLocalCategories()
+        let server = all.filter { item in
+            item.categoryId > 0 && (item.delete == false || item.delete == nil)
         }
         
-        return Array(categories.prefix(3))
+        let folderDatas = server.filter { $0.folderIs == true }
+        let categoryDatas = server.filter { $0.folderIs != true }
+        
+        var displayArray: [TDSliderBarModel] = []
+        var selectedCategoryIds = Set<Int>()
+        
+        if priorityCategoryId > 0,
+           let priorityModel = categoryDatas.first(where: { $0.categoryId == priorityCategoryId }) {
+            displayArray.append(priorityModel)
+            selectedCategoryIds.insert(priorityModel.categoryId)
+        }
+        
+        let orderedMenuEntries = sortedMenuEntries(folders: folderDatas, categories: categoryDatas)
+        for entry in orderedMenuEntries {
+            if displayArray.count >= 3 { break }
+            if entry.isFolder {
+                for child in (entry.children ?? []) {
+                    if displayArray.count >= 3 { break }
+                    if selectedCategoryIds.contains(child.categoryId) { continue }
+                    displayArray.append(child)
+                    selectedCategoryIds.insert(child.categoryId)
+                }
+            } else {
+                if selectedCategoryIds.contains(entry.categoryId) { continue }
+                displayArray.append(entry)
+                selectedCategoryIds.insert(entry.categoryId)
+            }
+        }
+        
+        let remainingCategories = categoryDatas.filter { !selectedCategoryIds.contains($0.categoryId) }
+        let sortedMenuResult = sortedMenuEntries(folders: folderDatas, categories: remainingCategories)
+        
+        return (Array(displayArray.prefix(3)), sortedMenuResult)
+    }
+    
+    private func sortedMenuEntries(folders: [TDSliderBarModel], categories: [TDSliderBarModel]) -> [TDSliderBarModel] {
+        let combined = folders + categories
+        let processed = TDCategoryManager.shared.getFolderWithSubCategories(from: combined)
+        return processed.filter { item in
+            if item.isFolder {
+                return !(item.children ?? []).isEmpty
+            }
+            return true
+        }
+    }
+    
+    /// 顶部展示分类（最多 3 个）
+    var displayCategories: [TDSliderBarModel] {
+        topDisplayAndMenuData.display
+    }
+    
+    /// menu 数据（已排除顶部 3 个；含 folder 结构）
+    var menuEntries: [TDSliderBarModel] {
+        topDisplayAndMenuData.menu
     }
     
     /// 是否显示更多分类按钮
     var shouldShowMoreCategories: Bool {
-        let allCategories = TDCategoryManager.shared.loadLocalCategories()
-        let taskCategoryId = task.standbyInt1
-        
-        if taskCategoryId > 0 {
-            // 任务有分类：检查是否还有其他分类未显示
-            let remainingCategories = allCategories.filter { category in
-                category.categoryId > 0 &&
-                !displayCategories.contains { $0.categoryId == category.categoryId }
+        for entry in menuEntries {
+            if entry.isFolder {
+                if !(entry.children ?? []).isEmpty { return true }
+            } else {
+                return true
             }
-            return !remainingCategories.isEmpty
-        } else {
-            // 任务无分类：检查是否还有其他分类未显示
-            let remainingCategories = allCategories.filter { category in
-                category.categoryId > 0 &&
-                !displayCategories.contains { $0.categoryId == category.categoryId }
-            }
-            return !remainingCategories.isEmpty
         }
+        return false
     }
     
     /// 是否显示未分类标签
@@ -85,24 +109,11 @@ class TDTaskDetailModel: ObservableObject {
     
     /// 获取可用分类列表（用于更多分类菜单）
     var availableCategories: [TDSliderBarModel] {
-        let allCategories = TDCategoryManager.shared.loadLocalCategories()
-        let taskCategoryId = task.standbyInt1
-        
-        if taskCategoryId > 0 {
-            // 任务有分类：返回除了已显示的三个分类之外的所有分类
-            return allCategories.filter { category in
-                category.categoryId > 0 &&
-                !displayCategories.contains { $0.categoryId == category.categoryId }
-            }
-        } else {
-            // 任务无分类：返回除了已显示的三个分类之外的所有分类
-            return allCategories.filter { category in
-                category.categoryId > 0 &&
-                !displayCategories.contains { $0.categoryId == category.categoryId }
-            }
-        }
+        // iOS 逻辑下：menuEntries 已经是“剩余分类 + 文件夹结构”
+        // 这里为了兼容旧调用，只返回顶级分类（不展开 folder children）
+        menuEntries.filter { !$0.isFolder }
     }
-    
+
     /// 获取复选框颜色
     var checkboxColor: Color {
         if task.standbyInt1 > 0 {

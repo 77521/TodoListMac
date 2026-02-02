@@ -73,5 +73,12 @@ struct TDAppConfig {
     }
 
     
+    // MARK: - 菜单 UI 配置
     
+    /// 菜单内字体大小（全局统一）
+    static let menuFontSize: CGFloat = 14
+    
+    /// 菜单内图标大小（全局统一）
+    static let menuIconSize: CGFloat = 14
+
 }

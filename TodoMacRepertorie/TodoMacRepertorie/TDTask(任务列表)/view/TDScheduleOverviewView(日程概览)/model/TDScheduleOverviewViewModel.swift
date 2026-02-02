@@ -39,9 +39,19 @@ class TDScheduleOverviewViewModel: ObservableObject {
     /// 是否显示更多选项
     @Published var showMoreOptions: Bool = false
     
-    /// 输入框文本
-    @Published var inputText: String = ""
-    
+
+    /// 调试开关：是否禁用“日历格子内每天任务数据”的获取与展示
+    /// - 目的：便于一步步排查日程概览问题，先只保留日历/节假日/选中态
+    /// - 默认：Debug 为 true（先不取每天数据），Release 为 false（正常展示）
+    @Published var disableDailyTasksInCalendar: Bool = {
+#if DEBUG
+        return true
+#else
+        return false
+#endif
+    }()
+
+
     // MARK: - 私有属性
     
     private let logger = OSLog(subsystem: "com.Mac.Todolist.TodoMacRepertorie", category: "TDScheduleOverviewViewModel")
@@ -188,18 +198,6 @@ class TDScheduleOverviewViewModel: ObservableObject {
         showMoreOptions = false
     }
     
-    /// 创建任务
-    func createTask() {
-        guard !inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
-        
-        os_log(.info, log: logger, "➕ 创建任务: %@", inputText)
-        
-        // TODO: 实现创建任务逻辑
-        // 这里可以调用数据管理器来保存任务
-        
-        // 清空输入框
-        inputText = ""
-    }
     
     // MARK: - 私有方法
     

@@ -1,29 +1,33 @@
 //
-//  TDTaskInputView.swift
+//  TDScheduleTaskInputView.swift
 //  TodoMacRepertorie
 //
-//  Created by 孬孬 on 2025/1/21.
+//  Created by Cursor on 2026/2/2.
 //
 
 import SwiftUI
 
-struct TDTaskInputView: View {
+/// 日程概览专用输入框组件
+/// 基于 TDTaskInputView，但使用 TDScheduleMoreMenu 和当前选中日期
+struct TDScheduleTaskInputView: View {
     @StateObject private var themeManager = TDThemeManager.shared
     @StateObject private var settingManager = TDSettingManager.shared
     @StateObject private var sliderViewModel = TDSliderBarViewModel.shared
     @StateObject private var userManager = TDUserManager.shared
     @Environment(\.modelContext) private var modelContext
 
-    /// 输入框当前选中的“目标清单 id”
-    /// - 0：未分类
-    /// - >0：分类清单 id
-    @State private var inputSelectedCategory: TDSliderBarModel?
+    /// 当前选中的日期（用于创建任务时的日期）
+    let selectedDate: Date
+    
+    /// 输入框当前选中的分类模型（nil 表示未分类）
+    @State private var inputSelectedCategory: TDSliderBarModel? = nil
 
     @State private var taskContent: String = ""
     @State private var offset: CGFloat = 0
     @State private var isShaking = false
 
-    init() {
+    init(selectedDate: Date) {
+        self.selectedDate = selectedDate
         // 初始化入口：
         // - 未登录：默认未分类
         // - 已登录 + 开启记忆：直接使用“记忆的分类清单完整数据（TDSliderBarModel）”
@@ -33,8 +37,8 @@ struct TDTaskInputView: View {
             _inputSelectedCategory = State(initialValue: nil)
             return
         }
-
         let settingManager = TDSettingManager.shared
+
         if settingManager.rememberLastCategory {
             // 直接获取保存的分类模型
             let rememberedCategory = settingManager.getLastSelectedCategory(for: userId)
@@ -53,6 +57,9 @@ struct TDTaskInputView: View {
                 showCreateItem: true,
                 showUncategorizedItem: true,
                 labelStyle: .iconOnly,
+                onAllSelected: {
+                    
+                },
                 onCreate: {
                     sliderViewModel.showAddCategorySheet()
                 },
@@ -81,11 +88,12 @@ struct TDTaskInputView: View {
             // 让鼠标放上去时稳定显示输入光标（解决 DayTodo 的 List 叠层导致光标不切换问题）
             .iBeamCursor()
 
-            // 右侧：更多菜单（替换 + 号）
-            TDTaskListMoreMenu()
+            // 右侧：更多菜单（日程概览专用）
+            TDScheduleMoreMenu()
         }
         .padding(.horizontal, 16)
-        .padding(.vertical, 12)
+        .padding(.vertical, 8) // 调整 padding 使总高度为 40
+        .frame(height: 40) // 固定高度为 40
         // 注意：这里不能用 clipShape 去裁剪整个输入框容器，
         // 否则 `#标签弹窗` 会被裁剪掉看不见。用圆角背景即可。
         .background(
@@ -94,10 +102,6 @@ struct TDTaskInputView: View {
         )
         .shadow(color: themeManager.titleTextColor.opacity(0.2), radius: 4, x: 0, y: 2)
         .offset(x: offset)
-        // 选择变更：根据“是否记忆上次分类选择”决定是否落盘
-        .onChange(of: inputSelectedCategory) { _, newValue in
-            inputSelectedCategory = TDDataOperationManager.shared.validateSelectedCategory(inputSelectedCategory)
-        }
         // 分类清单变更（删除/编辑颜色等）：校验当前选择是否仍有效
         .onChange(of: sliderViewModel.items) { _, _ in
             inputSelectedCategory = TDDataOperationManager.shared.validateSelectedCategory(inputSelectedCategory)
@@ -125,17 +129,13 @@ struct TDTaskInputView: View {
     }
     
     private func createTaskIfNeeded() {
-        // 1) 输入内容清洗（开头去空白；结尾按“标签空格”规则保留/去除）
-        let sanitized = taskContent.tdSanitizedTaskInputTitle()
-        if sanitized.isEmpty {
-            isShaking = true
-            return
-        }
-
+        // 使用当前选中的日期作为任务的日期（而不是今天）
+        let todoTime = selectedDate.startOfDayTimestamp
+        
         TDDataOperationManager.shared.createTask(
             content: taskContent,
             category: inputSelectedCategory,
-            todoTime: nil, // 使用默认值（今天）
+            todoTime: todoTime,
             modelContext: modelContext,
             onSuccess: {
                 // 清空输入框
@@ -147,9 +147,8 @@ struct TDTaskInputView: View {
             }
         )
     }
-
 }
 
 #Preview {
-    TDTaskInputView()
+    TDScheduleTaskInputView(selectedDate: Date())
 }

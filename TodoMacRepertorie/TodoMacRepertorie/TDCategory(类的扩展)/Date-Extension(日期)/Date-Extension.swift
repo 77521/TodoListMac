@@ -46,7 +46,14 @@ extension Date {
     var isOverdue: Bool {
         self.compare(Calendar.current.startOfDay(for: Date())) == .orderedAscending
     }
-    
+    /// 格式化日期显示（仅年月）
+    var formattedYearMonthString: String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale.current
+        formatter.dateFormat = "yyyy年 M月"
+        return formatter.string(from: self)
+    }
+
     /// 获取格式化的日期和星期字符串
     var dateAndWeekString: String {
         let calendar = Calendar.current

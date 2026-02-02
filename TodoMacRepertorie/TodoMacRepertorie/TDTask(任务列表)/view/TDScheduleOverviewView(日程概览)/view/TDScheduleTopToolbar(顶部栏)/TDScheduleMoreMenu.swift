@@ -24,11 +24,11 @@ struct TDScheduleMoreMenu: View {
                 }) {
                     HStack {
                         Text("事件工作量")
-                            .font(.system(size: 12))
+                            .font(.system(size: TDAppConfig.menuFontSize))
                         Spacer()
                         if settingManager.calendarTaskBackgroundMode == .workload {
                             Image(systemName: "checkmark")
-                                .font(.system(size: 12))
+                                .font(.system(size: TDAppConfig.menuIconSize))
                                 .foregroundColor(themeManager.color(level: 5))
                         }
                     }
@@ -39,18 +39,18 @@ struct TDScheduleMoreMenu: View {
                 }) {
                     HStack {
                         Text("清单颜色")
-                            .font(.system(size: 12))
+                            .font(.system(size: TDAppConfig.menuFontSize))
                         Spacer()
                         if settingManager.calendarTaskBackgroundMode == .category {
                             Image(systemName: "checkmark")
-                                .font(.system(size: 12))
+                                .font(.system(size: TDAppConfig.menuIconSize))
                                 .foregroundColor(themeManager.color(level: 5))
                         }
                     }
                 }
             } label: {
                 Text("条目背景色")
-                    .font(.system(size: 12))
+                    .font(.system(size: 14))
             }
 
             
@@ -62,11 +62,11 @@ struct TDScheduleMoreMenu: View {
                     }) {
                         HStack {
                             Text("自动识别")
-                                .font(.system(size: 12))
+                                .font(.system(size: TDAppConfig.menuFontSize))
                             Spacer()
                             if settingManager.calendarTaskColorRecognition == .auto {
                                 Image(systemName: "checkmark")
-                                    .font(.system(size: 12))
+                                    .font(.system(size: TDAppConfig.menuIconSize))
                                     .foregroundColor(themeManager.color(level: 5))
                             }
                         }
@@ -77,11 +77,11 @@ struct TDScheduleMoreMenu: View {
                     }) {
                         HStack {
                             Text("黑色")
-                                .font(.system(size: 12))
+                                .font(.system(size: TDAppConfig.menuFontSize))
                             Spacer()
                             if settingManager.calendarTaskColorRecognition == .black {
                                 Image(systemName: "checkmark")
-                                    .font(.system(size: 12))
+                                    .font(.system(size: TDAppConfig.menuIconSize))
                                     .foregroundColor(themeManager.color(level: 5))
                             }
                         }
@@ -92,18 +92,18 @@ struct TDScheduleMoreMenu: View {
                     }) {
                         HStack {
                             Text("白色")
-                                .font(.system(size: 12))
+                                .font(.system(size: TDAppConfig.menuFontSize))
                             Spacer()
                             if settingManager.calendarTaskColorRecognition == .white {
                                 Image(systemName: "checkmark")
-                                    .font(.system(size: 12))
+                                    .font(.system(size: TDAppConfig.menuIconSize))
                                     .foregroundColor(themeManager.color(level: 5))
                             }
                         }
                     }
                 } label: {
                     Text("清单颜色识别")
-                        .font(.system(size: 12))
+                        .font(.system(size: 14))
                 }
             }
 
@@ -114,11 +114,11 @@ struct TDScheduleMoreMenu: View {
                 }) {
                     HStack {
                         Text("小")
-                            .font(.system(size: 12))
+                            .font(.system(size: TDAppConfig.menuFontSize))
                         Spacer()
                         if settingManager.fontSize == .size9 {
                             Image(systemName: "checkmark")
-                                .font(.system(size: 12))
+                                .font(.system(size: TDAppConfig.menuIconSize))
                                 .foregroundColor(themeManager.color(level: 5))
                         }
                     }
@@ -129,11 +129,11 @@ struct TDScheduleMoreMenu: View {
                 }) {
                     HStack {
                         Text("默认")
-                            .font(.system(size: 12))
+                            .font(.system(size: TDAppConfig.menuFontSize))
                         Spacer()
                         if settingManager.fontSize == .size10 {
                             Image(systemName: "checkmark")
-                                .font(.system(size: 12))
+                                .font(.system(size: TDAppConfig.menuIconSize))
                                 .foregroundColor(themeManager.color(level: 5))
                         }
                     }
@@ -144,11 +144,11 @@ struct TDScheduleMoreMenu: View {
                 }) {
                     HStack {
                         Text("较大")
-                            .font(.system(size: 12))
+                            .font(.system(size: TDAppConfig.menuFontSize))
                         Spacer()
                         if settingManager.fontSize == .size11 {
                             Image(systemName: "checkmark")
-                                .font(.system(size: 12))
+                                .font(.system(size: TDAppConfig.menuIconSize))
                                 .foregroundColor(themeManager.color(level: 5))
                         }
                     }
@@ -159,18 +159,18 @@ struct TDScheduleMoreMenu: View {
                 }) {
                     HStack {
                         Text("最大")
-                            .font(.system(size: 12))
+                            .font(.system(size: TDAppConfig.menuFontSize))
                         Spacer()
                         if settingManager.fontSize == .size12 {
                             Image(systemName: "checkmark")
-                                .font(.system(size: 12))
+                                .font(.system(size: TDAppConfig.menuIconSize))
                                 .foregroundColor(themeManager.color(level: 5))
                         }
                     }
                 }
             } label: {
                 Text("字体大小")
-                    .font(.system(size: 12))
+                    .font(.system(size: 14))
             }
 
             
@@ -181,11 +181,10 @@ struct TDScheduleMoreMenu: View {
                 settingManager.calendarShowCompletedSeparator.toggle()
             }) {
                 HStack {
-                    Image(systemName: settingManager.calendarShowCompletedSeparator ? "checkmark.circle.fill" : "circle")
-                        .font(.system(size: 12))
-                        .foregroundColor(themeManager.color(level: 5))
+                    Image.fromSystemName(settingManager.calendarShowCompletedSeparator ? "checkmark.circle.fill" : "circle", hexColor: themeManager.color(level: 5).toHexString(), size: TDAppConfig.menuIconSize)
+
                     Text("显示已完成事件删除线")
-                        .font(.system(size: 12))
+                        .font(.system(size: TDAppConfig.menuFontSize))
                 }
             }
             
@@ -194,11 +193,11 @@ struct TDScheduleMoreMenu: View {
                 settingManager.calendarShowRemainingCount.toggle()
             }) {
                 HStack {
-                    Image(systemName: settingManager.calendarShowRemainingCount ? "checkmark.circle.fill" : "circle")
-                        .font(.system(size: 12))
-                        .foregroundColor(themeManager.color(level: 5))
+                    Image.fromSystemName(settingManager.calendarShowRemainingCount ? "checkmark.circle.fill" : "circle", hexColor: themeManager.color(level: 5).toHexString(), size: TDAppConfig.menuIconSize)
+
+                    
                     Text("最后一行显示剩余数量")
-                        .font(.system(size: 12))
+                        .font(.system(size: TDAppConfig.menuFontSize))
                 }
             }
             
@@ -207,11 +206,10 @@ struct TDScheduleMoreMenu: View {
                 settingManager.showLunarCalendar.toggle()
             }) {
                 HStack {
-                    Image(systemName: settingManager.showLunarCalendar ? "checkmark.circle.fill" : "circle")
-                        .font(.system(size: 12))
-                        .foregroundColor(themeManager.color(level: 5))
+                    Image.fromSystemName(settingManager.showLunarCalendar ? "checkmark.circle.fill" : "circle", hexColor: themeManager.color(level: 5).toHexString(), size: TDAppConfig.menuIconSize)
+
                     Text("是否显示农历")
-                        .font(.system(size: 12))
+                        .font(.system(size: TDAppConfig.menuFontSize))
                 }
             }
             
@@ -220,11 +218,11 @@ struct TDScheduleMoreMenu: View {
                 settingManager.isPrivacyModeEnabled.toggle()
             }) {
                 HStack {
-                    Image(systemName: settingManager.isPrivacyModeEnabled ? "checkmark.circle.fill" : "circle")
-                        .font(.system(size: 12))
-                        .foregroundColor(themeManager.color(level: 5))
+                    Image.fromSystemName(settingManager.isPrivacyModeEnabled ? "checkmark.circle.fill" : "circle", hexColor: themeManager.color(level: 5).toHexString(), size: TDAppConfig.menuFontSize)
+
+                    
                     Text("隐私晒图模式")
-                        .font(.system(size: 12))
+                        .font(.system(size: TDAppConfig.menuFontSize))
                 }
             }
             
@@ -232,6 +230,7 @@ struct TDScheduleMoreMenu: View {
             Image(systemName: "ellipsis.circle")
                 .font(.system(size: 16))
                 .foregroundColor(themeManager.titleTextColor)
+//                .frame(width: TDAppConfig.menuIconSize, height: TDAppConfig.menuIconSize)
         }
         .menuStyle(.button)
         .menuIndicator(.hidden)

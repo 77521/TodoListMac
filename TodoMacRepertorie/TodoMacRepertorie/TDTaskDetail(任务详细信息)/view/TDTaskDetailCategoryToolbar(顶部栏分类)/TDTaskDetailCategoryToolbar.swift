@@ -12,194 +12,115 @@ import SwiftData
 struct TDTaskDetailCategoryToolbar: View {
     @Bindable var task: TDMacSwiftDataListModel
     @EnvironmentObject private var themeManager: TDThemeManager
+    @ObservedObject private var sliderViewModel = TDSliderBarViewModel.shared
+
     @Environment(\.modelContext) private var modelContext
     
-    // 计算属性：根据任务分类状态和本地分类数据动态计算显示的分类
-    private var displayCategories: [TDSliderBarModel] {
-        var categories: [TDSliderBarModel] = []
-        
-        // 从 TDCategoryManager 获取本地分类数据
-        let allCategories = TDCategoryManager.shared.loadLocalCategories()
-        
-        // 获取任务的分类ID
-        let taskCategoryId = task.standbyInt1
-        
-        if taskCategoryId > 0 {
-            // 任务有分类：第一个显示当前分类，后面两个显示其他分类
-            if let currentCategory = allCategories.first(where: { $0.categoryId == taskCategoryId }) {
-                categories.append(currentCategory)
-            }
-            
-            // 添加其他分类（最多2个）
-            let otherCategories = allCategories
-                .filter { $0.categoryId > 0 && $0.categoryId != taskCategoryId }
-                .prefix(2)
-            categories.append(contentsOf: otherCategories)
-        } else {
-            // 任务无分类：显示前三个本地分类
-            let firstThreeCategories = allCategories
-                .filter { $0.categoryId > 0 }
-                .prefix(3)
-            categories.append(contentsOf: firstThreeCategories)
-        }
-        
-        return Array(categories.prefix(3))
-    }
-    
-    // 计算属性：是否显示更多分类按钮
-    private var shouldShowMoreCategories: Bool {
-        let allCategories = TDCategoryManager.shared.loadLocalCategories()
-        let taskCategoryId = task.standbyInt1
-        
-        if taskCategoryId > 0 {
-            // 任务有分类：检查是否还有其他分类未显示
-            let remainingCategories = allCategories.filter { category in
-                category.categoryId > 0 &&
-                !displayCategories.contains { $0.categoryId == category.categoryId }
-            }
-            return !remainingCategories.isEmpty
-        } else {
-            // 任务无分类：检查是否还有其他分类未显示
-            let remainingCategories = allCategories.filter { category in
-                category.categoryId > 0 &&
-                !displayCategories.contains { $0.categoryId == category.categoryId }
-            }
-            return !remainingCategories.isEmpty
-        }
-    }
-    
-    // 计算属性：是否显示未分类标签
-    private var shouldShowUncategorized: Bool {
-        let allCategories = TDCategoryManager.shared.loadLocalCategories()
-        // 只有当本地没有分类数据，且任务也没有分类时才显示
-        return allCategories.isEmpty && task.standbyInt1 <= 0
-    }
-    
-    // 计算属性：获取可用分类列表（用于更多分类菜单）
-    private var availableCategories: [TDSliderBarModel] {
-        let allCategories = TDCategoryManager.shared.loadLocalCategories()
-        let taskCategoryId = task.standbyInt1
-        
-        if taskCategoryId > 0 {
-            // 任务有分类：返回除了已显示的三个分类之外的所有分类
-            return allCategories.filter { category in
-                category.categoryId > 0 &&
-                !displayCategories.contains { $0.categoryId == category.categoryId }
-            }
-        } else {
-            // 任务无分类：返回除了已显示的三个分类之外的所有分类
-            return allCategories.filter { category in
-                category.categoryId > 0 &&
-                !displayCategories.contains { $0.categoryId == category.categoryId }
-            }
-        }
-    }
-    
-    // 计算属性：获取复选框颜色
-    private var checkboxColor: Color {
-        if task.standbyInt1 > 0 {
-            // 有选中分类：显示当前选中分类的颜色
-            let allCategories = TDCategoryManager.shared.loadLocalCategories()
-            if let category = allCategories.first(where: { $0.categoryId == task.standbyInt1 }) {
-                return Color.fromHex(category.categoryColor ?? "#007AFF")
-            }
-        }
-        
-        // 没有选中分类：显示主题颜色描述颜色
-        return themeManager.descriptionTextColor
-    }
-    
     var body: some View {
+        // 单一来源：直接复用 TDTaskDetailModel 内的 iOS 逻辑
+        let detailModel = TDTaskDetailModel(task: task)
+        
         HStack(spacing: 8) {
             // 动态分类标签
-            ForEach(displayCategories, id: \.categoryId) { category in
+            ForEach(detailModel.displayCategories, id: \.categoryId) { category in
                 CategoryTagView(
                     category: category,
                     isSelected: task.standbyInt1 == category.categoryId, // 根据任务实际分类状态判断
                     onTap: {
-                        handleModifyCategory(category: category)
+                        detailModel.handleModifyCategory(category: category)
                     }
                 )
             }
             
             // 未分类标签（当任务没有分类且本地没有分类数据时显示）
-            if shouldShowUncategorized {
+            if detailModel.shouldShowUncategorized {
                 CategoryTagView(
                     category: TDSliderBarModel.uncategorized,
                     isSelected: task.standbyInt1 == 0, // Selected if no category is chosen
                     onTap: {
-                        handleModifyCategory(category: TDSliderBarModel.uncategorized)
+                        detailModel.handleModifyCategory(category: nil)
                     }
                 )
             }
             
             // 下拉箭头（只有本地有分类数据时才显示）
-            if shouldShowMoreCategories {
+            if detailModel.shouldShowMoreCategories {
                 Menu {
                     // MARK: - 新建分类选项
-                    Button(action: {
-                        // TODO: 实现新建分类功能
-                        print("新建分类")
-                    }) {
-                        HStack {
-                            Image(systemName: "plus.circle.fill")
-                                .foregroundColor(themeManager.color(level: 5))
-                                .font(.system(size: 14))
-                            Text("new_category".localized)
-                        }
+                    Button {
+                       sliderViewModel.showAddCategorySheet()
+                    } label: {
+                        menuRow(icon: createIcon, title: "new_category".localized)
                     }
-                    .buttonStyle(PlainButtonStyle())
-                    .pointingHandCursor()
 
                     // MARK: - 不分类选项
-                    Button(action: {
-                        handleModifyCategory(category: nil)
-                    }) {
-                        HStack {
-                            Image(systemName: "circle")
-                                .foregroundColor(.red)
-                                .font(.system(size: 14))
-                            Text("uncategorized".localized)
-                        }
+                    Button {
+                        detailModel.handleModifyCategory(category: nil)
+                    } label: {
+                        menuRow(icon: uncategorizedIcon, title: "uncategorized".localized)
                     }
-                    .buttonStyle(PlainButtonStyle())
-                    .pointingHandCursor()
 
-                    // MARK: - 现有分类列表（过滤掉外面已显示的分类）
-                    if !availableCategories.isEmpty {
+
+                    // MARK: - 现有分类列表（iOS 逻辑：排除顶部 3 个，并保留文件夹结构）
+                    if !detailModel.menuEntries.isEmpty {
                         Divider()
                         
-                        ForEach(availableCategories, id: \.categoryId) { category in
-                            Button(action: {
-                                handleModifyCategory(category: category)
-                            }) {
-                                HStack {
-                                    Image.fromHexColor(category.categoryColor ?? "#c3c3c3", width: 14, height: 14, cornerRadius: 7.0)
-                                        .resizable()
-                                        .frame(width: 14.0, height: 14.0)
-                                    
-                                    Text(String(category.categoryName.prefix(8)))
-                                        .font(.system(size: 12))
-                                }
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                            .pointingHandCursor()
+                        ForEach(detailModel.menuEntries, id: \.categoryId) { entry in
+                            if entry.isFolder, let children = entry.children, !children.isEmpty {
+                                Menu {
+                                    ForEach(children, id: \.categoryId) { child in
+                                        
+                                        Button {
+                                            // 子分类：回调返回模型数据
+                                            detailModel.handleModifyCategory(category: child)
+                                        } label: {
+                                            menuRow(
+                                                icon: categoryIcon(hex: child.categoryColor),
+                                                title: String(child.categoryName.prefix(8))
+                                            )
+                                        }
+                                    }
+                                } label: {
+                                    menuRow(
+                                        icon: folderIcon(folderColor: entry.categoryColor),
+                                        title: entry.categoryName
+                                    )
 
+                                    
+                                }
+                            } else {
+                                Button {
+                                    // 顶级分类：回调返回模型数据
+                                    detailModel.handleModifyCategory(category: entry)
+                                } label: {
+                                    menuRow(
+                                        icon: categoryIcon(hex: entry.categoryColor),
+                                        title: String(entry.categoryName.prefix(8))
+                                    )
+                                }
+
+                            }
                         }
                     }
                 } label: {
-                    Text("选择分类")
-                        .font(.system(size: 12))
-                        .foregroundColor(themeManager.descriptionTextColor)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
+//                    Image.fromSystemName("arrow/*triangle.down.fill", hexColor: themeManager.color(level: 5).toHexString(), size: TDAppConfig.menuIconSize)*/
+                    
+                    // 倒三角 + 圆形背景（对齐 iOS 样式）
+                    Image(systemName: "chevron.down")
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundColor(themeManager.color(level: 5))
+                        .frame(width: 25, height: 25)
                         .background(
-                            RoundedRectangle(cornerRadius: 12)
+                            Circle()
                                 .fill(themeManager.secondaryBackgroundColor)
                         )
+
+                    
                 }
                 .menuStyle(.button)
-                .frame(width: 80)
+                .menuIndicator(.hidden)
+                .buttonStyle(PlainButtonStyle())
+                .pointingHandCursor()
             }
             
             Spacer()
@@ -211,11 +132,11 @@ struct TDTaskDetailCategoryToolbar: View {
             }) {
                 Image(systemName: task.complete ? "checkmark.square.fill" : "square")
                     .font(.system(size: 16))
-                    .foregroundColor(checkboxColor)
+                    .foregroundColor(detailModel.checkboxColor)
             }
             .buttonStyle(PlainButtonStyle())
             .pointingHandCursor()
-
+            
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
@@ -223,36 +144,60 @@ struct TDTaskDetailCategoryToolbar: View {
         .onAppear {
             initializeSelectedState()
         }
-
+        
     }
     
-    // MARK: - 私有方法
-    
-    /// 处理分类修改
-    private func handleModifyCategory(category: TDSliderBarModel?) {
-        if let category = category {
-            // 如果点击的是当前已选中的分类，则取消选中
-            if task.standbyInt1 == category.categoryId {
-                // 取消分类
-                task.standbyInt1 = 0
-                task.standbyIntName = ""
-                task.standbyIntColor = ""
-                print("取消选中分类: \(category.categoryName), 选中状态: \(task.standbyInt1)")
-            } else {
-                // 选中新分类
-                task.standbyInt1 = category.categoryId
-                task.standbyIntName = category.categoryName
-                task.standbyIntColor = category.categoryColor ?? "#007AFF"
-                print("选中分类: \(category.categoryName), 选中状态: \(task.standbyInt1)")
-            }
-        } else {
-            // 取消分类
-            task.standbyInt1 = 0
-            task.standbyIntName = ""
-            task.standbyIntColor = ""
-            print("取消分类, 选中状态: \(task.standbyInt1)")
+    /// 新建：实心圆 + 加号
+    private var createIcon: some View {
+        // 使用"可着色的实心圆 + 加号"图片（避免在 Menu 内渲染风格不一致/丢色）
+        Image.fromPlusCircleColor(themeManager.color(level: 5), width: TDAppConfig.menuIconSize, height: TDAppConfig.menuIconSize, plusSize: 6, plusWidth: 1.5)
+            .resizable()
+            .frame(width: TDAppConfig.menuIconSize, height: TDAppConfig.menuIconSize)
+    }
+
+    /// 未分类：空心圆
+    private var uncategorizedIcon: some View {
+        // 使用"可着色的空心圆图标"（避免 stroke 在 Menu 内渲染风格不一致）
+        Image.fromCircleColor(themeManager.color(level: 5), width: TDAppConfig.menuIconSize, height: TDAppConfig.menuIconSize, lineWidth: 1.2)
+            .resizable()
+            .frame(width: TDAppConfig.menuIconSize, height: TDAppConfig.menuIconSize)
+    }
+
+    /// 菜单行：左侧图标 + 右侧标题
+    private func menuRow(icon: some View, title: String) -> some View {
+        HStack(spacing: 8) {
+            icon
+            Text(title)
+                .font(.system(size: TDAppConfig.menuFontSize))
         }
     }
+    /// 分类（非文件夹）：按你给的样式显示
+    /// - 左侧：用颜色生成的小方块（圆角=7，视觉上是圆形）
+    /// - 右侧：名称最多展示 8 个字符
+    private func categoryIcon(hex: String?) -> some View {
+        Image.fromHexColor(hex ?? "#c3c3c3", width: TDAppConfig.menuIconSize, height: TDAppConfig.menuIconSize, cornerRadius: 7.0)
+            .resizable()
+            .frame(width: TDAppConfig.menuIconSize, height: TDAppConfig.menuIconSize)
+    }
+    
+    /// 文件夹图标：有颜色则使用"带颜色的文件夹图标"，否则使用主题色
+    private func folderIcon(folderColor: String?) -> some View {
+        Group {
+            if let folderColor, !folderColor.isEmpty {
+                // 使用带颜色的文件夹图标
+                Image.fromSystemName("folder.fill", hexColor: folderColor, size: TDAppConfig.menuIconSize)
+            } else {
+                // 使用默认文件夹图标（主题色）
+                Image(systemName: "folder.fill")
+                    .foregroundColor(themeManager.color(level: 5))
+                    .font(.system(size: TDAppConfig.menuIconSize))
+            }
+        }
+        .frame(width: TDAppConfig.menuIconSize, height: TDAppConfig.menuIconSize, alignment: .center)
+    }
+
+
+    // MARK: - 私有方法
     
     /// 切换任务完成状态
     private func toggleTaskCompletion() {
@@ -299,7 +244,7 @@ private struct CategoryTagView: View {
         }
         .buttonStyle(PlainButtonStyle())
         .pointingHandCursor()
-
+        
     }
     
     // 获取背景色

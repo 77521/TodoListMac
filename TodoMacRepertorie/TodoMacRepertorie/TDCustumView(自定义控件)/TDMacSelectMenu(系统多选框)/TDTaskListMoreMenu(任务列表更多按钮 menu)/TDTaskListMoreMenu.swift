@@ -65,10 +65,10 @@ struct TDTaskListMoreMenu: View {
             Button(action: {}) {
                 HStack(spacing: 8) {
                     Image(systemName: "printer")
-                        .font(.system(size: 12))
+                        .font(.system(size: TDAppConfig.menuIconSize))
                         .foregroundColor(.secondary)
                     Text("task.list.more.print_current_list".localized)
-                        .font(.system(size: 12))
+                        .font(.system(size: TDAppConfig.menuFontSize))
                 }
             }
             .disabled(true)
@@ -79,10 +79,10 @@ struct TDTaskListMoreMenu: View {
             }) {
                 HStack(spacing: 8) {
                     Image(systemName: "gearshape")
-                        .font(.system(size: 12))
+                        .font(.system(size: TDAppConfig.menuIconSize))
                         .foregroundColor(.secondary)
                     Text("task.list.more.event_settings".localized)
-                        .font(.system(size: 12))
+                        .font(.system(size: TDAppConfig.menuFontSize))
                 }
             }
         } label: {
@@ -107,11 +107,11 @@ struct TDTaskListMoreMenu: View {
         }) {
             HStack {
                 Text(title)
-                    .font(.system(size: 12))
+                    .font(.system(size: TDAppConfig.menuFontSize))
                 Spacer()
                 if settingManager.taskListSortType == sortType {
                     Image(systemName: "checkmark")
-                        .font(.system(size: 12))
+                        .font(.system(size: TDAppConfig.menuIconSize))
                         .foregroundColor(themeManager.color(level: 5))
                 }
             }
@@ -123,10 +123,10 @@ struct TDTaskListMoreMenu: View {
         Button(action: onToggle) {
             HStack(spacing: 8) {
                 Image(systemName: isOn ? "checkmark.square" : "square")
-                    .font(.system(size: 12))
+                    .font(.system(size: TDAppConfig.menuIconSize))
                     .foregroundColor(themeManager.color(level: 5))
                 Text(title)
-                    .font(.system(size: 12))
+                    .font(.system(size: TDAppConfig.menuFontSize))
             }
         }
     }

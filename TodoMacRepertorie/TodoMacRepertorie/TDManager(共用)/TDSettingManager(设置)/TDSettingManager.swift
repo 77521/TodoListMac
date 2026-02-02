@@ -128,9 +128,8 @@ class TDSettingManager: ObservableObject {
         static let showTodayBadge = "td_show_today_badge"
         /// 记忆上次分类选择
         static let rememberLastCategory = "td_remember_last_category"
-        /// 记忆上次选择的“分类清单”（按 userId 分开存储）
-        /// - 注意：这个 key 只是前缀，最终 key 会拼上 userId：`td_last_selected_category_id_<userId>`
-        static let lastSelectedCategoryIdPrefix = "td_last_selected_category_id_"
+        /// - 注意：这个 key 只是前缀，最终 key 会拼上 userId：`td_category_json_data_<userId>`
+        static let categoryJsonDataPrefix = "td_category_json_data_"
 
         /// 显示法定节假日标记
         static let showHolidayMark = "td_show_holiday_mark"
@@ -217,33 +216,95 @@ class TDSettingManager: ObservableObject {
         }
         set { sharedDefaults?.set(newValue, forKey: Keys.rememberLastCategory); objectWillChange.send() }
     }
-    // MARK: - 分类清单选择记忆（按用户维度）
-    /// 获取“上次选择的分类清单 id”
+
+    // MARK: - 分类JSON数据记忆（按用户维度）
+    /// 获取“上次选择的分类清单数据（JSON）”
     /// - Parameter userId: 当前登录用户 id
-    /// - Returns: categoryId（>0 表示某个分类清单；0/未存表示未分类）
-    func getLastSelectedCategoryId(for userId: Int) -> Int {
-        guard userId > 0 else { return 0 }
-        let key = "\(Keys.lastSelectedCategoryIdPrefix)\(userId)"
-        return sharedDefaults?.integer(forKey: key) ?? 0
+    /// - Returns: 分类模型对应的 JSON 字符串（nil 表示未存储）
+    func getCategoryJsonData(for userId: Int) -> String? {
+        guard userId > 0 else { return nil }
+        let key = "\(Keys.categoryJsonDataPrefix)\(userId)"
+        return sharedDefaults?.string(forKey: key)
     }
 
-    /// 记录“上次选择的分类清单 id”
-    /// - Parameter categoryId: categoryId（>0 表示某个分类清单；0 表示未分类）
+    /// 记录“上次选择的分类清单数据（JSON）”
+    /// - Parameter jsonData: 分类模型 JSON 字符串（nil 表示清除数据）
     /// - Parameter userId: 当前登录用户 id
-    func setLastSelectedCategoryId(_ categoryId: Int, for userId: Int) {
+    func setCategoryJsonData(_ jsonData: String?, for userId: Int) {
         guard userId > 0 else { return }
-        let key = "\(Keys.lastSelectedCategoryIdPrefix)\(userId)"
-        sharedDefaults?.set(categoryId, forKey: key)
+        let key = "\(Keys.categoryJsonDataPrefix)\(userId)"
+
+        if let jsonData = jsonData {
+            sharedDefaults?.set(jsonData, forKey: key)
+        } else {
+            // nil 表示清除数据
+            sharedDefaults?.removeObject(forKey: key)
+        }
         objectWillChange.send()
     }
 
-    /// 清除“上次选择的分类清单 id”（通常用于退出登录 / 清理数据）
-    func clearLastSelectedCategoryId(for userId: Int) {
+    /// 清除“上次选择的分类清单数据”（通常用于退出登录 / 清理数据）
+    func clearCategoryJsonData(for userId: Int) {
         guard userId > 0 else { return }
-        let key = "\(Keys.lastSelectedCategoryIdPrefix)\(userId)"
+        let key = "\(Keys.categoryJsonDataPrefix)\(userId)"
         sharedDefaults?.removeObject(forKey: key)
         objectWillChange.send()
     }
+    
+    // MARK: - 便捷方法：TDSliderBarModel 转换
+    
+    /// 获取分类模型（从JSON数据解码）
+    /// - Parameter userId: 当前登录用户 id
+    /// - Returns: 分类模型（nil 表示未分类或未存储）
+    func getLastSelectedCategory(for userId: Int) -> TDSliderBarModel? {
+        guard let jsonString = getCategoryJsonData(for: userId) else { return nil }
+        
+        // 1) 新格式：完整 TDSliderBarModel JSON
+        if let model: TDSliderBarModel = TDSwiftJsonUtil.jsonToModel(jsonString, TDSliderBarModel.self) {
+            return model
+        }
+        
+        // 2) 兼容旧格式：只存了 categoryId（可能是纯数字字符串，或仅包含 categoryId 的 JSON）
+        struct _LegacyCategoryIdOnly: Codable { let categoryId: Int }
+        let trimmed = jsonString.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        if let id = Int(trimmed), id > 0 {
+            return TDCategoryManager.shared.getCategory(id: id)
+        }
+        if let legacy = TDSwiftJsonUtil.jsonToModel(trimmed, _LegacyCategoryIdOnly.self),
+           legacy.categoryId > 0 {
+            return TDCategoryManager.shared.getCategory(id: legacy.categoryId)
+        }
+        
+        return nil
+    }
+    
+    /// 记录分类模型（编码为JSON数据）
+    /// - Parameter category: 分类模型（nil 表示未分类）
+    /// - Parameter userId: 当前登录用户 id
+    func setLastSelectedCategory(_ category: TDSliderBarModel?, for userId: Int) {
+        guard userId > 0 else { return }
+        
+        guard let category else {
+            // nil 表示未分类，清除存储的数据
+            setCategoryJsonData(nil, for: userId)
+            return
+        }
+        
+        if let jsonString = TDSwiftJsonUtil.modelToJson(category) {
+            setCategoryJsonData(jsonString, for: userId)
+        } else {
+            // 编码失败，清除旧数据
+            setCategoryJsonData(nil, for: userId)
+        }
+    }
+    
+    /// 清除分类模型（通常用于退出登录 / 清理数据）
+    /// - Parameter userId: 当前登录用户 id
+    func clearLastSelectedCategory(for userId: Int) {
+        clearCategoryJsonData(for: userId)
+    }
+
 
 
     

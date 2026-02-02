@@ -33,8 +33,9 @@ struct TDMacSelectMenu: View {
                     // 新建图标 - 使用系统图标
                     Image(systemName: "plus.circle.fill")
                         .foregroundColor(themeManager.color(level: 5))
-                        .font(.system(size: 14))
+                        .font(.system(size: TDAppConfig.menuIconSize))
                     Text("new_category".localized)
+                        .font(.system(size: TDAppConfig.menuFontSize))
                 }
             }
             .buttonStyle(PlainButtonStyle())
@@ -48,8 +49,10 @@ struct TDMacSelectMenu: View {
                     // 不分类图标 - 使用系统图标
                     Image(systemName: "circle")
                         .foregroundColor(.red)
-                        .font(.system(size: 14))
+                        .font(.system(size: TDAppConfig.menuIconSize))
                     Text("uncategorized".localized)
+                        .font(.system(size: TDAppConfig.menuFontSize))
+
                 }
             }
             .buttonStyle(PlainButtonStyle())
@@ -66,12 +69,10 @@ struct TDMacSelectMenu: View {
                         handleModifyCategory(category: category)
                     }) {
                         HStack {
-                            Image.fromHexColor(category.categoryColor ?? "#c3c3c3", width: 14, height: 14, cornerRadius: 7.0)
-                                .resizable()
-                                .frame(width: 14.0, height: 14.0)
+                            Image.fromHexColor(category.categoryColor ?? "#c3c3c3", width: TDAppConfig.menuIconSize, height: 14, cornerRadius: 7.0)
                             
                             Text(String(category.categoryName.prefix(8)))
-                                .font(.system(size: 12))
+                                .font(.system(size: TDAppConfig.menuFontSize))
                         }
                     }
                     .buttonStyle(PlainButtonStyle())
