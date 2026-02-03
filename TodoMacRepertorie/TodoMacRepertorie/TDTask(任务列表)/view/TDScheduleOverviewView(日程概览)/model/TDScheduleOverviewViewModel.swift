@@ -40,17 +40,6 @@ class TDScheduleOverviewViewModel: ObservableObject {
     @Published var showMoreOptions: Bool = false
     
 
-    /// 调试开关：是否禁用“日历格子内每天任务数据”的获取与展示
-    /// - 目的：便于一步步排查日程概览问题，先只保留日历/节假日/选中态
-    /// - 默认：Debug 为 true（先不取每天数据），Release 为 false（正常展示）
-    @Published var disableDailyTasksInCalendar: Bool = {
-#if DEBUG
-        return true
-#else
-        return false
-#endif
-    }()
-
 
     // MARK: - 私有属性
     

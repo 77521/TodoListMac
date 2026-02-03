@@ -97,25 +97,18 @@ struct TDCalendarDayCell: View {
         self.cellWidth = cellWidth
         self.cellHeight = cellHeight
         
-        
         // 获取筛选条件
         let viewModel = TDScheduleOverviewViewModel.shared
-        if viewModel.disableDailyTasksInCalendar {
-            // 先不获取“每天任务数据”（用于日程概览问题排查）
-            let predicate = #Predicate<TDMacSwiftDataListModel> { _ in false }
-            _allTasks = Query(filter: predicate)
-        } else {
-            let dateTimestamp = dateModel.date.startOfDayTimestamp
-            let categoryId = viewModel.selectedCategory?.categoryId ?? 0
-            
-            // 使用新的查询方法
-            let (predicate, sortDescriptors) = TDCorrectQueryBuilder.getLocalDataQuery(
-                dateTimestamp: dateTimestamp,
-                categoryId: categoryId,
-                sortType: viewModel.sortType
-            )
-            _allTasks = Query(filter: predicate, sort: sortDescriptors)
-        }
+        let dateTimestamp = dateModel.date.startOfDayTimestamp
+        let categoryId = viewModel.selectedCategory?.categoryId ?? 0
+        
+        // 使用新的查询方法
+        let (predicate, sortDescriptors) = TDCorrectQueryBuilder.getLocalDataQuery(
+            dateTimestamp: dateTimestamp,
+            categoryId: categoryId,
+            sortType: viewModel.sortType
+        )
+        _allTasks = Query(filter: predicate, sort: sortDescriptors)
     }
 
     
