@@ -81,9 +81,9 @@ struct TDUserInfoView: View {
                     Text("user.menu.logout".localized)
                 }
             } label: {
-                Image(systemName: "gearshape.fill")
+                Image(systemName: "gear")
                     .foregroundColor(themeManager.titleTextColor)
-                    .font(.system(size: 14))
+                    .font(.system(size: 16))
             }
             .buttonStyle(PlainButtonStyle())
             .pointingHandCursor()
