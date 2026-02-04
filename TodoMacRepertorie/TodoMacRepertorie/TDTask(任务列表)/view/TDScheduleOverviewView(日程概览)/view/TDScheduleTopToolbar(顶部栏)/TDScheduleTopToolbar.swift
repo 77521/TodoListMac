@@ -83,7 +83,7 @@ struct TDScheduleTopToolbar: View {
                     Button(action: {
                         viewModel.showDatePickerView()
                     }) {
-                        Text(viewModel.currentDate.formattedYearMonthString)
+                        Text(viewModel.displayMonth.formattedYearMonthString)
                             .font(.system(size: 12, weight: .medium))
                             .foregroundColor(themeManager.color(level: 5))
                             .frame(width: 80, alignment: .center) // 固定宽度，中间对齐
@@ -96,14 +96,9 @@ struct TDScheduleTopToolbar: View {
                             selectedDate: $viewModel.currentDate,
                             isPresented: $viewModel.showDatePicker,
                             onDateSelected: { date in
-                                // 日期选择完成后的回调函数 - 直接更新日期并重新计算日历数据
-                                withAnimation(.easeInOut(duration: 0.3)) {
-                                    viewModel.currentDate = date
-                                }
-                                // 手动触发日历数据重新计算
-                                Task {
-                                    try? await TDCalendarManager.shared.updateCalendarData()
-                                }
+                                // 日期选择完成后的回调函数
+                                // 同步更新：显示月份 + 选中日期，并重算日历格子
+                                viewModel.setMonthAndSelectDate(date)
                             }
                         )
                         .frame(width: 280, height: 320) // 设置弹窗尺寸
@@ -160,4 +155,7 @@ struct TDScheduleTopToolbar: View {
 
 #Preview {
     TDScheduleTopToolbar()
+        .environmentObject(TDThemeManager.shared)
+        .environmentObject(TDScheduleOverviewViewModel.shared)
+        .environmentObject(TDSettingManager.shared)
 }

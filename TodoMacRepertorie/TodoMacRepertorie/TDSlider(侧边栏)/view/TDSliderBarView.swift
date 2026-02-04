@@ -11,9 +11,6 @@ struct TDSliderBarView: View {
     @StateObject private var viewModel = TDSliderBarViewModel.shared
     @ObservedObject private var themeManager = TDThemeManager.shared
     @ObservedObject private var settingManager = TDSettingManager.shared
-    
-    // 悬停状态管理
-    @State private var hoveredCategoryId: Int? = nil
 
     
     // MARK: - 分类清单拖拽状态
@@ -28,10 +25,12 @@ struct TDSliderBarView: View {
     /// 行内容整体靠左（不是 listRowInsets 整行缩进）
     private let sidebarRowLeadingPadding: CGFloat = 6
     private let sidebarRowTrailingPadding: CGFloat = 10 // 右侧额外 +13（在原基础上再 +5）
-    /// 展开箭头占位：固定正方形（即使不显示也占位）
-    private let sidebarDisclosureSide: CGFloat = 2
-    /// 图标占位：固定正方形（文件夹图标/实心圆/空心圆/系统图标尺寸一致）
-    private let sidebarIconSide: CGFloat = 14
+    /// 左侧图标：字号 14，容器 20×20
+    private let sidebarIconFontSize: CGFloat = 14
+    private let sidebarIconFrameSide: CGFloat = 20
+    /// 展开/收起按钮：放最右侧（字号 11，容器 20×20）
+    private let sidebarDisclosureFontSize: CGFloat = 11
+    private let sidebarDisclosureFrameSide: CGFloat = 20
 
     var body: some View {
         VStack(spacing: 0) {
@@ -162,8 +161,10 @@ struct TDSliderBarView: View {
                 themeManager: themeManager,
                 isExpanded: $viewModel.isCategoryGroupExpanded,
                 sidebarInterItemSpacing: sidebarInterItemSpacing,
-                sidebarDisclosureSide: sidebarDisclosureSide,
-                sidebarIconSide: sidebarIconSide,
+                sidebarDisclosureFontSize: sidebarDisclosureFontSize,
+                sidebarDisclosureFrameSide: sidebarDisclosureFrameSide,
+                sidebarIconFontSize: sidebarIconFontSize,
+                sidebarIconFrameSide: sidebarIconFrameSide,
                 sidebarRowLeadingPadding: sidebarRowLeadingPadding,
                 sidebarRowTrailingPadding: sidebarRowTrailingPadding,
                 onAdd: { viewModel.showSheet = true }
@@ -230,8 +231,10 @@ struct TDSliderBarView: View {
                 isExpanded: $viewModel.isTagGroupExpanded,
                 sortOption: $viewModel.tagSortOption,
                 sidebarInterItemSpacing: sidebarInterItemSpacing,
-                sidebarDisclosureSide: sidebarDisclosureSide,
-                sidebarIconSide: sidebarIconSide,
+                sidebarDisclosureFontSize: sidebarDisclosureFontSize,
+                sidebarDisclosureFrameSide: sidebarDisclosureFrameSide,
+                sidebarIconFontSize: sidebarIconFontSize,
+                sidebarIconFrameSide: sidebarIconFrameSide,
                 sidebarRowLeadingPadding: sidebarRowLeadingPadding,
                 sidebarRowTrailingPadding: sidebarRowTrailingPadding
             )
@@ -265,8 +268,8 @@ struct TDSliderBarView: View {
 
                     }
                 }
-                // 与分组标题对齐：跳过“箭头+图标”占位
-                .padding(.leading, sidebarIconSide)
+                // 与分组标题对齐：跳过“图标 + 图标↔文字间距”
+                .padding(.leading, sidebarIconFrameSide + sidebarInterItemSpacing)
                 .padding(.trailing, sidebarRowTrailingPadding)
                 .padding(.vertical, 6)
                 .listRowInsets(EdgeInsets())
@@ -304,77 +307,21 @@ struct TDSliderBarView: View {
     // MARK: - 文件夹行视图（点击只展开/关闭，不选中）
     private func folderRowView(_ folder: TDSliderBarModel, isExpanded: Bool, onToggle: @escaping () -> Void) -> some View {
         let childCategoryCount = (folder.children ?? []).filter { !$0.isFolder }.count
-
-       return HStack(spacing: sidebarInterItemSpacing) {
-            // 左侧保留占位（对齐用），展开箭头放到最右侧
-            Color.clear
-                .frame(width: sidebarDisclosureSide, height: sidebarDisclosureSide)
-
-            // 文件夹图标
-            Image(systemName: "folder.fill")
-                .foregroundColor(
-                    folder.categoryColor.flatMap { Color.fromHex($0) } ?? themeManager.color(level: 5)
-                )
-                .font(.system(size: sidebarIconSide))
-                .frame(width: sidebarIconSide, height: sidebarIconSide, alignment: .center)
-
-            // 文件夹名称
-            Text(folder.categoryName)
-                .font(.system(size: 13))
-                .foregroundColor(themeManager.titleTextColor)
-            
-            Spacer()
-            
-            // 数量标签
-            if let count = folder.unfinishedCount, count > 0 {
-                Text("\(count)")
-                    .font(.system(size: 11, weight: .medium))
-                    .foregroundColor(themeManager.color(level: 5))
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(themeManager.color(level: 1))
-                    )
-            }
-            // 该文件夹下的分类清单数量（0 也显示）
-           HStack(alignment: .center, spacing: 10) {
-               Text("\(childCategoryCount)")
-                   .font(.system(size: 12))
-                   .foregroundColor(themeManager.descriptionTextColor)
-
-               // 展开箭头（放右侧）
-               Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
-                   .foregroundColor(themeManager.descriptionTextColor)
-                   .font(.system(size: 11, weight: .semibold))
-                   .padding(.trailing,2)
-                   .frame(width: sidebarDisclosureSide, height: sidebarDisclosureSide, alignment: .center)
-
-           }
-        }
-        .padding(.vertical, 8)
-        .padding(.leading, sidebarRowLeadingPadding)
-        .padding(.trailing, sidebarRowTrailingPadding)
-        .background(
-            RoundedRectangle(cornerRadius: 6)
-                .fill(backgroundColorForFolder(folder))
+        return SidebarFolderRowView(
+            folder: folder,
+            isExpanded: isExpanded,
+            childCategoryCount: childCategoryCount,
+            themeManager: themeManager,
+            iconFontSize: sidebarIconFontSize,
+            iconFrameSide: sidebarIconFrameSide,
+            disclosureFontSize: sidebarDisclosureFontSize,
+            disclosureFrameSide: sidebarDisclosureFrameSide,
+            interItemSpacing: sidebarInterItemSpacing,
+            rowLeadingPadding: sidebarRowLeadingPadding,
+            rowTrailingPadding: sidebarRowTrailingPadding,
+            isHighlighted: highlightedFolderId == folder.categoryId,
+            onToggle: onToggle
         )
-        .overlay(
-            RoundedRectangle(cornerRadius: 6)
-                .stroke(
-                    (highlightedFolderId == folder.categoryId) ? themeManager.color(level: 5) : Color.clear,
-                    lineWidth: 1.5
-                )
-        )
-        .contentShape(Rectangle())
-        .onTapGesture {
-            onToggle()
-        }
-        .onHover { isHovered in
-            withAnimation(.easeInOut(duration: 0.2)) {
-                hoveredCategoryId = isHovered ? folder.categoryId : nil
-            }
-        }
         .contextMenu {
             if folder.isServerCategoryListItem {
                 Button("common.edit".localized) {
@@ -387,102 +334,28 @@ struct TDSliderBarView: View {
         }
     }
     
-    // MARK: - 文件夹背景色计算（不显示选中效果，只显示悬停效果）
-    private func backgroundColorForFolder(_ folder: TDSliderBarModel) -> Color {
-        let isHovered = hoveredCategoryId == folder.categoryId
-        
-        // 文件夹不显示选中效果，只显示悬停效果
-        if isHovered {
-            if let categoryColor = folder.categoryColor {
-                // 服务器文件夹：使用文件夹颜色 + 0.2 透明度
-                return Color.fromHex(categoryColor).opacity(0.2)
-            } else {
-                // 默认文件夹：使用主题颜色 + 0.2 透明度
-                return themeManager.color(level: 5).opacity(0.2)
-            }
-        }
-        
-        // 默认：无背景色
-        return Color.clear
-    }
-    
     // MARK: - 分类行视图
     private func categoryRowView(_ category: TDSliderBarModel, leadingIndent: CGFloat = 0, enableCategoryListReorder: Bool = false) -> some View {
-        HStack(spacing: sidebarInterItemSpacing) {
-            if leadingIndent > 0 {
-                Color.clear
-                    .frame(width: leadingIndent)
+        SidebarCategoryRowView(
+            category: category,
+            leadingIndent: leadingIndent,
+            themeManager: themeManager,
+            iconFontSize: sidebarIconFontSize,
+            iconFrameSide: sidebarIconFrameSide,
+            interItemSpacing: sidebarInterItemSpacing,
+            rowLeadingPadding: sidebarRowLeadingPadding,
+            rowTrailingPadding: sidebarRowTrailingPadding,
+            onTap: {
+                // 新建和管理项的特殊处理
+                if category.categoryId == -2000 {
+                    viewModel.showAddCategorySheet()
+                } else if category.categoryId == -2001 {
+                    viewModel.showAddCategorySheet()
+                } else {
+                    viewModel.selectCategory(category)
+                }
             }
-
-            // 预留展开箭头占位，让所有行（含文件夹/子分类/普通分类）整体对齐
-            Color.clear
-                .frame(width: sidebarDisclosureSide, height: sidebarDisclosureSide)
-
-            // 图标或颜色圆圈
-            if category.categoryId == 0 {
-                // 未分类：使用空心圆圈
-                Circle()
-                    .stroke(themeManager.color(level: 6), lineWidth: 1)
-                    .frame(width: sidebarIconSide, height: sidebarIconSide)
-            } else if category.categoryId > 0, let categoryColor = category.categoryColor {
-                // 服务器分类：使用实心颜色圆圈
-                Circle()
-                    .fill(Color.fromHex(categoryColor))
-                    .frame(width: sidebarIconSide, height: sidebarIconSide)
-            } else {
-                // 系统分类：使用图标
-                Image(systemName: category.headerIcon ?? "circle")
-                    .foregroundColor(themeManager.color(level: 5))
-                    .font(.system(size: sidebarIconSide))
-                    .frame(width: sidebarIconSide, height: sidebarIconSide, alignment: .center)
-            }
-
-            // 分类名称
-            Text(category.categoryName)
-                .font(.system(size: 13))
-                .foregroundColor(themeManager.titleTextColor)
-            
-            Spacer()
-            
-            // 数量标签
-            if let count = category.unfinishedCount, count > 0 {
-                Text("\(count)")
-                    .font(.system(size: 11, weight: .medium))
-                    .foregroundColor(themeManager.color(level: 5))
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(themeManager.color(level: 1))
-                    )
-            }
-        }
-        .padding(.vertical, 8)
-        .padding(.leading, sidebarRowLeadingPadding)
-        .padding(.trailing, sidebarRowTrailingPadding)
-        .background(
-            RoundedRectangle(cornerRadius: 6)
-                .fill(backgroundColorForCategory(category))
         )
-        .contentShape(Rectangle())
-        .onTapGesture {
-            // 新建和管理项的特殊处理
-            if category.categoryId == -2000 {
-                // 新建
-                viewModel.showAddCategorySheet()
-            } else if category.categoryId == -2001 {
-                // 管理
-                viewModel.showAddCategorySheet() // 暂时使用同一个 sheet，后续可以改为管理界面
-            } else {
-                // 普通分类
-                viewModel.selectCategory(category)
-            }
-        }
-        .onHover { isHovered in
-            withAnimation(.easeInOut(duration: 0.2)) {
-                hoveredCategoryId = isHovered ? category.categoryId : nil
-            }
-        }
         .contextMenu {
             if category.isServerCategoryListItem {
                 Button("common.edit".localized) {
@@ -500,37 +373,6 @@ struct TDSliderBarView: View {
             draggedId: $draggedCategoryListItemId,
             highlightedFolderId: $highlightedFolderId
         ))
-    }
-    
-    // MARK: - 背景色计算
-    private func backgroundColorForCategory(_ category: TDSliderBarModel) -> Color {
-        let isSelected = category.isSelect ?? false
-        let isHovered = hoveredCategoryId == category.categoryId
-        
-        // 如果选中了，优先显示选中背景色
-        if isSelected {
-            if category.categoryId >= 0, let categoryColor = category.categoryColor {
-                // 服务器分类：使用分类颜色 + 0.3 透明度
-                return Color.fromHex(categoryColor).opacity(0.3)
-            } else {
-                // 系统分类：使用主题颜色 + 0.3 透明度
-                return themeManager.color(level: 5).opacity(0.3)
-            }
-        }
-        
-        // 如果未选中但鼠标悬停
-        if isHovered {
-            if category.categoryId >= 0, let categoryColor = category.categoryColor {
-                // 服务器分类：使用分类颜色 + 0.2 透明度
-                return Color.fromHex(categoryColor).opacity(0.2)
-            } else {
-                // 系统分类：使用主题颜色 + 0.2 透明度
-                return themeManager.color(level: 5).opacity(0.2)
-            }
-        }
-        
-        // 默认：无背景色
-        return Color.clear
     }
     
     // MARK: - 同步状态视图
@@ -689,6 +531,199 @@ private struct CategoryListDragDropModifier: ViewModifier {
                     ))
             )
         }
+    }
+}
+
+// MARK: - Sidebar Row Views (每行独立悬停状态，避免互相影响)
+
+private struct SidebarFolderRowView: View {
+    let folder: TDSliderBarModel
+    let isExpanded: Bool
+    let childCategoryCount: Int
+    let themeManager: TDThemeManager
+    let iconFontSize: CGFloat
+    let iconFrameSide: CGFloat
+    let disclosureFontSize: CGFloat
+    let disclosureFrameSide: CGFloat
+    let interItemSpacing: CGFloat
+    let rowLeadingPadding: CGFloat
+    let rowTrailingPadding: CGFloat
+    let isHighlighted: Bool
+    let onToggle: () -> Void
+
+    @State private var isHovered: Bool = false
+
+    var body: some View {
+        HStack(spacing: interItemSpacing) {
+            Image(systemName: "folder.fill")
+                .foregroundColor(folder.categoryColor.flatMap { Color.fromHex($0) } ?? themeManager.color(level: 5))
+                .font(.system(size: iconFontSize))
+                .frame(width: iconFrameSide, height: iconFrameSide, alignment: .center)
+
+            Text(folder.categoryName)
+                .font(.system(size: 13))
+                .foregroundColor(themeManager.titleTextColor)
+
+            Spacer()
+
+            if let count = folder.unfinishedCount, count > 0 {
+                Text("\(count)")
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundColor(themeManager.color(level: 5))
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(themeManager.color(level: 1))
+                    )
+                    .opacity(isHovered ? 1 : 0)
+                    .allowsHitTesting(false)
+            }
+
+            HStack(alignment: .center, spacing: 10) {
+                Text("\(childCategoryCount)")
+                    .font(.system(size: 12))
+                    .foregroundColor(themeManager.descriptionTextColor)
+                    .opacity(isHovered ? 1 : 0)
+                    .allowsHitTesting(false)
+
+                Button(action: onToggle) {
+                    Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
+                        .foregroundColor(themeManager.descriptionTextColor)
+                        .font(.system(size: disclosureFontSize, weight: .semibold))
+                        .frame(width: disclosureFrameSide, height: disclosureFrameSide, alignment: .center)
+                }
+                .buttonStyle(.plain)
+                .pointingHandCursor()
+                .opacity(isHovered ? 1 : 0)
+                .allowsHitTesting(isHovered)
+            }
+        }
+        .padding(.vertical, 8)
+        .padding(.leading, rowLeadingPadding)
+        .padding(.trailing, rowTrailingPadding)
+        .background(
+            RoundedRectangle(cornerRadius: 6)
+                .fill(backgroundColor)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 6)
+                .stroke(isHighlighted ? themeManager.color(level: 5) : Color.clear, lineWidth: 1.5)
+        )
+        .contentShape(Rectangle())
+        .onTapGesture { onToggle() }
+        .onHover { hovering in
+            withAnimation(.easeInOut(duration: 0.2)) {
+                isHovered = hovering
+            }
+        }
+    }
+
+    private var backgroundColor: Color {
+        guard isHovered else { return .clear }
+        if let categoryColor = folder.categoryColor {
+            return Color.fromHex(categoryColor).opacity(0.2)
+        }
+        return themeManager.color(level: 5).opacity(0.2)
+    }
+}
+
+private struct SidebarCategoryRowView: View {
+    let category: TDSliderBarModel
+    let leadingIndent: CGFloat
+    let themeManager: TDThemeManager
+    let iconFontSize: CGFloat
+    let iconFrameSide: CGFloat
+    let interItemSpacing: CGFloat
+    let rowLeadingPadding: CGFloat
+    let rowTrailingPadding: CGFloat
+    let onTap: () -> Void
+
+    @State private var isHovered: Bool = false
+
+    var body: some View {
+        HStack(spacing: interItemSpacing) {
+            if leadingIndent > 0 {
+                Color.clear.frame(width: leadingIndent)
+            }
+
+            iconView
+
+            Text(category.categoryName)
+                .font(.system(size: 13))
+                .foregroundColor(themeManager.titleTextColor)
+
+            Spacer()
+
+            if let count = category.unfinishedCount, count > 0 {
+                Text("\(count)")
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundColor(themeManager.color(level: 5))
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(themeManager.color(level: 1))
+                    )
+                    .opacity(isHovered ? 1 : 0)
+                    .allowsHitTesting(false)
+            }
+        }
+        .padding(.vertical, 8)
+        .padding(.leading, rowLeadingPadding)
+        .padding(.trailing, rowTrailingPadding)
+        .background(
+            RoundedRectangle(cornerRadius: 6)
+                .fill(backgroundColor)
+        )
+        .contentShape(Rectangle())
+        .onTapGesture { onTap() }
+        .onHover { hovering in
+            withAnimation(.easeInOut(duration: 0.2)) {
+                isHovered = hovering
+            }
+        }
+    }
+
+    private var isSelected: Bool { category.isSelect ?? false }
+
+    private var iconView: some View {
+        Group {
+            if category.categoryId == 0 {
+                Circle()
+                    .stroke(themeManager.color(level: 6), lineWidth: 1)
+                    .frame(width: iconFontSize, height: iconFontSize)
+                    .frame(width: iconFrameSide, height: iconFrameSide, alignment: .center)
+            } else if category.categoryId > 0, let categoryColor = category.categoryColor {
+                Circle()
+                    .fill(Color.fromHex(categoryColor))
+                    .frame(width: iconFontSize, height: iconFontSize)
+                    .frame(width: iconFrameSide, height: iconFrameSide, alignment: .center)
+            } else {
+                Image(systemName: category.headerIcon ?? "circle")
+                    .foregroundColor(themeManager.color(level: 5))
+                    .font(.system(size: iconFontSize))
+                    .frame(width: iconFrameSide, height: iconFrameSide, alignment: .center)
+            }
+        }
+    }
+
+    private var backgroundColor: Color {
+        if isSelected {
+            if category.categoryId >= 0, let categoryColor = category.categoryColor {
+                return Color.fromHex(categoryColor).opacity(0.3)
+            }
+            return themeManager.color(level: 5).opacity(0.3)
+        }
+
+        if isHovered {
+            if category.categoryId >= 0, let categoryColor = category.categoryColor {
+                return Color.fromHex(categoryColor).opacity(0.2)
+            }
+            return themeManager.color(level: 5).opacity(0.2)
+        }
+
+        return .clear
     }
 }
 

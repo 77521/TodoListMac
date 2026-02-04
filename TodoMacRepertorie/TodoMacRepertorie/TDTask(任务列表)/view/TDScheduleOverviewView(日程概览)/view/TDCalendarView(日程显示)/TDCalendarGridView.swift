@@ -18,8 +18,138 @@ struct TDCalendarGridView: View {
     
     /// 日历管理器
     @StateObject private var calendarManager = TDCalendarManager.shared
+
+    /// 日程概览视图模型
+    @EnvironmentObject private var viewModel: TDScheduleOverviewViewModel
+
+    /// 当前显示月份范围内的所有任务（只做一次查询，避免每个格子一个查询）
+    @Query private var monthTasks: [TDMacSwiftDataListModel]
+
+    /// 初始化：构建单次查询条件（按“日历网格实际显示范围”取任务）
+    init() {
+        let vm = TDScheduleOverviewViewModel.shared
+        let settingManager = TDSettingManager.shared
+
+//        if vm.disableDailyTasksInCalendar {
+//            let predicate = #Predicate<TDMacSwiftDataListModel> { _ in false }
+//            _monthTasks = Query(filter: predicate)
+//            return
+//        }
+
+        let displayMonth = vm.displayMonth
+        let userId = TDUserManager.shared.userId
+        let categoryId = vm.selectedCategory?.categoryId ?? 0
+        let showCompleted = settingManager.showCompletedTasks
+
+        // 计算网格实际显示的起止日期（包含上/下月补齐）
+        let firstDayOfMonth = displayMonth.firstDayOfMonth
+        let lastDayOfMonth = displayMonth.lastDayOfMonth
+
+        let numberOfWeeks: Int = {
+            let calendar = Calendar.current
+            let firstWeekday = calendar.component(.weekday, from: firstDayOfMonth)
+            let totalDays = calendar.component(.day, from: lastDayOfMonth)
+            let firstWeekdayOfMonth = settingManager.isFirstDayMonday ? (firstWeekday + 5) % 7 : (firstWeekday - 1)
+            let totalCells = firstWeekdayOfMonth + totalDays
+            return Int(ceil(Double(totalCells) / 7.0))
+        }()
+
+        let gridStartDate: Date = {
+            let calendar = Calendar.current
+            let firstWeekday = calendar.component(.weekday, from: firstDayOfMonth)
+            let offsetDays = settingManager.isFirstDayMonday ? ((firstWeekday + 5) % 7) : (firstWeekday - 1)
+            return calendar.date(byAdding: .day, value: -offsetDays, to: firstDayOfMonth) ?? firstDayOfMonth
+        }()
+
+        let gridEndDate: Date = {
+            let totalDaysToShow = numberOfWeeks * 7
+            return Calendar.current.date(byAdding: .day, value: totalDaysToShow - 1, to: gridStartDate) ?? lastDayOfMonth
+        }()
+
+        let startTimestamp = gridStartDate.startOfDayTimestamp
+        let endTimestamp = gridEndDate.startOfDayTimestamp
+
+        // 查询条件：用户、未删除、在显示范围内、完成状态筛选、分类筛选
+        let predicate: Predicate<TDMacSwiftDataListModel>
+        if categoryId > 0 {
+            predicate = #Predicate<TDMacSwiftDataListModel> { task in
+                task.userId == userId && !task.delete &&
+                task.todoTime >= startTimestamp && task.todoTime <= endTimestamp &&
+                task.standbyInt1 == categoryId &&
+                (showCompleted || !task.complete)
+            }
+        } else {
+            predicate = #Predicate<TDMacSwiftDataListModel> { task in
+                task.userId == userId && !task.delete &&
+                task.todoTime >= startTimestamp && task.todoTime <= endTimestamp &&
+                (showCompleted || !task.complete)
+            }
+        }
+
+        // 排序：先按日期，再按“已完成在后”，最后按用户选择的排序字段
+        let sortType = vm.sortType
+        let sortDescriptors: [SortDescriptor<TDMacSwiftDataListModel>] = {
+            switch sortType {
+            case 1: // 提醒时间
+                return [
+                    SortDescriptor(\TDMacSwiftDataListModel.todoTime, order: .forward),
+                    SortDescriptor(\TDMacSwiftDataListModel.complete, order: .forward),
+                    SortDescriptor(\TDMacSwiftDataListModel.reminderTime, order: .forward),
+                    SortDescriptor(\TDMacSwiftDataListModel.taskSort, order: .forward)
+                ]
+            case 2: // 添加时间a-z
+                return [
+                    SortDescriptor(\TDMacSwiftDataListModel.todoTime, order: .forward),
+                    SortDescriptor(\TDMacSwiftDataListModel.complete, order: .forward),
+                    SortDescriptor(\TDMacSwiftDataListModel.createTime, order: .forward)
+                ]
+            case 3: // 添加时间z-a
+                return [
+                    SortDescriptor(\TDMacSwiftDataListModel.todoTime, order: .forward),
+                    SortDescriptor(\TDMacSwiftDataListModel.complete, order: .forward),
+                    SortDescriptor(\TDMacSwiftDataListModel.createTime, order: .reverse)
+                ]
+            case 4: // 工作量a-z
+                return [
+                    SortDescriptor(\TDMacSwiftDataListModel.todoTime, order: .forward),
+                    SortDescriptor(\TDMacSwiftDataListModel.complete, order: .forward),
+                    SortDescriptor(\TDMacSwiftDataListModel.snowAssess, order: .forward),
+                    SortDescriptor(\TDMacSwiftDataListModel.taskSort, order: .forward)
+                ]
+            case 5: // 工作量z-a
+                return [
+                    SortDescriptor(\TDMacSwiftDataListModel.todoTime, order: .forward),
+                    SortDescriptor(\TDMacSwiftDataListModel.complete, order: .forward),
+                    SortDescriptor(\TDMacSwiftDataListModel.snowAssess, order: .reverse),
+                    SortDescriptor(\TDMacSwiftDataListModel.taskSort, order: .forward)
+                ]
+            default: // 默认 taskSort
+                return [
+                    SortDescriptor(\TDMacSwiftDataListModel.todoTime, order: .forward),
+                    SortDescriptor(\TDMacSwiftDataListModel.complete, order: .forward),
+                    SortDescriptor(\TDMacSwiftDataListModel.taskSort, order: .forward)
+                ]
+            }
+        }()
+
+        _monthTasks = Query(filter: predicate, sort: sortDescriptors)
+    }
     
     var body: some View {
+        // 首次进入优先使用 ViewModel 预加载缓存，避免“先空后补”的抖动；
+        // 如缓存不可用（例如刚切换条件），再回退到 SwiftData @Query 的结果。
+        let tasksByDay: [Int64: [TDMacSwiftDataListModel]] = {
+            if viewModel.hasValidMonthTasksCache {
+                return viewModel.monthTasksByDayFiltered(tagFilter: viewModel.tagFilter)
+            }
+
+            // 标签筛选在应用层处理（避免频繁重建 predicate）
+            let filteredTasks = viewModel.tagFilter.isEmpty
+                ? monthTasks
+                : TDCorrectQueryBuilder.filterTasksByTag(monthTasks, tagFilter: viewModel.tagFilter)
+            return Dictionary(grouping: filteredTasks, by: { $0.todoTime })
+        }()
+
         GeometryReader { geometry in
             let cellHeight = geometry.size.height / CGFloat(calendarManager.calendarDates.count)
             
@@ -27,11 +157,13 @@ struct TDCalendarGridView: View {
                 ForEach(Array(calendarManager.calendarDates.enumerated()), id: \.offset) { weekIndex, week in
                     HStack(spacing: 0) {
                         ForEach(week) { dateModel in
+                            let dayTimestamp = dateModel.date.startOfDayTimestamp
+                            let dayTasks = tasksByDay[dayTimestamp] ?? []
                             TDCalendarDayCell(
                                 dateModel: dateModel,
-//                                cellWidth: 0, // 使用0让单元格自动填充宽度
                                 cellWidth: geometry.size.width / 7,
-                                cellHeight: cellHeight
+                                cellHeight: cellHeight,
+                                tasks: dayTasks
                             )
                         }
                     }
@@ -55,32 +187,11 @@ struct TDCalendarDayCell: View {
     /// 设置管理器
     @EnvironmentObject private var settingManager: TDSettingManager
 
-    /// 日历管理器
-    @StateObject private var calendarManager = TDCalendarManager.shared
     /// 日程概览视图模型
     @EnvironmentObject private var viewModel: TDScheduleOverviewViewModel
 
-    /// 使用 @Query 来实时监控任务数据
-    @Query private var allTasks: [TDMacSwiftDataListModel]
-    
     /// 拖拽状态
     @State private var draggedTask: TDMacSwiftDataListModel? = nil
-
-    /// 当前日期的任务列表
-    private var currentDateTasks: [TDMacSwiftDataListModel] {
-        let tasks = allTasks
-        
-        // 应用标签筛选（仅当标签筛选值不为空时）
-        if viewModel.tagFilter.isEmpty {
-            // 没有标签筛选，直接返回原始任务列表
-            return tasks
-        } else {
-            // 有标签筛选，进行筛选
-            let filteredTasks = TDCorrectQueryBuilder.filterTasksByTag(tasks, tagFilter: viewModel.tagFilter)
-            return filteredTasks
-        }
-    }
-
 
     /// 日期模型
     let dateModel: TDCalendarDateModel
@@ -90,26 +201,9 @@ struct TDCalendarDayCell: View {
     
     /// 单元格高度
     let cellHeight: CGFloat
-    
-    /// 初始化方法 - 根据日期和筛选条件设置查询条件
-    init(dateModel: TDCalendarDateModel, cellWidth: CGFloat, cellHeight: CGFloat) {
-        self.dateModel = dateModel
-        self.cellWidth = cellWidth
-        self.cellHeight = cellHeight
-        
-        // 获取筛选条件
-        let viewModel = TDScheduleOverviewViewModel.shared
-        let dateTimestamp = dateModel.date.startOfDayTimestamp
-        let categoryId = viewModel.selectedCategory?.categoryId ?? 0
-        
-        // 使用新的查询方法
-        let (predicate, sortDescriptors) = TDCorrectQueryBuilder.getLocalDataQuery(
-            dateTimestamp: dateTimestamp,
-            categoryId: categoryId,
-            sortType: viewModel.sortType
-        )
-        _allTasks = Query(filter: predicate, sort: sortDescriptors)
-    }
+
+    /// 当前日期的任务列表（由父层按天分组后下发）
+    let tasks: [TDMacSwiftDataListModel]
 
     
     var body: some View {
@@ -151,9 +245,9 @@ struct TDCalendarDayCell: View {
                     }
                     
                     // 任务列表 - 根据高度动态显示任务数量
-                    if !currentDateTasks.isEmpty {
+                    if !tasks.isEmpty {
                         TDCalendarTaskList(
-                            tasks: currentDateTasks,
+                            tasks: tasks,
                             cellWidth: geometry.size.width,
                             cellHeight: cellHeight,
                             maxTasks: calculateMaxTasks(),
@@ -186,7 +280,7 @@ struct TDCalendarDayCell: View {
             )
             .overlay(
                 Rectangle()
-                    .stroke(dateModel.isSelected ? themeManager.color(level: 5) : Color.clear, lineWidth: 1)
+                    .stroke(dateModel.date.isSameDay(as: viewModel.currentDate) ? themeManager.color(level: 5) : Color.clear, lineWidth: 1)
                     .padding(.all,1)
             )
             .contentShape(Rectangle()) // 让整个单元格区域都可以点击
@@ -197,9 +291,9 @@ struct TDCalendarDayCell: View {
                 // 只更新选中状态，不重新查询数据，不切换月份
                 viewModel.selectDateOnly(dateModel.date)
                 // 判断当前日期是否有本地数据
-                if !currentDateTasks.isEmpty {
+                if !tasks.isEmpty {
                     // 有数据：默认选中第一个任务
-                    let firstTask = currentDateTasks.first!
+                    let firstTask = tasks.first!
                     TDMainViewModel.shared.selectTask(firstTask)
                     print("点击日期为：\(dateModel.date.formattedString)，选中第一个任务：\(firstTask.taskContent)")
                 } else {
@@ -317,6 +411,7 @@ struct TDCalendarDayCell: View {
     TDCalendarGridView()
         .environmentObject(TDThemeManager.shared)
         .environmentObject(TDSettingManager.shared)
+        .environmentObject(TDScheduleOverviewViewModel.shared)
 }
 
 

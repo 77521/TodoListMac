@@ -8,12 +8,17 @@
 import Foundation
 import SwiftUI
 import OSLog
+import SwiftData
 
 class TDScheduleOverviewViewModel: ObservableObject {
     
     // MARK: - Published 属性
     /// 单例
     static let shared = TDScheduleOverviewViewModel()
+
+    /// 当前显示的月份（用于驱动日历网格刷新）
+    /// - 说明：与 `currentDate`（选中日期）解耦，避免点选日期导致整月任务查询/重渲染
+    @Published var displayMonth: Date = Date()
 
     /// 当前选中的日期
     @Published var currentDate: Date = Date()
@@ -40,15 +45,48 @@ class TDScheduleOverviewViewModel: ObservableObject {
     @Published var showMoreOptions: Bool = false
     
 
+    /// 调试开关：是否禁用“日历格子内每天任务数据”的获取与展示
+    /// - 目的：便于一步步排查日程概览问题，先只保留日历/节假日/选中态
+    /// - 默认：Debug 为 true（先不取每天数据），Release 为 false（正常展示）
+    @Published var disableDailyTasksInCalendar: Bool = {
+#if DEBUG
+        return true
+#else
+        return false
+#endif
+    }()
+
+    // MARK: - 预加载缓存（用于首次进入“日程概览”首帧就有数据）
+    struct MonthTasksCacheKey: Hashable {
+        let monthStartTimestamp: Int64
+        let categoryId: Int
+        let sortType: Int
+        let showCompleted: Bool
+        let isFirstDayMonday: Bool
+    }
+
+    /// 当月任务缓存：按天分组（key = todoTime(startOfDayTimestamp)）
+    @Published private(set) var monthTasksByDay: [Int64: [TDMacSwiftDataListModel]] = [:]
+    @Published private(set) var monthTasksCacheKey: MonthTasksCacheKey? = nil
+
 
     // MARK: - 私有属性
     
     private let logger = OSLog(subsystem: "com.Mac.Todolist.TodoMacRepertorie", category: "TDScheduleOverviewViewModel")
+
+    /// 预加载令牌（用于快速切月时丢弃过期结果）
+    private var monthPreloadToken: Int = 0
     
     // MARK: - 初始化
     
     init() {
+        // 初始显示月份与选中日期一致
+        displayMonth = Date().firstDayOfMonth
         loadCategories()
+
+        // 启动预热：提前算好日历格子 + 当月任务（这样首次进入“日程概览”不再先空后补）
+        Task { try? await TDCalendarManager.shared.updateCalendarData() }
+        preloadMonthTasksIfNeeded(force: true)
     }
     
     // MARK: - 公共方法
@@ -77,33 +115,37 @@ class TDScheduleOverviewViewModel: ObservableObject {
     
     /// 上一个月
     func previousMonth() {
-        let newDate = currentDate.adding(months: -1)
+        let newDate = displayMonth.adding(months: -1)
         // 智能选择日期：如果是当月选中今天，否则选中1日
         let targetDate = getSmartSelectedDate(for: newDate)
         // 直接更新日期并重新计算日历数据
         withAnimation(.easeInOut(duration: 0.3)) {
+            displayMonth = newDate.firstDayOfMonth
             currentDate = targetDate
         }
         // 手动触发日历数据重新计算
         Task {
             try? await TDCalendarManager.shared.updateCalendarData()
         }
+        preloadMonthTasksIfNeeded(force: true)
         os_log(.info, log: logger, "📅 切换到上一个月: %@", targetDate.formattedString)
     }
     
     /// 下一个月
     func nextMonth() {
-        let newDate = currentDate.adding(months: 1)
+        let newDate = displayMonth.adding(months: 1)
         // 智能选择日期：如果是当月选中今天，否则选中1日
         let targetDate = getSmartSelectedDate(for: newDate)
         // 直接更新日期并重新计算日历数据
         withAnimation(.easeInOut(duration: 0.3)) {
+            displayMonth = newDate.firstDayOfMonth
             currentDate = targetDate
         }
         // 手动触发日历数据重新计算
         Task {
             try? await TDCalendarManager.shared.updateCalendarData()
         }
+        preloadMonthTasksIfNeeded(force: true)
         os_log(.info, log: logger, "📅 切换到下一个月: %@", targetDate.formattedString)
     }
 
@@ -125,13 +167,29 @@ class TDScheduleOverviewViewModel: ObservableObject {
     func backToToday() {
         // 直接更新日期并重新计算日历数据
         withAnimation(.easeInOut(duration: 0.3)) {
+            displayMonth = Date().firstDayOfMonth
             currentDate = Date()
         }
         // 手动触发日历数据重新计算
         Task {
             try? await TDCalendarManager.shared.updateCalendarData()
         }
+        preloadMonthTasksIfNeeded(force: true)
         os_log(.info, log: logger, "📅 回到今天: %@", Date().formattedString)
+    }
+
+    /// 从日期选择器设置“显示月份 + 选中日期”
+    /// - Parameter date: 选择的日期
+    func setMonthAndSelectDate(_ date: Date) {
+        withAnimation(.easeInOut(duration: 0.3)) {
+            displayMonth = date.firstDayOfMonth
+            currentDate = date
+        }
+        Task {
+            try? await TDCalendarManager.shared.updateCalendarData()
+        }
+        preloadMonthTasksIfNeeded(force: true)
+        os_log(.info, log: logger, "📅 设置月份并选中日期: %@", date.formattedString)
     }
 
     /// 更新选中的分类
@@ -139,6 +197,7 @@ class TDScheduleOverviewViewModel: ObservableObject {
     func updateSelectedCategory(_ category: TDSliderBarModel?) {
         selectedCategory = category
         updateCurrentDate(currentDate)
+        preloadMonthTasksIfNeeded(force: true)
         os_log(.info, log: logger, "🏷️ 更新选中分类: %@", category?.categoryName ?? "未分类")
     }
     /// 更新标签筛选
@@ -154,6 +213,7 @@ class TDScheduleOverviewViewModel: ObservableObject {
     func updateSortType(_ sort: Int) {
         sortType = sort
         updateCurrentDate(currentDate)
+        preloadMonthTasksIfNeeded(force: true)
         os_log(.info, log: logger, "📊 更新排序类型: %d", sort)
     }
 
@@ -195,5 +255,169 @@ class TDScheduleOverviewViewModel: ObservableObject {
         let allCategories = TDCategoryManager.shared.loadLocalCategories()
         availableCategories = allCategories
         os_log(.info, log: logger, "📂 加载分类数据: %d 个分类", allCategories.count)
+    }
+
+    // MARK: - Month tasks preload
+
+    /// 当前条件下的缓存 Key（不包含 tagFilter，因为标签筛选在应用层处理）
+    func makeCurrentMonthTasksCacheKey() -> MonthTasksCacheKey {
+        let settingManager = TDSettingManager.shared
+        let monthStartTimestamp = displayMonth.firstDayOfMonth.startOfDayTimestamp
+        let categoryId = selectedCategory?.categoryId ?? 0
+        return MonthTasksCacheKey(
+            monthStartTimestamp: monthStartTimestamp,
+            categoryId: categoryId,
+            sortType: sortType,
+            showCompleted: settingManager.showCompletedTasks,
+            isFirstDayMonday: settingManager.isFirstDayMonday
+        )
+    }
+
+    /// 是否已有可用缓存（用于首帧直接渲染，避免“先空后补”）
+    var hasValidMonthTasksCache: Bool {
+        monthTasksCacheKey == makeCurrentMonthTasksCacheKey()
+    }
+
+    /// 获取（可选标签筛选后的）按天分组任务
+    func monthTasksByDayFiltered(tagFilter: String) -> [Int64: [TDMacSwiftDataListModel]] {
+        guard !tagFilter.isEmpty else { return monthTasksByDay }
+        var result: [Int64: [TDMacSwiftDataListModel]] = [:]
+        result.reserveCapacity(monthTasksByDay.count)
+        for (k, v) in monthTasksByDay {
+            let filtered = TDCorrectQueryBuilder.filterTasksByTag(v, tagFilter: tagFilter)
+            if !filtered.isEmpty { result[k] = filtered }
+        }
+        return result
+    }
+
+    /// 预加载当月任务到缓存（后台抓取，主线程一次性发布）
+    func preloadMonthTasksIfNeeded(force: Bool = false) {
+        if disableDailyTasksInCalendar { return }
+
+        let key = makeCurrentMonthTasksCacheKey()
+        if !force, monthTasksCacheKey == key { return }
+
+        monthPreloadToken += 1
+        let token = monthPreloadToken
+
+        let settingManager = TDSettingManager.shared
+        let userId = TDUserManager.shared.userId
+        let categoryId = key.categoryId
+        let showCompleted = key.showCompleted
+        let sortType = key.sortType
+
+        // 计算网格实际显示的起止日期（包含上/下月补齐）
+        let firstDayOfMonth = displayMonth.firstDayOfMonth
+        let lastDayOfMonth = displayMonth.lastDayOfMonth
+
+        let numberOfWeeks: Int = {
+            let calendar = Calendar.current
+            let firstWeekday = calendar.component(.weekday, from: firstDayOfMonth)
+            let totalDays = calendar.component(.day, from: lastDayOfMonth)
+            let firstWeekdayOfMonth = settingManager.isFirstDayMonday ? (firstWeekday + 5) % 7 : (firstWeekday - 1)
+            let totalCells = firstWeekdayOfMonth + totalDays
+            return Int(ceil(Double(totalCells) / 7.0))
+        }()
+
+        let gridStartDate: Date = {
+            let calendar = Calendar.current
+            let firstWeekday = calendar.component(.weekday, from: firstDayOfMonth)
+            let offsetDays = settingManager.isFirstDayMonday ? ((firstWeekday + 5) % 7) : (firstWeekday - 1)
+            return calendar.date(byAdding: .day, value: -offsetDays, to: firstDayOfMonth) ?? firstDayOfMonth
+        }()
+
+        let gridEndDate: Date = {
+            let totalDaysToShow = numberOfWeeks * 7
+            return Calendar.current.date(byAdding: .day, value: totalDaysToShow - 1, to: gridStartDate) ?? lastDayOfMonth
+        }()
+
+        let startTimestamp = gridStartDate.startOfDayTimestamp
+        let endTimestamp = gridEndDate.startOfDayTimestamp
+
+        // 排序（与日历格子展示一致）
+        let sortDescriptors: [SortDescriptor<TDMacSwiftDataListModel>] = {
+            switch sortType {
+            case 1:
+                return [
+                    SortDescriptor(\TDMacSwiftDataListModel.todoTime, order: .forward),
+                    SortDescriptor(\TDMacSwiftDataListModel.complete, order: .forward),
+                    SortDescriptor(\TDMacSwiftDataListModel.reminderTime, order: .forward),
+                    SortDescriptor(\TDMacSwiftDataListModel.taskSort, order: .forward)
+                ]
+            case 2:
+                return [
+                    SortDescriptor(\TDMacSwiftDataListModel.todoTime, order: .forward),
+                    SortDescriptor(\TDMacSwiftDataListModel.complete, order: .forward),
+                    SortDescriptor(\TDMacSwiftDataListModel.createTime, order: .forward)
+                ]
+            case 3:
+                return [
+                    SortDescriptor(\TDMacSwiftDataListModel.todoTime, order: .forward),
+                    SortDescriptor(\TDMacSwiftDataListModel.complete, order: .forward),
+                    SortDescriptor(\TDMacSwiftDataListModel.createTime, order: .reverse)
+                ]
+            case 4:
+                return [
+                    SortDescriptor(\TDMacSwiftDataListModel.todoTime, order: .forward),
+                    SortDescriptor(\TDMacSwiftDataListModel.complete, order: .forward),
+                    SortDescriptor(\TDMacSwiftDataListModel.snowAssess, order: .forward),
+                    SortDescriptor(\TDMacSwiftDataListModel.taskSort, order: .forward)
+                ]
+            case 5:
+                return [
+                    SortDescriptor(\TDMacSwiftDataListModel.todoTime, order: .forward),
+                    SortDescriptor(\TDMacSwiftDataListModel.complete, order: .forward),
+                    SortDescriptor(\TDMacSwiftDataListModel.snowAssess, order: .reverse),
+                    SortDescriptor(\TDMacSwiftDataListModel.taskSort, order: .forward)
+                ]
+            default:
+                return [
+                    SortDescriptor(\TDMacSwiftDataListModel.todoTime, order: .forward),
+                    SortDescriptor(\TDMacSwiftDataListModel.complete, order: .forward),
+                    SortDescriptor(\TDMacSwiftDataListModel.taskSort, order: .forward)
+                ]
+            }
+        }()
+
+        let container = TDModelContainer.shared.container
+
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            let context = ModelContext(container)
+
+            let predicate: Predicate<TDMacSwiftDataListModel>
+            if categoryId > 0 {
+                predicate = #Predicate<TDMacSwiftDataListModel> { task in
+                    task.userId == userId && !task.delete &&
+                    task.todoTime >= startTimestamp && task.todoTime <= endTimestamp &&
+                    task.standbyInt1 == categoryId &&
+                    (showCompleted || !task.complete)
+                }
+            } else {
+                predicate = #Predicate<TDMacSwiftDataListModel> { task in
+                    task.userId == userId && !task.delete &&
+                    task.todoTime >= startTimestamp && task.todoTime <= endTimestamp &&
+                    (showCompleted || !task.complete)
+                }
+            }
+
+            let descriptor = FetchDescriptor<TDMacSwiftDataListModel>(
+                predicate: predicate,
+                sortBy: sortDescriptors
+            )
+
+            let tasks = (try? context.fetch(descriptor)) ?? []
+            let grouped = Dictionary(grouping: tasks, by: { $0.todoTime })
+
+            DispatchQueue.main.async {
+                guard let self else { return }
+                // 丢弃过期结果（快速切月/切筛选时）
+                guard token == self.monthPreloadToken else { return }
+                // 确保条件未变
+                guard self.makeCurrentMonthTasksCacheKey() == key else { return }
+
+                self.monthTasksByDay = grouped
+                self.monthTasksCacheKey = key
+            }
+        }
     }
 }

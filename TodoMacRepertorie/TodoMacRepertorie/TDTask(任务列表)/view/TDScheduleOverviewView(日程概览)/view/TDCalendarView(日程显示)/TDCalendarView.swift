@@ -10,20 +10,20 @@
 //struct TDCalendarView: View {
 //    @StateObject private var calendarManager = TDCalendarManager.shared
 //    @StateObject private var settingManager = TDSettingManager.shared
-//    
+//
 //    private let weekDaySymbols = Calendar.current.veryShortWeekdaySymbols
-//    
+//
 //    var body: some View {
 //        VStack(spacing: 0) {
 //            // 1. 顶部导航栏
 //            TDCalendarHeaderView()
-//            
+//
 //            // 2. 日历主体
 //            GeometryReader { geometry in
 //                VStack(spacing: 0) {
 //                    // 周标题栏
 //                    weekdayHeader
-//                    
+//
 //                    // 日历网格
 //                    calendarGrid(cellWidth: geometry.size.width / 7)
 //                }
@@ -43,7 +43,7 @@
 //
 //        }
 //    }
-//    
+//
 //    private var weekdayHeader: some View {
 //        HStack(spacing: 0) {
 //            ForEach(0..<7) { index in
@@ -56,11 +56,11 @@
 //        }
 //        .padding(.vertical, 8)
 //    }
-//    
+//
 //    private func calendarGrid(cellWidth: CGFloat) -> some View {
 //            GeometryReader { geometry in
 //                let cellHeight = geometry.size.height / CGFloat(calendarManager.calendarDates.count)
-//                
+//
 //                VStack(spacing: 0) {
 //                    ForEach(calendarManager.calendarDates.indices, id: \.self) { row in
 //                        HStack(spacing: 0) {
@@ -92,13 +92,13 @@
 //        static let horizontalPadding: CGFloat = 1    // 水平内边距
 //        static let topPadding: CGFloat = 1           // 顶部内边距
 //    }
-//    
+//
 //    // 计算可显示的任务数量
 //    private var maxTasksToShow: Int {
 //        let availableHeight = cellHeight - Layout.headerHeight - Layout.topPadding
 //        return Int(availableHeight / (Layout.taskHeight + Layout.taskSpacing))
 //    }
-//    
+//
 //
 ////    // 计算每个单元格可以显示的任务数量
 ////    private var maxTasksToShow: Int {
@@ -113,14 +113,14 @@
 ////        // 假设平均字符宽度为12pt
 ////        return Int(availableWidth / 12)
 ////    }
-////    
+////
 ////    private func truncateText(_ text: String) -> String {
 ////        if text.count <= maxCharsPerLine {
 ////            return text
 ////        }
 ////        return String(text.prefix(maxCharsPerLine))
 ////    }
-//    
+//
 //    var body: some View {
 //        VStack(spacing: 0) {
 //            // 1. 顶部日期信息
@@ -129,14 +129,14 @@
 //                Text("\(Calendar.current.component(.day, from: model.date))")
 //                    .font(.system(size: 12, weight: .medium))
 //                    .foregroundColor(cellTextColor)
-//                
+//
 //                // 农历日期
 //                Text(model.lunarDate)
 //                    .font(.system(size: 12))
 //                    .foregroundColor(.secondary)
-//                
+//
 //                Spacer()
-//                
+//
 //                // 调休标记
 //                if model.isWorkday {
 //                    Text("班")
@@ -150,12 +150,12 @@
 //            }
 //            .frame(height: Layout.headerHeight)
 //            .padding(.horizontal, Layout.horizontalPadding)
-//            
+//
 //            // 2. 任务列表
 //            VStack(spacing: Layout.taskSpacing) {
 //                let tasksToShow = model.tasks.prefix(maxTasksToShow - 1)
 //                let remainingCount = model.tasks.count - (maxTasksToShow - 1)
-//                
+//
 //                ForEach(Array(tasksToShow.enumerated()), id: \.element.id) { index, task in
 //                    TaskRowView(
 //                        task: task,
@@ -164,7 +164,7 @@
 //                    )
 //                    .frame(height: Layout.taskHeight)
 //                }
-//                
+//
 //                // 显示剩余任务数量或最后一个任务
 //                if remainingCount > 0 {
 //                    if settingManager.calendarShowRemainingCount {
@@ -185,7 +185,7 @@
 //                        .frame(height: Layout.taskHeight)
 //                    }
 //                }
-//                
+//
 //                // 填充剩余空间
 //                Spacer()
 //            }
@@ -198,8 +198,8 @@
 //                .stroke(Color.gray.opacity(0.2), lineWidth: 0.5)
 //        )
 //    }
-//    
-//    
+//
+//
 //    private var cellTextColor: Color {
 //        if !model.isCurrentMonth {
 //            return .secondary
@@ -212,7 +212,7 @@
 //        }
 //        return .primary
 //    }
-//    
+//
 //    private var cellBackground: Color {
 //        if model.isToday {
 //            return .blue.opacity(0.8)
@@ -235,10 +235,10 @@
 //                Image(systemName: "plus.circle.fill")
 //                    .foregroundColor(.orange)
 //                    .font(.system(size: 16))
-//                
+//
 //                TextField("在此编辑内容，按回车创建事件", text: $inputText)
 //                    .textFieldStyle(PlainTextFieldStyle())
-//                
+//
 //                Image(systemName: "plus")
 //                    .foregroundColor(.blue)
 //                    .font(.system(size: 14))
@@ -246,13 +246,13 @@
 //            .padding(8)
 //            .background(Color(.textBackgroundColor))
 //            .cornerRadius(6)
-//            
+//
 //            // 2. 排序按钮
 //            Button(action: {}) {
 //                Image(systemName: "arrow.up.arrow.down")
 //                    .foregroundColor(.gray)
 //            }
-//            
+//
 //            // 月份导航
 //            HStack(spacing: 16) {
 //                // 上个月按钮
@@ -262,11 +262,11 @@
 //                    Image(systemName: "chevron.left")
 //                        .foregroundColor(.gray)
 //                }
-//                
+//
 //                // 当前月份显示
 //                Text(monthYearString(from: calendarManager.selectedDate))
 //                    .font(.system(size: 14))
-//                
+//
 //                // 下个月按钮
 //                Button(action: {
 //                    nextMonth()
@@ -275,7 +275,7 @@
 //                        .foregroundColor(.gray)
 //                }
 //            }
-//            
+//
 //            // 4. 搜索框
 //            HStack(spacing: 6) {
 //                Image(systemName: "magnifyingglass")
@@ -292,14 +292,14 @@
 //        .padding(.vertical, 8)
 //        .background(.ultraThinMaterial)
 //    }
-//    
+//
 //    // 获取月份年份字符串
 //    private func monthYearString(from date: Date) -> String {
 //        let formatter = DateFormatter()
 //        formatter.dateFormat = "yyyy年 M月"
 //        return formatter.string(from: date)
 //    }
-//    
+//
 //    // 上个月
 //    private func previousMonth() {
 //        if let newDate = Calendar.current.date(byAdding: .month, value: -1, to: calendarManager.selectedDate) {
@@ -313,7 +313,7 @@
 //            }
 //        }
 //    }
-//    
+//
 //    // 下个月
 //    private func nextMonth() {
 //        if let newDate = Calendar.current.date(byAdding: .month, value: 1, to: calendarManager.selectedDate) {
@@ -336,7 +336,7 @@
 //    let task: TDMacSwiftDataListModel
 //    let settingManager: TDSettingManager
 //    let width: CGFloat
-//    
+//
 //    var body: some View {
 //        let style = settingManager.getTaskStyle(for: task)
 //        HStack {
@@ -350,7 +350,7 @@
 //        .frame(maxWidth: .infinity)
 //        .background(style.backgroundColor)
 //    }
-//    
+//
 //    // 计算每行任务的最大字符数（假设每个中文字符宽度为15pt，英文字符为8pt）
 //    private var maxCharsPerLine: Int {
 //        // 减去左右padding和一些边距
@@ -358,7 +358,7 @@
 //        // 假设平均字符宽度为12pt
 //        return Int(availableWidth / 13)
 //    }
-//    
+//
 //    private func truncateText(_ text: String) -> String {
 //        if text.count <= maxCharsPerLine {
 //            return text
@@ -371,7 +371,7 @@
 ////    let task: TDMacSwiftDataListModel
 ////    let settingManager: TDSettingManager
 ////    let cellWidth: CGFloat
-////    
+////
 ////    var body: some View {
 ////        let style = settingManager.getTaskStyle(for: task)
 ////        Text(truncateText(task.taskContent))
@@ -382,7 +382,7 @@
 ////            .padding(.horizontal, 1)
 ////            .background(style.backgroundColor)
 ////    }
-////    
+////
 ////    // 根据单元格宽度截取文字
 //////    private func truncateText(_ text: String) -> String {
 //////        let maxChars = Int(cellWidth / 10) - 2 // 假设每个字符平均12pt宽，减去padding
@@ -391,7 +391,7 @@
 //////        }
 //////        return String(text.prefix(maxChars))
 //////    }
-////    
+////
 ////    // 计算每行任务的最大字符数（假设每个中文字符宽度为15pt，英文字符为8pt）
 ////    private var maxCharsPerLine: Int {
 ////        // 减去左右padding和一些边距
@@ -399,7 +399,7 @@
 ////        // 假设平均字符宽度为12pt
 ////        return Int(availableWidth / 11)
 ////    }
-////    
+////
 ////    private func truncateText(_ text: String) -> String {
 ////        if text.count <= maxCharsPerLine {
 ////            return text
@@ -451,7 +451,12 @@ struct TDCalendarView: View {
         }
         .task {
             // 视图出现时更新日历数据
-            try? await calendarManager.updateCalendarData()
+            // 如已在启动时预热过（calendarDates 非空），避免重复计算造成“首帧卡一下”
+            if calendarManager.calendarDates.isEmpty {
+                try? await calendarManager.updateCalendarData()
+            }
+            // 触发当月任务预加载（首帧直接用缓存渲染）
+            viewModel.preloadMonthTasksIfNeeded(force: false)
         }
         
     }
@@ -462,4 +467,5 @@ struct TDCalendarView: View {
     TDCalendarView()
         .environmentObject(TDThemeManager.shared)
         .environmentObject(TDSettingManager.shared)
+        .environmentObject(TDScheduleOverviewViewModel.shared)
 }

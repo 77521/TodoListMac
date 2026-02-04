@@ -26,12 +26,16 @@ struct TDCalendarTaskList: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 1) {
+            // 兜底：单元格高度过小可能导致 maxTasks == 0，避免 prefix(-1) 崩溃
+            if maxTasks <= 0 {
+                EmptyView()
+            }
             // 根据设置决定显示逻辑
-            if settingManager.calendarShowRemainingCount && tasks.count > maxTasks {
+            else if settingManager.calendarShowRemainingCount && tasks.count > maxTasks {
                 // 显示剩余数量：显示前(maxTasks-1)个任务 + 剩余数量提示
-                let displayTasks = min(maxTasks - 1, tasks.count)
+                let displayTasks = min(max(0, maxTasks - 1), tasks.count)
                 let remainingCount = tasks.count - displayTasks - 1
-                
+
                 // 显示任务
                 ForEach(Array(tasks.prefix(displayTasks).enumerated()), id: \.offset) { index, task in
                     Text(truncateText(task.taskContent))

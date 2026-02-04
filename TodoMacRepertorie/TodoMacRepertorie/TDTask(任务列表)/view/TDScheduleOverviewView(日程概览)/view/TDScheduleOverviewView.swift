@@ -29,4 +29,6 @@ struct TDScheduleOverviewView: View {
 #Preview {
     TDScheduleOverviewView()
         .environmentObject(TDThemeManager.shared)
-} 
+        .environmentObject(TDSettingManager.shared)
+        .environmentObject(TDScheduleOverviewViewModel.shared)
+}

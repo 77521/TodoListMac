@@ -15,8 +15,10 @@ struct TDTagManageGroupHeaderView: View {
     @Binding var sortOption: TDTagSortOption
 
     let sidebarInterItemSpacing: CGFloat
-    let sidebarDisclosureSide: CGFloat
-    let sidebarIconSide: CGFloat
+    let sidebarDisclosureFontSize: CGFloat
+    let sidebarDisclosureFrameSide: CGFloat
+    let sidebarIconFontSize: CGFloat
+    let sidebarIconFrameSide: CGFloat
     let sidebarRowLeadingPadding: CGFloat
     let sidebarRowTrailingPadding: CGFloat
 
@@ -24,15 +26,15 @@ struct TDTagManageGroupHeaderView: View {
 
     var body: some View {
         HStack(spacing: sidebarInterItemSpacing) {
-            Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
-                .foregroundColor(themeManager.descriptionTextColor)
-                .font(.system(size: 11, weight: .semibold))
-                .frame(width: sidebarDisclosureSide, height: sidebarDisclosureSide, alignment: .center)
+//            Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
+//                .foregroundColor(themeManager.descriptionTextColor)
+//                .font(.system(size: 11, weight: .semibold))
+//                .frame(width: sidebarDisclosureSide, height: sidebarDisclosureSide, alignment: .center)
 
-            Image(systemName: "tag")
+            Image(systemName: "number.circle")
                 .foregroundColor(themeManager.color(level: 5))
-                .font(.system(size: sidebarIconSide))
-                .frame(width: sidebarIconSide, height: sidebarIconSide, alignment: .center)
+                .font(.system(size: sidebarIconFontSize))
+                .frame(width: sidebarIconFrameSide, height: sidebarIconFrameSide, alignment: .center)
 
             HStack(spacing: 8) {
                 Text("tag.manage.group.title".localized)
@@ -73,6 +75,15 @@ struct TDTagManageGroupHeaderView: View {
                 .opacity(isHovered ? 1 : 0)
                 .allowsHitTesting(isHovered)
                 .accessibilityHidden(!isHovered)
+                
+                Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
+                    .foregroundColor(themeManager.descriptionTextColor)
+                    .font(.system(size: sidebarDisclosureFontSize, weight: .semibold))
+                    .frame(width: sidebarDisclosureFrameSide, height: sidebarDisclosureFrameSide, alignment: .center)
+                // 悬停才显示
+                .opacity(isHovered ? 1 : 0)
+                .allowsHitTesting(isHovered)
+
 
             }
 

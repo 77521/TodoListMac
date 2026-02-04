@@ -94,17 +94,17 @@ struct TDSliderBarModel: Identifiable, Codable, Equatable {
     // MARK: - 系统默认项目（按设置动态决定是否包含日程概览）
     static func defaultItems(settingManager: TDSettingManager = .shared) -> [TDSliderBarModel] {
         var items: [TDSliderBarModel] = [
-            TDSliderBarModel(categoryId: -100, categoryName: "DayTodo", headerIcon: "calendar"),
-            TDSliderBarModel(categoryId: -101, categoryName: "最近待办", headerIcon: "clock"),
-            TDSliderBarModel(categoryId: -103, categoryName: "待办箱", headerIcon: "tray"),
-            TDSliderBarModel(categoryId: -104, categoryName: "分类清单", headerIcon: "list.bullet"),
-            TDSliderBarModel(categoryId: -105, categoryName: "标签", headerIcon: "tag"),
-            TDSliderBarModel(categoryId: -106, categoryName: "数据统计", headerIcon: "chart.bar"),
-            TDSliderBarModel(categoryId: -107, categoryName: "最近已完成", headerIcon: "checkmark.circle"),
+            TDSliderBarModel(categoryId: -100, categoryName: "DayTodo", headerIcon: "sun.min"),
+            TDSliderBarModel(categoryId: -101, categoryName: "最近待办", headerIcon: "text.pad.header"),
+            TDSliderBarModel(categoryId: -103, categoryName: "待办箱", headerIcon: "tray.full.fill"),
+            TDSliderBarModel(categoryId: -104, categoryName: "分类清单", headerIcon: "scroll"),
+            TDSliderBarModel(categoryId: -105, categoryName: "标签", headerIcon: "number.circle"),
+            TDSliderBarModel(categoryId: -106, categoryName: "数据统计", headerIcon: "hockey.puck.circle"),
+            TDSliderBarModel(categoryId: -107, categoryName: "最近已完成", headerIcon: "checkmark.square"),
             TDSliderBarModel(categoryId: -108, categoryName: "回收站", headerIcon: "trash")
         ]
         if settingManager.enableScheduleOverview {
-            let schedule = TDSliderBarModel(categoryId: -102, categoryName: "日程概览", headerIcon: "calendar.day.timeline.left")
+            let schedule = TDSliderBarModel(categoryId: -102, categoryName: "日程概览", headerIcon: "calendar")
             items.insert(schedule, at: 2) // 插入在待办箱前
         }
         return items
