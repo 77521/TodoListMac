@@ -26,6 +26,7 @@ struct TDMultiSelectActionBar: View {
     @State private var showDatePicker = false
     // 状态变量：存储日期选择器中选中的日期
     @State private var selectedPickerDate = Date()
+
     
     // 传入的参数：当前分类的所有任务数组（@Query 数据，用于全选功能）
     let allTasks: [TDMacSwiftDataListModel]
@@ -81,7 +82,8 @@ struct TDMultiSelectActionBar: View {
                 .buttonStyle(PlainButtonStyle()) // 使用无边框按钮样式
                 .pointingHandCursor()
                 .help("select_date".localized) // 鼠标悬停提示文字
-                .popover(isPresented: $showDatePicker) {
+                // 注意：这里使用 .sheet（居中弹窗），不是 popover（靠按钮的气泡）
+                .sheet(isPresented: $showDatePicker) {
                     // 日期选择器弹窗 - 与顶部日期选择器使用相同的组件
                     TDCustomDatePickerView(
                         selectedDate: $selectedPickerDate, // 绑定的选中日期
@@ -101,9 +103,9 @@ struct TDMultiSelectActionBar: View {
                             showDatePicker = false // 关闭弹窗
                         }
                     )
-                    .frame(width: 280, height: 320) // 设置弹窗尺寸，与顶部日期选择器保持一致
+                    .frame(width: 320, height: 360)
                 }
-                
+
                 // 复制按钮
                 Button(action: {
                     if mainViewModel.selectedTasks.isEmpty {
@@ -235,6 +237,24 @@ struct TDMultiSelectActionBar: View {
             message: "copy_success_simple".localized,
             type: .success
         )
+        // 外部触发：仅“重新安排”会发出一次性请求；右键“选择事件”不会发出请求，因此不会误弹窗
+        // 仍用 task(id:)：支持“请求先发生、ActionBar 后挂载”的场景
+        .task(id: mainViewModel.pendingMultiSelectDatePickerRequestId) {
+            guard mainViewModel.isMultiSelectMode else { return }
+            guard mainViewModel.pendingMultiSelectDatePickerRequestId != nil else { return }
+            guard !mainViewModel.selectedTasks.isEmpty else {
+                // 没有选中任务就不弹窗，并清空请求（避免卡住）
+                mainViewModel.consumeMultiSelectDatePickerRequest()
+                return
+            }
+
+            // 消费请求，确保后续 ActionBar 重建不会重复弹出
+            mainViewModel.consumeMultiSelectDatePickerRequest()
+
+            selectedPickerDate = Date()
+            showDatePicker = true
+        }
+
     }
     
     // MARK: - 多选操作辅助方法

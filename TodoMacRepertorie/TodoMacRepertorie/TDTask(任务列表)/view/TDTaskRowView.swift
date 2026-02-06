@@ -35,13 +35,13 @@ struct TDTaskRowView: View , Equatable{
         return !isLastRow
     }
     @State private var isHovered: Bool = false
-
+    
     // 监听多选模式状态变化
     @ObservedObject private var mainViewModel = TDMainViewModel.shared
     
     /// 监听设置变化，确保列表样式能实时刷新（描述开关/行数/已完成删除线等）
     @ObservedObject private var settingManager = TDSettingManager.shared
-
+    
     @EnvironmentObject private var themeManager: TDThemeManager
     @Environment(\.modelContext) private var modelContext
     
@@ -52,7 +52,7 @@ struct TDTaskRowView: View , Equatable{
     var onCopySuccess: (() -> Void)?
     // 进入多选模式回调
     var onEnterMultiSelect: (() -> Void)?
-
+    
     // 判断是否显示顺序数字
     private var shouldShowOrderNumber: Bool {
         return category?.categoryId == -100 && task.shouldShowOrderNumber && orderNumber != nil
@@ -128,18 +128,18 @@ struct TDTaskRowView: View , Equatable{
                         }
                         .buttonStyle(PlainButtonStyle())
                         .pointingHandCursor()
-
+                        
                         // 任务内容
                         VStack(alignment: .leading, spacing: 6) {
                             // 任务标题
                             Text(task.taskContent)
                                 .font(.system(size: 14))
                                 .foregroundColor(task.taskTitleColor)
-                                // 已完成删除线：按设置实时生效
+                            // 已完成删除线：按设置实时生效
                                 .strikethrough(task.complete ? settingManager.showCompletedTaskStrikethrough : false)
                                 .opacity(task.complete ? 0.6 : 1.0)
                                 .lineLimit(settingManager.taskTitleLines)
-
+                            
                             // 任务描述（根据设置和内容决定是否显示）
                             if settingManager.showTaskDescription && !(task.taskDescribe?.isEmpty ?? true) {
                                 Text(task.taskDescribe ?? "")
@@ -280,7 +280,7 @@ struct TDTaskRowView: View , Equatable{
                     Button {
                         // 设置专注关联的任务
                         mainViewModel.setFocusTask(task)
-
+                        
                     } label: {
                         Image(systemName: "timer")
                             .font(.system(size: 14))
@@ -288,53 +288,73 @@ struct TDTaskRowView: View , Equatable{
                             .frame(width: 32, height: 32)
                             .background(themeManager.color(level: 5).opacity(0.1))
                             .clipShape(Circle())
-
+                        
                     }
                     .buttonStyle(PlainButtonStyle())
                     .pointingHandCursor()
-
                     
-//                    Button(action: startFocus) {
-//                        Image(systemName: "timer")
-//                            .font(.system(size: 14))
-//                            .foregroundColor(themeManager.color(level: 5))
-//                            .frame(width: 32, height: 32)
-//                            .background(themeManager.color(level: 5).opacity(0.1))
-//                            .clipShape(Circle())
-//                    }
-//                    .buttonStyle(PlainButtonStyle())
+                    
+                    //                    Button(action: startFocus) {
+                    //                        Image(systemName: "timer")
+                    //                            .font(.system(size: 14))
+                    //                            .foregroundColor(themeManager.color(level: 5))
+                    //                            .frame(width: 32, height: 32)
+                    //                            .background(themeManager.color(level: 5).opacity(0.1))
+                    //                            .clipShape(Circle())
+                    //                    }
+                    //                    .buttonStyle(PlainButtonStyle())
                 }
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
         }
-//        .frame(maxWidth: .infinity) // 横向铺满
+        //        .frame(maxWidth: .infinity) // 横向铺满
         .background(
             Group {
-                if mainViewModel.selectedTask?.taskId == task.taskId || mainViewModel.selectedTasks.contains(where: { $0.taskId == task.taskId }) {
-                    // 选中状态（单选或多选）：毛玻璃背景
-                    Rectangle()
-                        .fill(.ultraThinMaterial)
-                        .background(themeManager.color(level: 4).opacity(0.1))
+                
+                if mainViewModel.selectedTask?.taskId == task.taskId {
+                    // 单选模式选中态：背景不要太深，使用主题色 1 级（按你的反馈）
+                    themeManager.color(level: 1).opacity(0.2)
                 } else if isHovered {
                     // 悬停状态：主题颜色二级背景色
-                    themeManager.secondaryBackgroundColor
+                    themeManager.secondaryBackgroundColor.opacity(0.3)
                 } else {
                     // 默认状态：主题背景色
                     themeManager.backgroundColor
                 }
-            }        )
-//        .onHover { hovering in
-//            // 使用防抖，避免频繁更新
-//            isHovered = hovering
-//
-//        }
+
+                
+//                if mainViewModel.selectedTask?.taskId == task.taskId || mainViewModel.selectedTasks.contains(where: { $0.taskId == task.taskId }) {
+//                    // 选中状态（单选或多选）：毛玻璃背景
+//                    Rectangle()
+//                        .fill(.ultraThinMaterial)
+//                        .background(themeManager.color(level: 4).opacity(0.1))
+//                } else if isHovered {
+//                    // 悬停状态：主题颜色二级背景色
+//                    themeManager.secondaryBackgroundColor
+//                } else {
+//                    // 默认状态：主题背景色
+//                    themeManager.backgroundColor
+//                }
+            }
+        )
+                .onHover { hovering in
+                    // 使用防抖，避免频繁更新
+                    isHovered = hovering
+        
+                }
         .overlay(
-            Rectangle()
-                .fill(themeManager.separatorColor)
-                .frame(height: 1.0)
-                .frame(maxWidth: .infinity)
-                .frame(maxHeight: .infinity, alignment: .bottom)
+            Group {
+                // 底部分割线：
+                // - 每个分组的最后一行不显示（避免组尾多一条线）
+                if !isLastRow {
+                    Rectangle()
+                        .fill(themeManager.separatorColor)
+                        .frame(height: 1.0)
+                        .frame(maxWidth: .infinity)
+                        .frame(maxHeight: .infinity, alignment: .bottom)
+                }
+            }
         )
         .onTapGesture {
             if mainViewModel.isMultiSelectMode {
@@ -357,7 +377,7 @@ struct TDTaskRowView: View , Equatable{
                     mainViewModel.updateSelectedTask(task: task, isSelected: true)
                     // 调用进入多选模式回调，通知父视图更新任务列表
                     onEnterMultiSelect?()
-
+                    
                 }
                 
                 Divider()
@@ -413,42 +433,42 @@ struct TDTaskRowView: View , Equatable{
             }
         }
         // 左滑功能
-//        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-//            if !mainViewModel.isMultiSelectMode {
-//                // 删除按钮 - 永远显示
-//                Button(role: .destructive, action: deleteTask) {
-//                    Image(systemName: "trash.fill")
-//                        .font(.system(size: 16, weight: .medium))
-//                        .foregroundColor(.white)
-//                }
-//                .tint(TDThemeManager.shared.fixedColor(themeId: "new_year_red", level: 5))
-//                
-//                // 置底按钮 - 只在 DayTodo 且不是最后一行时显示
-//                if category?.categoryId == -100 && !isLastRow {
-//                    Button(action: moveToBottom) {
-//                        Image(systemName: "arrowshape.down.fill")
-//                            .font(.system(size: 16, weight: .medium))
-//                            .foregroundColor(.white)
-//                    }
-//                    .tint(TDThemeManager.shared.fixedColor(themeId: "wish_orange", level: 5))
-//                }
-//                
-//                // 置顶按钮 - 只在 DayTodo 且不是第一行时显示
-//                if category?.categoryId == -100 && !isFirstRow {
-//                    Button(action: moveToTop) {
-//                        Image(systemName: "arrowshape.up.fill")
-//                            .font(.system(size: 16, weight: .medium))
-//                            .foregroundColor(.white)
-//                    }
-//                    .tint(Color.fromHex("#404040"))
-//                }
-//            }
-//            
-//            
-//        }
+        //        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+        //            if !mainViewModel.isMultiSelectMode {
+        //                // 删除按钮 - 永远显示
+        //                Button(role: .destructive, action: deleteTask) {
+        //                    Image(systemName: "trash.fill")
+        //                        .font(.system(size: 16, weight: .medium))
+        //                        .foregroundColor(.white)
+        //                }
+        //                .tint(TDThemeManager.shared.fixedColor(themeId: "new_year_red", level: 5))
+        //
+        //                // 置底按钮 - 只在 DayTodo 且不是最后一行时显示
+        //                if category?.categoryId == -100 && !isLastRow {
+        //                    Button(action: moveToBottom) {
+        //                        Image(systemName: "arrowshape.down.fill")
+        //                            .font(.system(size: 16, weight: .medium))
+        //                            .foregroundColor(.white)
+        //                    }
+        //                    .tint(TDThemeManager.shared.fixedColor(themeId: "wish_orange", level: 5))
+        //                }
+        //
+        //                // 置顶按钮 - 只在 DayTodo 且不是第一行时显示
+        //                if category?.categoryId == -100 && !isFirstRow {
+        //                    Button(action: moveToTop) {
+        //                        Image(systemName: "arrowshape.up.fill")
+        //                            .font(.system(size: 16, weight: .medium))
+        //                            .foregroundColor(.white)
+        //                    }
+        //                    .tint(Color.fromHex("#404040"))
+        //                }
+        //            }
+        //
+        //
+        //        }
         
         // Performance optimizations
-//        .equatable()
+        //        .equatable()
         .drawingGroup()
         .animation(.none, value: task.complete)
         // 创建副本的日期选择器弹窗 - 使用自定义日期选择器（支持农历显示）
@@ -465,7 +485,7 @@ struct TDTaskRowView: View , Equatable{
             )
             .frame(width: 280, height: 320) // 设置弹窗尺寸，与多选模式保持一致
         }
-
+        
     }
     
     // MARK: - Private Methods
@@ -496,7 +516,7 @@ struct TDTaskRowView: View , Equatable{
                 } else {
                     print("切换任务状态失败: 更新结果异常")
                 }
-
+                
             } catch {
                 print("切换任务状态失败: \(error)")
             }
@@ -507,7 +527,7 @@ struct TDTaskRowView: View , Equatable{
         
         Task {
             do {
-
+                
                 // 1. 创建更新后的任务模型
                 let updatedTask = task
                 let newCompletionState = !task.subTaskList[subTaskIndex].isComplete
@@ -546,7 +566,7 @@ struct TDTaskRowView: View , Equatable{
                 } else {
                     print("切换子任务状态失败: 更新结果异常")
                 }
-
+                
             } catch {
                 print("切换子任务状态失败: \(error)")
             }
@@ -592,7 +612,7 @@ struct TDTaskRowView: View , Equatable{
                 let updatedTask = task
                 updatedTask.delete = true
                 updatedTask.status = "delete"
-
+                
                 // 2. 调用通用更新方法
                 let queryManager = TDQueryConditionManager()
                 let result = try await queryManager.updateLocalTaskWithModel(
@@ -604,7 +624,7 @@ struct TDTaskRowView: View , Equatable{
                 
                 // 3. 调用同步方法
                 await TDMainViewModel.shared.performSyncSeparately()
-
+                
             } catch {
                 print("删除任务失败: \(error)")
             }
@@ -810,7 +830,7 @@ struct TDTaskRowView: View , Equatable{
                 
                 // 2. 将 TDTaskModel 转换回新的 TDMacSwiftDataListModel 对象
                 let copiedTask = taskModel.toSwiftDataModel()
-
+                
                 // 2. 重置副本的基本信息
                 copiedTask.standbyStr1 = ""  // 清空重复事件ID
                 copiedTask.complete = false
@@ -851,26 +871,26 @@ struct TDTaskRowView: View , Equatable{
             }
         }
     }
-
+    
     // MARK: - Equatable 实现（性能优化关键）
+    
+    static func == (lhs: TDTaskRowView, rhs: TDTaskRowView) -> Bool {
+        // 只比较关键属性，避免不必要的重新渲染
+        let lhsIsSelected = lhs.mainViewModel.selectedTasks.contains(where: { $0.taskId == lhs.task.taskId })
+        let rhsIsSelected = rhs.mainViewModel.selectedTasks.contains(where: { $0.taskId == rhs.task.taskId })
         
-        static func == (lhs: TDTaskRowView, rhs: TDTaskRowView) -> Bool {
-            // 只比较关键属性，避免不必要的重新渲染
-            let lhsIsSelected = lhs.mainViewModel.selectedTasks.contains(where: { $0.taskId == lhs.task.taskId })
-            let rhsIsSelected = rhs.mainViewModel.selectedTasks.contains(where: { $0.taskId == rhs.task.taskId })
-
-            // 只比较关键属性，避免不必要的重新渲染
-            return lhs.task.taskId == rhs.task.taskId &&
-                   lhs.task.complete == rhs.task.complete &&
-                   lhs.task.taskContent == rhs.task.taskContent &&
-                   lhs.task.taskDescribe == rhs.task.taskDescribe &&
-                   lhs.task.isSubOpen == rhs.task.isSubOpen &&
-                   lhs.task.subTaskList == rhs.task.subTaskList &&
-                   lhs.isHovered == rhs.isHovered &&
-                   lhs.mainViewModel.isMultiSelectMode == rhs.mainViewModel.isMultiSelectMode &&
-                   lhs.mainViewModel.selectedTasks.contains(where: { $0.taskId == lhs.task.taskId }) ==
-                   rhs.mainViewModel.selectedTasks.contains(where: { $0.taskId == rhs.task.taskId })
-        }
+        // 只比较关键属性，避免不必要的重新渲染
+        return lhs.task.taskId == rhs.task.taskId &&
+        lhs.task.complete == rhs.task.complete &&
+        lhs.task.taskContent == rhs.task.taskContent &&
+        lhs.task.taskDescribe == rhs.task.taskDescribe &&
+        lhs.task.isSubOpen == rhs.task.isSubOpen &&
+        lhs.task.subTaskList == rhs.task.subTaskList &&
+        lhs.isHovered == rhs.isHovered &&
+        lhs.mainViewModel.isMultiSelectMode == rhs.mainViewModel.isMultiSelectMode &&
+        lhs.mainViewModel.selectedTasks.contains(where: { $0.taskId == lhs.task.taskId }) ==
+        rhs.mainViewModel.selectedTasks.contains(where: { $0.taskId == rhs.task.taskId })
+    }
     
 }
 
@@ -956,7 +976,7 @@ struct TDTaskRowView: View , Equatable{
 ///// 难度指示条组件
 //struct DifficultyIndicatorView: View {
 //    let difficultyColor: Color
-//    
+//
 //    var body: some View {
 //        RoundedRectangle(cornerRadius: 2)
 //            .fill(difficultyColor)
@@ -975,9 +995,9 @@ struct TDTaskRowView: View , Equatable{
 //    let shouldShowOrderNumber: Bool
 //    let orderNumber: Int?
 //    let onToggle: () -> Void
-//    
+//
 //    @EnvironmentObject private var themeManager: TDThemeManager
-//    
+//
 //    var body: some View {
 //        Button(action: onToggle) {
 //            ZStack {
@@ -986,12 +1006,12 @@ struct TDTaskRowView: View , Equatable{
 //                    Circle()
 //                        .stroke(themeManager.color(level: 5), lineWidth: 1.5)
 //                        .frame(width: 18, height: 18)
-//                    
+//
 //                    if isSelected {
 //                        Circle()
 //                            .fill(themeManager.color(level: 5))
 //                            .frame(width: 18, height: 18)
-//                        
+//
 //                        Image(systemName: "checkmark")
 //                            .font(.system(size: 10, weight: .medium))
 //                            .foregroundColor(.white)
@@ -1000,12 +1020,12 @@ struct TDTaskRowView: View , Equatable{
 //                    RoundedRectangle(cornerRadius: 3)
 //                        .stroke(task.checkboxColor, lineWidth: 1.5)
 //                        .frame(width: 18, height: 18)
-//                    
+//
 //                    if task.complete {
 //                        RoundedRectangle(cornerRadius: 3)
 //                            .fill(task.checkboxColor)
 //                            .frame(width: 18, height: 18)
-//                        
+//
 //                        Image(systemName: "checkmark")
 //                            .font(.system(size: 10, weight: .bold))
 //                            .foregroundColor(.white)
@@ -1026,9 +1046,9 @@ struct TDTaskRowView: View , Equatable{
 //struct TaskContentView: View {
 //    let task: TDMacSwiftDataListModel
 //    let category: TDSliderBarModel?
-//    
+//
 //    @EnvironmentObject private var themeManager: TDThemeManager
-//    
+//
 //    var body: some View {
 //        VStack(alignment: .leading, spacing: 6) {
 //            // 任务标题
@@ -1038,7 +1058,7 @@ struct TDTaskRowView: View , Equatable{
 //                .strikethrough(task.taskTitleStrikethrough)
 //                .opacity(task.complete ? 0.6 : 1.0)
 //                .lineLimit(TDSettingManager.shared.taskTitleLines)
-//            
+//
 //            // 任务描述
 //            if task.shouldShowTaskDescription {
 //                Text(task.taskDescribe ?? "")
@@ -1046,17 +1066,17 @@ struct TDTaskRowView: View , Equatable{
 //                    .foregroundColor(themeManager.descriptionTextColor)
 //                    .lineLimit(TDSettingManager.shared.taskDescriptionLines)
 //            }
-//            
+//
 //            // 任务日期
 //            if category?.categoryId != -100 && !task.taskDateConditionalString.isEmpty {
 //                Text(task.taskDateConditionalString)
 //                    .font(.system(size: 10))
 //                    .foregroundColor(task.taskDateColor)
 //            }
-//            
+//
 //            // 底部信息栏
 //            TaskInfoBarView(task: task)
-//            
+//
 //            // 子任务
 //            if !task.subTaskList.isEmpty {
 //                SubTaskView(task: task)
@@ -1068,9 +1088,9 @@ struct TDTaskRowView: View , Equatable{
 ///// 任务信息栏组件
 //struct TaskInfoBarView: View {
 //    let task: TDMacSwiftDataListModel
-//    
+//
 //    @EnvironmentObject private var themeManager: TDThemeManager
-//    
+//
 //    var body: some View {
 //        if task.hasReminder || task.hasRepeat || !task.attachmentList.isEmpty {
 //            HStack(spacing: 12) {
@@ -1085,21 +1105,21 @@ struct TDTaskRowView: View , Equatable{
 //                            .foregroundColor(themeManager.color(level: 4))
 //                    }
 //                }
-//                
+//
 //                // 重复事件
 //                if task.hasRepeat {
 //                    Image(systemName: "repeat")
 //                        .font(.system(size: 12, weight: .medium))
 //                        .foregroundColor(themeManager.color(level: 4))
 //                }
-//                
+//
 //                // 附件
 //                if !task.attachmentList.isEmpty {
 //                    Image(systemName: "paperclip")
 //                        .font(.system(size: 12, weight: .medium))
 //                        .foregroundColor(themeManager.color(level: 4))
 //                }
-//                
+//
 //                Spacer()
 //            }
 //        }
@@ -1109,15 +1129,15 @@ struct TDTaskRowView: View , Equatable{
 ///// 子任务组件
 //struct SubTaskView: View {
 //    let task: TDMacSwiftDataListModel
-//    
+//
 //    @EnvironmentObject private var themeManager: TDThemeManager
 //    @Environment(\.modelContext) private var modelContext
-//    
+//
 //    var body: some View {
 //        VStack(alignment: .leading, spacing: 6) {
 //            // 展开/收起按钮
 //            SubTaskToggleButton(task: task)
-//            
+//
 //            // 子任务列表
 //            if task.isSubOpen {
 //                SubTaskListView(task: task)
@@ -1129,10 +1149,10 @@ struct TDTaskRowView: View , Equatable{
 ///// 子任务切换按钮
 //struct SubTaskToggleButton: View {
 //    let task: TDMacSwiftDataListModel
-//    
+//
 //    @EnvironmentObject private var themeManager: TDThemeManager
 //    @Environment(\.modelContext) private var modelContext
-//    
+//
 //    var body: some View {
 //        Button(action: {
 //            task.isSubOpen.toggle()
@@ -1147,7 +1167,7 @@ struct TDTaskRowView: View , Equatable{
 //                    .font(.system(size: 8))
 //                    .foregroundColor(themeManager.descriptionTextColor)
 //                    .rotationEffect(.degrees(task.isSubOpen ? 180 : 0))
-//                
+//
 //                Text(task.isSubOpen ? "收起" : "展开")
 //                    .font(.system(size: 10))
 //                    .foregroundColor(themeManager.descriptionTextColor)
@@ -1166,10 +1186,10 @@ struct TDTaskRowView: View , Equatable{
 ///// 子任务列表
 //struct SubTaskListView: View {
 //    let task: TDMacSwiftDataListModel
-//    
+//
 //    @EnvironmentObject private var themeManager: TDThemeManager
 //    @Environment(\.modelContext) private var modelContext
-//    
+//
 //    var body: some View {
 //        VStack(alignment: .leading, spacing: 6) {
 //            ForEach(Array(task.subTaskList.enumerated()), id: \.offset) { index, subTask in
@@ -1189,10 +1209,10 @@ struct TDTaskRowView: View , Equatable{
 //    let task: TDMacSwiftDataListModel
 //    let subTask: TDMacSwiftDataListModel.SubTask
 //    let subTaskIndex: Int
-//    
+//
 //    @EnvironmentObject private var themeManager: TDThemeManager
 //    @Environment(\.modelContext) private var modelContext
-//    
+//
 //    var body: some View {
 //        HStack(spacing: 6) {
 //            if task.complete {
@@ -1209,12 +1229,12 @@ struct TDTaskRowView: View , Equatable{
 //                        Circle()
 //                            .stroke(themeManager.color(level: 5), lineWidth: 1)
 //                            .frame(width: 12, height: 12)
-//                        
+//
 //                        if subTask.isComplete {
 //                            Circle()
 //                                .fill(themeManager.color(level: 5))
 //                                .frame(width: 12, height: 12)
-//                            
+//
 //                            Image(systemName: "checkmark")
 //                                .font(.system(size: 8, weight: .medium))
 //                                .foregroundColor(.white)
@@ -1224,7 +1244,7 @@ struct TDTaskRowView: View , Equatable{
 //                }
 //                .buttonStyle(PlainButtonStyle())
 //            }
-//            
+//
 //            Text(subTask.content)
 //                .font(.system(size: 11))
 //                .foregroundColor(themeManager.subtaskTextColor)
@@ -1232,32 +1252,32 @@ struct TDTaskRowView: View , Equatable{
 //                .opacity(subTask.isComplete ? 0.6 : 1.0)
 //        }
 //    }
-//    
+//
 //    private func toggleSubTaskCompletion(subTaskIndex: Int) {
 //        Task {
 //            do {
 //                let updatedTask = task
 //                let newCompletionState = !task.subTaskList[subTaskIndex].isComplete
-//                
+//
 //                updatedTask.subTaskList[subTaskIndex].isComplete = newCompletionState
-//                
+//
 //                let newSubTasksString = updatedTask.generateSubTasksString()
 //                updatedTask.standbyStr2 = newSubTasksString.isEmpty ? nil : newSubTasksString
-//                
+//
 //                if updatedTask.allSubTasksCompleted {
 //                    let shouldAutoCompleteParent = true
-//                    
+//
 //                    if shouldAutoCompleteParent && !updatedTask.complete {
 //                        updatedTask.complete = true
 //                    }
 //                }
-//                
+//
 //                let queryManager = TDQueryConditionManager()
 //                let result = try await queryManager.updateLocalTaskWithModel(
 //                    updatedTask: updatedTask,
 //                    context: modelContext
 //                )
-//                
+//
 //                if result == .updated {
 //                    await TDMainViewModel.shared.performSyncSeparately()
 //                }
@@ -1271,9 +1291,9 @@ struct TDTaskRowView: View , Equatable{
 ///// 专注按钮组件
 //struct FocusButtonView: View {
 //    let onFocus: () -> Void
-//    
+//
 //    @EnvironmentObject private var themeManager: TDThemeManager
-//    
+//
 //    var body: some View {
 //        Button(action: onFocus) {
 //            Image(systemName: "timer")
@@ -1291,9 +1311,9 @@ struct TDTaskRowView: View , Equatable{
 //struct TaskRowBackgroundView: View {
 //    let isSelected: Bool
 //    let isHovered: Bool
-//    
+//
 //    @EnvironmentObject private var themeManager: TDThemeManager
-//    
+//
 //    var body: some View {
 //        Group {
 //            if isSelected {
@@ -1316,36 +1336,36 @@ struct TDTaskRowView: View , Equatable{
 //    let task: TDMacSwiftDataListModel
 //    let category: TDSliderBarModel?
 //    let orderNumber: Int?
-//    
+//
 //    let isFirstRow: Bool
 //    let isLastRow: Bool
-//    
+//
 //    // 状态管理优化：使用 @State 而不是 @ObservedObject 来减少重绘
 //    @State private var isHovered: Bool = false
 //    @State private var showDatePickerForCopy: Bool = false
 //    @State private var selectedCopyDate: Date = Date()
-//    
+//
 //    // 回调函数
 //    var onCopySuccess: (() -> Void)?
 //    var onEnterMultiSelect: (() -> Void)?
-//    
+//
 //    // 环境对象
 //    @EnvironmentObject private var themeManager: TDThemeManager
 //    @Environment(\.modelContext) private var modelContext
-//    
+//
 //    // 计算属性
 //    private var shouldShowOrderNumber: Bool {
 //        category?.categoryId == -100 && task.shouldShowOrderNumber && orderNumber != nil
 //    }
-//    
+//
 //    private var shouldShowPinToTop: Bool {
 //        !isFirstRow
 //    }
-//    
+//
 //    private var shouldShowPinToBottom: Bool {
 //        !isLastRow
 //    }
-//    
+//
 //    // 优化：缓存选中状态，避免重复计算
 //    private var isSelected: Bool {
 //        let mainViewModel = TDMainViewModel.shared
@@ -1354,17 +1374,17 @@ struct TDTaskRowView: View , Equatable{
 //        }
 //        return mainViewModel.selectedTasks.contains { $0.taskId == task.taskId }
 //    }
-//    
+//
 //    // 优化：缓存多选模式状态
 //    private var isMultiSelectMode: Bool {
 //        TDMainViewModel.shared.isMultiSelectMode
 //    }
-//    
+//
 //    var body: some View {
 //        HStack(spacing: 0) {
 //            // 1. 难度指示条
 //            DifficultyIndicatorView(difficultyColor: task.difficultyColor)
-//            
+//
 //            // 2. 主要内容区域
 //            VStack(alignment: .center, spacing: 8) {
 //                HStack(alignment: .center, spacing: 12) {
@@ -1378,13 +1398,13 @@ struct TDTaskRowView: View , Equatable{
 //                            orderNumber: orderNumber,
 //                            onToggle: handleCheckboxToggle
 //                        )
-//                        
+//
 //                        // 任务内容
 //                        TaskContentView(task: task, category: category)
-//                        
+//
 //                        Spacer()
 //                    }
-//                    
+//
 //                    // 专注按钮
 //                    FocusButtonView(onFocus: startFocus)
 //                }
@@ -1434,9 +1454,9 @@ struct TDTaskRowView: View , Equatable{
 //            .frame(width: 280, height: 320)
 //        }
 //    }
-//    
+//
 //    // MARK: - 事件处理方法
-//    
+//
 //    private func handleCheckboxToggle() {
 //        if isMultiSelectMode {
 //            let mainViewModel = TDMainViewModel.shared
@@ -1446,7 +1466,7 @@ struct TDTaskRowView: View , Equatable{
 //            toggleTaskCompletion()
 //        }
 //    }
-//    
+//
 //    private func handleRowTap() {
 //        if isMultiSelectMode {
 //            let mainViewModel = TDMainViewModel.shared
@@ -1456,13 +1476,13 @@ struct TDTaskRowView: View , Equatable{
 //            TDMainViewModel.shared.selectTask(task)
 //        }
 //    }
-//    
+//
 //    private func startFocus() {
 //        TDMainViewModel.shared.exitMultiSelectMode()
 //    }
-//    
+//
 //    // MARK: - 上下文菜单构建
-//    
+//
 //    @ViewBuilder
 //    private func buildContextMenu() -> some View {
 //        Button("选择事件") {
@@ -1471,9 +1491,9 @@ struct TDTaskRowView: View , Equatable{
 //            mainViewModel.updateSelectedTask(task: task, isSelected: true)
 //            onEnterMultiSelect?()
 //        }
-//        
+//
 //        Divider()
-//        
+//
 //        Button("复制内容") {
 //            let singleTaskArray = [task]
 //            let success = TDDataOperationManager.shared.copyTasksToClipboard(singleTaskArray)
@@ -1481,40 +1501,40 @@ struct TDTaskRowView: View , Equatable{
 //                onCopySuccess?()
 //            }
 //        }
-//        
+//
 //        Menu("创建副本") {
 //            Button("创建副本") {
 //                handleCreateCopy(copyType: .normal)
 //            }
-//            
+//
 //            if !task.isToday {
 //                Button("创建到今天") {
 //                    handleCreateCopy(copyType: .toToday)
 //                }
 //            }
-//            
+//
 //            Button("创建到指定日期") {
 //                showDatePickerForCopy = true
 //            }
 //        }
-//        
+//
 //        Button("移到最前") {
 //            handleMoveTask(isToTop: true)
 //        }
 //        .disabled(category?.categoryId != -100 || isFirstRow)
-//        
+//
 //        Button("移到最后") {
 //            handleMoveTask(isToTop: false)
 //        }
 //        .disabled(category?.categoryId != -100 || isLastRow)
-//        
+//
 //        Button("删除", role: .destructive) {
 //            deleteTask()
 //        }
 //    }
-//    
+//
 //    // MARK: - 滑动操作构建
-//    
+//
 //    @ViewBuilder
 //    private func buildSwipeActions() -> some View {
 //        Button(role: .destructive, action: deleteTask) {
@@ -1523,7 +1543,7 @@ struct TDTaskRowView: View , Equatable{
 //                .foregroundColor(.white)
 //        }
 //        .tint(TDThemeManager.shared.fixedColor(themeId: "new_year_red", level: 5))
-//        
+//
 //        if category?.categoryId == -100 && !isLastRow {
 //            Button(action: moveToBottom) {
 //                Image(systemName: "arrowshape.down.fill")
@@ -1532,7 +1552,7 @@ struct TDTaskRowView: View , Equatable{
 //            }
 //            .tint(TDThemeManager.shared.fixedColor(themeId: "wish_orange", level: 5))
 //        }
-//        
+//
 //        if category?.categoryId == -100 && !isFirstRow {
 //            Button(action: moveToTop) {
 //                Image(systemName: "arrowshape.up.fill")
@@ -1542,9 +1562,9 @@ struct TDTaskRowView: View , Equatable{
 //            .tint(Color.fromHex("#404040"))
 //        }
 //    }
-//    
+//
 //    // MARK: - 任务操作方法
-//    
+//
 //    private func toggleTaskCompletion() {
 //        print("切换任务完成状态: \(task.taskContent)")
 //        Task {
@@ -1554,13 +1574,13 @@ struct TDTaskRowView: View , Equatable{
 //            do {
 //                let updatedTask = task
 //                updatedTask.complete = !task.complete
-//                
+//
 //                let queryManager = TDQueryConditionManager()
 //                let result = try await queryManager.updateLocalTaskWithModel(
 //                    updatedTask: updatedTask,
 //                    context: modelContext
 //                )
-//                
+//
 //                if result == .updated {
 //                    print("切换任务状态成功: \(task.taskContent)")
 //                    await TDMainViewModel.shared.performSyncSeparately()
@@ -1572,34 +1592,34 @@ struct TDTaskRowView: View , Equatable{
 //            }
 //        }
 //    }
-//    
+//
 //    /// 置顶任务
 //    private func moveToTop() {
 //        print("置顶任务: \(task.taskContent)")
 //        handleMoveTask(isToTop: true)
 //    }
-//    
+//
 //    /// 置底任务
 //    private func moveToBottom() {
 //        print("置底任务: \(task.taskContent)")
 //        handleMoveTask(isToTop: false)
 //    }
-//    
+//
 //    /// 删除任务
 //    private func deleteTask() {
 //        print("删除任务: \(task.taskContent)")
-//        
+//
 //        Task {
 //            do {
 //                let updatedTask = task
 //                updatedTask.delete = true
-//                
+//
 //                let queryManager = TDQueryConditionManager()
 //                let result = try await queryManager.updateLocalTaskWithModel(
 //                    updatedTask: updatedTask,
 //                    context: modelContext
 //                )
-//                
+//
 //                print("删除任务成功，结果: \(result)")
 //                await TDMainViewModel.shared.performSyncSeparately()
 //            } catch {
@@ -1607,7 +1627,7 @@ struct TDTaskRowView: View , Equatable{
 //            }
 //        }
 //    }
-//    
+//
 //    /// 处理任务移动（置顶或置底）
 //    private func handleMoveTask(isToTop: Bool) {
 //        if let repeatId = task.standbyStr1, !repeatId.isEmpty {
@@ -1618,7 +1638,7 @@ struct TDTaskRowView: View , Equatable{
 //            performMoveTask(isToTop: isToTop, isRepeatGroup: false)
 //        }
 //    }
-//    
+//
 //    /// 显示重复事件操作弹窗（带数量）
 //    @MainActor
 //    private func showRepeatTaskAlertWithCount(isToTop: Bool, repeatId: String) async {
@@ -1629,7 +1649,7 @@ struct TDTaskRowView: View , Equatable{
 //                onlyUncompleted: false,
 //                context: modelContext
 //            )
-//            
+//
 //            let action = isToTop ? "置顶" : "置底"
 //            let alert = NSAlert()
 //            alert.messageText = "重复事件操作"
@@ -1638,7 +1658,7 @@ struct TDTaskRowView: View , Equatable{
 //            alert.addButton(withTitle: "仅该事件")
 //            alert.addButton(withTitle: "确定")
 //            alert.addButton(withTitle: "取消")
-//            
+//
 //            let response = alert.runModal()
 //            switch response {
 //            case .alertFirstButtonReturn:
@@ -1655,14 +1675,14 @@ struct TDTaskRowView: View , Equatable{
 //            performMoveTask(isToTop: isToTop, isRepeatGroup: false)
 //        }
 //    }
-//    
+//
 //    /// 执行任务移动操作
 //    private func performMoveTask(isToTop: Bool, isRepeatGroup: Bool, duplicateTasks: [TDMacSwiftDataListModel]? = nil) {
 //        let action = isToTop ? "置顶" : "置底"
 //        let scope = isRepeatGroup ? "重复组" : "单个"
-//        
+//
 //        print("\(action)任务: \(task.taskContent) (\(scope))")
-//        
+//
 //        Task {
 //            if isRepeatGroup, let duplicateTasks = duplicateTasks {
 //                print("开始批量\(action) \(duplicateTasks.count) 个重复事件")
@@ -1672,25 +1692,25 @@ struct TDTaskRowView: View , Equatable{
 //            }
 //        }
 //    }
-//    
+//
 //    // MARK: - 移动操作实现
-//    
+//
 //    /// 执行批量移动操作
 //    private func performBatchMove(duplicateTasks: [TDMacSwiftDataListModel], isToTop: Bool) async {
 //        let action = isToTop ? "置顶" : "置底"
-//        
+//
 //        do {
 //            for task in duplicateTasks {
 //                await moveSingleTask(task: task, isToTop: isToTop)
 //            }
-//            
+//
 //            try modelContext.save()
 //            print("批量\(action)完成，共处理 \(duplicateTasks.count) 个任务")
 //        } catch {
 //            print("批量\(action)失败: \(error)")
 //        }
 //    }
-//    
+//
 //    /// 执行单个任务移动操作
 //    private func performSingleMove(task: TDMacSwiftDataListModel, isToTop: Bool) async {
 //        do {
@@ -1700,22 +1720,22 @@ struct TDTaskRowView: View , Equatable{
 //            print("移动任务失败: \(error)")
 //        }
 //    }
-//    
+//
 //    /// 移动单个任务的核心逻辑
 //    private func moveSingleTask(task: TDMacSwiftDataListModel, isToTop: Bool) async {
 //        let queryManager = TDQueryConditionManager()
 //        let action = isToTop ? "置顶" : "置底"
-//        
+//
 //        do {
 //            let newTaskSort: Decimal
 //            let randomValue = TDAppConfig.randomTaskSort()
-//            
+//
 //            if isToTop {
 //                let minTaskSort = try await queryManager.getMinTaskSortForDate(
 //                    todoTime: task.todoTime,
 //                    context: modelContext
 //                )
-//                
+//
 //                if minTaskSort == 0 {
 //                    newTaskSort = TDAppConfig.defaultTaskSort
 //                } else if minTaskSort > TDAppConfig.maxTaskSort * 2.0 {
@@ -1730,15 +1750,15 @@ struct TDTaskRowView: View , Equatable{
 //                )
 //                newTaskSort = maxTaskSort + randomValue
 //            }
-//            
+//
 //            let updatedTask = task
 //            updatedTask.taskSort = newTaskSort
-//            
+//
 //            let result = try await queryManager.updateLocalTaskWithModel(
 //                updatedTask: updatedTask,
 //                context: modelContext
 //            )
-//            
+//
 //            if result == .updated {
 //                print("\(action)任务成功: \(task.taskContent), 新 taskSort: \(newTaskSort)")
 //                await TDMainViewModel.shared.performSyncSeparately()
@@ -1749,17 +1769,17 @@ struct TDTaskRowView: View , Equatable{
 //            print("\(action)任务失败: \(error)")
 //        }
 //    }
-//    
+//
 //    /// 处理创建副本的逻辑
 //    private func handleCreateCopy(copyType: CopyType) {
 //        print("📋 开始创建副本，类型: \(copyType)，任务: \(task.taskContent)")
-//        
+//
 //        Task {
 //            do {
 //                let copiedTask = task
 //                copiedTask.taskId = TDAppConfig.generateTaskId()
 //                copiedTask.standbyStr1 = ""
-//                
+//
 //                switch copyType {
 //                case .normal:
 //                    print("📅 创建副本 - 保持原日期: \(task.todoTime)")
@@ -1768,10 +1788,10 @@ struct TDTaskRowView: View , Equatable{
 //                case .toSpecificDate:
 //                    copiedTask.todoTime = selectedCopyDate.startOfDayTimestamp
 //                }
-//                
+//
 //                let queryManager = TDQueryConditionManager()
 //                let result = try await queryManager.addLocalTask(copiedTask, context: modelContext)
-//                
+//
 //                if result == .added {
 //                    await TDMainViewModel.shared.performSyncSeparately()
 //                    print("✅ 创建副本成功，新任务ID: \(copiedTask.taskId)")
@@ -1783,9 +1803,9 @@ struct TDTaskRowView: View , Equatable{
 //            }
 //        }
 //    }
-//    
+//
 //    // MARK: - Equatable 实现（深度优化）
-//    
+//
 //    static func == (lhs: TDTaskRowView, rhs: TDTaskRowView) -> Bool {
 //        // 深度优化：只比较真正影响渲染的关键属性，按重要性排序
 //        guard lhs.task.taskId == rhs.task.taskId else { return false }
@@ -1795,11 +1815,11 @@ struct TDTaskRowView: View , Equatable{
 //        guard lhs.isHovered == rhs.isHovered else { return false }
 //        guard lhs.isSelected == rhs.isSelected else { return false }
 //        guard lhs.isMultiSelectMode == rhs.isMultiSelectMode else { return false }
-//        
+//
 //        // 只在必要时比较复杂属性
 //        if lhs.task.taskDescribe != rhs.task.taskDescribe { return false }
 //        if lhs.task.subTaskList != rhs.task.subTaskList { return false }
-//        
+//
 //        return true
 //    }
 //}
@@ -1827,13 +1847,13 @@ struct TDTaskRowView: View , Equatable{
 //        userId: 1,
 //        version: 1
 //    )
-//    
+//
 //    // 设置子任务和附件列表
 //    testTask.subTaskList = [
 //        TDMacSwiftDataListModel.SubTask(isComplete: false, content: "子任务1"),
 //        TDMacSwiftDataListModel.SubTask(isComplete: true, content: "子任务2")
 //    ]
-//    
+//
 //    testTask.attachmentList = [
 //        TDMacSwiftDataListModel.Attachment(
 //            downloading: false,
@@ -1843,7 +1863,7 @@ struct TDTaskRowView: View , Equatable{
 //            url: "http://example.com"
 //        )
 //    ]
-//    
+//
 //    return TDTaskRowView(task: testTask, category: nil, orderNumber: nil, isFirstRow: true, isLastRow: true)
 //        .environmentObject(TDThemeManager.shared)
 //}

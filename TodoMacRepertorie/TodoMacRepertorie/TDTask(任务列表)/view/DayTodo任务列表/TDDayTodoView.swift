@@ -64,25 +64,24 @@ struct TDDayTodoView: View {
                         .padding(.top, 60)
                     } else {
                         // 使用 List 显示任务数据，性能更好
-                        List(allTasks, id: \.taskId) { task in
-                            let taskIndex = allTasks.firstIndex(of: task) ?? 0
-                            TDTaskRowView(
-                                task: task,
-                                category: selectedCategory,
-                                orderNumber: taskIndex + 1,
-                                isFirstRow: taskIndex == 0,
-                                isLastRow: taskIndex == allTasks.count - 1,
-                                onCopySuccess: {
-                                    // 显示复制成功提示
-                                    showCopySuccessToast = true
-                                }
-
-                            )
-                            .equatable()  // 添加这个
-
-                            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                            .listRowBackground(Color.clear)
-                            .listRowSeparator(.hidden)
+                        List {
+                            ForEach(allTasks.indices, id: \.self) { index in
+                                let task = allTasks[index]
+                                TDTaskRowView(
+                                    task: task,
+                                    category: selectedCategory,
+                                    orderNumber: index + 1,
+                                    isFirstRow: index == 0,
+                                    isLastRow: index == allTasks.count - 1,
+                                    onCopySuccess: {
+                                        // 显示复制成功提示
+                                        showCopySuccessToast = true
+                                    }
+                                )
+                                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                                .listRowBackground(Color.clear)
+                                .listRowSeparator(.hidden)
+                            }
                         }
                         .listStyle(.plain)
                         .scrollContentBackground(.hidden)

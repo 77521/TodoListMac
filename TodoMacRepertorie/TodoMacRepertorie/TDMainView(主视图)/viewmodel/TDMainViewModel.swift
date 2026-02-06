@@ -39,6 +39,14 @@ final class TDMainViewModel: ObservableObject {
     /// 选中的任务对象数组（包含完整的任务数据）
     @Published var selectedTasks: [TDMacSwiftDataListModel] = []
   
+    
+    // MARK: - 多选：日期选择器联动（用于“重新安排”一键流程）
+    /// 多选操作栏的“选择日期”弹窗请求（一次性）
+    /// - 说明：必须是“一次性请求”，否则当用户之后通过右键“选择事件”进入多选时，
+    ///        多选操作栏重新挂载会重复响应旧请求，导致误弹窗（你反馈的问题）。
+    @Published var pendingMultiSelectDatePickerRequestId: UUID? = nil
+  
+
     // MARK: - 单选模式相关属性
     
     /// 当前选中的任务（单选模式）
@@ -419,6 +427,19 @@ final class TDMainViewModel: ObservableObject {
         }
         os_log(.info, log: logger, "🎯 切换全选状态，当前选中数量: \(self.selectedTasks.count)")
     }
+    
+    /// 请求打开“多选操作栏”的日期选择器弹窗（一次性）
+    /// - 用于：过往未达成分组的“重新安排”按钮（自动进入多选 + 全选 + 弹出选日期）
+    func requestShowMultiSelectDatePicker() {
+        pendingMultiSelectDatePickerRequestId = UUID()
+    }
+
+    /// 消费（清空）一次性弹窗请求
+    func consumeMultiSelectDatePickerRequest() {
+        pendingMultiSelectDatePickerRequestId = nil
+    }
+
+    
     /// 选择任务（单选模式）
     func selectTask(_ task: TDMacSwiftDataListModel) {
         os_log(.info, log: logger, "🎯 选择任务: \(task.taskContent)")

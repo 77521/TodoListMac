@@ -362,10 +362,8 @@ final class TDMacSwiftDataListModel {
     }
     /// 获取是否显示顺序数字
     var shouldShowOrderNumber: Bool {
-        let result = TDSettingManager.shared.showDayTodoOrderNumber
-        print("🔍 shouldShowOrderNumber 调试:")
-        print("   - TDSettingManager.shared.showDayTodoOrderNumber: \(result)")
-        return result
+        // 注意：该属性会在任务列表滚动时高频调用，禁止在这里打印日志（会导致 CPU 飙升）
+        return TDSettingManager.shared.showDayTodoOrderNumber
     }
     
     /// 将子任务数组转换为字符串格式

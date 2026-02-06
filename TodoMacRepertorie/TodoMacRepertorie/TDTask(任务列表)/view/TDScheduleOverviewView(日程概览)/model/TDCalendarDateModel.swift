@@ -11,8 +11,9 @@ import SwiftUI
 /// 日历日期模型 - 用于存储日历中每个日期的完整信息
 struct TDCalendarDateModel: Identifiable, Equatable {
     /// 唯一标识符
-    let id = UUID()
-    
+    /// 使用当天开始时间戳作为稳定 id（避免每次重建模型都生成新 UUID 导致整个月份格子全量重绘）
+    let id: Int64
+
     /// 阳历日期
     let date: Date
     
@@ -46,6 +47,7 @@ struct TDCalendarDateModel: Identifiable, Equatable {
     ///   - smartDisplay: 智能显示信息
     ///   - tasks: 任务列表
     init(date: Date, isToday: Bool, isCurrentMonth: Bool, isHoliday: Bool = false, isInHolidayData: Bool = false, smartDisplay: String = "", isSelected: Bool = false, tasks: [TDMacSwiftDataListModel] = []) {
+        self.id = date.startOfDayTimestamp
         self.date = date
         self.isToday = isToday
         self.isCurrentMonth = isCurrentMonth
@@ -55,4 +57,16 @@ struct TDCalendarDateModel: Identifiable, Equatable {
         self.isSelected = isSelected
         self.tasks = tasks
     }
+    
+    static func == (lhs: TDCalendarDateModel, rhs: TDCalendarDateModel) -> Bool {
+        // 仅比较影响 UI 的关键字段；不比较 tasks（避免大数组比较引发卡顿/频繁刷新）
+        return lhs.id == rhs.id
+            && lhs.isToday == rhs.isToday
+            && lhs.isCurrentMonth == rhs.isCurrentMonth
+            && lhs.isHoliday == rhs.isHoliday
+            && lhs.isInHolidayData == rhs.isInHolidayData
+            && lhs.smartDisplay == rhs.smartDisplay
+            && lhs.isSelected == rhs.isSelected
+    }
+
 }

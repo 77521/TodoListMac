@@ -140,6 +140,15 @@
 "tag.context.toast.removed_tag" = "Updated %d events";
 "tag.context.toast.removed_hash" = "Updated %d events";
 
+// 任务列表：分组组头（第二列）
+"overdue_completed" = "Past completed";
+"overdue_uncompleted" = "Past uncompleted";
+"upcoming_schedule" = "Upcoming";
+/// Suffix for “Past …” groups, showing the cutoff days from settings
+/// Example: (Last 7 days)
+"task.group.within_days" = " (Last %d days)";
+"task.group.reschedule" = "Reschedule";
+
 
 // 描述与子任务转换
 "subtask_limit_reached" = "Subtask limit reached (20), cannot add more";

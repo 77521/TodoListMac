@@ -633,6 +633,62 @@ struct TDCorrectQueryBuilder {
     
     
     
+    /// 任务列表页（最近待办/未分类/用户分类）超集查询
+    /// - 目的：保持 1 次查询拿到“不会少数据”的范围超集，具体分组/显示规则仍由 UI 侧内存分组完成（业务逻辑不变）
+    /// - 注意：#Predicate 闭包必须是单表达式，且尽量短，避免宏报错与编译器 type-check 超时
+    static func getTaskListSupersetQuery(
+        categoryId: Int,
+        tagFilter: String = ""
+    ) -> (Predicate<TDMacSwiftDataListModel>, [SortDescriptor<TDMacSwiftDataListModel>]) {
+        let settingManager = TDSettingManager.shared
+        let userId = TDUserManager.shared.userId
+
+        let showNoDate = settingManager.showNoDateEvents
+        let completedDaysLimit = settingManager.expiredRangeCompleted.rawValue
+        let uncompletedDaysLimit = settingManager.expiredRangeUncompleted.rawValue
+        let futureScheduleDaysLimit = settingManager.futureDateRange.rawValue
+
+        let today = Date()
+        let todayTimestamp = today.startOfDayTimestamp
+
+        let maxBackDays = max(completedDaysLimit, uncompletedDaysLimit)
+        let startLowerBound: Int64 = {
+            if maxBackDays <= 0 { return todayTimestamp }
+            return today.adding(days: -maxBackDays).startOfDayTimestamp
+        }()
+
+        let futureEndTimestamp: Int64? = {
+            guard futureScheduleDaysLimit > 0 else { return nil }
+            return today.adding(days: futureScheduleDaysLimit).endOfDayTimestamp
+        }()
+        let futureUpperBound: Int64 = futureEndTimestamp ?? Int64.max
+
+        // 分类过滤（与原逻辑一致）
+        // - 最近待办(-101)：不限制分类
+        // - 未分类(0)：standbyInt1 == 0
+        // - 标签模式(-9999)：不限制分类
+        // - 其它：standbyInt1 == categoryId
+        let shouldFilterByCategory = !(categoryId == -101 || categoryId == -9999)
+        let standbyFilterValue = categoryId > 0 ? categoryId : 0
+        let hasTagFilter = !tagFilter.isEmpty
+
+        let predicate = #Predicate<TDMacSwiftDataListModel> { task in
+            (task.userId == userId)
+            && (!task.delete)
+            && (!hasTagFilter || task.taskContent.localizedStandardContains(tagFilter))
+            && (!shouldFilterByCategory || task.standbyInt1 == standbyFilterValue)
+            && ((showNoDate && task.todoTime == 0) || (task.todoTime >= startLowerBound && task.todoTime <= futureUpperBound))
+        }
+
+        let sortDescriptors = [
+            SortDescriptor(\TDMacSwiftDataListModel.todoTime, order: .forward),
+            SortDescriptor(\TDMacSwiftDataListModel.complete, order: .forward),
+            SortDescriptor(\TDMacSwiftDataListModel.taskSort, order: .forward)
+        ]
+
+        return (predicate, sortDescriptors)
+    }
+
     
     /// 搜索方法 - 根据筛选条件查询任务（搜索文字在应用层实现）
     /// 筛选条件：日期、分类、标签、完成状态

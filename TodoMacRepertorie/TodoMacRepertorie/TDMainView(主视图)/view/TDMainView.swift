@@ -83,6 +83,10 @@ struct TDMainView: View {
         .task {
             // 界面加载完成后，立即执行四个初始化请求和同步操作
             await mainViewModel.performInitialServerRequests()
+            
+            // 预热“日程概览”（避免首次点开 -102 时才初始化导致先空后补的卡顿感）
+            _ = TDScheduleOverviewViewModel.shared
+
             // 单独执行同步操作，避免线程优先级冲突
 //            await mainViewModel.performSyncSeparately()
         }

@@ -141,6 +141,14 @@
 "tag.context.toast.removed_tag" = "已更新 %d 个事件";
 "tag.context.toast.removed_hash" = "已更新 %d 个事件";
 
+// 任务列表：分组组头（第二列）
+"overdue_completed" = "过往已达成";
+"overdue_uncompleted" = "过往未达成";
+"upcoming_schedule" = "后续日程";
+/// 用于 “过往已达成/未达成” 标题后缀：展示设置内的截止天数
+/// 示例： （7天内）
+"task.group.within_days" = "（%d天内）";
+"task.group.reschedule" = "重新安排";
 
 
 // 描述与子任务转换
