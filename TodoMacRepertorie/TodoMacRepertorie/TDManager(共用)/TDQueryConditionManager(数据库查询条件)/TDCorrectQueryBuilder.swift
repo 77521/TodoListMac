@@ -681,8 +681,8 @@ struct TDCorrectQueryBuilder {
         }
 
         let sortDescriptors = [
-            SortDescriptor(\TDMacSwiftDataListModel.todoTime, order: .forward),
             SortDescriptor(\TDMacSwiftDataListModel.complete, order: .forward),
+            SortDescriptor(\TDMacSwiftDataListModel.todoTime, order: .forward),
             SortDescriptor(\TDMacSwiftDataListModel.taskSort, order: .forward)
         ]
 
