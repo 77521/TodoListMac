@@ -149,6 +149,11 @@
 "task.group.within_days" = " (Last %d days)";
 "task.group.reschedule" = "Reschedule";
 
+// 拖拽排序限制提示
+"task.drag.denied.to_completed" = "Cannot move below completed items";
+"task.drag.denied.to_uncompleted" = "Cannot move below uncompleted items";
+"task.drag.denied.to_overdue" = "Cannot move into overdue sections";
+"task.drag.denied.overdue_cross" = "Cannot move into overdue sections";
 
 // 描述与子任务转换
 "subtask_limit_reached" = "Subtask limit reached (20), cannot add more";

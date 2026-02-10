@@ -150,6 +150,11 @@
 "task.group.within_days" = "（%d天内）";
 "task.group.reschedule" = "重新安排";
 
+// 拖拽排序限制提示
+"task.drag.denied.to_completed" = "不能移动到已完成下方";
+"task.drag.denied.to_uncompleted" = "不能移动到未完成之后";
+"task.drag.denied.to_overdue" = "不能移动到已过期内";
+"task.drag.denied.overdue_cross" = "不能移动到已过期内";
 
 // 描述与子任务转换
 "subtask_limit_reached" = "子任务数量已达上限（20个），无法添加更多";
