@@ -27,25 +27,23 @@ extension TDCorrectQueryBuilder {
             (showCompleted || !task.complete)
         }
 
-        let sortDescriptors = [
-            SortDescriptor(\TDMacSwiftDataListModel.complete, order: .forward), // 未完成在前，已完成在后
-            SortDescriptor(\TDMacSwiftDataListModel.taskSort, order: .forward)
-        ]
-
+        let sortDescriptors = TDCorrectQueryBuilder.getTaskListSortDescriptors(sortType: settingManager.taskListSortType)
         return (predicate, sortDescriptors)
     }
 
     /// 任务列表页（最近待办/未分类/用户分类）超集查询（外部注入 userId）
+    /// - Parameter showExpired: 是否显示已过期；false 时仅显示今天及以后，供小组件「显示已过期」开关使用
     static func getTaskListSupersetQuery(
         categoryId: Int,
         tagFilter: String = "",
-        userId: Int
+        userId: Int,
+        showExpired: Bool = true
     ) -> (Predicate<TDMacSwiftDataListModel>, [SortDescriptor<TDMacSwiftDataListModel>]) {
         let settingManager = TDSettingManager.shared
 
         let showNoDate = settingManager.showNoDateEvents
-        let completedDaysLimit = settingManager.expiredRangeCompleted.rawValue
-        let uncompletedDaysLimit = settingManager.expiredRangeUncompleted.rawValue
+        let completedDaysLimit: Int = showExpired ? settingManager.expiredRangeCompleted.rawValue : 0
+        let uncompletedDaysLimit: Int = showExpired ? settingManager.expiredRangeUncompleted.rawValue : 0
         let futureScheduleDaysLimit = settingManager.futureDateRange.rawValue
 
         let today = Date()
@@ -80,12 +78,7 @@ extension TDCorrectQueryBuilder {
             && ((showNoDate && task.todoTime == 0) || (task.todoTime >= startLowerBound && task.todoTime <= futureUpperBound))
         }
 
-        let sortDescriptors = [
-            SortDescriptor(\TDMacSwiftDataListModel.complete, order: .forward), // 未完成在前，已完成在后
-            SortDescriptor(\TDMacSwiftDataListModel.todoTime, order: .forward),
-            SortDescriptor(\TDMacSwiftDataListModel.taskSort, order: .forward)
-        ]
-
+        let sortDescriptors = TDCorrectQueryBuilder.getTaskListSortDescriptors(sortType: settingManager.taskListSortType)
         return (predicate, sortDescriptors)
     }
 }
@@ -104,16 +97,19 @@ enum TDWidgetTaskFetchDescriptorFactory {
     }
 
     /// 列表页：最近待办 / 未分类 / 用户分类（超集查询）
+    /// - Parameter showExpired: 是否显示已过期；false 时仅显示今天及以后
     static func taskListSuperset(
         userId: Int,
         categoryId: Int,
         tagFilter: String = "",
-        fetchLimit: Int
+        fetchLimit: Int,
+        showExpired: Bool = true
     ) -> FetchDescriptor<TDMacSwiftDataListModel> {
         let (predicate, sortDescriptors) = TDCorrectQueryBuilder.getTaskListSupersetQuery(
             categoryId: categoryId,
             tagFilter: tagFilter,
-            userId: userId
+            userId: userId,
+            showExpired: showExpired
         )
         var descriptor = FetchDescriptor<TDMacSwiftDataListModel>(predicate: predicate, sortBy: sortDescriptors)
         descriptor.fetchLimit = fetchLimit

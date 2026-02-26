@@ -18,38 +18,60 @@ class TDCategoryManager: ObservableObject {
 
     /// 分类数据文件路径（App Group 目录下，按 userId 区分）
     private var categoriesFileURL: URL {
-        // 1. 获取 App Group 目录（主程序和小组件都能访问）
+        categoriesFileURL(userId: userId)
+    }
+    
+    /// 指定 userId 对应的分类文件路径（与 loadLocalCategories(userId:) / saveCategories(_:userId:) 一致）
+    private func categoriesFileURL(userId: Int) -> URL {
         guard let appGroupURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: TDAppConfig.appGroupId) else {
             fatalError("获取 App Group 目录失败")
         }
-        // 2. 在 App Group 目录下创建 categories 子目录
         let userDir = appGroupURL.appendingPathComponent("categories", isDirectory: true)
         try? FileManager.default.createDirectory(at: userDir, withIntermediateDirectories: true)
-        // 3. 每个用户一个 json 文件，文件名带 userId
         return userDir.appendingPathComponent("categories_\(userId).json")
     }
-
+    
     /// 从文件加载分类数据（按当前 userId，主程序和小组件都能用）
     /// - Returns: 分类数组，如果失败则返回默认分类
     func loadLocalCategories() -> [TDSliderBarModel] {
+        loadLocalCategories(userId: userId)
+    }
+    
+    /// 按指定 userId 从 App Group 加载分类（小组件等场景用 TDWidgetUserSession 的 userId 调用）
+    /// - Parameter userId: 用户 ID
+    /// - Returns: 分类数组，失败返回默认分类
+    func loadLocalCategories(userId: Int) -> [TDSliderBarModel] {
+        guard let appGroupURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: TDAppConfig.appGroupId) else {
+            return TDSliderBarModel.defaultItems(settingManager: TDSettingManager.shared)
+        }
+        let userDir = appGroupURL.appendingPathComponent("categories", isDirectory: true)
+        let fileURL = userDir.appendingPathComponent("categories_\(userId).json")
         do {
-            let data = try Data(contentsOf: categoriesFileURL)
+            let data = try Data(contentsOf: fileURL)
             let categories = try JSONDecoder().decode([TDSliderBarModel].self, from: data)
             return categories
         } catch {
-            print("加载本地分类数据失败：\(error)")
             return TDSliderBarModel.defaultItems(settingManager: TDSettingManager.shared)
         }
     }
     
     /// 保存分类数据到文件（按当前 userId，主程序和小组件都能用）
-    /// - Parameter categories: 要保存的分类数组
     func saveCategories(_ categories: [TDSliderBarModel]) async {
+        await saveCategories(categories, userId: userId)
+    }
+    
+    /// 按指定 userId 保存分类数据到 App Group（与 loadLocalCategories(userId:) 对应，按用户区分文件）
+    /// - Parameters:
+    ///   - categories: 要保存的分类数组
+    ///   - userId: 用户 ID，对应文件 categories_\(userId).json
+    func saveCategories(_ categories: [TDSliderBarModel], userId: Int) async {
         await withCheckedContinuation { continuation in
-            Task.detached {
+            Task.detached { [weak self] in
+                guard let self = self else { continuation.resume(); return }
                 do {
                     let data = try JSONEncoder().encode(categories)
-                    try data.write(to: self.categoriesFileURL)
+                    let fileURL = self.categoriesFileURL(userId: userId)
+                    try data.write(to: fileURL)
                 } catch {
                     print("保存分类数据失败：\(error)")
                 }
@@ -57,7 +79,6 @@ class TDCategoryManager: ObservableObject {
             }
         }
     }
-    
     /// 清除本地分类数据（只清除当前 userId 的数据，主程序和小组件都能用）
     func clearLocalCategories() {
         try? FileManager.default.removeItem(at: categoriesFileURL)
