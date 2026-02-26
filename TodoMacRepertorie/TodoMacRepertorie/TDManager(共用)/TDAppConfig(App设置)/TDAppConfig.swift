@@ -10,7 +10,7 @@ import SwiftUI
 
 struct TDAppConfig {
     /// App Group ID
-    static let appGroupId = "group.com.Mac.Todolist.TodoMacRepertorie"
+    static let appGroupId = "group.com.TodoMacRepertorie.mac"
     /// 安全密钥
     static let securityKey = "naonao520a@163.com"
     /// SwiftData 数据库文件名

@@ -328,20 +328,55 @@ struct TDTaskModel: Codable {
 
     // MARK: - Codable
     enum CodingKeys: String, CodingKey {
-        case id, taskId, taskContent, taskDescribe, complete, createTime, delete
+        case id, taskId, taskContent, taskDescribe, complete, isComplete, createTime, delete
         case reminderTime, snowAdd, snowAssess, standbyInt1, standbyStr1
         case standbyStr2, standbyStr3, standbyStr4, syncTime, taskSort
         case todoTime, userId, version
         case status, number, isSubOpen, standbyIntColor, standbyIntName
         case reminderTimeString, subTaskList, attachmentList
     }
+    /// 编码给服务器：不包含 id，complete 以 isComplete 键输出
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(taskId, forKey: .taskId)
+        try container.encodeIfPresent(taskContent, forKey: .taskContent)
+        try container.encodeIfPresent(taskDescribe, forKey: .taskDescribe)
+        try container.encode(complete, forKey: .isComplete)
+        try container.encode(createTime, forKey: .createTime)
+        try container.encode(delete, forKey: .delete)
+        try container.encode(reminderTime, forKey: .reminderTime)
+        try container.encode(snowAdd, forKey: .snowAdd)
+        try container.encode(snowAssess, forKey: .snowAssess)
+        try container.encode(standbyInt1, forKey: .standbyInt1)
+        try container.encodeIfPresent(standbyStr1, forKey: .standbyStr1)
+        try container.encodeIfPresent(standbyStr2, forKey: .standbyStr2)
+        try container.encodeIfPresent(standbyStr3, forKey: .standbyStr3)
+        try container.encodeIfPresent(standbyStr4, forKey: .standbyStr4)
+        try container.encode(syncTime, forKey: .syncTime)
+        try container.encode(taskSort, forKey: .taskSort)
+        try container.encode(todoTime, forKey: .todoTime)
+        try container.encode(userId, forKey: .userId)
+        try container.encode(version, forKey: .version)
+        try container.encode(status, forKey: .status)
+        try container.encode(number, forKey: .number)
+        try container.encode(isSubOpen, forKey: .isSubOpen)
+        try container.encode(standbyIntColor, forKey: .standbyIntColor)
+        try container.encode(standbyIntName, forKey: .standbyIntName)
+        try container.encode(reminderTimeString, forKey: .reminderTimeString)
+        try container.encode(subTaskList, forKey: .subTaskList)
+        try container.encode(attachmentList, forKey: .attachmentList)
+    }
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        id = try container.decode(Int64.self, forKey: .id)
+        id = try container.decodeIfPresent(Int64.self, forKey: .id) ?? 0
         taskId = try container.decode(String.self, forKey: .taskId)
         taskContent = try container.decodeIfPresent(String.self, forKey: .taskContent)
         taskDescribe = try container.decodeIfPresent(String.self, forKey: .taskDescribe)
-        complete = try container.decode(Bool.self, forKey: .complete)
+        if let c = try? container.decode(Bool.self, forKey: .complete) {
+            complete = c
+        } else {
+            complete = try container.decode(Bool.self, forKey: .isComplete)
+        }
         createTime = try container.decode(Int64.self, forKey: .createTime)
         delete = try container.decode(Bool.self, forKey: .delete)
         reminderTime = try container.decode(Int64.self, forKey: .reminderTime)

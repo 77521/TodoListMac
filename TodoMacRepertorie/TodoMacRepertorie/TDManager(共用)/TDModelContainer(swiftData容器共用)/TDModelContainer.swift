@@ -5,6 +5,26 @@ import SwiftData
 import SwiftUI
 import OSLog
 
+enum TDSharedSwiftDataStore {
+    /// 主 App 与 Widget 共享的 Schema（务必保持一致）
+    static let schema = Schema([
+        TDMacSwiftDataListModel.self,
+        TDTomatoRecordLocalModel.self,
+        TDTagModel.self,
+        TDTaskTagModel.self
+    ])
+
+    /// Widget / Extension 使用：打开 AppGroup 下同一份 SwiftData store
+    static func makeWidgetContext() throws -> ModelContext {
+        let modelConfiguration = ModelConfiguration(
+            schema: schema,
+            groupContainer: .identifier(TDAppConfig.appGroupId)
+        )
+        let container = try ModelContainer(for: schema, configurations: [modelConfiguration])
+        return ModelContext(container)
+    }
+}
+
 
 /// SwiftData 容器管理类 - 简化版本
 final class TDModelContainer: ObservableObject {
@@ -27,12 +47,7 @@ final class TDModelContainer: ObservableObject {
         print("📚 SwiftData容器初始化开始")
         
         // 配置 SwiftData 存储到 App Group
-        let schema = Schema([
-            TDMacSwiftDataListModel.self,
-            TDTomatoRecordLocalModel.self,
-            TDTagModel.self,
-            TDTaskTagModel.self
-        ])
+        let schema = TDSharedSwiftDataStore.schema
         let modelConfiguration = ModelConfiguration(
             schema: schema,
             groupContainer: .identifier(TDAppConfig.appGroupId),

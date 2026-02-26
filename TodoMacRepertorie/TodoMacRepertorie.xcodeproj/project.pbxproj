@@ -85,6 +85,7 @@
 				"TDLogin(登录)/model/TDUserModel(用户信息)/TDUserModel.swift",
 				"TDMainView(主视图)/view/TDFocusView(专注)/model/TDTomatoRecordModel.swift",
 				"TDManager(共用)/TDAppConfig(App设置)/TDAppConfig.swift",
+				"TDManager(共用)/TDAppGroupFileStore(小组件路径)/TDAppGroupFileStore.swift",
 				"TDManager(共用)/TDCalendarService(本地日历)/TDCalendarService.swift",
 				"TDManager(共用)/TDCalendarService(本地日历)/TDLunarCalendar.swift",
 				"TDManager(共用)/TDCategoryManager(分类清单)/TDCategoryManager.swift",
@@ -108,6 +109,8 @@
 				"TDManager(共用)/TDUser(用户信息)/TDKeychainManager(用户信息缓存)/TDKeychainManager.swift",
 				"TDManager(共用)/TDUser(用户信息)/TDUserManager(用户信息获取操作)/TDUserManager.swift",
 				"TDManager(共用)/TDUser(用户信息)/TDUserSyncManager(用户同步)/TDUserSyncManager.swift",
+				"TDManager(共用)/TDWidgetReloadBridge(刷新小组件)/TDWidgetReloadBridge.swift",
+				"TDManager(共用)/TDWidgetUserInfoBridge(主app共享用户信息给小组件)/TDWidgetUserInfoBridge.swift",
 				"TDSlider(侧边栏)/model/TDCategoryAPI.swift",
 				"TDSlider(侧边栏)/model/TDSliderBarModel.swift",
 				"TDTask(任务列表)/model/TDDateManager.swift",
@@ -359,6 +362,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = TDMacWidget/TDMacWidget.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = ARQ4QZ8Q3D;
@@ -374,7 +378,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.Mac.Todolist.TodoMacRepertorie.TDMacWidget;
+				PRODUCT_BUNDLE_IDENTIFIER = com.eve.todolist4mac.TDMacWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
@@ -390,6 +394,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = TDMacWidget/TDMacWidget.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = ARQ4QZ8Q3D;
@@ -405,7 +410,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.Mac.Todolist.TodoMacRepertorie.TDMacWidget;
+				PRODUCT_BUNDLE_IDENTIFIER = com.eve.todolist4mac.TDMacWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
@@ -542,6 +547,7 @@
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_ENTITLEMENTS = TodoMacRepertorie/TodoMacRepertorie.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
@@ -553,6 +559,7 @@
 				INFOPLIST_FILE = TodoMacRepertorie/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Todo清单";
 				INFOPLIST_KEY_NSCalendarsUsageDescription = "需要访问日历以添加任务提醒";
+				INFOPLIST_KEY_NSCalendarsWriteOnlyAccessUsageDescription = "需要写入日历以创建任务提醒事件";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -560,7 +567,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 3.75;
-				PRODUCT_BUNDLE_IDENTIFIER = com.Mac.Todolist.TodoMacRepertorie;
+				PRODUCT_BUNDLE_IDENTIFIER = com.eve.todolist4mac;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -576,6 +583,7 @@
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_ENTITLEMENTS = TodoMacRepertorie/TodoMacRepertorie.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
@@ -587,6 +595,7 @@
 				INFOPLIST_FILE = TodoMacRepertorie/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Todo清单";
 				INFOPLIST_KEY_NSCalendarsUsageDescription = "需要访问日历以添加任务提醒";
+				INFOPLIST_KEY_NSCalendarsWriteOnlyAccessUsageDescription = "需要写入日历以创建任务提醒事件";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -594,7 +603,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 3.75;
-				PRODUCT_BUNDLE_IDENTIFIER = com.Mac.Todolist.TodoMacRepertorie;
+				PRODUCT_BUNDLE_IDENTIFIER = com.eve.todolist4mac;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;

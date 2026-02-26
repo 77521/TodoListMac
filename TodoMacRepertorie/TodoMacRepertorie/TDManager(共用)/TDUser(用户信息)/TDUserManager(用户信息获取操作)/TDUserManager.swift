@@ -45,10 +45,14 @@ class TDUserManager: ObservableObject {
             self.isLoggedIn = true
             // 非会员则强制恢复默认主题，防止上次 VIP 主题残留
             TDThemeManager.shared.enforceVipTheme(isVip: user.isVIP)
+            // 写入 AppGroup：给小组件读取（TDUserModel JSON）
+            TDWidgetUserInfoBridge.write(user: user)
 
         } else {
             self.currentUser = nil
             self.isLoggedIn = false
+            TDWidgetUserInfoBridge.clear()
+
         }
     }
     
@@ -87,7 +91,8 @@ class TDUserManager: ObservableObject {
         // 非会员则强制恢复默认主题，防止上次 VIP 主题残留
         TDThemeManager.shared.enforceVipTheme(isVip: user.isVIP)
 
-        
+        TDWidgetUserInfoBridge.write(user: user)
+
         
         //        // 发送用户登录通知
         //        NotificationCenter.default.post(name: .userDidLogin, object: nil)
@@ -111,6 +116,8 @@ class TDUserManager: ObservableObject {
         if let userData = try? JSONEncoder().encode(user) {
             keychainManager.saveUserInfo(userData, for: user.userId)
         }
+        TDWidgetUserInfoBridge.write(user: user)
+
     }
     
     /// 清除用户信息
@@ -139,6 +146,9 @@ class TDUserManager: ObservableObject {
         UserDefaults.standard.removeObject(forKey: "last_login_userid")
         // 发送用户退出登录通知
         NotificationCenter.default.post(name: .userDidLogout, object: nil)
+        
+        TDWidgetUserInfoBridge.clear()
+
     }
     
     /// 切换到指定 userId 的账号
@@ -172,6 +182,9 @@ class TDUserManager: ObservableObject {
         TDSettingManager.shared.clearCategoryJsonData(for: userId)
         UserDefaults.standard.removeObject(forKey: "last_login_userid")
         NotificationCenter.default.post(name: .userDidLogout, object: nil)
+        
+        TDWidgetUserInfoBridge.clear()
+
     }
 
     // MARK: - 账号列表管理

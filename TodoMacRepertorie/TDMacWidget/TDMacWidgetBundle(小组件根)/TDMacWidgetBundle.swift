@@ -12,6 +12,7 @@ import SwiftData
 @main
 struct TDMacWidgetBundle: WidgetBundle {
     var body: some Widget {
-        TDMacWidget()
+        // 列表格式
+        TDMacWidgetListModeWidget()
     }
 }

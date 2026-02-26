@@ -6,7 +6,7 @@
 	<true/>
 	<key>com.apple.security.application-groups</key>
 	<array>
-		<string>group.com.Mac.Todolist.TodoMacRepertorie</string>
+		<string>group.com.TodoMacRepertorie.mac</string>
 	</array>
 	<key>com.apple.security.network.client</key>
 	<true/>
