@@ -178,7 +178,7 @@ class TDSettingManager: ObservableObject {
             }
             return sharedDefaults?.integer(forKey: Keys.firstDayOfWeek) == 1
         }
-        set { sharedDefaults?.set(newValue ? 1 : 0, forKey: Keys.firstDayOfWeek); objectWillChange.send() }
+        set { sharedDefaults?.set(newValue ? 1 : 0, forKey: Keys.firstDayOfWeek); objectWillChange.send(); TDWidgetReloadBridge.reloadListMode() }
     }
     
     /// 是否显示已完成任务
@@ -189,7 +189,7 @@ class TDSettingManager: ObservableObject {
             }
             return sharedDefaults?.bool(forKey: Keys.showCompletedTasks) ?? true
         }
-        set { sharedDefaults?.set(newValue, forKey: Keys.showCompletedTasks); objectWillChange.send() }
+        set { sharedDefaults?.set(newValue, forKey: Keys.showCompletedTasks); objectWillChange.send(); TDWidgetReloadBridge.reloadListMode() }
     }
     
     /// 数据展示排序（true: 升序，false: 降序）
@@ -331,19 +331,19 @@ class TDSettingManager: ObservableObject {
     /// 已完成过期任务显示范围
     var expiredRangeCompleted: TDExpiredRange {
         get { TDExpiredRange(rawValue: sharedDefaults?.integer(forKey: Keys.expiredRangeCompleted) ?? TDExpiredRange.sevenDays.rawValue) ?? .sevenDays }
-        set { sharedDefaults?.set(newValue.rawValue, forKey: Keys.expiredRangeCompleted); objectWillChange.send() }
+        set { sharedDefaults?.set(newValue.rawValue, forKey: Keys.expiredRangeCompleted); objectWillChange.send(); TDWidgetReloadBridge.reloadListMode() }
     }
 
     /// 未完成过期任务显示范围
     var expiredRangeUncompleted: TDExpiredRange {
         get { TDExpiredRange(rawValue: sharedDefaults?.integer(forKey: Keys.expiredRangeUncompleted) ?? TDExpiredRange.sevenDays.rawValue) ?? .sevenDays }
-        set { sharedDefaults?.set(newValue.rawValue, forKey: Keys.expiredRangeUncompleted); objectWillChange.send() }
+        set { sharedDefaults?.set(newValue.rawValue, forKey: Keys.expiredRangeUncompleted); objectWillChange.send(); TDWidgetReloadBridge.reloadListMode() }
     }
     
     /// 重复数据显示个数
     var repeatTasksLimit: TDRepeatTasksLimit {
         get { TDRepeatTasksLimit(rawValue: sharedDefaults?.integer(forKey: Keys.repeatTasksLimit) ?? TDRepeatTasksLimit.five.rawValue) ?? .five }
-        set { sharedDefaults?.set(newValue.rawValue, forKey: Keys.repeatTasksLimit); objectWillChange.send() }
+        set { sharedDefaults?.set(newValue.rawValue, forKey: Keys.repeatTasksLimit); objectWillChange.send(); TDWidgetReloadBridge.reloadListMode() }
     }
     /// 默认提醒时间（分钟偏移，0 表示发生时，默认 5 分钟前）
     var defaultReminderOffset: TDDefaultReminder {
@@ -360,7 +360,7 @@ class TDSettingManager: ObservableObject {
     /// 后续日程显示范围
     var futureDateRange: TDFutureDateRange {
         get { TDFutureDateRange(rawValue: sharedDefaults?.integer(forKey: Keys.futureDateRange) ?? TDFutureDateRange.thirtyDays.rawValue) ?? .thirtyDays }
-        set { sharedDefaults?.set(newValue.rawValue, forKey: Keys.futureDateRange); objectWillChange.send() }
+        set { sharedDefaults?.set(newValue.rawValue, forKey: Keys.futureDateRange); objectWillChange.send(); TDWidgetReloadBridge.reloadListMode() }
     }
     
     /// 是否显示无日期事件
@@ -394,7 +394,7 @@ class TDSettingManager: ObservableObject {
     /// 日历视图任务背景色模式
     var calendarTaskBackgroundMode: TDTaskBackgroundMode {
         get { TDTaskBackgroundMode(rawValue: sharedDefaults?.integer(forKey: Keys.calendarTaskBackgroundMode) ?? TDTaskBackgroundMode.workload.rawValue) ?? .workload }
-        set { sharedDefaults?.set(newValue.rawValue, forKey: Keys.calendarTaskBackgroundMode); objectWillChange.send() }
+        set { sharedDefaults?.set(newValue.rawValue, forKey: Keys.calendarTaskBackgroundMode); objectWillChange.send(); TDWidgetReloadBridge.reloadListMode() }
     }
     
     /// 日历视图是否显示已完成分割线
@@ -405,7 +405,7 @@ class TDSettingManager: ObservableObject {
             }
             return sharedDefaults?.bool(forKey: Keys.calendarShowCompletedSeparator) ?? true
         }
-        set { sharedDefaults?.set(newValue, forKey: Keys.calendarShowCompletedSeparator); objectWillChange.send() }
+        set { sharedDefaults?.set(newValue, forKey: Keys.calendarShowCompletedSeparator); objectWillChange.send(); TDWidgetReloadBridge.reloadListMode() }
     }
     
     /// 任务列表排序方式（默认：自定义）
@@ -416,7 +416,7 @@ class TDSettingManager: ObservableObject {
             }
             return sharedDefaults?.integer(forKey: Keys.taskListSortType) ?? 0
         }
-        set { sharedDefaults?.set(newValue, forKey: Keys.taskListSortType); objectWillChange.send() }
+        set { sharedDefaults?.set(newValue, forKey: Keys.taskListSortType); objectWillChange.send(); TDWidgetReloadBridge.reloadListMode() }
     }
 
     /// 日历视图是否显示剩余任务数量
@@ -427,7 +427,7 @@ class TDSettingManager: ObservableObject {
             }
             return sharedDefaults?.bool(forKey: Keys.calendarShowRemainingCount) ?? true
         }
-        set { sharedDefaults?.set(newValue, forKey: Keys.calendarShowRemainingCount); objectWillChange.send() }
+        set { sharedDefaults?.set(newValue, forKey: Keys.calendarShowRemainingCount); objectWillChange.send(); TDWidgetReloadBridge.reloadListMode() }
     }
     
     

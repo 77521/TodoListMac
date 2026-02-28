@@ -75,6 +75,8 @@ class TDCategoryManager: ObservableObject {
                 } catch {
                     print("保存分类数据失败：\(error)")
                 }
+                // 分类改动需要刷新小组件（名称/颜色/删除等）
+                TDWidgetReloadBridge.reloadListMode()
                 continuation.resume()
             }
         }
@@ -82,6 +84,8 @@ class TDCategoryManager: ObservableObject {
     /// 清除本地分类数据（只清除当前 userId 的数据，主程序和小组件都能用）
     func clearLocalCategories() {
         try? FileManager.default.removeItem(at: categoriesFileURL)
+        // 分类改动需要刷新小组件（名称/颜色/删除等）
+        TDWidgetReloadBridge.reloadListMode()
     }
     
     /// 根据分类ID获取分类信息（按当前 userId，主程序和小组件都能用）

@@ -25,7 +25,7 @@ enum TDWidgetReloadBridge {
     static func reload(kind: String) {
 #if canImport(WidgetKit)
         WidgetCenter.shared.reloadTimelines(ofKind: kind)
-        WidgetCenter.shared.reloadAllTimelines()
+//        WidgetCenter.shared.reloadAllTimelines()
 #endif
     }
 

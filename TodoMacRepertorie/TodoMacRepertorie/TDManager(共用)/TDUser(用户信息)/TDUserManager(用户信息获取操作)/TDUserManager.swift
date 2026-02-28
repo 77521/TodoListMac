@@ -28,6 +28,13 @@ class TDUserManager: ObservableObject {
         loadUserFromKeychain()
     }
     
+    
+    /// 是否运行在 Widget Extension 进程中（避免 extension 冷启动时误清空 AppGroup 里给小组件用的用户文件）
+    private var isRunningInWidgetExtension: Bool {
+        Bundle.main.bundleURL.pathExtension == "appex"
+            || (Bundle.main.bundleIdentifier?.contains("TDMacWidget") ?? false)
+    }
+
     // MARK: - 用户信息管理
     
     /// 从 Keychain 恢复用户信息
@@ -51,7 +58,11 @@ class TDUserManager: ObservableObject {
         } else {
             self.currentUser = nil
             self.isLoggedIn = false
-            TDWidgetUserInfoBridge.clear()
+            // Widget Extension 冷启动时 Keychain/last_login_userid 可能为空，但 AppGroup 用户文件仍应保留，
+            // 否则首次点击小组件按钮会触发 TDUserManager 初始化并把小组件用户文件清空，导致 UI 变成“未登录”。
+            if !isRunningInWidgetExtension {
+                TDWidgetUserInfoBridge.clear()
+            }
 
         }
     }

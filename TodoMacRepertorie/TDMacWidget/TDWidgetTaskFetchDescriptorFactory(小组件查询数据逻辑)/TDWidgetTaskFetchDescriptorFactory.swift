@@ -23,8 +23,11 @@ extension TDCorrectQueryBuilder {
         let dateTimestamp = selectedDate.startOfDayTimestamp
 
         let predicate = #Predicate<TDMacSwiftDataListModel> { task in
-            task.userId == userId && !task.delete && task.todoTime == dateTimestamp &&
-            (showCompleted || !task.complete)
+            // 必须条件：userId + delete=false
+            (task.userId == userId)
+            && (!task.delete)
+            && (task.todoTime == dateTimestamp)
+            && (showCompleted || !task.complete)
         }
 
         let sortDescriptors = TDCorrectQueryBuilder.getTaskListSortDescriptors(sortType: settingManager.taskListSortType)
@@ -42,17 +45,16 @@ extension TDCorrectQueryBuilder {
         let settingManager = TDSettingManager.shared
 
         let showNoDate = settingManager.showNoDateEvents
-        let completedDaysLimit: Int = showExpired ? settingManager.expiredRangeCompleted.rawValue : 0
-        let uncompletedDaysLimit: Int = showExpired ? settingManager.expiredRangeUncompleted.rawValue : 0
+        let uncompletedDaysLimit = settingManager.expiredRangeUncompleted.rawValue
         let futureScheduleDaysLimit = settingManager.futureDateRange.rawValue
 
         let today = Date()
         let todayTimestamp = today.startOfDayTimestamp
 
-        let maxBackDays = max(completedDaysLimit, uncompletedDaysLimit)
-        let startLowerBound: Int64 = {
-            if maxBackDays <= 0 { return todayTimestamp }
-            return today.adding(days: -maxBackDays).startOfDayTimestamp
+        // 过期未完成的下界：按“过期未完成显示范围”控制；若设置为 hide（<=0）则不显示过期未完成
+        let overdueUncompletedLowerBound: Int64 = {
+            guard showExpired, uncompletedDaysLimit > 0 else { return todayTimestamp }
+            return today.adding(days: -uncompletedDaysLimit).startOfDayTimestamp
         }()
 
         let futureEndTimestamp: Int64? = {
@@ -71,11 +73,23 @@ extension TDCorrectQueryBuilder {
         let hasTagFilter = !tagFilter.isEmpty
 
         let predicate = #Predicate<TDMacSwiftDataListModel> { task in
+            // 必须条件：userId + delete=false
             (task.userId == userId)
             && (!task.delete)
             && (!hasTagFilter || task.taskContent.localizedStandardContains(tagFilter))
             && (!shouldFilterByCategory || task.standbyInt1 == standbyFilterValue)
-            && ((showNoDate && task.todoTime == 0) || (task.todoTime >= startLowerBound && task.todoTime <= futureUpperBound))
+            && (
+                // 无日期
+                (showNoDate && task.todoTime == 0)
+                // 今天及未来（不区分完成状态）
+                || (task.todoTime >= todayTimestamp && task.todoTime <= futureUpperBound)
+                // 过期：仅显示“过期未完成”，且仅当小组件开关 showExpired=true，并受“过期未完成天数”范围控制
+                || (showExpired
+                    && !task.complete
+                    && task.todoTime >= overdueUncompletedLowerBound
+                    && task.todoTime < todayTimestamp
+                )
+            )
         }
 
         let sortDescriptors = TDCorrectQueryBuilder.getTaskListSortDescriptors(sortType: settingManager.taskListSortType)

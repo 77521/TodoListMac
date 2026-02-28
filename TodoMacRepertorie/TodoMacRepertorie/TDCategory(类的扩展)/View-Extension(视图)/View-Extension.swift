@@ -83,8 +83,26 @@ extension View {
             }
         }
     }
+    
+    /// 文字截断：保持单行布局优先级与裁剪（与 iOS 版本逻辑一致）
+    func fixedClipped() -> some View {
+        self.modifier(FixedClipped())
+    }
+
 
 }
+
+// MARK: - 文字截断（对齐 iOS 小组件 fixedClipped）
+private struct FixedClipped: ViewModifier {
+    func body(content: Content) -> some View {
+        ZStack(alignment: .leading) {
+            content.hidden().layoutPriority(1)
+            content.fixedSize(horizontal: true, vertical: false)
+        }
+        .clipped()
+    }
+}
+
 
 // MARK: - 抖动辅助
 extension Binding where Value == Bool {
@@ -96,6 +114,7 @@ extension Binding where Value == Bool {
         }
     }
 }
+// MARK: - 文字截断（对齐 iOS 小组件 fixedClipped）
 
 //// MARK: - 主题色开关样式（可复用）
 //struct ThemedSwitchToggleStyle: ToggleStyle {

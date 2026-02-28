@@ -13,10 +13,18 @@ class TDThemeManager: ObservableObject {
     static let shared = TDThemeManager()
     // 使用 App Group 的 UserDefaults
     private let sharedDefaults: UserDefaults
+    private static let appGroupDefaults: UserDefaults = {
+        guard let d = UserDefaults(suiteName: TDAppConfig.appGroupId) else {
+            fatalError("无法初始化 App Group UserDefaults")
+        }
+        return d
+    }()
 
     // MARK: - AppStorage
-    @AppStorage("td_selected_theme_id") private var selectedThemeId: String = "mars_green"
-    
+    // 关键：必须用 App Group store，否则主 App 选中的主题不会同步到小组件进程
+    @AppStorage("td_selected_theme_id", store: TDThemeManager.appGroupDefaults)
+    private var selectedThemeId: String = "mars_green"
+
     // MARK: - Published
     @Published private(set) var themes: [TDTheme] = []
     
@@ -177,12 +185,8 @@ class TDThemeManager: ObservableObject {
     
     private init() {
         
-        // 初始化 App Group 的 UserDefaults
-        guard let sharedDefaults = UserDefaults(suiteName:TDAppConfig.appGroupId) else {
-            fatalError("无法初始化 App Group UserDefaults")
-        }
-        self.sharedDefaults = sharedDefaults
-        
+        self.sharedDefaults = Self.appGroupDefaults
+
         // 从 App Group 加载主题 ID
         if let savedThemeId = sharedDefaults.string(forKey: "td_selected_theme_id") {
             selectedThemeId = savedThemeId
@@ -203,6 +207,8 @@ class TDThemeManager: ObservableObject {
             sharedDefaults.synchronize()
             objectWillChange.send()
         }
+        TDWidgetReloadBridge.reloadListMode()
+
     }
    
     /// 添加新主题
@@ -218,6 +224,8 @@ class TDThemeManager: ObservableObject {
         saveThemes()
         // 通知小组件更新
 //        NotificationCenter.default.post(name: .themeDidChange, object: nil)
+        TDWidgetReloadBridge.reloadListMode()
+
     }
 
     /// 删除主题
@@ -233,6 +241,8 @@ class TDThemeManager: ObservableObject {
         if selectedThemeId == themeId {
             switchTheme(to: Self.defaultThemes[0].id)
         }
+        TDWidgetReloadBridge.reloadListMode()
+
         // 通知小组件更新
 //        NotificationCenter.default.post(name: .themeDidChange, object: nil)
     }
@@ -253,12 +263,36 @@ class TDThemeManager: ObservableObject {
     }
 
     // MARK: - 颜色获取
+    
+    /// 全局统一的“主色/强调色”层级（后续只改这里即可全局生效）
+    /// - 主 App / 小组件都应该复用这个入口，而不是到处写 color(level: 5)
+    static let primaryTintColorLevel: Int = 5
+
+    
     /// 获取指定层级的颜色
     func color(level: Int) -> Color {
         let isDark = TDSettingManager.shared.isDarkMode
         let hexColor = currentTheme.colorLevels.color(for: level, isDark: isDark)
         return Color.fromHex(hexColor)
     }
+    
+    /// 获取指定层级的颜色（由外部决定深浅色）
+    /// - 用于小组件“自动夜间模式”跟随系统 colorScheme，而不依赖主 App 设置
+    func color(level: Int, isDark: Bool) -> Color {
+        let hexColor = currentTheme.colorLevels.color(for: level, isDark: isDark)
+        return Color.fromHex(hexColor)
+    }
+    
+    /// 全局统一主色/强调色（等价于 color(level: primaryTintColorLevel)）
+    func primaryTintColor() -> Color {
+        color(level: Self.primaryTintColorLevel)
+    }
+    
+    /// 全局统一主色/强调色（由外部决定深浅色）
+    func primaryTintColor(isDark: Bool) -> Color {
+        color(level: Self.primaryTintColorLevel, isDark: isDark)
+    }
+
     
     /// 获取指定主题的指定层级颜色（完全固定，不受主题和模式影响）
     /// 用于需要固定颜色的UI元素，如"过期未达成"分组始终使用新年红

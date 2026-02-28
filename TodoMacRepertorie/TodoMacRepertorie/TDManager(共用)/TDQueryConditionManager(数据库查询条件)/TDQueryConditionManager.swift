@@ -309,6 +309,7 @@ class TDQueryConditionManager {
 
         // 保存到数据库
         try context.save()
+        TDWidgetReloadBridge.reloadListMode()
 
     }
     
@@ -516,6 +517,8 @@ extension TDQueryConditionManager {
             try context.save()
             
             print("本地添加任务成功，taskId: \(task.taskId), version: \(newVersion)")
+            TDWidgetReloadBridge.reloadListMode()
+
             return .added
             
         } catch {
@@ -580,6 +583,8 @@ extension TDQueryConditionManager {
             
             // 5. 保存上下文
             try context.save()
+            TDWidgetReloadBridge.reloadListMode()
+
             return .updated
             
         } catch {
@@ -672,7 +677,8 @@ extension TDQueryConditionManager {
         
         // 批量保存所有更改
         try context.save()
-        
+        TDWidgetReloadBridge.reloadListMode()
+
         print("批量更新完成")
     }
 
