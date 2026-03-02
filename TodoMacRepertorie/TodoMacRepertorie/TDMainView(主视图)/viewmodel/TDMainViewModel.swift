@@ -52,6 +52,15 @@ final class TDMainViewModel: ObservableObject {
     /// 当前选中的任务（单选模式）
     @Published var selectedTask: TDMacSwiftDataListModel?
     
+    /// 深链：待打开的 taskId（用于避免“切换分类时异步清空 selectedTask”与深链选中发生竞态）
+    /// - 只有在深链流程中短暂存在；完成后必须清空
+    @Published var pendingDeepLinkTaskId: String? = nil
+
+
+    /// 小组件/外部深链：请求把“添加任务输入框”聚焦（一次性）
+    /// - 说明：用 UUID 作为 token，避免 bool 反复触发/丢触发
+    @Published var pendingInputFocusRequestId: UUID? = nil
+
     /// 专注关联的任务（专门用于专注功能）
     @Published var focusTask: TDMacSwiftDataListModel?
 
@@ -91,7 +100,11 @@ final class TDMainViewModel: ObservableObject {
             selectedCategory = category
             // 切换分类时退出多选模式
             exitMultiSelectMode()
-            selectedTask = nil
+            // 深链打开任务时：不要在“切换分类”的异步里把选中任务又清空（否则会出现你说的：切到 DayTodo 但不选中/不出详情）
+            if pendingDeepLinkTaskId == nil {
+                selectedTask = nil
+            }
+
 
         }
     }
@@ -104,7 +117,9 @@ final class TDMainViewModel: ObservableObject {
             selectedCategory = nil
             selectedTagKey = tagKey
             exitMultiSelectMode()
-            selectedTask = nil
+            if pendingDeepLinkTaskId == nil {
+                selectedTask = nil
+            }
         }
     }
     

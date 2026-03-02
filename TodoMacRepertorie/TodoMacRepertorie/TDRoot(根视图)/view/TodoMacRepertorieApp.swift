@@ -88,6 +88,9 @@ struct TodoMacRepertorieApp: App {
             Group {
                 if userManager.isLoggedIn {
                     TDMainView()
+                        // 关键：避免点击小组件（openURL）时不断新建主窗口
+                        // 让 `todomac://...` 外部事件优先复用现有窗口（若已存在）
+                        .handlesExternalEvents(preferring: Set(arrayLiteral: "todomac"), allowing: Set(arrayLiteral: "todomac"))
                         .environmentObject(themeManager)
                         .environmentObject(settingManager)
                         .environmentObject(mainViewModel)
@@ -107,6 +110,9 @@ struct TodoMacRepertorieApp: App {
                 }
             }
             .preferredColorScheme(preferredScheme)
+            .onOpenURL { url in
+                handleWidgetDeepLink(url)
+            }
 //            .environment(\.locale, currentLocale)
 
 //            .tdToastBottom(
@@ -171,6 +177,8 @@ struct TodoMacRepertorieApp: App {
             }
 
         }
+        // 让主 WindowGroup 接管 `todomac://...` 外部事件（没有窗口时才创建新窗口）
+        .handlesExternalEvents(matching: Set(arrayLiteral: "todomac"))
         .modelContainer(modelContainer.container)
         .windowStyle(.hiddenTitleBar)
         .windowResizability(.contentSize)
@@ -243,6 +251,105 @@ struct TodoMacRepertorieApp: App {
 //        TDToastCenter.shared.show("专注时长已存在，不能重复添加", type: .error, position: .top)   // 顶部
 //        TDToastCenter.shared.show("保存成功")                                                   // 默认底部
 //        TDToastCenter.shared.show("处理中…", type: .info, position: .center)                   // 中间
+    }
+
+    // MARK: - Widget / Deep Link
+    private func handleWidgetDeepLink(_ url: URL) {
+        // 仅处理我们自己的 scheme（避免误伤其他 openURL 场景）
+        guard url.scheme == "todomac" else { return }
+
+        // 激活到前台（你要“点击小组件主 App 立马切换”）
+        NSApp.activate(ignoringOtherApps: true)
+        TDSettingsWindowTracker.shared.mainWindow?.makeKeyAndOrderFront(nil)
+
+        let comps = URLComponents(url: url, resolvingAgainstBaseURL: false)
+        let items = comps?.queryItems ?? []
+        func q(_ name: String) -> String? { items.first(where: { $0.name == name })?.value }
+
+        let action = q("action")?.lowercased()
+        let categoryId: Int? = {
+            if let s = q("categoryId"), let v = Int(s) { return v }
+            if let s = q("mode"), let v = Int(s) { return v } // 兼容旧参数名
+            return nil
+        }()
+        let taskId = q("taskId")?.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        // 关键：深链必须“串行”，否则会出现竞态：
+        // - 切换第一栏分类的异步流程，可能在稍后把 selectedTask 清空
+        // - 导致你看到的：只有当主 App 已经在同模式下时，才会选中/出详情
+        Task { @MainActor in
+            let sliderVM = TDSliderBarViewModel.shared
+
+            // 如果点的是加号：切换模式 + 聚焦输入框（不打开详情）
+            if action == "add" {
+                if let cid = categoryId {
+                    if let model = findCategory(in: sliderVM.items, categoryId: cid) {
+                        sliderVM.selectedCategory = model
+                    } else if cid == 0 {
+                        sliderVM.selectedCategory = .uncategorized
+                    }
+                }
+                mainViewModel.selectedTask = nil
+                mainViewModel.pendingDeepLinkTaskId = nil
+                mainViewModel.pendingInputFocusRequestId = UUID()
+                return
+            }
+
+            // 点的是任务：必须保证“先切模式，再选中任务”
+            if let tid = taskId, !tid.isEmpty {
+                mainViewModel.pendingDeepLinkTaskId = tid
+            }
+
+            // 1) 第一栏：切换到对应模式/清单（直接赋值，避免额外 Task 再引入不确定顺序）
+            if let cid = categoryId {
+                if let model = findCategory(in: sliderVM.items, categoryId: cid) {
+                    sliderVM.selectedCategory = model
+                } else if cid == 0 {
+                    sliderVM.selectedCategory = .uncategorized
+                }
+            }
+
+            // 2) 等待主视图模型的 selectedCategory 确认切换完成（让异步清空逻辑在“保护标记”期间跑完）
+            if let cid = categoryId {
+                let deadline = Date().addingTimeInterval(0.8)
+                while Date() < deadline {
+                    if mainViewModel.selectedCategory?.categoryId == cid { break }
+                    await Task.yield()
+                }
+            } else {
+                // 没有 categoryId 时也让出一次执行权，保证 UI/状态先稳定
+                await Task.yield()
+            }
+
+            // 3) 打开任务详情（第二列选中 + 第三列显示）
+            if let tid = taskId, !tid.isEmpty {
+                do {
+                    let context = TDModelContainer.shared.mainContext
+                    if let task = try await TDQueryConditionManager.shared.getLocalTaskByTaskId(taskId: tid, context: context) {
+                        mainViewModel.selectedTask = task
+                    }
+                } catch {
+                    // 深链失败不弹 Toast，避免打扰
+                }
+
+                // 再让出 1-2 帧，避免极端情况下“切分类的异步 Task”延后执行把选中清掉
+                await Task.yield()
+                await Task.yield()
+                mainViewModel.pendingDeepLinkTaskId = nil
+            } else {
+                mainViewModel.pendingDeepLinkTaskId = nil
+            }
+        }
+    }
+
+    private func findCategory(in items: [TDSliderBarModel], categoryId: Int) -> TDSliderBarModel? {
+        for item in items {
+            if item.categoryId == categoryId { return item }
+            if let children = item.children, let found = findCategory(in: children, categoryId: categoryId) {
+                return found
+            }
+        }
+        return nil
     }
 }
 

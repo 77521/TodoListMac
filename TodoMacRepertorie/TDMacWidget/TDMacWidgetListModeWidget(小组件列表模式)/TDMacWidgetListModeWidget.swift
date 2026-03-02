@@ -78,11 +78,22 @@ private struct TDWidgetIntentProvider: AppIntentTimelineProvider {
         }
 
         let fetchLimit = TDWidgetTaskDisplayLimit.value(for: family)
+        let prefetchLimit = TDWidgetTaskDisplayLimit.prefetchValue(
+            displayLimit: fetchLimit,
+            repeatPerGroupLimit: TDSettingManager.shared.repeatNum,
+            viewType: configuration.viewType
+        )
 
         do {
             let context = try TDSharedSwiftDataStore.makeWidgetContext()
-            let descriptor = descriptor(for: configuration, userId: user.userId, fetchLimit: fetchLimit)
-            let tasks = try context.fetch(descriptor)
+            let descriptor = descriptor(for: configuration, userId: user.userId, fetchLimit: prefetchLimit)
+            let rawTasks = try context.fetch(descriptor)
+            let tasks = TDWidgetTaskRepeatLimiter.apply(
+                rawTasks,
+                viewType: configuration.viewType,
+                perRepeatGroupLimit: TDSettingManager.shared.repeatNum,
+                overallDisplayLimit: fetchLimit
+            )
 
             let completedCount = tasks.filter { $0.complete }.count
             let totalCount = tasks.count
@@ -181,6 +192,8 @@ private struct TDWidgetTaskRowView: View {
     let task: TDMacSwiftDataListModel
     /// 是否按“自动夜间模式 + 系统暗色”渲染（不写回任何设置，避免影响主 App）
     let isDark: Bool
+    /// 仅 最近待办 / 分类清单 需要：标题后追加日期；Day Todo 不显示日期（对齐主 App）
+    let showsInlineDate: Bool
 
     private var checkboxColor: Color {
         if TDSettingManager.shared.checkboxFollowCategoryColor, task.standbyInt1 > 0, !task.standbyIntColor.isEmpty {
@@ -194,6 +207,14 @@ private struct TDWidgetTaskRowView: View {
             return TDThemeManager.shared.currentTheme.baseColors.descriptionText.color(isDark: isDark)
         }
         return TDThemeManager.shared.currentTheme.baseColors.titleText.color(isDark: isDark)
+    }
+
+    private var inlineDateText: String? {
+        guard showsInlineDate else { return nil }
+        return TDWidgetTaskInlineDateLabel.text(for: task)
+    }
+    private var inlineDateColor: Color {
+        TDWidgetTaskInlineDateLabel.color(for: task, isDark: isDark)
     }
 
     var body: some View {
@@ -217,46 +238,62 @@ private struct TDWidgetTaskRowView: View {
                     .frame(width: 4.0, height: 12.0)
             }
 
-            // 标题 + 紧跟图标（不靠右）
-            Text(task.taskContent)
-                .font(.system(size: 13, weight: .regular))
-                // 字体颜色必须复用主 App 的主题文字色（baseColors），并由 isDark 决定深浅色
-                .foregroundColor(titleColor)
-                .strikethrough(
-                    task.complete && TDSettingManager.shared.showCompletedTaskStrikethrough,
-                    color: titleColor
-                )
-                .opacity(task.complete ? 0.6 : 1.0)
-                .lineLimit(1)
-                .fixedClipped()
+            // 左侧：标题 + 紧跟图标（不靠右）
+            HStack(alignment: .center, spacing: 4.0) {
+                Text(task.taskContent)
+                    .font(.system(size: 13, weight: .regular))
+                    // 字体颜色必须复用主 App 的主题文字色（baseColors），并由 isDark 决定深浅色
+                    .foregroundColor(titleColor)
+                    .strikethrough(
+                        task.complete && TDSettingManager.shared.showCompletedTaskStrikethrough,
+                        color: titleColor
+                    )
+                    .opacity(task.complete ? 0.6 : 1.0)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+                    .fixedClipped()
 
-            // 图标紧跟文字，颜色用主题色 5 级；尺寸按你贴的写
-            if task.hasReminder {
-                Image("icon_reminder")
-                    .renderingMode(.template)
-                    .resizable()
-                    .frame(width: 12, height: 12)
-                    .foregroundStyle(.tint)
-                    .widgetAccentable()
+                // 图标紧跟文字，颜色用主题色 5 级；尺寸按你贴的写
+                if task.hasReminder {
+                    Image("icon_reminder")
+                        .renderingMode(.template)
+                        .resizable()
+                        .frame(width: 12, height: 12)
+                        .foregroundStyle(.tint)
+                        .widgetAccentable()
+                }
+                if task.hasRepeat {
+                    Image("icon_repeat")
+                        .renderingMode(.template)
+                        .resizable()
+                        .frame(width: 12, height: 12)
+                        .foregroundStyle(.tint)
+                        .widgetAccentable()
+                }
+                if task.hasSubTasks {
+                    Image("icon_subtask")
+                        .renderingMode(.template)
+                        .resizable()
+                        .frame(width: 10, height: 10)
+                        .foregroundStyle(.tint)
+                        .widgetAccentable()
+                }
             }
-            if task.hasRepeat {
-                Image("icon_repeat")
-                    .renderingMode(.template)
-                    .resizable()
-                    .frame(width: 12, height: 12)
-                    .foregroundStyle(.tint)
-                    .widgetAccentable()
-            }
-            if task.hasSubTasks {
-                Image("icon_subtask")
-                    .renderingMode(.template)
-                    .resizable()
-                    .frame(width: 10, height: 10)
-                    .foregroundStyle(.tint)
-                    .widgetAccentable()
-            }
+            // 注意：不要用 maxWidth: .infinity 把空间全部吃掉，否则右侧日期会被挤没
+            .layoutPriority(0)
 
-            Spacer()
+            Spacer(minLength: 0)
+
+            // 右侧：日期（自适应宽度，始终贴右）
+            if let dateText = inlineDateText, !dateText.isEmpty {
+                Text(dateText)
+                    .font(.system(size: 11, weight: .regular))
+                    .foregroundColor(inlineDateColor)
+                    .lineLimit(1)
+                    // 关键：日期不被压缩；标题先截断
+                    .fixedSize(horizontal: true, vertical: false)
+                    .layoutPriority(1)
+            }
         }
         // 行内图标使用主题 5 级色（不跟随分类标题色）
         .tint(TDThemeManager.shared.primaryTintColor(isDark: isDark))
@@ -269,14 +306,112 @@ private enum TDWidgetTaskDisplayLimit {
     static func value(for family: WidgetFamily) -> Int {
         switch family {
         case .systemSmall:
-            return 5
+            return 6
         case .systemMedium:
-            return 7
+            return 6
         case .systemLarge:
-            return 15
+            return 14
         default:
-            return 7
+            return 6
         }
+    }
+
+    /// 为了在“重复事件限制”过滤后仍能填满显示行数：预取更多数据再在内存里裁剪到 displayLimit
+    static func prefetchValue(
+        displayLimit: Int,
+        repeatPerGroupLimit: Int,
+        viewType: TDWidgetListViewType
+    ) -> Int {
+        // Day Todo 不需要重复组限制（且列表通常更短），避免不必要的额外 fetch
+        guard viewType != .dayTodo else { return displayLimit }
+        // 设置为“全部(0)”时不做限制：不必额外预取
+        guard repeatPerGroupLimit > 0 else { return displayLimit }
+        // 经验值：最多拉 5 倍，避免重复组过多导致过滤后不够行
+        return min(max(displayLimit * 5, displayLimit), 200)
+    }
+}
+
+// MARK: - 小组件：标题后日期（最近待办 / 分类清单）
+
+private enum TDWidgetTaskInlineDateLabel {
+    /// 显示文本：过期/后续日期显示“月日”；今天/明天/后天显示文字；无日期不显示
+    static func text(for task: TDMacSwiftDataListModel) -> String? {
+        if task.todoTime == 0 { return nil }
+
+        let date = Date.fromTimestamp(task.todoTime)
+        if date.isToday { return "今天" }
+        if date.isTomorrow { return "明天" }
+        if date.isDayAfterTomorrow { return "后天" }
+        return monthDayString(date)
+    }
+
+    /// 颜色规则：
+    /// - 已过期：红色（固定新年红 5 级）
+    /// - 今天/明天/后天：主题色（5 级，全局统一入口）
+    /// - 后续日期/无日期：描述文字色（适配深浅色）
+    static func color(for task: TDMacSwiftDataListModel, isDark: Bool) -> Color {
+        // 无日期（理论上不会走到这里：text=nil 不渲染）
+        if task.todoTime == 0 { return TDThemeManager.shared.currentTheme.baseColors.descriptionText.color(isDark: isDark) }
+
+        let date = Date.fromTimestamp(task.todoTime)
+        if date.isOverdue {
+            return TDThemeManager.shared.fixedColor(themeId: "new_year_red", level: TDThemeManager.primaryTintColorLevel)
+        }
+        if date.isToday || date.isTomorrow || date.isDayAfterTomorrow {
+            return TDThemeManager.shared.primaryTintColor(isDark: isDark)
+        }
+        return TDThemeManager.shared.currentTheme.baseColors.descriptionText.color(isDark: isDark)
+    }
+
+    private static func monthDayString(_ date: Date) -> String {
+        // “月日”短格式：避免占用标题空间
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "zh_Hans_CN")
+        formatter.dateFormat = "MM月dd日"
+        return formatter.string(from: date)
+    }
+}
+
+// MARK: - 小组件：重复事件显示数量限制（与主 App 设置一致）
+
+private enum TDWidgetTaskRepeatLimiter {
+    /// - Parameters:
+    ///   - perRepeatGroupLimit: 0 表示全部；>0 表示同一 standbyStr1（重复ID）最多显示 N 条
+    static func apply(
+        _ tasks: [TDMacSwiftDataListModel],
+        viewType: TDWidgetListViewType,
+        perRepeatGroupLimit: Int,
+        overallDisplayLimit: Int
+    ) -> [TDMacSwiftDataListModel] {
+        // DayTodo：不做重复组过滤（对齐主 App 列表：DayTodo 主要按当天展示）
+        guard viewType != .dayTodo else {
+            return Array(tasks.prefix(overallDisplayLimit))
+        }
+        // 设置为“全部”
+        guard perRepeatGroupLimit > 0 else {
+            return Array(tasks.prefix(overallDisplayLimit))
+        }
+
+        // 重复事件显示个数限制：只在“后续日程（>后天）”生效
+        let dayAfterTomorrowStart: Int64 = Date().adding(days: 2).startOfDayTimestamp
+
+        var repeatCounts: [String: Int] = [:]
+        var result: [TDMacSwiftDataListModel] = []
+        result.reserveCapacity(min(tasks.count, overallDisplayLimit))
+
+        for task in tasks {
+            // 仅当任务属于“后续日程”且有重复ID时才限制
+            if task.todoTime > dayAfterTomorrowStart, let rid = task.standbyStr1, !rid.isEmpty {
+                let next = (repeatCounts[rid] ?? 0) + 1
+                if next > perRepeatGroupLimit { continue }
+                repeatCounts[rid] = next
+            }
+
+            result.append(task)
+            if result.count >= overallDisplayLimit { break }
+        }
+
+        return result
     }
 }
 
@@ -284,6 +419,34 @@ private struct TDWidgetUserView: View {
     let entry: TDWidgetIntentProvider.Entry
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.widgetRenderingMode) private var widgetRenderingMode
+    
+    private var widgetCategoryId: Int {
+        switch entry.configuration.viewType {
+        case .dayTodo:
+            return -100
+        case .recentTodos:
+            return -101
+        case .categoryList:
+            return entry.configuration.category?.categoryId ?? -101
+        }
+    }
+    
+    private func deepLinkURL(taskId: String? = nil, action: String? = nil) -> URL {
+        var comps = URLComponents()
+        comps.scheme = "todomac"
+        comps.host = "widget"
+        var items: [URLQueryItem] = [
+            URLQueryItem(name: "categoryId", value: "\(widgetCategoryId)")
+        ]
+        if let action, !action.isEmpty {
+            items.append(URLQueryItem(name: "action", value: action))
+        }
+        if let taskId, !taskId.isEmpty {
+            items.append(URLQueryItem(name: "taskId", value: taskId))
+        }
+        comps.queryItems = items
+        return comps.url ?? URL(string: "todomac://widget?categoryId=\(widgetCategoryId)")!
+    }
 
     var body: some View {
         // 小组件最终的深浅色开关：
@@ -320,12 +483,15 @@ private struct TDWidgetUserView: View {
                         .widgetAccentable()
                         .lineLimit(1)
                     Spacer()
-                    Image(systemName: "plus.circle.fill")
-                        .resizable()
-                        .imageScale(.large)
-                        .frame(width: 20.0, height: 20.0)
-                        .foregroundStyle(.tint)
-                        .widgetAccentable()
+                    Link(destination: deepLinkURL(action: "add")) {
+                        Image(systemName: "plus.circle.fill")
+                            .resizable()
+                            .imageScale(.large)
+                            .frame(width: 20.0, height: 20.0)
+                            .foregroundStyle(.tint)
+                            .widgetAccentable()
+                    }
+                    .buttonStyle(.plain)
                 }
                 .padding(.top, 12.0)
 
@@ -333,7 +499,20 @@ private struct TDWidgetUserView: View {
                     if entry.tasks.count > 0 {
                         VStack(alignment: .leading, spacing: 0.0) {
                             ForEach(entry.tasks) { model in
-                                TDWidgetTaskRowView(task: model, isDark: widgetIsDark)
+                                TDWidgetTaskRowView(
+                                    task: model,
+                                    isDark: widgetIsDark,
+                                    showsInlineDate: entry.configuration.viewType != .dayTodo
+                                )
+                                    .overlay {
+                                        Link(destination: deepLinkURL(taskId: model.taskId)) {
+                                            Color.clear
+                                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                        }
+                                        .buttonStyle(.plain)
+                                        // 让左侧“完成按钮”保留可点击区域
+                                        .padding(.leading, 24)
+                                    }
                             }
                         }
                         .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity, alignment: .topLeading)
@@ -368,6 +547,8 @@ private struct TDWidgetUserView: View {
         // 把我们计算出的 tint 作为强调色，供 .widgetAccentable() / .foregroundStyle(.tint) 使用
         // 关键：跟随系统深浅色切换，避免“背景变了但字体/图标不变”
         .tint(headerTint)
+        // 点击小组件空白区域：默认打开主 App 并切到对应模式
+        .widgetURL(deepLinkURL())
         // 系统要求：Widget 背景使用 containerBackground API（否则会出现 “Please adopt containerBackground API”）
         // 自动夜间模式：跟随系统 colorScheme；关闭则永远使用白天模式（白底）
         .containerBackground(for: .widget) {

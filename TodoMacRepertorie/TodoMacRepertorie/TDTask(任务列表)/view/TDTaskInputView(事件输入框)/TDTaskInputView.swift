@@ -12,6 +12,7 @@ struct TDTaskInputView: View {
     @StateObject private var settingManager = TDSettingManager.shared
     @StateObject private var sliderViewModel = TDSliderBarViewModel.shared
     @StateObject private var userManager = TDUserManager.shared
+    @ObservedObject private var mainViewModel = TDMainViewModel.shared
     @Environment(\.modelContext) private var modelContext
 
     /// 输入框当前选中的“目标清单 id”
@@ -71,6 +72,7 @@ struct TDTaskInputView: View {
             // 输入框
             TDHashtagEditor(
                 text: $taskContent,
+                focusRequestId: $mainViewModel.pendingInputFocusRequestId,
                 placeholder: "task_input_placeholder".localized,
                 fontSize: 13,
                 onCommit: {

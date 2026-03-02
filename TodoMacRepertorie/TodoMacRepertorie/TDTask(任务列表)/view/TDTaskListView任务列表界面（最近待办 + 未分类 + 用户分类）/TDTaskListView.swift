@@ -37,9 +37,16 @@ struct TDTaskListView: View {
 
     // MARK: - 计算属性
     
-    /// 获取当前分类的所有任务（用于多选功能）
-    private var allTasksCount: Int { tasks.count }
-    private var allTasksFlattened: [TDMacSwiftDataListModel] { tasks }
+    /// 获取当前分类的所有“可见任务”（用于多选功能）
+    /// - 关键：重复事件显示个数限制仅对“后续日程”生效，所以这里的可见性也以分组逻辑为准
+    private var allTasksCount: Int {
+        let grouped = groupTasks(tasks)
+        return flattenGrouped(grouped).count
+    }
+    private var allTasksFlattened: [TDMacSwiftDataListModel] {
+        let grouped = groupTasks(tasks)
+        return flattenGrouped(grouped)
+    }
 
     private struct GroupedTasks {
         var overdueCompleted: [TDMacSwiftDataListModel] = []
@@ -49,6 +56,17 @@ struct TDTaskListView: View {
         var dayAfterTomorrow: [TDMacSwiftDataListModel] = []
         var futureSchedule: [TDMacSwiftDataListModel] = []
         var noDate: [TDMacSwiftDataListModel] = []
+    }
+
+    private func flattenGrouped(_ grouped: GroupedTasks) -> [TDMacSwiftDataListModel] {
+        // 顺序与页面分组一致（用于多选操作栏）
+        grouped.overdueCompleted
+        + grouped.overdueUncompleted
+        + grouped.today
+        + grouped.tomorrow
+        + grouped.dayAfterTomorrow
+        + grouped.futureSchedule
+        + grouped.noDate
     }
 
     /// 一次遍历完成分组（避免 7 次 filter）
@@ -69,6 +87,7 @@ struct TDTaskListView: View {
         let completedDaysLimit = settingManager.expiredRangeCompleted.rawValue
         let uncompletedDaysLimit = settingManager.expiredRangeUncompleted.rawValue
         let futureScheduleDaysLimit = settingManager.futureDateRange.rawValue
+        let repeatPerGroupLimit = settingManager.repeatNum
 
         let allowByCompletedSetting: (TDMacSwiftDataListModel) -> Bool = { showCompleted || !$0.complete }
 
@@ -84,6 +103,9 @@ struct TDTaskListView: View {
             if futureScheduleDaysLimit <= 0 { return Int64.max }
             return today.adding(days: futureScheduleDaysLimit).endOfDayTimestamp
         }()
+
+        // 仅用于“后续日程”的重复计数：同一重复ID最多显示 N 条（设置为 0 表示全部）
+        var futureRepeatCounts: [String: Int] = [:]
 
         for task in tasks {
             let tt = task.todoTime
@@ -127,6 +149,12 @@ struct TDTaskListView: View {
             // 后续日程
             if tt > dayAfterTomorrowTimestamp {
                 if allowByCompletedSetting(task), tt <= futureUpperBound {
+                    // 重复事件显示个数限制：只在“后续日程”生效
+                    if repeatPerGroupLimit > 0, let rid = task.standbyStr1, !rid.isEmpty {
+                        let next = (futureRepeatCounts[rid] ?? 0) + 1
+                        if next > repeatPerGroupLimit { continue }
+                        futureRepeatCounts[rid] = next
+                    }
                     grouped.futureSchedule.append(task)
                 }
             }
@@ -146,7 +174,7 @@ struct TDTaskListView: View {
                 .padding(.vertical, 16)
             
             // 任务分组列表
-            if tasks.isEmpty {
+            if flattenGrouped(grouped).isEmpty {
                 // 空状态
                 VStack(spacing: 16) {
                     Image(systemName: "checkmark.circle")
@@ -165,8 +193,9 @@ struct TDTaskListView: View {
                 .padding(.top, 60)
             } else {
                 // 分组列表
-                ScrollView {
-                    LazyVStack(spacing: 0) {
+                ScrollViewReader { proxy in
+                    ScrollView {
+                        LazyVStack(spacing: 0) {
                         // 过期已达成组
                         if settingManager.expiredRangeCompleted != .hide, !grouped.overdueCompleted.isEmpty {
                             TDTaskGroupSectionView(
@@ -251,9 +280,27 @@ struct TDTaskListView: View {
                             )
                             .id(TDTaskGroupType.noDate.rawValue)
                         }
+                        }
+                    }
+                    .scrollIndicators(.hidden)
+                    .onAppear {
+                        if let id = mainViewModel.selectedTask?.taskId {
+                            DispatchQueue.main.async {
+                                withAnimation(.easeInOut(duration: 0.25)) {
+                                    proxy.scrollTo(id, anchor: .center)
+                                }
+                            }
+                        }
+                    }
+                    .onChange(of: mainViewModel.selectedTask?.taskId) { _, newId in
+                        guard let newId else { return }
+                        DispatchQueue.main.async {
+                            withAnimation(.easeInOut(duration: 0.25)) {
+                                proxy.scrollTo(newId, anchor: .center)
+                            }
+                        }
                     }
                 }
-                .scrollIndicators(.hidden)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -344,6 +391,7 @@ private struct TDTaskGroupSectionView: View {
                                 onCopySuccess: onCopySuccess,
                                 onEnterMultiSelect: { }
                             )
+                            .id(task.taskId)
 //                            .padding(.leading, 16)
 //                            .padding(.vertical, 4)
                         }

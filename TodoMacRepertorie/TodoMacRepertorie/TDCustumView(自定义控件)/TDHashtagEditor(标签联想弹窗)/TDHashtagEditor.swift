@@ -20,6 +20,9 @@ struct TDHashtagEditor: View {
 
     @Binding var text: String
 
+    /// 外部请求聚焦（一次性 token）
+    @Binding var focusRequestId: UUID?
+
     /// 占位符文案
     let placeholder: String
     
@@ -52,6 +55,20 @@ struct TDHashtagEditor: View {
     @State private var showSuggestions: Bool = false
     @State private var selectedIndex: Int = 0
 
+    init(
+        text: Binding<String>,
+        focusRequestId: Binding<UUID?> = .constant(nil),
+        placeholder: String,
+        fontSize: CGFloat,
+        onCommit: (() -> Void)? = nil
+    ) {
+        self._text = text
+        self._focusRequestId = focusRequestId
+        self.placeholder = placeholder
+        self.fontSize = fontSize
+        self.onCommit = onCommit
+    }
+
     var body: some View {
         ZStack(alignment: .topLeading) {
             TDHashtagTextView(
@@ -63,6 +80,7 @@ struct TDHashtagEditor: View {
                 caretScreenRect: $caretScreenRect,
                 caretLocation: $caretLocation,
                 cursorLocationRequest: $cursorRequest,
+                focusRequestId: $focusRequestId,
                 isSuggestionVisible: showSuggestions,
                 suggestionCount: suggestions.count,
                 selectedSuggestionIndex: $selectedIndex,

@@ -35,6 +35,9 @@ struct TDHashtagTextView: NSViewRepresentable {
     /// 请求把光标移动到指定位置（UTF-16 location）
     @Binding var cursorLocationRequest: Int?
 
+    /// 请求聚焦输入框（一次性 token）
+    @Binding var focusRequestId: UUID?
+
     /// 联想弹窗状态（用于拦截上下键/Enter）
     let isSuggestionVisible: Bool
     let suggestionCount: Int
@@ -117,6 +120,16 @@ struct TDHashtagTextView: NSViewRepresentable {
     func updateNSView(_ nsView: NSView, context: Context) {
         context.coordinator.parent = self
         guard let textView = context.coordinator.textView else { return }
+
+        // 请求聚焦（一次性）
+        if focusRequestId != nil {
+            DispatchQueue.main.async {
+                textView.window?.makeFirstResponder(textView)
+                let len = (textView.string as NSString).length
+                textView.setSelectedRange(NSRange(location: len, length: 0))
+                self.focusRequestId = nil
+            }
+        }
 
         // 关键：中文拼音等输入法组合态（markedText）期间，不能去强行同步 string/属性，
         // 否则会打断输入法的组合流程，出现“不断刷新、无法输入”的问题。

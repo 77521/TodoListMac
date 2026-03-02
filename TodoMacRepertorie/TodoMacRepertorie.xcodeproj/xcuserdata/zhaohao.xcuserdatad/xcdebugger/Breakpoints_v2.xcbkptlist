@@ -19,48 +19,32 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "36E46164-4D6F-4A89-9DB4-69D521FBB60F"
+            uuid = "A12E4D4A-438C-400D-BF35-B427A6F850C5"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "TDMacWidget/TDWidgetUserSession(&#x7528;&#x6237;&#x4fe1;&#x606f;&#x89e3;&#x6790;)/TDWidgetUserSession.swift"
+            filePath = "TDMacWidget/TDMacWidgetListModeWidget(&#x5c0f;&#x7ec4;&#x4ef6;&#x5217;&#x8868;&#x6a21;&#x5f0f;)/TDMacWidgetListModeWidget.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "21"
-            endingLineNumber = "21"
-            landmarkName = "currentUser()"
+            startingLineNumber = "343"
+            endingLineNumber = "343"
+            landmarkName = "text(for:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "DEBF625E-46CD-466B-9260-7D3A3027824C"
+            uuid = "95B3DBAD-1E76-4072-9B90-6D41C1E032D9"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "TDMacWidget/TDWidgetUserSession(&#x7528;&#x6237;&#x4fe1;&#x606f;&#x89e3;&#x6790;)/TDWidgetUserSession.swift"
+            filePath = "TDMacWidget/TDMacWidgetListModeWidget(&#x5c0f;&#x7ec4;&#x4ef6;&#x5217;&#x8868;&#x6a21;&#x5f0f;)/TDMacWidgetListModeWidget.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "19"
-            endingLineNumber = "19"
-            landmarkName = "currentUser()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "B07690E5-2F5D-492B-8D73-D1B17EA4DBB5"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "TDMacWidget/TDWidgetUserSession(&#x7528;&#x6237;&#x4fe1;&#x606f;&#x89e3;&#x6790;)/TDWidgetUserSession.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "18"
-            endingLineNumber = "18"
-            landmarkName = "currentUser()"
+            startingLineNumber = "370"
+            endingLineNumber = "370"
+            landmarkName = "monthDayString(_:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
