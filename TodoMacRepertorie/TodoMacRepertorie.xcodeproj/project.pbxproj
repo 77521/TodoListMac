@@ -121,6 +121,8 @@
 				"TDTask(任务列表)/model/TDTaskModel.swift",
 				"TDTask(任务列表)/view/TDCustomDatePickerView.swift",
 				"TDTask(任务列表)/view/TDScheduleOverviewView(日程概览)/model/TDCalendarDateModel.swift",
+				"TDTask(任务列表)/view/TDScheduleOverviewView(日程概览)/view/TDCalendarView(日程显示)/TDCalendarTaskList.swift",
+				"TDTask(任务列表)/view/TDScheduleOverviewView(日程概览)/view/TDCalendarView(日程显示)/TDScheduleWeekdayView.swift",
 				"TDTask(任务列表)/view/TDTaskGroupHeader.swift",
 				"TDTask(任务列表)/viewModel/TDTaskGroupModel.swift",
 				"TDTomatoManager(番茄计时数据)/TDTomatoAPI.swift",

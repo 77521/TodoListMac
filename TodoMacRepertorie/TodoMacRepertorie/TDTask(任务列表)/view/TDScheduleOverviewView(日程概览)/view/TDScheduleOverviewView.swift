@@ -10,6 +10,8 @@ import SwiftData
 
 /// 日程概览视图
 struct TDScheduleOverviewView: View {
+    @EnvironmentObject private var viewModel: TDScheduleOverviewViewModel
+
     var body: some View {
         VStack(spacing: 0) {
             // 顶部工具栏
@@ -17,7 +19,11 @@ struct TDScheduleOverviewView: View {
                 .zIndex(1) // 确保在最上层，阴影效果可见
             
             // 日历组件
-            TDCalendarView()
+            if viewModel.displayMode == .month {
+                TDCalendarView()
+            } else {
+                TDWeekCalendarView()
+            }
             
             // 内容区域
 //            Spacer()

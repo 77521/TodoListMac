@@ -13,6 +13,10 @@ import SwiftData
 struct TDMacWidgetBundle: WidgetBundle {
     var body: some Widget {
         // 列表格式
-        TDMacWidgetListModeWidget()
+//        TDMacWidgetListModeWidget()
+        // 日程概览：周视图(中) / 月视图(大/超大)
+        TDMacWidgetScheduleOverviewWidget()
+        
+        
     }
 }

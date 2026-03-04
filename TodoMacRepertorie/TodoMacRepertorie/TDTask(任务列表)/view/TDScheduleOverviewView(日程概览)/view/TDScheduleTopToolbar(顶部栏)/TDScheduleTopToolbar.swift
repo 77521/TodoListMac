@@ -61,6 +61,14 @@ struct TDScheduleTopToolbar: View {
             )
             
             Spacer()
+
+            // 周/月切换（主 App 专用；小组件不需要）
+            Picker("", selection: $viewModel.displayMode) {
+                Text("月").tag(TDScheduleOverviewViewModel.DisplayMode.month)
+                Text("周").tag(TDScheduleOverviewViewModel.DisplayMode.week)
+            }
+            .pickerStyle(.segmented)
+            .frame(width: 120)
             
             // 日期导航区域
             HStack(spacing: 8) {
@@ -68,7 +76,7 @@ struct TDScheduleTopToolbar: View {
                 HStack(spacing: 3) {
                     // 左箭头 - 增大点击区域
                     Button(action: {
-                        viewModel.previousMonth()
+                        viewModel.previousPeriod()
                     }) {
                         Image(systemName: "chevron.left")
                             .font(.system(size: 14))
@@ -83,10 +91,10 @@ struct TDScheduleTopToolbar: View {
                     Button(action: {
                         viewModel.showDatePickerView()
                     }) {
-                        Text(viewModel.displayMonth.formattedYearMonthString)
+                        Text(viewModel.displayTitleText)
                             .font(.system(size: 12, weight: .medium))
                             .foregroundColor(themeManager.color(level: 5))
-                            .frame(width: 80, alignment: .center) // 固定宽度，中间对齐
+                            .frame(width: viewModel.displayMode == .week ? 120 : 80, alignment: .center) // 周视图需要更宽的标题
                             .contentShape(Rectangle())
                     }
                     .buttonStyle(PlainButtonStyle())
@@ -106,7 +114,7 @@ struct TDScheduleTopToolbar: View {
                     
                     // 右箭头 - 增大点击区域
                     Button(action: {
-                        viewModel.nextMonth()
+                        viewModel.nextPeriod()
                     }) {
                         Image(systemName: "chevron.right")
                             .font(.system(size: 14))

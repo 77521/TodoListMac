@@ -83,26 +83,8 @@ extension View {
             }
         }
     }
-    
-    /// 文字截断：保持单行布局优先级与裁剪（与 iOS 版本逻辑一致）
-    func fixedClipped() -> some View {
-        self.modifier(FixedClipped())
-    }
-
 
 }
-
-// MARK: - 文字截断（对齐 iOS 小组件 fixedClipped）
-private struct FixedClipped: ViewModifier {
-    func body(content: Content) -> some View {
-        ZStack(alignment: .leading) {
-            content.hidden().layoutPriority(1)
-            content.fixedSize(horizontal: true, vertical: false)
-        }
-        .clipped()
-    }
-}
-
 
 // MARK: - 抖动辅助
 extension Binding where Value == Bool {
@@ -114,7 +96,27 @@ extension Binding where Value == Bool {
         }
     }
 }
+
 // MARK: - 文字截断（对齐 iOS 小组件 fixedClipped）
+private struct FixedClipped: ViewModifier {
+    func body(content: Content) -> some View {
+        // 关键：让“参与布局”的那份 Text 隐藏（它会走系统截断逻辑，但不可见）
+        // 再 overlay 一份 fixedSize 的 Text 来展示，并对外层 clipped，达到“无省略号裁剪”效果
+        content
+            .hidden()
+            .overlay(alignment: .leading) {
+                content.fixedSize(horizontal: true, vertical: false)
+            }
+            .clipped()
+    }
+}
+
+extension View {
+    /// 文字截断：保持单行布局优先级与裁剪（与 iOS 版本逻辑一致）
+    func fixedClipped() -> some View {
+        self.modifier(FixedClipped())
+    }
+}
 
 //// MARK: - 主题色开关样式（可复用）
 //struct ThemedSwitchToggleStyle: ToggleStyle {

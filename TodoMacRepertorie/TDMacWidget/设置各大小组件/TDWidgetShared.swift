@@ -9,4 +9,6 @@ import Foundation
 
 enum TDWidgetKind {
     static let listMode = "TDMacWidgetListMode"
+    static let scheduleOverview = "TDMacWidgetScheduleOverview"
+
 }

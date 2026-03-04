@@ -14,6 +14,7 @@ struct TDScheduleTaskInputView: View {
     @StateObject private var settingManager = TDSettingManager.shared
     @StateObject private var sliderViewModel = TDSliderBarViewModel.shared
     @StateObject private var userManager = TDUserManager.shared
+    @ObservedObject private var mainViewModel = TDMainViewModel.shared
     @Environment(\.modelContext) private var modelContext
 
     /// 当前选中的日期（用于创建任务时的日期）
@@ -78,6 +79,7 @@ struct TDScheduleTaskInputView: View {
             // 输入框
             TDHashtagEditor(
                 text: $taskContent,
+                focusRequestId: $mainViewModel.pendingInputFocusRequestId,
                 placeholder: "task_input_placeholder".localized,
                 fontSize: 13,
                 onCommit: {

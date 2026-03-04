@@ -223,7 +223,9 @@ struct TDCalendarDayCell: View {
                             
                             // 农历日期（根据设置决定是否显示）
                             if settingManager.showLunarCalendar {
-                                Text(dateModel.smartDisplay)
+                                // 农历节日/节气文案过长（>4）时，不显示节日名，回退为农历日期
+                                let display = dateModel.smartDisplay
+                                Text(display.count > 4 ? dateModel.date.lunarMonthDisplay : display)
                                     .font(.system(size: 10))
                                     .foregroundColor(themeManager.descriptionTextColor)
                             }

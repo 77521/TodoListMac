@@ -162,3 +162,121 @@ struct TDWidgetListToggleCompleteIntent: AppIntent {
         return .result()
     }
 }
+
+
+// MARK: - 日程概览（周/月）小组件编辑
+
+struct TDScheduleOverviewConfigurationIntent: WidgetConfigurationIntent {
+    static var title: LocalizedStringResource { "日程概览编辑" }
+    static var description: IntentDescription { "配置日程概览小组件选项（添加事件按钮、自动夜间模式）" }
+
+    /// 是否显示右下角「添加事件」按钮
+    @Parameter(title: "添加事件", default: true)
+    var showAddButton: Bool
+
+    /// 是否自动夜间模式（关闭则永远按白天模式渲染）
+    @Parameter(title: "自动夜间模式", default: true)
+    var autoNightMode: Bool
+
+    static var parameterSummary: some ParameterSummary {
+        Summary("日程概览") {
+            \.$showAddButton
+            \.$autoNightMode
+        }
+    }
+}
+
+// MARK: - AppGroup（给小组件存储“当前显示的周/月”用）
+
+private enum TDWidgetAppGroup {
+    static let id = "group.com.TodoMacRepertorie.mac"
+    static let defaults = UserDefaults(suiteName: id)
+}
+
+enum TDWidgetScheduleOverviewState {
+    private static let monthAnchorKey = "td_widget_schedule_overview_month_anchor_ms"
+    private static let weekAnchorKey = "td_widget_schedule_overview_week_anchor_ms"
+
+    static func monthAnchorDate() -> Date {
+        let now = Date()
+        let d = TDWidgetAppGroup.defaults
+        let ms = d?.object(forKey: monthAnchorKey) as? Int64
+        if let ms, ms > 0 {
+            return Date(timeIntervalSince1970: TimeInterval(Double(ms) / 1000.0)).firstDayOfMonth
+        }
+        return now.firstDayOfMonth
+    }
+
+    static func weekAnchorDate() -> Date {
+        let now = Date()
+        let d = TDWidgetAppGroup.defaults
+        let ms = d?.object(forKey: weekAnchorKey) as? Int64
+        if let ms, ms > 0 {
+            return Date(timeIntervalSince1970: TimeInterval(Double(ms) / 1000.0))
+        }
+        return now
+    }
+
+    static func shiftMonth(by delta: Int) {
+        let base = monthAnchorDate()
+        let next = base.adding(months: delta).firstDayOfMonth
+        TDWidgetAppGroup.defaults?.set(next.startOfDayTimestamp, forKey: monthAnchorKey)
+    }
+
+    static func shiftWeek(by deltaWeeks: Int) {
+        let base = weekAnchorDate()
+        let next = base.adding(days: deltaWeeks * 7)
+        TDWidgetAppGroup.defaults?.set(next.startOfDayTimestamp, forKey: weekAnchorKey)
+    }
+}
+
+// MARK: - 日程概览小组件：左右切换（周/月）
+
+/// 以下为月视图事件获取月份点击事件（与列表小组件“完成按钮”一致，走 AppIntent 刷新小组件）
+struct TDCalendrEventChangeMonthClick: AppIntent {
+    static var title: LocalizedStringResource = "TDCalendrEventChangeMonthClick"
+    static var description: IntentDescription = IntentDescription("TDCalendrEventChangeMonthClick")
+
+    /// 传入 -1 表示上个月，+1 表示下个月
+    @Parameter(title: "month")
+    var month: Int
+
+    init(month: Int) {
+        self.month = month
+    }
+
+    init() {
+        self.month = 0
+    }
+
+    @MainActor
+    func perform() async throws -> some IntentResult {
+        TDWidgetScheduleOverviewState.shiftMonth(by: month)
+        WidgetCenter.shared.reloadTimelines(ofKind: TDWidgetKind.scheduleOverview)
+        return .result()
+    }
+}
+
+/// 周视图左右切换：-1 上周，+1 下周
+struct TDCalendrEventChangeWeekClick: AppIntent {
+    static var title: LocalizedStringResource = "TDCalendrEventChangeWeekClick"
+    static var description: IntentDescription = IntentDescription("TDCalendrEventChangeWeekClick")
+
+    @Parameter(title: "week")
+    var week: Int
+
+    init(week: Int) {
+        self.week = week
+    }
+
+    init() {
+        self.week = 0
+    }
+
+    @MainActor
+    func perform() async throws -> some IntentResult {
+        TDWidgetScheduleOverviewState.shiftWeek(by: week)
+        WidgetCenter.shared.reloadTimelines(ofKind: TDWidgetKind.scheduleOverview)
+        return .result()
+    }
+}

@@ -11,6 +11,11 @@ import OSLog
 import SwiftData
 
 class TDScheduleOverviewViewModel: ObservableObject {
+
+    enum DisplayMode: Int, CaseIterable {
+        case month
+        case week
+    }
     
     // MARK: - Published 属性
     /// 单例
@@ -22,6 +27,9 @@ class TDScheduleOverviewViewModel: ObservableObject {
 
     /// 当前选中的日期
     @Published var currentDate: Date = Date()
+
+    /// 日程概览展示模式：月视图/周视图
+    @Published var displayMode: DisplayMode = .month
     
     /// 选中的分类
     @Published var selectedCategory: TDSliderBarModel? = nil
@@ -149,6 +157,75 @@ class TDScheduleOverviewViewModel: ObservableObject {
         os_log(.info, log: logger, "📅 切换到下一个月: %@", targetDate.formattedString)
     }
 
+    // MARK: - Week navigation
+
+    /// 获取当前周的开始日期（受“周一为一周开始”设置影响）
+    func currentWeekStartDate() -> Date {
+        weekStartDate(for: currentDate)
+    }
+
+    /// 获取当前周的结束日期
+    func currentWeekEndDate() -> Date {
+        let start = currentWeekStartDate()
+        return Calendar.current.date(byAdding: .day, value: 6, to: start) ?? start
+    }
+
+    /// 获取当前周的 7 天日期数组（从周起始开始）
+    func currentWeekDates() -> [Date] {
+        let start = currentWeekStartDate()
+        return (0..<7).compactMap { Calendar.current.date(byAdding: .day, value: $0, to: start) }
+    }
+
+    /// 上一周
+    func previousWeek() {
+        let newDate = currentDate.adding(days: -7)
+        withAnimation(.easeInOut(duration: 0.3)) {
+            currentDate = newDate
+            // 让“月份”与当前日期保持一致，便于周/月切换时月视图不跳
+            displayMonth = newDate.firstDayOfMonth
+        }
+        Task { try? await TDCalendarManager.shared.updateCalendarData() }
+        preloadMonthTasksIfNeeded(force: true)
+    }
+
+    /// 下一周
+    func nextWeek() {
+        let newDate = currentDate.adding(days: 7)
+        withAnimation(.easeInOut(duration: 0.3)) {
+            currentDate = newDate
+            displayMonth = newDate.firstDayOfMonth
+        }
+        Task { try? await TDCalendarManager.shared.updateCalendarData() }
+        preloadMonthTasksIfNeeded(force: true)
+    }
+
+    /// 顶部显示文案（周/月模式自适配）
+    var displayTitleText: String {
+        switch displayMode {
+        case .month:
+            return displayMonth.toString(format: displayMonth.isThisYear ? "M月" : "yyyy年 M月")
+        case .week:
+            // 周视图标题也按“月份标题”展示（上/下箭头仍按周切换）
+            return displayMonth.toString(format: displayMonth.isThisYear ? "M月" : "yyyy年 M月")
+        }
+    }
+
+    /// 根据当前展示模式切换上一段（上月/上一周）
+    func previousPeriod() {
+        switch displayMode {
+        case .month: previousMonth()
+        case .week: previousWeek()
+        }
+    }
+
+    /// 根据当前展示模式切换下一段（下月/下一周）
+    func nextPeriod() {
+        switch displayMode {
+        case .month: nextMonth()
+        case .week: nextWeek()
+        }
+    }
+
     /// 获取智能选中的日期
     /// - Parameter targetDate: 目标月份中的任意日期
     /// - Returns: 智能选中的日期
@@ -190,6 +267,17 @@ class TDScheduleOverviewViewModel: ObservableObject {
         }
         preloadMonthTasksIfNeeded(force: true)
         os_log(.info, log: logger, "📅 设置月份并选中日期: %@", date.formattedString)
+    }
+
+    // MARK: - Helpers
+
+    private func weekStartDate(for date: Date) -> Date {
+        let calendar = Calendar.current
+        let weekday = calendar.component(.weekday, from: date) // 1=Sun...7=Sat
+        let firstWeekday = TDSettingManager.shared.isFirstDayMonday ? 2 : 1 // 2=Mon, 1=Sun
+        let delta = (weekday - firstWeekday + 7) % 7
+        let start = calendar.date(byAdding: .day, value: -delta, to: date) ?? date
+        return calendar.startOfDay(for: start)
     }
 
     /// 更新选中的分类
