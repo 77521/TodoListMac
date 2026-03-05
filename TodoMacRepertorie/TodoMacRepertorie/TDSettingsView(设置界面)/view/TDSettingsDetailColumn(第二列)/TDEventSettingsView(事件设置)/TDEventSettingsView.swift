@@ -56,6 +56,30 @@ struct TDEventSettingsView: View {
 //                            )
 //                        )
 //                        TDSettingsDivider()
+                        
+                        HStack {
+                            Text("settings.event.week_start".localized)
+                                .foregroundColor(themeManager.titleTextColor)
+                            Spacer()
+                            Picker("", selection: Binding(
+                                get: { settingManager.isFirstDayMonday },
+                                set: { settingManager.isFirstDayMonday = $0 }
+                            )) {
+                                ForEach(weekStartOptions, id: \.1) { item in
+                                    Text(item.0).tag(item.1)
+                                }
+                            }
+                            .labelsHidden()
+                            .pickerStyle(.menu)
+                            .frame(width: pillWidth(for: currentWeekStartLabel))
+                            .fixedSize(horizontal: true, vertical: false)
+                        }
+                        .padding(.vertical, 10)
+                        .contentShape(Rectangle())
+                        TDSettingsDivider()
+
+
+                        
                         TDSettingsToggleRow(
                             title: "settings.event.checkbox_follow_color".localized,
                             isOn: Binding(

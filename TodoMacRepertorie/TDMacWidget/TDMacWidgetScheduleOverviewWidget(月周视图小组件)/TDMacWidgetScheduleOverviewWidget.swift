@@ -95,7 +95,7 @@ private struct TDScheduleWidgetProvider: AppIntentTimelineProvider {
             ]
 
             var descriptor = FetchDescriptor<TDMacSwiftDataListModel>(predicate: predicate, sortBy: sortDescriptors)
-            descriptor.fetchLimit = 3000
+            descriptor.fetchLimit = TDScheduleWidgetFetchLimit.value(for: family)
 
             let tasks = try context.fetch(descriptor)
             return TDScheduleWidgetEntry(
@@ -117,6 +117,21 @@ private struct TDScheduleWidgetProvider: AppIntentTimelineProvider {
                 tasks: [],
                 swiftDataError: "\(error)"
             )
+        }
+    }
+}
+
+private enum TDScheduleWidgetFetchLimit {
+    static func value(for family: WidgetFamily) -> Int {
+        switch family {
+        case .systemMedium:
+            // 周视图：最多 7 列，单格可展示的任务行数很有限，没必要拉取过多数据
+            return 400
+        case .systemLarge, .systemExtraLarge:
+            // 月视图：最多 42 格（6周），考虑“某一天任务很多”的情况，给出相对保守的上限
+            return 900
+        default:
+            return 400
         }
     }
 }
@@ -145,15 +160,17 @@ struct TDMacWidgetScheduleOverviewWidget: Widget {
 
 private struct TDScheduleWidgetView: View {
     let entry: TDScheduleWidgetEntry
+    private let tasksByDay: [Int64: [TDMacSwiftDataListModel]]
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.widgetFamily) private var family
     @Environment(\.widgetRenderingMode) private var widgetRenderingMode
+    
+    init(entry: TDScheduleWidgetEntry) {
+        self.entry = entry
+        self.tasksByDay = Dictionary(grouping: entry.tasks, by: { $0.todoTime })
+    }
 
     private var widgetIsDark: Bool { entry.configuration.autoNightMode ? (colorScheme == .dark) : false }
-
-    private var tasksByDay: [Int64: [TDMacSwiftDataListModel]] {
-        Dictionary(grouping: entry.tasks, by: { $0.todoTime })
-    }
 
     private var scheduleModeParam: String {
         switch family {
@@ -233,8 +250,6 @@ private struct TDScheduleWidgetView: View {
             }
         }
         .tint(TDThemeManager.shared.primaryTintColor(isDark: widgetIsDark))
-        // 空白区域点击：打开主 App，并切到对应周/月视图与月份
-        .widgetURL(deepLinkURL(date: displayAnchorDate))
         .containerBackground(for: .widget) {
             td_adaptiveBackgroundFill(
                 base: TDThemeManager.shared.currentTheme.baseColors.primaryBackground.color(isDark: widgetIsDark),
@@ -367,6 +382,11 @@ private struct TDScheduleWidgetView: View {
     private var weekGrid: some View {
         let (start, _) = TDWidgetScheduleRange.weekRange(anchor: displayAnchorDate)
         let dates = TDWidgetScheduleRange.weekDates(start: start)
+        let labels = TDWidgetDateLabels.make(
+            dates: dates,
+            showHolidayMark: TDSettingManager.shared.showHolidayMark,
+            showLunarCalendar: TDSettingManager.shared.showLunarCalendar
+        )
 
         return GeometryReader { geo in
             let cellWidth = geo.size.width / 7.0
@@ -380,7 +400,9 @@ private struct TDScheduleWidgetView: View {
                         tasks: tasksByDay[d.startOfDayTimestamp] ?? [],
                         isDark: widgetIsDark,
                         referenceMonth: nil,
-                        linkURL: deepLinkURL(date: d)
+                        linkURL: deepLinkURL(date: d),
+                        holidayMark: labels.holidayMarkByTimestamp[d.startOfDayTimestamp],
+                        lunarText: labels.lunarTextByTimestamp[d.startOfDayTimestamp]
                     )
                 }
             }
@@ -393,6 +415,11 @@ private struct TDScheduleWidgetView: View {
     private var monthGrid: some View {
         let month = displayAnchorDate.firstDayOfMonth
         let grid = TDWidgetMonthGridBuilder.build(month: month)
+        let labels = TDWidgetDateLabels.make(
+            dates: grid.flatMap { $0 },
+            showHolidayMark: TDSettingManager.shared.showHolidayMark,
+            showLunarCalendar: TDSettingManager.shared.showLunarCalendar
+        )
 
         return GeometryReader { geo in
             let rows = grid.count
@@ -410,7 +437,9 @@ private struct TDScheduleWidgetView: View {
                                 tasks: tasksByDay[d.startOfDayTimestamp] ?? [],
                                 isDark: widgetIsDark,
                                 referenceMonth: month,
-                                linkURL: deepLinkURL(date: d)
+                                linkURL: deepLinkURL(date: d),
+                                holidayMark: labels.holidayMarkByTimestamp[d.startOfDayTimestamp],
+                                lunarText: labels.lunarTextByTimestamp[d.startOfDayTimestamp]
                             )
                         }
                     }
@@ -490,6 +519,8 @@ private struct TDWidgetScheduleDayCell: View {
     /// 仅月视图使用：用于把“上/下月补齐日期”做弱化显示
     let referenceMonth: Date?
     let linkURL: URL
+    let holidayMark: String?
+    let lunarText: String?
 
     @Environment(\.widgetRenderingMode) private var widgetRenderingMode
 
@@ -532,17 +563,17 @@ private struct TDWidgetScheduleDayCell: View {
                         Spacer(minLength: 0)
 
                         // 调休/节假日：不显示农历，改显示「班/休」
-                        if TDSettingManager.shared.showHolidayMark, date.isInHolidayData {
-                            Text(date.isHoliday ? "休" : "班")
+                        if let holidayMark, !holidayMark.isEmpty {
+                            Text(holidayMark)
                                 .font(.system(size: 9, weight: .medium))
-                                .foregroundColor(date.isHoliday
+                                .foregroundColor(holidayMark == "休"
                                                  ? TDThemeManager.shared.primaryTintColor(isDark: isDark)
                                                  : rightTextColor)
                                 .lineLimit(1)
                                 .padding(.trailing, 1)
-                        } else if TDSettingManager.shared.showLunarCalendar {
+                        } else if let lunarText, !lunarText.isEmpty {
                             // 节日/节气文案太长（>3）会在小组件玻璃模式下可读性很差：回退为农历日期
-                            Text(date.smartDisplay.count > 3 ? date.lunarMonthDisplay : date.smartDisplay)
+                            Text(lunarText)
                                 .font(.system(size: 10))
                                 .foregroundColor(rightTextColor)
                                 .lineLimit(1)
@@ -600,6 +631,61 @@ private struct TDWidgetScheduleDayCell: View {
             base: TDThemeManager.shared.currentTheme.baseColors.primaryBackground.color(isDark: isDark),
             renderingMode: widgetRenderingMode
         )
+    }
+}
+
+private enum TDWidgetDateLabels {
+    struct Result {
+        let holidayMarkByTimestamp: [Int64: String]
+        let lunarTextByTimestamp: [Int64: String]
+    }
+    
+    static func make(dates: [Date], showHolidayMark: Bool, showLunarCalendar: Bool) -> Result {
+        guard showHolidayMark || showLunarCalendar else {
+            return Result(holidayMarkByTimestamp: [:], lunarTextByTimestamp: [:])
+        }
+        
+        var holidayMarkByTs: [Int64: String] = [:]
+        holidayMarkByTs.reserveCapacity(min(64, dates.count))
+        
+        let holidayMap: [Int64: Bool] = showHolidayMark ? TDWidgetHolidayLookup.holidayMap() : [:]
+        if showHolidayMark, !holidayMap.isEmpty {
+            for d in dates {
+                let ts = d.startOfDayTimestamp
+                if let isHoliday = holidayMap[ts] {
+                    holidayMarkByTs[ts] = isHoliday ? "休" : "班"
+                }
+            }
+        }
+        
+        var lunarByTs: [Int64: String] = [:]
+        lunarByTs.reserveCapacity(min(64, dates.count))
+        
+        if showLunarCalendar {
+            for d in dates {
+                let ts = d.startOfDayTimestamp
+                // 节假日优先，不显示农历
+                if showHolidayMark, holidayMarkByTs[ts] != nil { continue }
+                
+                let (smart, lunarMonthDisplay) = TDLunarCalendar.getSmartDisplayAndLunarMonthDisplay(for: d)
+                lunarByTs[ts] = smart.count > 3 ? lunarMonthDisplay : smart
+            }
+        }
+        
+        return Result(holidayMarkByTimestamp: holidayMarkByTs, lunarTextByTimestamp: lunarByTs)
+    }
+}
+
+private enum TDWidgetHolidayLookup {
+    static func holidayMap() -> [Int64: Bool] {
+        let list = TDHolidayManager.shared.getHolidayList()
+        if list.isEmpty { return [:] }
+        var map: [Int64: Bool] = [:]
+        map.reserveCapacity(list.count)
+        for item in list {
+            map[item.date] = item.holiday
+        }
+        return map
     }
 }
 

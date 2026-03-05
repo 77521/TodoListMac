@@ -41,6 +41,26 @@ extension Date {
         return calendar.component(.month, from: self) == calendar.component(.month, from: today) &&
                calendar.component(.year, from: self) == calendar.component(.year, from: today)
     }
+    /// 判断是否与另一个日期为同一“年月”
+    /// - Parameter other: 对比日期
+    /// - Returns: 是否同月同年
+    func isSameMonth(as other: Date) -> Bool {
+        let calendar = Calendar.current
+        return calendar.component(.year, from: self) == calendar.component(.year, from: other) &&
+               calendar.component(.month, from: self) == calendar.component(.month, from: other)
+    }
+    /// 判断是否与另一个日期为同一“周”（周起始可配置：周日/周一）
+    /// - Parameters:
+    ///   - other: 对比日期
+    ///   - firstDayIsMonday: true=周一为一周开始；false=周日为一周开始
+    func isSameWeek(as other: Date, firstDayIsMonday: Bool) -> Bool {
+        var calendar = Calendar.current
+        calendar.firstWeekday = firstDayIsMonday ? 2 : 1 // 1=周日, 2=周一
+        let c1 = calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: self)
+        let c2 = calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: other)
+        return c1.weekOfYear == c2.weekOfYear && c1.yearForWeekOfYear == c2.yearForWeekOfYear
+    }
+
 
     /// 判断是否已过期
     var isOverdue: Bool {

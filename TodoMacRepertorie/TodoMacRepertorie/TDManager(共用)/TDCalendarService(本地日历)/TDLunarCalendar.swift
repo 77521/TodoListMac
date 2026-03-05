@@ -135,5 +135,46 @@ class TDLunarCalendar {
 
     }
 
-    
+    /// 一次转换同时拿到「smartDisplay」与「lunarMonthDisplay」。
+    /// 用于需要“smart 文案过长则回退为农历日期”的场景，避免重复做农历转换。
+    static func getSmartDisplayAndLunarMonthDisplay(for date: Date) -> (smart: String, lunarMonthDisplay: String) {
+        let lunar = solarToLunar(date)
+        let solar = makeSolar(from: date)
+        
+        let lunarMonthDisplay: String = {
+            if lunar.day == 1 {
+                return lunar.monthInChinese + "月"
+            } else {
+                return "\(lunar.dayInChinese)"
+            }
+        }()
+        
+        // 2. 检查农历节假日
+        let lunarFestivals = lunar.festivals
+        if let first = lunarFestivals.first, !first.isEmpty {
+            return (first, lunarMonthDisplay)
+        }
+        
+        // 3. 检查农历其他节日
+        let lunarOtherFestivals = lunar.otherFestivals
+        if let first = lunarOtherFestivals.first, !first.isEmpty {
+            return (first, lunarMonthDisplay)
+        }
+        
+        // 4. 检查阳历节假日
+        let solarFestivals = solar.festivals
+        if let first = solarFestivals.first, !first.isEmpty {
+            return (first, lunarMonthDisplay)
+        }
+        
+        // 6. 检查24节气
+        let jieQi = lunar.jieQi
+        if !jieQi.isEmpty {
+            return (jieQi, lunarMonthDisplay)
+        }
+        
+        // 7. 最后显示农历
+        return (lunarMonthDisplay, lunarMonthDisplay)
+    }
+
 }

@@ -109,6 +109,18 @@ enum TDWidgetTaskFetchDescriptorFactory {
         descriptor.fetchLimit = fetchLimit
         return descriptor
     }
+    
+    /// DayTodo：指定日期（用于“月历 + 右侧日清单”小组件按选中日期刷新）
+    static func dayTodo(
+        on selectedDate: Date,
+        userId: Int,
+        fetchLimit: Int
+    ) -> FetchDescriptor<TDMacSwiftDataListModel> {
+        let (predicate, sortDescriptors) = TDCorrectQueryBuilder.getDayTodoQuery(selectedDate: selectedDate, userId: userId)
+        var descriptor = FetchDescriptor<TDMacSwiftDataListModel>(predicate: predicate, sortBy: sortDescriptors)
+        descriptor.fetchLimit = fetchLimit
+        return descriptor
+    }
 
     /// 列表页：最近待办 / 未分类 / 用户分类（超集查询）
     /// - Parameter showExpired: 是否显示已过期；false 时仅显示今天及以后

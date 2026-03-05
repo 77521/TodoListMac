@@ -196,13 +196,28 @@ private enum TDWidgetAppGroup {
 enum TDWidgetScheduleOverviewState {
     private static let monthAnchorKey = "td_widget_schedule_overview_month_anchor_ms"
     private static let weekAnchorKey = "td_widget_schedule_overview_week_anchor_ms"
+    
+    private static func isReasonable(_ date: Date, relativeTo now: Date) -> Bool {
+        // 防御：避免 AppGroup 残留/异常值把小组件固定到很远的过去/未来
+        let cal = Calendar.current
+        let base = now.firstDayOfMonth
+        let target = date.firstDayOfMonth
+        let diff = cal.dateComponents([.month], from: base, to: target).month ?? 0
+        return abs(diff) <= 24
+    }
 
     static func monthAnchorDate() -> Date {
         let now = Date()
         let d = TDWidgetAppGroup.defaults
         let ms = d?.object(forKey: monthAnchorKey) as? Int64
         if let ms, ms > 0 {
-            return Date(timeIntervalSince1970: TimeInterval(Double(ms) / 1000.0)).firstDayOfMonth
+            let candidate = Date(timeIntervalSince1970: TimeInterval(Double(ms) / 1000.0)).firstDayOfMonth
+            if isReasonable(candidate, relativeTo: now) {
+                return candidate
+            } else {
+                d?.removeObject(forKey: monthAnchorKey)
+                return now.firstDayOfMonth
+            }
         }
         return now.firstDayOfMonth
     }
@@ -212,7 +227,13 @@ enum TDWidgetScheduleOverviewState {
         let d = TDWidgetAppGroup.defaults
         let ms = d?.object(forKey: weekAnchorKey) as? Int64
         if let ms, ms > 0 {
-            return Date(timeIntervalSince1970: TimeInterval(Double(ms) / 1000.0))
+            let candidate = Date(timeIntervalSince1970: TimeInterval(Double(ms) / 1000.0))
+            if isReasonable(candidate, relativeTo: now) {
+                return candidate
+            } else {
+                d?.removeObject(forKey: weekAnchorKey)
+                return now
+            }
         }
         return now
     }
@@ -277,6 +298,146 @@ struct TDCalendrEventChangeWeekClick: AppIntent {
     func perform() async throws -> some IntentResult {
         TDWidgetScheduleOverviewState.shiftWeek(by: week)
         WidgetCenter.shared.reloadTimelines(ofKind: TDWidgetKind.scheduleOverview)
+        return .result()
+    }
+}
+
+
+// MARK: - 月历 + 日清单小组件编辑
+
+struct TDMonthDayListConfigurationIntent: WidgetConfigurationIntent {
+    static var title: LocalizedStringResource { "月历日清单编辑" }
+    static var description: IntentDescription { "配置月历日清单小组件选项（自动夜间模式）" }
+    
+    @Parameter(title: "自动夜间模式", default: true)
+    var autoNightMode: Bool
+    
+    static var parameterSummary: some ParameterSummary {
+        Summary("月历日清单") {
+            \.$autoNightMode
+        }
+    }
+}
+
+
+// MARK: - 月历 + 日清单小组件（左月历可点，右侧按选中日期显示 DayTodo）
+
+enum TDWidgetMonthDayListState {
+    private static let monthAnchorKey = "td_widget_month_day_list_month_anchor_ms"
+    private static let selectedDateKey = "td_widget_month_day_list_selected_date_ms"
+    
+    private static func isReasonable(_ date: Date, relativeTo now: Date) -> Bool {
+        let cal = Calendar.current
+        let base = now.firstDayOfMonth
+        let target = date.firstDayOfMonth
+        let diff = cal.dateComponents([.month], from: base, to: target).month ?? 0
+        return abs(diff) <= 24
+    }
+    
+    static func monthAnchorDate() -> Date {
+        let now = Date()
+        let d = TDWidgetAppGroup.defaults
+        let ms = d?.object(forKey: monthAnchorKey) as? Int64
+        if let ms, ms > 0 {
+            let candidate = Date(timeIntervalSince1970: TimeInterval(Double(ms) / 1000.0)).firstDayOfMonth
+            if isReasonable(candidate, relativeTo: now) {
+                return candidate
+            } else {
+                // AppGroup 异常/残留值：重置为本月，并同步重置选中日期为今天
+                let resetMonth = now.firstDayOfMonth
+                d?.set(resetMonth.startOfDayTimestamp, forKey: monthAnchorKey)
+                d?.set(now.startOfDayTimestamp, forKey: selectedDateKey)
+                return resetMonth
+            }
+        }
+        return now.firstDayOfMonth
+    }
+    
+    static func selectedDate() -> Date {
+        let anchor = monthAnchorDate()
+        let now = Date()
+        let d = TDWidgetAppGroup.defaults
+        let ms = d?.object(forKey: selectedDateKey) as? Int64
+        if let ms, ms > 0 {
+            let candidate = Date(timeIntervalSince1970: TimeInterval(Double(ms) / 1000.0))
+            // 如果外部写入了非当前月的日期（理论上不会），回退到默认规则，避免 UI 与数据不一致
+            if candidate.isSameMonth(as: anchor), isReasonable(candidate, relativeTo: now) {
+                return candidate
+            }
+        }
+        let fallback = defaultSelectedDate(for: anchor)
+        d?.set(fallback.startOfDayTimestamp, forKey: selectedDateKey)
+        return fallback
+    }
+    
+    static func setSelectedDate(_ date: Date) {
+        TDWidgetAppGroup.defaults?.set(date.startOfDayTimestamp, forKey: selectedDateKey)
+    }
+    
+    static func shiftMonth(by delta: Int) {
+        let base = monthAnchorDate()
+        let nextMonth = base.adding(months: delta).firstDayOfMonth
+        TDWidgetAppGroup.defaults?.set(nextMonth.startOfDayTimestamp, forKey: monthAnchorKey)
+        
+        let nextSelected = defaultSelectedDate(for: nextMonth)
+        TDWidgetAppGroup.defaults?.set(nextSelected.startOfDayTimestamp, forKey: selectedDateKey)
+    }
+    
+    private static func defaultSelectedDate(for month: Date) -> Date {
+        // 切换日期：
+        // - 如果是当月：默认选中今天
+        // - 不是当月：默认选中当月第一天
+        if month.isSameMonth(as: Date()) {
+            return Date()
+        }
+        return month.firstDayOfMonth
+    }
+}
+
+// MARK: - 月历 + 日清单小组件：切换月份 / 选择日期
+
+struct TDWidgetMonthDayListChangeMonthIntent: AppIntent {
+    static var title: LocalizedStringResource = "TDWidgetMonthDayListChangeMonthIntent"
+    static var description: IntentDescription = IntentDescription("月历日清单小组件：切换月份")
+    
+    @Parameter(title: "month")
+    var month: Int
+    
+    init(month: Int) {
+        self.month = month
+    }
+    
+    init() {
+        self.month = 0
+    }
+    
+    @MainActor
+    func perform() async throws -> some IntentResult {
+        TDWidgetMonthDayListState.shiftMonth(by: month)
+        WidgetCenter.shared.reloadTimelines(ofKind: TDWidgetKind.monthDayList)
+        return .result()
+    }
+}
+
+struct TDWidgetMonthDayListSelectDateIntent: AppIntent {
+    static var title: LocalizedStringResource = "TDWidgetMonthDayListSelectDateIntent"
+    static var description: IntentDescription = IntentDescription("月历日清单小组件：选择日期")
+    
+    @Parameter(title: "date")
+    var date: Date
+    
+    init(date: Date) {
+        self.date = date
+    }
+    
+    init() {
+        self.date = Date()
+    }
+    
+    @MainActor
+    func perform() async throws -> some IntentResult {
+        TDWidgetMonthDayListState.setSelectedDate(date)
+        WidgetCenter.shared.reloadTimelines(ofKind: TDWidgetKind.monthDayList)
         return .result()
     }
 }
