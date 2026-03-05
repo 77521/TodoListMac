@@ -380,19 +380,34 @@ private struct TDMonthDayCell: View {
         if date.isToday { return "今" }
         return "\(date.day)"
     }
-
-    private var textColor: Color {
-        if isSelected { return .white }
-        if date.isToday { return TDThemeManager.shared.primaryTintColor(isDark: isDark) }
-        if renderingMode != .fullColor {
-            return Color.primary.opacity(0.90)
-        }
-        return TDThemeManager.shared.currentTheme.baseColors.titleText.color(isDark: isDark)
+    
+    private var isWeekday: Bool {
+        // 对齐 iOS 玻璃模式：工作日/周末做不同透明度
+        !Calendar.current.isDateInWeekend(date)
     }
 
-    private var background: Color {
-        if !isSelected { return Color.clear }
-        return TDThemeManager.shared.primaryTintColor(isDark: isDark)
+    private var textColor: Color {
+        if renderingMode != .fullColor {
+            // 对齐你给的 iOS 逻辑（玻璃模式）
+            if date.isToday { return .black }
+            if isWeekday { return .white.opacity(0.2) }
+            if isSelected { return .gray }
+            return .white.opacity(0.7)
+        } else {
+            // fullColor：沿用原本的主题逻辑
+            if isSelected { return .white }
+            if date.isToday { return TDThemeManager.shared.primaryTintColor(isDark: isDark) }
+            return TDThemeManager.shared.currentTheme.baseColors.titleText.color(isDark: isDark)
+        }
+    }
+
+    private var selectedCircleFill: Color {
+        if renderingMode == .fullColor {
+            return TDThemeManager.shared.primaryTintColor(isDark: isDark)
+        } else {
+            // 对齐你给的 iOS 逻辑：玻璃模式选中圆圈 = white 0.2
+            return .white.opacity(0.2)
+        }
     }
 
     var body: some View {
@@ -403,7 +418,7 @@ private struct TDMonthDayCell: View {
             ZStack {
                 if isSelected {
                     Circle()
-                        .fill(background)
+                        .fill(selectedCircleFill)
                         .frame(width: diameter, height: diameter)
                 }
 

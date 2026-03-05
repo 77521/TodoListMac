@@ -190,6 +190,9 @@ struct TDCalendarDayCell: View {
 
     /// 日程概览视图模型
     @EnvironmentObject private var viewModel: TDScheduleOverviewViewModel
+    
+    /// 主视图模型（控制第三列详情的显示/隐藏）
+    @EnvironmentObject private var mainViewModel: TDMainViewModel
 
     /// 拖拽状态
     @State private var draggedTask: TDMacSwiftDataListModel? = nil
@@ -258,7 +261,7 @@ struct TDCalendarDayCell: View {
                                 // 点击任务时：选中当前日期并传递任务给主视图模型
                                 viewModel.selectDateOnly(dateModel.date)
                                 // 调用主视图模型的选择任务方法
-                                TDMainViewModel.shared.selectTask(task)
+                                mainViewModel.selectTask(task)
                                 print("点击了任务: \(task.taskContent), 日期: \(dateModel.date.formattedString)")
                             }
                         )
@@ -297,11 +300,15 @@ struct TDCalendarDayCell: View {
                 if !tasks.isEmpty {
                     // 有数据：默认选中第一个任务
                     let firstTask = tasks.first!
-                    TDMainViewModel.shared.selectTask(firstTask)
+                    mainViewModel.selectTask(firstTask)
                     print("点击日期为：\(dateModel.date.formattedString)，选中第一个任务：\(firstTask.taskContent)")
                 } else {
                     // 没有数据：清空选中的任务
-                    TDMainViewModel.shared.selectedTask = nil
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        mainViewModel.selectedTask = nil
+                    }
+                    // 防止深链流程还在异步回写选中
+                    mainViewModel.pendingDeepLinkTaskId = nil
                     print("点击日期为：\(dateModel.date.formattedString)，该日期无任务数据")
                 }
 

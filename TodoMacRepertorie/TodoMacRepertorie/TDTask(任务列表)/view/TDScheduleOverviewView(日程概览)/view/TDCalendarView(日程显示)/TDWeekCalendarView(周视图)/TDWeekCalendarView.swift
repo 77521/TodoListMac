@@ -158,6 +158,7 @@ private struct TDWeekDayCell: View {
     @EnvironmentObject private var themeManager: TDThemeManager
     @EnvironmentObject private var settingManager: TDSettingManager
     @EnvironmentObject private var viewModel: TDScheduleOverviewViewModel
+    @EnvironmentObject private var mainViewModel: TDMainViewModel
 
     let dateModel: TDCalendarDateModel
     let cellWidth: CGFloat
@@ -207,7 +208,7 @@ private struct TDWeekDayCell: View {
                         maxTasks: calculateMaxTasks(),
                         onTaskTap: { task in
                             viewModel.selectDateOnly(dateModel.date)
-                            TDMainViewModel.shared.selectTask(task)
+                            mainViewModel.selectTask(task)
                         }
                     )
                     .padding(.horizontal, 2)
@@ -231,6 +232,19 @@ private struct TDWeekDayCell: View {
                     )
                     .padding(.all, 1)
             )
+            .contentShape(Rectangle()) // 让整列都可点击（对齐月视图）
+            .onTapGesture {
+                // 点击空白区域：选中日期；若当天有任务，默认选中第一条并展示详情
+                viewModel.selectDateOnly(dateModel.date)
+                if let first = tasks.first {
+                    mainViewModel.selectTask(first)
+                } else {
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        mainViewModel.selectedTask = nil
+                    }
+                    mainViewModel.pendingDeepLinkTaskId = nil
+                }
+            }
         }
         .frame(width: cellWidth, height: cellHeight)
     }

@@ -14,6 +14,8 @@ import AppIntents
 private struct TDScheduleWidgetEntry: TimelineEntry {
     let date: Date
     let configuration: TDScheduleOverviewConfigurationIntent
+    /// 周/月份显示锚点（placeholder/snapshot 也用它，避免读取 AppGroup 残留导致显示异常）
+    let anchorDate: Date
     let isLoggedIn: Bool
     let userId: Int
     let isVIP: Bool
@@ -25,9 +27,20 @@ private struct TDScheduleWidgetProvider: AppIntentTimelineProvider {
     typealias Intent = TDScheduleOverviewConfigurationIntent
 
     func placeholder(in context: Context) -> TDScheduleWidgetEntry {
-        TDScheduleWidgetEntry(
+        let anchor: Date = {
+            switch context.family {
+            case .systemMedium:
+                return Date()
+            case .systemLarge, .systemExtraLarge:
+                return Date().firstDayOfMonth
+            default:
+                return Date()
+            }
+        }()
+        return  TDScheduleWidgetEntry(
             date: .now,
             configuration: TDScheduleOverviewConfigurationIntent(),
+            anchorDate: anchor,
             isLoggedIn: false,
             userId: -1,
             isVIP: false,
@@ -47,10 +60,22 @@ private struct TDScheduleWidgetProvider: AppIntentTimelineProvider {
     }
 
     private func entry(for configuration: TDScheduleOverviewConfigurationIntent, family: WidgetFamily) async -> TDScheduleWidgetEntry {
+        let anchor: Date = {
+            switch family {
+            case .systemMedium:
+                return TDWidgetScheduleOverviewState.weekAnchorDate()
+            case .systemLarge, .systemExtraLarge:
+                return TDWidgetScheduleOverviewState.monthAnchorDate()
+            default:
+                return Date()
+            }
+        }()
+
         guard let user = TDWidgetUserSession.currentUser() else {
             return TDScheduleWidgetEntry(
                 date: .now,
                 configuration: configuration,
+                anchorDate: (family == .systemLarge || family == .systemExtraLarge) ? Date().firstDayOfMonth : Date(),
                 isLoggedIn: false,
                 userId: -1,
                 isVIP: false,
@@ -61,17 +86,6 @@ private struct TDScheduleWidgetProvider: AppIntentTimelineProvider {
 
         do {
             let context = try TDSharedSwiftDataStore.makeWidgetContext()
-
-            let anchor: Date = {
-                switch family {
-                case .systemMedium:
-                    return TDWidgetScheduleOverviewState.weekAnchorDate()
-                case .systemLarge, .systemExtraLarge:
-                    return TDWidgetScheduleOverviewState.monthAnchorDate()
-                default:
-                    return Date()
-                }
-            }()
 
             let (start, end) = TDWidgetScheduleRange.range(for: family, anchor: anchor)
             let startTs = start.startOfDayTimestamp
@@ -101,6 +115,7 @@ private struct TDScheduleWidgetProvider: AppIntentTimelineProvider {
             return TDScheduleWidgetEntry(
                 date: .now,
                 configuration: configuration,
+                anchorDate: anchor,
                 isLoggedIn: true,
                 userId: userId,
                 isVIP: user.isVIP,
@@ -111,6 +126,7 @@ private struct TDScheduleWidgetProvider: AppIntentTimelineProvider {
             return TDScheduleWidgetEntry(
                 date: .now,
                 configuration: configuration,
+                anchorDate: anchor,
                 isLoggedIn: true,
                 userId: user.userId,
                 isVIP: user.isVIP,
@@ -125,13 +141,14 @@ private enum TDScheduleWidgetFetchLimit {
     static func value(for family: WidgetFamily) -> Int {
         switch family {
         case .systemMedium:
-            // 周视图：最多 7 列，单格可展示的任务行数很有限，没必要拉取过多数据
-            return 400
+            // 周视图：最多 7 列，单格能展示的任务行数很有限（通常 3~6 行）
+            // 拉太多只会拖慢左右切换；小组件展示本来也会裁剪/显示 +N
+            return 200
         case .systemLarge, .systemExtraLarge:
-            // 月视图：最多 42 格（6周），考虑“某一天任务很多”的情况，给出相对保守的上限
-            return 900
+            // 月视图：最多 42 格，但每格展示极少行；只需覆盖“可见部分 + 少量缓冲”
+            return 450
         default:
-            return 400
+            return 200
         }
     }
 }
@@ -184,14 +201,7 @@ private struct TDScheduleWidgetView: View {
     }
 
     private var displayAnchorDate: Date {
-        switch family {
-        case .systemMedium:
-            return TDWidgetScheduleOverviewState.weekAnchorDate()
-        case .systemLarge, .systemExtraLarge:
-            return TDWidgetScheduleOverviewState.monthAnchorDate()
-        default:
-            return Date()
-        }
+        entry.anchorDate
     }
 
     private func deepLinkURL(date: Date? = nil, action: String? = nil) -> URL {
