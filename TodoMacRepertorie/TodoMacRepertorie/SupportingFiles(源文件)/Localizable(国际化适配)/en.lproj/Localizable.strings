@@ -509,6 +509,14 @@
 "settings.schedule.privacy_mode" = "Privacy screenshot mode";
 "settings.schedule.privacy_mode.desc" = "When you need to share screenshots, enable this to mask events in the month view with asterisks.";
 
+// 日程概览：视图模式（月/周）
+"schedule.overview.view_mode" = "View Mode";
+"schedule.overview.view_mode.month" = "Month";
+"schedule.overview.view_mode.week" = "Week";
+
+// 设置：日程概览
+"settings.schedule.default_view_mode" = "Default view";
+
 // 番茄专注设置
 "settings.pomodoro.focus_duration" = "Focus duration";
 "settings.pomodoro.rest_duration" = "Rest duration";

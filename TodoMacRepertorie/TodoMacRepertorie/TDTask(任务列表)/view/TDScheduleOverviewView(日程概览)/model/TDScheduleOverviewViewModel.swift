@@ -11,11 +11,6 @@ import OSLog
 import SwiftData
 
 class TDScheduleOverviewViewModel: ObservableObject {
-
-    enum DisplayMode: Int, CaseIterable {
-        case month
-        case week
-    }
     
     // MARK: - Published 属性
     /// 单例
@@ -29,7 +24,7 @@ class TDScheduleOverviewViewModel: ObservableObject {
     @Published var currentDate: Date = Date()
 
     /// 日程概览展示模式：月视图/周视图
-    @Published var displayMode: DisplayMode = .month
+    @Published var displayMode: TDScheduleOverviewDisplayMode = .month
     
     /// 选中的分类
     @Published var selectedCategory: TDSliderBarModel? = nil
@@ -90,6 +85,8 @@ class TDScheduleOverviewViewModel: ObservableObject {
     init() {
         // 初始显示月份与选中日期一致
         displayMonth = Date().firstDayOfMonth
+        // 读取设置：默认月/周视图（可被“更多菜单/设置页”修改）
+        displayMode = TDSettingManager.shared.scheduleOverviewDefaultDisplayMode
         loadCategories()
 
         // 启动预热：提前算好日历格子 + 当月任务（这样首次进入“日程概览”不再先空后补）
@@ -178,11 +175,23 @@ class TDScheduleOverviewViewModel: ObservableObject {
 
     /// 上一周
     func previousWeek() {
-        let newDate = currentDate.adding(days: -7)
+        let targetBaseDate = currentDate.adding(days: -7)
+        let targetWeekStart = weekStartDate(for: targetBaseDate)
+        let todayWeekStart = weekStartDate(for: Date())
+
+        let selectedDate: Date
+        if targetWeekStart.isSameDay(as: todayWeekStart) {
+            // 切回当周：默认选中今天
+            selectedDate = Date()
+        } else {
+            // 向左切换：默认选中该周第一天（周起始日，受“周一为一周开始”影响）
+            selectedDate = targetWeekStart
+        }
+
         withAnimation(.easeInOut(duration: 0.3)) {
-            currentDate = newDate
+            currentDate = selectedDate
             // 让“月份”与当前日期保持一致，便于周/月切换时月视图不跳
-            displayMonth = newDate.firstDayOfMonth
+            displayMonth = selectedDate.firstDayOfMonth
         }
         Task { try? await TDCalendarManager.shared.updateCalendarData() }
         preloadMonthTasksIfNeeded(force: true)
@@ -190,10 +199,22 @@ class TDScheduleOverviewViewModel: ObservableObject {
 
     /// 下一周
     func nextWeek() {
-        let newDate = currentDate.adding(days: 7)
+        let targetBaseDate = currentDate.adding(days: 7)
+        let targetWeekStart = weekStartDate(for: targetBaseDate)
+        let todayWeekStart = weekStartDate(for: Date())
+
+        let selectedDate: Date
+        if targetWeekStart.isSameDay(as: todayWeekStart) {
+            // 切回当周：默认选中今天
+            selectedDate = Date()
+        } else {
+            // 向右切换：默认选中该周最后一天（周末）
+            selectedDate = Calendar.current.date(byAdding: .day, value: 6, to: targetWeekStart) ?? targetWeekStart
+        }
+
         withAnimation(.easeInOut(duration: 0.3)) {
-            currentDate = newDate
-            displayMonth = newDate.firstDayOfMonth
+            currentDate = selectedDate
+            displayMonth = selectedDate.firstDayOfMonth
         }
         Task { try? await TDCalendarManager.shared.updateCalendarData() }
         preloadMonthTasksIfNeeded(force: true)

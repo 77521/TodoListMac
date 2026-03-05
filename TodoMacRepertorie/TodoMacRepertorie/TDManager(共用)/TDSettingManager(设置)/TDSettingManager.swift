@@ -66,6 +66,8 @@ class TDSettingManager: ObservableObject {
         /// 晒图时是否展示全部事件（针对日程概览的分享/截屏）
         static let scheduleShareShowAllEvents = "td_schedule_share_show_all_events"
 
+        /// 日程概览默认展示模式（0: 月视图，1: 周视图）
+        static let scheduleOverviewDefaultDisplayMode = "td_schedule_overview_default_display_mode"
         /// 日历任务颜色识别模式
         static let calendarTaskColorRecognition = "td_calendar_task_color_recognition"
         /// 是否显示农历
@@ -430,6 +432,22 @@ class TDSettingManager: ObservableObject {
         set { sharedDefaults?.set(newValue, forKey: Keys.calendarShowRemainingCount); objectWillChange.send(); TDWidgetReloadBridge.reloadListMode() }
     }
     
+    
+    /// 日程概览默认展示模式（默认：月视图）
+    var scheduleOverviewDefaultDisplayMode: TDScheduleOverviewDisplayMode {
+        get {
+            if sharedDefaults?.object(forKey: Keys.scheduleOverviewDefaultDisplayMode) == nil {
+                return .month
+            }
+            let raw = sharedDefaults?.integer(forKey: Keys.scheduleOverviewDefaultDisplayMode) ?? TDScheduleOverviewDisplayMode.month.rawValue
+            return TDScheduleOverviewDisplayMode(rawValue: raw) ?? .month
+        }
+        set {
+            sharedDefaults?.set(newValue.rawValue, forKey: Keys.scheduleOverviewDefaultDisplayMode)
+            objectWillChange.send()
+        }
+    }
+
     
     /// 获取当前是否是深色模式
     var isDarkMode: Bool {

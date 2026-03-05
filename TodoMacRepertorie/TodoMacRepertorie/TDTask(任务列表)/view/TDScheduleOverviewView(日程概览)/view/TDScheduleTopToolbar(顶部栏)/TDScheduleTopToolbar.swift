@@ -61,14 +61,6 @@ struct TDScheduleTopToolbar: View {
             )
             
             Spacer()
-
-            // 周/月切换（主 App 专用；小组件不需要）
-            Picker("", selection: $viewModel.displayMode) {
-                Text("月").tag(TDScheduleOverviewViewModel.DisplayMode.month)
-                Text("周").tag(TDScheduleOverviewViewModel.DisplayMode.week)
-            }
-            .pickerStyle(.segmented)
-            .frame(width: 120)
             
             // 日期导航区域
             HStack(spacing: 8) {
@@ -94,7 +86,8 @@ struct TDScheduleTopToolbar: View {
                         Text(viewModel.displayTitleText)
                             .font(.system(size: 12, weight: .medium))
                             .foregroundColor(themeManager.color(level: 5))
-                            .frame(width: viewModel.displayMode == .week ? 120 : 80, alignment: .center) // 周视图需要更宽的标题
+                            // 标题可能带年份（非今年），避免被截断；同时保持整体布局稳定
+                            .frame(minWidth: 80, idealWidth: 110, maxWidth: 140, alignment: .center)
                             .contentShape(Rectangle())
                     }
                     .buttonStyle(PlainButtonStyle())

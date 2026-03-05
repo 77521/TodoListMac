@@ -509,6 +509,13 @@
 "settings.schedule.share_show_all" = "分享显示全部事件";
 "settings.schedule.privacy_mode" = "隐私晒图模式";
 "settings.schedule.privacy_mode.desc" = "当您需要截屏晒图时，可以选择临时开启。日程概览月视图中的事件将用星号替代";
+// 日程概览：视图模式（月/周）
+"schedule.overview.view_mode" = "周/月视图";
+"schedule.overview.view_mode.month" = "月视图";
+"schedule.overview.view_mode.week" = "周视图";
+
+// 设置：日程概览
+"settings.schedule.default_view_mode" = "默认视图";
 
 // 番茄专注设置
 "settings.pomodoro.focus_duration" = "番茄时长";

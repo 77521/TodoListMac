@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import AppKit
 import SwiftData
 
 /// 日历网格视图 - 显示所有日期单元格
@@ -346,18 +347,43 @@ struct TDCalendarDayCell: View {
     /// 根据单元格高度计算可显示的最大任务数量
     /// - Returns: 可显示的任务数量
     private func calculateMaxTasks() -> Int {
-        // 基础高度：阳历文字高度(12) + VStack间距(2) + 水平内边距(4*2=8)
-        let baseHeight: CGFloat = 14 + 2 + 8 // 22pt
-        let availableHeight = cellHeight - baseHeight
-        
-        // 每个任务行的高度（根据字体大小动态计算，包括上下间距1pt）
-        let fontSize = settingManager.fontSize.size
-        let taskRowHeight = fontSize + 3 // 字体高度 + 上下间距
-        
-        // 计算可显示的任务数量（根据实际高度能显示多少就显示多少）
-        let maxTasks = max(0, Int(availableHeight / taskRowHeight))
-        
-        return maxTasks
+        // 只扣“会影响高度”的部分，避免把水平 padding 误算进高度导致少算一行
+        // 单元格内容区有 .padding(.vertical, 6)
+        let verticalPadding: CGFloat = 12
+
+        // 顶部日期行真实高度（按实际是否显示来计算，避免“预留不存在的内容高度”导致少算 1 行）
+        func lineHeight(for size: CGFloat) -> CGFloat {
+            let font = NSFont.systemFont(ofSize: size)
+            // 更贴近 SwiftUI 单行 Text 的实际占用高度（避免 ceil 导致少算 1 行）
+            return font.boundingRectForFont.height
+        }
+
+        let dayLineHeight = lineHeight(for: 12)
+        var headerHeight = dayLineHeight
+
+        if settingManager.showLunarCalendar {
+            let lunarLineHeight = lineHeight(for: 10)
+            headerHeight = max(headerHeight, lunarLineHeight)
+        }
+
+        if dateModel.isInHolidayData {
+            let holidayBadgeHeight = lineHeight(for: 9) + 4 // .padding(.all, 2)
+            headerHeight = max(headerHeight, holidayBadgeHeight)
+        }
+
+        // 外层 VStack spacing: 2（日期行与任务列表之间）
+        let baseHeight = verticalPadding + headerHeight + 2
+        // 加一点 epsilon，避免浮点误差导致 Int() 截断少 1 行
+        let availableHeight = max(0, cellHeight - baseHeight + 0.75)
+
+        // TDCalendarTaskList 内部 VStack spacing: 1
+        let taskLineHeight = lineHeight(for: settingManager.fontSize.size)
+        let rowSpacing: CGFloat = 1
+        let rowHeight = taskLineHeight + rowSpacing
+
+        // n*lineHeight + (n-1)*spacing <= available
+        // => n <= (available + spacing) / (lineHeight + spacing)
+        return max(0, Int((availableHeight + rowSpacing) / rowHeight))
     }
     
     

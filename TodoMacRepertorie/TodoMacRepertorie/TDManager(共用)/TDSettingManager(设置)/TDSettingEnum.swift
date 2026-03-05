@@ -150,7 +150,11 @@ enum TDTaskBackgroundMode: Int, CaseIterable {
         }
     }
 }
-
+// MARK: - 日程概览默认视图（月/周）
+enum TDScheduleOverviewDisplayMode: Int, CaseIterable, Codable {
+    case month = 0
+    case week = 1
+}
 
 /// 音效类型枚举
 enum TDSoundType: Int, CaseIterable {

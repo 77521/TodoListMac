@@ -32,41 +32,36 @@ struct TDCalendarTaskList: View {
             }
             // 根据设置决定显示逻辑
             else if settingManager.calendarShowRemainingCount && tasks.count > maxTasks {
-                // 显示剩余数量：
-                // - 不“预留一行”给 +N（否则会少显示一条）
-                // - 能显示几条就显示几条（maxTasks 条）
-                // - 主 App：+N 放在单元格最下方（不要像小组件那样跟在最后一条右侧）
-                let displayTasks = min(maxTasks, tasks.count)
-                let remainingCount = tasks.count - displayTasks
+                // 显示剩余数量：把 +N 当作“列表中的一行”，紧贴在最后一条可见事件下面
+                // - 总行数最多为 maxTasks
+                // - 若超出：显示 (maxTasks - 1) 条事件 + 最后一行显示 +N
+                let displayTaskCount = max(0, min(maxTasks - 1, tasks.count))
+                let remainingCount = tasks.count - displayTaskCount
 
-                ZStack(alignment: .bottomLeading) {
-                    VStack(alignment: .leading, spacing: 1) {
-                        ForEach(Array(tasks.prefix(displayTasks).enumerated()), id: \.offset) { _, task in
-                            Text(truncateText(task.taskContent))
-                                .font(.system(size: settingManager.fontSize.size))
-                                .foregroundColor(getTaskTextColor(task: task))
-                                .strikethrough(task.complete && settingManager.calendarShowCompletedSeparator)
-                                .lineLimit(1)
-                                .fixedClipped()
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(.horizontal, 1)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 2)
-                                        .fill(getTaskBackgroundColor(task: task))
-                                )
-                                .onTapGesture { onTaskTap(task) }
-                                .onDrag { NSItemProvider(object: task.taskId as NSString) }
-                        }
-                    }
+                ForEach(Array(tasks.prefix(displayTaskCount).enumerated()), id: \.offset) { _, task in
+                    Text(truncateText(task.taskContent))
+                        .font(.system(size: settingManager.fontSize.size))
+                        .foregroundColor(getTaskTextColor(task: task))
+                        .strikethrough(task.complete && settingManager.calendarShowCompletedSeparator)
+                        .lineLimit(1)
+                        .fixedClipped()
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 1)
+                        .background(
+                            RoundedRectangle(cornerRadius: 2)
+                                .fill(getTaskBackgroundColor(task: task))
+                        )
+                        .onTapGesture { onTaskTap(task) }
+                        .onDrag { NSItemProvider(object: task.taskId as NSString) }
+                }
 
-                    if remainingCount > 0 {
-                        Text("+\(remainingCount)")
-                            .font(.system(size: settingManager.fontSize.size))
-                            .foregroundColor(themeManager.color(level: 5))
-                            .lineLimit(1)
-                            .fixedSize(horizontal: true, vertical: false)
-                            .padding(.leading, 1)
-                    }
+                if remainingCount > 0 {
+                    Text("+\(remainingCount)")
+                        .font(.system(size: settingManager.fontSize.size))
+                        .foregroundColor(themeManager.color(level: 5))
+                        .lineLimit(1)
+                        .fixedSize(horizontal: true, vertical: false)
+                        .padding(.leading, 1)
                 }
             } else {
                 // 不显示剩余数量：显示所有可显示的任务

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import AppKit
 import SwiftData
 
 /// 日程概览 - 周视图（7列 * 1行）
@@ -222,24 +223,57 @@ private struct TDWeekDayCell: View {
                     .frame(width: 1),
                 alignment: .trailing
             )
+            .overlay(
+                Rectangle()
+                    .stroke(
+                        dateModel.date.isSameDay(as: viewModel.currentDate) ? themeManager.color(level: 5) : Color.clear,
+                        lineWidth: 1
+                    )
+                    .padding(.all, 1)
+            )
         }
         .frame(width: cellWidth, height: cellHeight)
     }
 
     private var backgroundColor: Color {
-        if dateModel.date.isSameDay(as: viewModel.currentDate) {
-            return themeManager.color(level: 2).opacity(0.25)
-        }
-        return themeManager.backgroundColor
+        // 周视图与月视图保持一致：背景只表示“今天”，选中态用描边表示
+        return dateModel.isToday
+            ? themeManager.color(level: 1).opacity(0.3)
+            : themeManager.backgroundColor
     }
 
     private func calculateMaxTasks() -> Int {
-        // 与月视图保持一致的估算方式
-        let baseHeight: CGFloat = 14 + 2 + 8
-        let availableHeight = cellHeight - baseHeight
-        let fontSize = settingManager.fontSize.size
-        let taskRowHeight = fontSize + 3
-        return max(0, Int(availableHeight / taskRowHeight))
+        // 与月视图保持一致：用真实 lineHeight + 实际 spacing 算行数，避免低估导致留白
+        // 顶部行有 .padding(.top, 4) + 外层 VStack spacing(2)
+        let topPadding: CGFloat = 4
+        let headerSpacing: CGFloat = 2
+
+        func lineHeight(for size: CGFloat) -> CGFloat {
+            let font = NSFont.systemFont(ofSize: size)
+            return font.boundingRectForFont.height
+        }
+
+        let dayLineHeight = lineHeight(for: 12)
+        var headerHeight = dayLineHeight
+
+        if settingManager.showLunarCalendar {
+            let lunarLineHeight = lineHeight(for: 10)
+            headerHeight = max(headerHeight, lunarLineHeight)
+        }
+
+        if dateModel.isInHolidayData && settingManager.showHolidayMark {
+            let holidayBadgeHeight = lineHeight(for: 9) + 4 // .padding(.all, 2)
+            headerHeight = max(headerHeight, holidayBadgeHeight)
+        }
+
+        let baseHeight = topPadding + headerHeight + headerSpacing
+        let availableHeight = max(0, cellHeight - baseHeight + 0.75)
+
+        let taskLineHeight = lineHeight(for: settingManager.fontSize.size)
+        let rowSpacing: CGFloat = 1 // TDCalendarTaskList 内部 VStack spacing
+        let rowHeight = taskLineHeight + rowSpacing
+
+        return max(0, Int((availableHeight + rowSpacing) / rowHeight))
     }
 }
 

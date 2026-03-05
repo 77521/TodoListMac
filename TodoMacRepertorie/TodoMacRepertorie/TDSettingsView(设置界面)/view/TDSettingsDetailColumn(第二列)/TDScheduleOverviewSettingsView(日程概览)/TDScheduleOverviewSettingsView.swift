@@ -32,6 +32,12 @@ struct TDScheduleOverviewSettingsView: View {
         ("settings.schedule.font_size.large".localized, .size11),
         ("settings.schedule.font_size.xlarge".localized, .size12)
     ]
+
+    /// Picker 选项：默认视图（月/周）
+    private let defaultViewModeOptions: [(String, TDScheduleOverviewDisplayMode)] = [
+        ("schedule.overview.view_mode.month".localized, .month),
+        ("schedule.overview.view_mode.week".localized, .week)
+    ]
     
     var body: some View {
         ScrollView {
@@ -40,6 +46,29 @@ struct TDScheduleOverviewSettingsView: View {
 
                 TDSettingsCardContainer {
                     VStack(spacing: 0) {
+                        // 默认视图（月/周）
+                        HStack {
+                            Text("settings.schedule.default_view_mode".localized)
+                                .foregroundColor(themeManager.titleTextColor)
+                            Spacer()
+                            Picker("", selection: Binding(
+                                get: { settingManager.scheduleOverviewDefaultDisplayMode },
+                                set: { settingManager.scheduleOverviewDefaultDisplayMode = $0 }
+                            )) {
+                                ForEach(defaultViewModeOptions, id: \.1) { item in
+                                    Text(item.0).tag(item.1)
+                                }
+                            }
+                            .labelsHidden()
+                            .pickerStyle(.menu)
+                            .frame(width: pillWidth(for: currentDefaultViewModeLabel))
+                            .fixedSize(horizontal: true, vertical: false)
+                        }
+                        .padding(.vertical, 10)
+                        .contentShape(Rectangle())
+
+                        TDSettingsDivider()
+
                         // 条目背景色
                         HStack {
                             Text("settings.schedule.background".localized)
@@ -218,6 +247,15 @@ struct TDScheduleOverviewSettingsView: View {
             return "settings.schedule.font_size.large".localized
         case .size12:
             return "settings.schedule.font_size.xlarge".localized
+        }
+    }
+
+    private var currentDefaultViewModeLabel: String {
+        switch settingManager.scheduleOverviewDefaultDisplayMode {
+        case .month:
+            return "schedule.overview.view_mode.month".localized
+        case .week:
+            return "schedule.overview.view_mode.week".localized
         }
     }
     
