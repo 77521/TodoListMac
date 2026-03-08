@@ -55,6 +55,7 @@ struct TDPlainTextEditor: View {
                 caretLocation: $caretLocation,
                 cursorLocationRequest: $cursorRequest,
                 focusRequestId: .constant(nil),
+                insertTextRequest: .constant(nil),
                 // 关键：禁用联想弹窗相关参数
                 isSuggestionVisible: false,
                 suggestionCount: 0,

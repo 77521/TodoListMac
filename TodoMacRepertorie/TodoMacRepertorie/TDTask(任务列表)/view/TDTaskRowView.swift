@@ -132,13 +132,24 @@ struct TDTaskRowView: View , Equatable{
                         // 任务内容
                         VStack(alignment: .leading, spacing: 6) {
                             // 任务标题
-                            Text(task.taskContent)
-                                .font(.system(size: 14))
-                                .foregroundColor(task.taskTitleColor)
-                            // 已完成删除线：按设置实时生效
-                                .strikethrough(task.complete ? settingManager.showCompletedTaskStrikethrough : false)
-                                .opacity(task.complete ? 0.6 : 1.0)
-                                .lineLimit(settingManager.taskTitleLines)
+                            // 任务标题（第二栏富文本）：标签胶囊 + 链接千草蓝可点击
+                            // 说明：这是你要求的“重要功能”——只要标题里包含 #标签 或 链接，都要按规则渲染
+                            TDTaskTitleRichTextView(
+                                rawTitle: task.taskContent,
+                                baseTextColor: task.taskTitleColor,
+                                fontSize: 14,
+                                lineLimit: settingManager.taskTitleLines,
+                                isStrikethrough: task.complete ? settingManager.showCompletedTaskStrikethrough : false,
+                                opacity: task.complete ? 0.6 : 1.0,
+                                onTapPlain: {
+                                    // 点击标题普通区域时也要与“点击整行”一致：进入详情 / 多选切换
+                                    if mainViewModel.isMultiSelectMode {
+                                        toggleSelection()
+                                    } else {
+                                        mainViewModel.selectTask(task)
+                                    }
+                                }
+                            )
                             
                             // 任务描述（根据设置和内容决定是否显示）
                             if settingManager.showTaskDescription && !(task.taskDescribe?.isEmpty ?? true) {
@@ -469,7 +480,9 @@ struct TDTaskRowView: View , Equatable{
         
         // Performance optimizations
         //        .equatable()
-        .drawingGroup()
+        // 注意：这里不能用 drawingGroup()
+        // 原因：我们在标题里嵌入了 NSTextView（NSViewRepresentable）实现“标签胶囊 + 链接 + 系统省略号”。
+        // drawingGroup 会把整行栅格化，NSViewRepresentable 无法被正确绘制，结果就会出现你截图里的“黄色+禁止符号”占位。
         .animation(.none, value: task.complete)
         // 创建副本的日期选择器弹窗 - 使用自定义日期选择器（支持农历显示）
         .popover(isPresented: $showDatePickerForCopy) {

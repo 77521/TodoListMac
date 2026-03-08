@@ -22,6 +22,10 @@ struct TDHashtagEditor: View {
 
     /// 外部请求聚焦（一次性 token）
     @Binding var focusRequestId: UUID?
+    
+    /// 外部请求插入文本到光标处（一次性）
+    /// - 用于“点按钮插入 #”等场景
+    @Binding var insertTextRequest: String?
 
     /// 占位符文案
     let placeholder: String
@@ -58,12 +62,14 @@ struct TDHashtagEditor: View {
     init(
         text: Binding<String>,
         focusRequestId: Binding<UUID?> = .constant(nil),
+        insertTextRequest: Binding<String?> = .constant(nil),
         placeholder: String,
         fontSize: CGFloat,
         onCommit: (() -> Void)? = nil
     ) {
         self._text = text
         self._focusRequestId = focusRequestId
+        self._insertTextRequest = insertTextRequest
         self.placeholder = placeholder
         self.fontSize = fontSize
         self.onCommit = onCommit
@@ -81,6 +87,7 @@ struct TDHashtagEditor: View {
                 caretLocation: $caretLocation,
                 cursorLocationRequest: $cursorRequest,
                 focusRequestId: $focusRequestId,
+                insertTextRequest: $insertTextRequest,
                 isSuggestionVisible: showSuggestions,
                 suggestionCount: suggestions.count,
                 selectedSuggestionIndex: $selectedIndex,

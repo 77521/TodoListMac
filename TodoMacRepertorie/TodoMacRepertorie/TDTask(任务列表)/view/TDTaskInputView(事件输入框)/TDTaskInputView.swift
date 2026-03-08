@@ -15,6 +15,15 @@ struct TDTaskInputView: View {
     @ObservedObject private var mainViewModel = TDMainViewModel.shared
     @Environment(\.modelContext) private var modelContext
 
+    /// 固定写入的 todoTime（毫秒）
+    /// - nil：沿用默认逻辑（今天）
+    /// - 0：无日期
+    /// - >0：指定日期（当天 00:00 的时间戳）
+    private let todoTimeOverride: Int64?
+    
+    /// 是否显示右侧“更多”菜单
+    private let showMoreMenu: Bool
+
     /// 输入框当前选中的“目标清单 id”
     /// - 0：未分类
     /// - >0：分类清单 id
@@ -24,7 +33,9 @@ struct TDTaskInputView: View {
     @State private var offset: CGFloat = 0
     @State private var isShaking = false
 
-    init() {
+    init(todoTimeOverride: Int64? = nil, showMoreMenu: Bool = true) {
+        self.todoTimeOverride = todoTimeOverride
+        self.showMoreMenu = showMoreMenu
         // 初始化入口：
         // - 未登录：默认未分类
         // - 已登录 + 开启记忆：直接使用“记忆的分类清单完整数据（TDSliderBarModel）”
@@ -84,7 +95,9 @@ struct TDTaskInputView: View {
             .iBeamCursor()
 
             // 右侧：更多菜单（替换 + 号）
-            TDTaskListMoreMenu()
+            if showMoreMenu {
+                TDTaskListMoreMenu()
+            }
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
@@ -137,7 +150,7 @@ struct TDTaskInputView: View {
         TDDataOperationManager.shared.createTask(
             content: taskContent,
             category: inputSelectedCategory,
-            todoTime: nil, // 使用默认值（今天）
+            todoTime: todoTimeOverride, // nil=今天；0=无日期；>0=指定日期
             modelContext: modelContext,
             onSuccess: {
                 // 清空输入框

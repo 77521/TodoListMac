@@ -46,6 +46,12 @@
 "uncategorized" = "未分类"; 
 "no_date" = "没有日期";
 "inbox" = "待办箱";
+"inbox.sort.by_create_time" = "按创建日期";
+"inbox.sort.by_custom" = "按自定义";
+"inbox.sort.by_workload" = "按工作量";
+"inbox.category_filter.all" = "显示所有分类";
+"inbox.empty.title" = "暂无无日期事件";
+"inbox.empty.subtitle" = "在上方输入框回车即可添加";
 
 // 任务列表：更多菜单（输入框右侧）
 "task.list.more.sort.menu" = "排序（%@）";
@@ -82,6 +88,11 @@
 "copy_success" = "已复制 %d 个任务到剪贴板";
 "copy_success_simple" = "复制成功";
 "new_category" = "新建";
+
+// 标签点击提示（第二栏事件列表标题里的 #标签）
+"common.view" = "查看";
+"tag.alert.view_title" = "查看标签";
+"tag.alert.view_message" = "是否查看含有该标签的所有事件？您也可以在侧边栏中切换";
 
 // 侧滑栏
 // 用户菜单

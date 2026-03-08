@@ -43,6 +43,12 @@
 "uncategorized" = "Uncategorized";
 "no_date" = "No date";
 "inbox" = "Inbox";
+"inbox.sort.by_create_time" = "By created date";
+"inbox.sort.by_custom" = "By custom order";
+"inbox.sort.by_workload" = "By workload";
+"inbox.category_filter.all" = "Show all categories";
+"inbox.empty.title" = "No no-date tasks";
+"inbox.empty.subtitle" = "Press Enter above to add one";
 
 // 任务列表：更多菜单（输入框右侧）
 "task.list.more.sort.menu" = "Sort (%@)";
@@ -87,6 +93,11 @@
 "user.menu.academy" = "White Horse Academy";
 "user.menu.about" = "About";
 "user.menu.logout" = "Log Out";
+
+// 标签点击提示（第二栏事件列表标题里的 #标签）
+"common.view" = "View";
+"tag.alert.view_title" = "View Tag";
+"tag.alert.view_message" = "View all events with this tag? You can also switch in the sidebar.";
 
 // 侧滑栏 列表
 "category.manage" = "Manage";

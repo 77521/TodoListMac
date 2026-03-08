@@ -20,6 +20,10 @@ struct TDTaskDetailView: View {
     // 焦点状态管理
     // 描述编辑状态（用于失焦同步）
     @State private var isDescriptionEditing: Bool = false
+    
+    // MARK: - 标题输入框聚焦/插入请求（用于“标签按钮插入 #”）
+    @State private var titleFocusRequestId: UUID? = nil
+    @State private var titleInsertTextRequest: String? = nil
 
     // MARK: - #标签弹窗状态（标题输入框）
     // 已改为统一组件 `TDHashtagEditor`，这里不再需要额外状态
@@ -59,6 +63,8 @@ struct TDTaskDetailView: View {
                         // 标题
                         TDHashtagEditor(
                             text: $task.taskContent,
+                            focusRequestId: $titleFocusRequestId,
+                            insertTextRequest: $titleInsertTextRequest,
                             placeholder: "task.detail.title.placeholder".localized,
                             fontSize: 13,
                             onCommit: {
@@ -101,7 +107,7 @@ struct TDTaskDetailView: View {
 
                         // 日期选择行
                         TDTaskDetailDateRow(
-                            selectedDate: task.taskDate,
+                            selectedDate: task.todoTime == 0 ? nil : task.taskDate,
                             onDateSelected: { selectedDate in
                                 
                                 var newTodoTime: Int64
@@ -166,7 +172,12 @@ struct TDTaskDetailView: View {
                     }
                 }
                 // 底部工具栏
-                TDTaskDetailBottomToolbar(task: task)
+                TDTaskDetailBottomToolbar(
+                    task: task,
+                    onInsertHashtag: {
+                        requestInsertHashtag()
+                    }
+                )
 //                    .frame(height: 44)
                 
             }
@@ -196,6 +207,12 @@ struct TDTaskDetailView: View {
                 print("❌ \(operation)更新失败: \(error)")
             }
         }
+    }
+    
+    @MainActor
+    private func requestInsertHashtag() {
+        // 由 NSTextView 执行“插入 #”（内部会自动聚焦），避免重复插入，并确保联想弹窗正常弹出
+        titleInsertTextRequest = "#"
     }
 
 }

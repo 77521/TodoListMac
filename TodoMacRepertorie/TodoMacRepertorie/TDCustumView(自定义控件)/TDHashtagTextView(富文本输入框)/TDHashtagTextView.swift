@@ -37,6 +37,10 @@ struct TDHashtagTextView: NSViewRepresentable {
 
     /// 请求聚焦输入框（一次性 token）
     @Binding var focusRequestId: UUID?
+    
+    /// 请求插入文本到当前光标处（一次性）
+    /// - 由 NSTextView 执行插入，确保行为与手动输入一致（会触发联想弹窗逻辑）
+    @Binding var insertTextRequest: String?
 
     /// 联想弹窗状态（用于拦截上下键/Enter）
     let isSuggestionVisible: Bool
@@ -161,6 +165,37 @@ struct TDHashtagTextView: NSViewRepresentable {
             textView.setSelectedRange(NSRange(location: safe, length: 0))
             DispatchQueue.main.async { self.cursorLocationRequest = nil }
             context.coordinator.updateCaretInfo()
+        }
+        
+        // 请求插入文本（一次性）：由 NSTextView 在当前光标处插入
+        // 关键：先同步清空 request，避免一次刷新里被执行多次导致插入 2 次
+        if let insertion = insertTextRequest, !insertion.isEmpty {
+            self.insertTextRequest = nil
+            
+            DispatchQueue.main.async {
+                let wasFocused = (textView.window?.firstResponder as AnyObject?) === textView
+                
+                // 确保先聚焦（等同手动输入的前置条件）
+                textView.window?.makeFirstResponder(textView)
+                
+                // 如果之前不在编辑态：把光标放到末尾（符合系统“点按钮→聚焦→输入”的体验）
+                if !wasFocused {
+                    let len = (textView.string as NSString).length
+                    textView.setSelectedRange(NSRange(location: len, length: 0))
+                }
+                
+                // 走原生输入路径：等同手动输入，会触发 selection/text change，从而弹联想
+                textView.insertText(insertion, replacementRange: textView.selectedRange())
+                
+                // 同步回 SwiftUI
+                self.text = textView.string
+                self.caretLocation = textView.selectedRange().location
+                
+                context.coordinator.applyHighlighting()
+                context.coordinator.updateMeasuredHeight()
+                context.coordinator.updateCaretInfo()
+                context.coordinator.updateMarkedTextState()
+            }
         }
 
         // 主题色可能变化：同步颜色

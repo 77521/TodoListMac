@@ -36,6 +36,11 @@ struct TDCategoryPickerMenu: View {
 
     /// 当前选中的分类模型（nil 表示未分类）
     let selectedCategory: TDSliderBarModel?
+    
+    /// 是否处于“全部”选中态（用于列表筛选场景）
+    /// - true：label 显示“全部/显示所有分类”
+    /// - false：label 按 selectedCategory 渲染（nil=未分类）
+    var isAllSelected: Bool = false
 
     /// 是否显示"全部"（由外部传入控制，默认 false）
     var showAllItem: Bool = false
@@ -81,12 +86,15 @@ struct TDCategoryPickerMenu: View {
 
     /// 根据 labelStyle 显示不同的 label 样式
     private var categoryLabelView: some View {
+        if isAllSelected {
+            return AnyView(allLabelView)
+        }
         let isUncategorized = (selectedCategory?.categoryId ?? 0) <= 0
         let iconSize = TDAppConfig.menuIconSize
         let fillHex = selectedCategory?.categoryColor ?? "#c3c3c3"
         let displayName = isUncategorized ? "uncategorized".localized : (selectedCategory?.categoryName ?? "uncategorized".localized)
 
-       return HStack(spacing: 6) {
+       return AnyView(HStack(spacing: 6) {
             // 图标：
             // - 未分类：空心圆
             // - 服务器分类（categoryId > 0）：实心圆，颜色使用分类自己的颜色
@@ -114,6 +122,29 @@ struct TDCategoryPickerMenu: View {
                     .font(.system(size: 10, weight: .semibold))
                     .foregroundColor(themeManager.descriptionTextColor)
             }
+        })
+    }
+    
+    private var allLabelView: some View {
+        let iconSize = TDAppConfig.menuIconSize
+        return HStack(spacing: 6) {
+            Image(systemName: "line.3.horizontal.decrease.circle")
+                .foregroundColor(themeManager.color(level: 5))
+                .font(.system(size: iconSize))
+                .frame(width: iconSize, height: iconSize, alignment: .center)
+            
+            if labelStyle == .iconAndText || labelStyle == .iconAndTextWithChevron {
+                Text("inbox.category_filter.all".localized)
+                    .font(.system(size: TDAppConfig.menuFontSize))
+                    .foregroundColor(themeManager.titleTextColor)
+                    .lineLimit(1)
+            }
+            
+            if labelStyle == .iconAndTextWithChevron {
+                Image(systemName: "chevron.down")
+                    .font(.system(size: 10, weight: .semibold))
+                    .foregroundColor(themeManager.descriptionTextColor)
+            }
         }
     }
 
@@ -124,8 +155,7 @@ struct TDCategoryPickerMenu: View {
                 Button {
                     onAllSelected?()
                 } label: {
-                    Text("全部")
-                        .font(.system(size: TDAppConfig.menuFontSize))
+                    menuRow(icon: allIcon, title: "inbox.category_filter.all".localized)
                 }
                 
                 // 分割线：把"全部"与其他选项区分开
@@ -219,6 +249,14 @@ struct TDCategoryPickerMenu: View {
         Image.fromPlusCircleColor(themeManager.color(level: 5), width: TDAppConfig.menuIconSize, height: TDAppConfig.menuIconSize, plusSize: 6, plusWidth: 1.5)
             .resizable()
             .frame(width: TDAppConfig.menuIconSize, height: TDAppConfig.menuIconSize)
+    }
+    
+    /// 全部：筛选图标
+    private var allIcon: some View {
+        Image(systemName: "line.3.horizontal.decrease.circle")
+            .foregroundColor(themeManager.color(level: 5))
+            .font(.system(size: TDAppConfig.menuIconSize))
+            .frame(width: TDAppConfig.menuIconSize, height: TDAppConfig.menuIconSize, alignment: .center)
     }
 
     /// 未分类：空心圆

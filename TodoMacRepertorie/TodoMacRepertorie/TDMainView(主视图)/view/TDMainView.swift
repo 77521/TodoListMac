@@ -149,7 +149,7 @@ struct TDMainView: View {
                         case -102: // 日程概览
                             TDScheduleOverviewView()
                         case -103: // 待办箱
-                            TDInboxView()
+                            TDInboxView(category: selectedCategory)
                         case -107: // 最近已完成
                             TDCompletedDeletedView(category: selectedCategory)
                         case -108: // 回收站
