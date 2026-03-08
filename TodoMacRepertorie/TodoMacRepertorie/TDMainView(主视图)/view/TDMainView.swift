@@ -151,7 +151,8 @@ struct TDMainView: View {
                         case -103: // 待办箱
                             TDInboxView(category: selectedCategory)
                         case -107: // 最近已完成
-                            TDCompletedDeletedView(category: selectedCategory)
+                            // 说明：最近已完成是独立界面（只展示最近 30 天内、最多 300 条“已达成”事件）
+                            TDRecentCompletedView(category: selectedCategory)
                         case -108: // 回收站
                             TDCompletedDeletedView(category: selectedCategory)
                         case -106: // 数据复盘

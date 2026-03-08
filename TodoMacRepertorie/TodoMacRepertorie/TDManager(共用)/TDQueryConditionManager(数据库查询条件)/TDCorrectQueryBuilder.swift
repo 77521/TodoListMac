@@ -1259,5 +1259,58 @@ struct TDCorrectQueryBuilder {
     }
     
     
+    // MARK: - 最近已完成 / 待办箱（无日期）专用查询
+    
+    /// 最近已完成（最近 N 天，包含今天）
+    /// 说明：
+    /// - 这是第二栏「最近已完成」独立页面的查询逻辑
+    /// - 规则：仅查询“有日期(todoTime>0)” + “已完成(complete=true)” + “未删除(delete=false)” + “属于当前用户”
+    /// - 范围：包含今天在内的最近 N 天（默认 30 天）
+    /// - 排序：todoTime 日期降序；同日按 taskSort 升序
+    /// - 数量限制：SwiftData 的 @Query 不支持在这里直接设置 fetchLimit（界面层用 prefix(300) 控制）
+    static func getRecentCompletedQuery(days: Int = 30) -> (Predicate<TDMacSwiftDataListModel>, [SortDescriptor<TDMacSwiftDataListModel>]) {
+        let userId = TDUserManager.shared.userId
+        let today = Date()
+        
+        // 规则：最近 N 天（含今天）
+        // - 例如 N=30：今天往前数 29 天的开始时间作为下界
+        let lowerBound = today.adding(days: -(max(days, 1) - 1)).startOfDayTimestamp
+        let upperBound = today.endOfDayTimestamp
+        
+        let predicate = #Predicate<TDMacSwiftDataListModel> { task in
+            (task.userId == userId)
+            && (!task.delete)
+            && (task.complete)
+            && (task.todoTime > 0)
+            && (task.todoTime >= lowerBound)
+            && (task.todoTime <= upperBound)
+        }
+        
+        let sortDescriptors: [SortDescriptor<TDMacSwiftDataListModel>] = [
+            SortDescriptor(\TDMacSwiftDataListModel.todoTime, order: .reverse),
+            SortDescriptor(\TDMacSwiftDataListModel.taskSort, order: .forward)
+        ]
+        
+        return (predicate, sortDescriptors)
+    }
+    
+    /// 待办箱（无日期事件列表）
+    /// 说明：
+    /// - 这是第二栏「待办箱」页面的查询逻辑（与“无日期未完成”不是同一个概念）
+    /// - 规则：todoTime==0 + 未删除(delete=false) + 当前用户
+    /// - 注意：这里不过滤 complete（待办箱要能看到已完成/未完成的无日期事件，由界面决定如何展示）
+    static func getInboxNoDateQuery() -> (Predicate<TDMacSwiftDataListModel>, [SortDescriptor<TDMacSwiftDataListModel>]) {
+        let userId = TDUserManager.shared.userId
+        let predicate = #Predicate<TDMacSwiftDataListModel> { task in
+            (task.userId == userId)
+            && (!task.delete)
+            && (task.todoTime == 0)
+        }
+        
+        // 待办箱内部有自己的排序菜单与内存排序，这里不强制排序
+        let sortDescriptors: [SortDescriptor<TDMacSwiftDataListModel>] = []
+        return (predicate, sortDescriptors)
+    }
+
     
 }

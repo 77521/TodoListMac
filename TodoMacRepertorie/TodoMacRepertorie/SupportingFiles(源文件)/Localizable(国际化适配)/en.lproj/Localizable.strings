@@ -210,6 +210,12 @@
 "cancel_button" = "Cancel";
 "add_button" = "Add";
 
+// 最近已完成（第二栏独立界面）
+"recent_completed.title" = "Completed";
+"recent_completed.tooltip" = "Shows completed events from the last 30 days (including today). Only up to 300 items are displayed here.\nYou can view more history in DayTodo, Schedule Overview, or Search.";
+"recent_completed.empty.title" = "No completed events in the last 30 days";
+"recent_completed.empty.subtitle" = "When you mark an event as completed, it will appear here grouped by date.";
+
 // Calendar Navigation
 "back_to_today" = "Today";
 

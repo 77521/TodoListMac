@@ -72,10 +72,9 @@ struct TDInboxView: View {
 
     init(category: TDSliderBarModel? = nil) {
         self.category = category
-        let userId = TDUserManager.shared.userId
-        let predicate = #Predicate<TDMacSwiftDataListModel> { task in
-            (task.userId == userId) && (!task.delete) && (task.todoTime == 0)
-        }
+        
+        // 说明：所有查询逻辑统一收敛到 TDCorrectQueryBuilder（避免每个 View 重复写一份）
+        let (predicate, _) = TDCorrectQueryBuilder.getInboxNoDateQuery()
         _tasks = Query(filter: predicate)
     }
     
@@ -331,7 +330,7 @@ private struct TDInboxTaskRow: View {
                 .frame(width: 3)
                 .padding(.vertical, 2)
                 // 说明：与 DayTodo/最近待办一致，难度条紧贴最左侧（只保留 1pt 安全边距）
-                .padding(.leading, 0)
+                .padding(.leading, 1)
 
             // 任务标题（待办箱同样按“重要功能”渲染）：
             // - 有 #标签：显示胶囊（主题色 5 级），可点击弹窗进入标签模式

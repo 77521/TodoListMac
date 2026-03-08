@@ -211,6 +211,12 @@
 "cancel_button" = "取消";
 "add_button" = "添加";
 
+// 最近已完成（第二栏独立界面）
+"recent_completed.title" = "已达成";
+"recent_completed.tooltip" = "展示最近30天已达成事件，此处仅展示300条。\\n您可以前往DayTodo、日程概览、搜索等来查询更多历史事件。";
+"recent_completed.empty.title" = "最近30天没有已达成事件";
+"recent_completed.empty.subtitle" = "当你勾选完成事件后，会在这里按日期展示。";
+
 
 // 日历导航
 "back_to_today" = "今天";

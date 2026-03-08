@@ -18,10 +18,32 @@ enum CopyType {
 }
 
 /// 通用任务行视图组件
+/// 右侧日期/角标颜色角色（避免直接传 Color，便于 Equatable 与主题统一）
+enum TDTaskRowRightBadgeColorRole: Equatable {
+    /// 主题色 5 级
+    case themeLevel5
+    /// 新年红 5 级（写死强调色）
+    case newYearRedLevel5
+    /// 标题字体颜色
+    case titleText
+}
+
 struct TDTaskRowView: View , Equatable{
     let task: TDMacSwiftDataListModel
     let category: TDSliderBarModel?
     let orderNumber: Int?
+    
+    /// 是否在标题/描述下方显示“日期文字行”
+    /// 说明：
+    /// - 最近待办/分类清单里默认仍显示（保持原逻辑）
+    /// - 最近已完成页面：右侧已经显示日期，所以这里要关闭
+    let showInlineDate: Bool
+    
+    /// 右侧角标文本（用于「最近已完成」右侧日期）
+    /// 说明：放在与“完成按钮”同一行（同一层级），不做分组头
+    let rightBadgeText: String?
+    /// 右侧角标颜色角色
+    let rightBadgeColorRole: TDTaskRowRightBadgeColorRole?
     
     let isFirstRow: Bool
     let isLastRow: Bool
@@ -56,6 +78,34 @@ struct TDTaskRowView: View , Equatable{
     // 判断是否显示顺序数字
     private var shouldShowOrderNumber: Bool {
         return category?.categoryId == -100 && task.shouldShowOrderNumber && orderNumber != nil
+    }
+    
+    /// 自定义初始化方法
+    /// 说明：
+    /// - 之所以需要显式 init：因为 `showInlineDate` 需要可配置
+    /// - 如果写成 `let xxx = 默认值`，Swift 会把它当作“常量”，不会出现在 init 参数里，导致调用处传参报错
+    init(
+        task: TDMacSwiftDataListModel,
+        category: TDSliderBarModel?,
+        orderNumber: Int?,
+        isFirstRow: Bool,
+        isLastRow: Bool,
+        showInlineDate: Bool = true,
+        rightBadgeText: String? = nil,
+        rightBadgeColorRole: TDTaskRowRightBadgeColorRole? = nil,
+        onCopySuccess: (() -> Void)? = nil,
+        onEnterMultiSelect: (() -> Void)? = nil
+    ) {
+        self.task = task
+        self.category = category
+        self.orderNumber = orderNumber
+        self.isFirstRow = isFirstRow
+        self.isLastRow = isLastRow
+        self.showInlineDate = showInlineDate
+        self.rightBadgeText = rightBadgeText
+        self.rightBadgeColorRole = rightBadgeColorRole
+        self.onCopySuccess = onCopySuccess
+        self.onEnterMultiSelect = onEnterMultiSelect
     }
     
     var body: some View {
@@ -161,7 +211,8 @@ struct TDTaskRowView: View , Equatable{
                             
                             // 任务日期（今天、明天、后天显示文字，其他显示日期）
                             // 在 DayTodo 分类下不显示日期
-                            if category?.categoryId != -100 && !task.taskDateConditionalString.isEmpty {
+                            // 你要求：最近已完成右侧已显示日期 => 这里不再重复显示
+                            if showInlineDate, category?.categoryId != -100 && !task.taskDateConditionalString.isEmpty {
                                 Text(task.taskDateConditionalString)
                                     .font(.system(size: 10))
                                     .foregroundColor(task.taskDateColor)
@@ -283,26 +334,36 @@ struct TDTaskRowView: View , Equatable{
                             }
                             
                         }
+                        // 关键：让标题/描述这一列“优先占用宽度”，但不能把右侧日期挤没
+                        // - 不使用 maxWidth:.infinity（会把右侧日期压缩到 0 宽导致不显示）
+                        // - 通过 layoutPriority 让标题列比 Spacer 更抗压缩
+                        .layoutPriority(1)
                         
                         Spacer()
-                    }
-                    // 专注按钮（右边居中）
                     
-                    Button {
-                        // 设置专注关联的任务
-                        mainViewModel.setFocusTask(task)
-                        
-                    } label: {
-                        Image(systemName: "timer")
-                            .font(.system(size: 14))
-                            .foregroundColor(themeManager.color(level: 5))
-                            .frame(width: 32, height: 32)
-                            .background(themeManager.color(level: 5).opacity(0.1))
-                            .clipShape(Circle())
-                        
+                        // 右侧日期/角标：必须占布局，不允许压住标题
+                        // 你要求：
+                        // - 日期与完成按钮同一层级
+                        // - 日期不能压住文案
+                        // - 鼠标移到日期上也算在 cell 内（不抢事件）
+                        if let rightBadgeText, let role = rightBadgeColorRole {
+                            Text(rightBadgeText)
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundColor(rightBadgeColor(role))
+                                // 关键：与完成按钮同高，top 对齐时中心自然对齐
+                                .frame(height: 18, alignment: .center)
+                                // 关键：不要被压缩到 0 宽（否则看起来“消失”）
+                                .fixedSize(horizontal: true, vertical: false)
+                                // 关键：不抢事件，让 hover 不会因为移到文字上而消失
+                                .allowsHitTesting(false)
+                        }
                     }
-                    .buttonStyle(PlainButtonStyle())
-                    .pointingHandCursor()
+                    // 说明：专注按钮不放在 HStack 内，避免出现/消失导致整体布局抖动
+                    // 你要求：
+                    // 1) 只在“鼠标悬停到当前行”时显示（每行独立，不影响其它行）
+                    // 2) 按钮与整行内容垂直居中对齐（不是右上角）
+                    // 3) 如果设置里关闭“专注界面”，即使 hover 也不显示
+                    // 4) 显示动画与“最近已完成”一致（淡入 + 轻微缩放）
                     
                     
                     //                    Button(action: startFocus) {
@@ -316,7 +377,10 @@ struct TDTaskRowView: View , Equatable{
                     //                    .buttonStyle(PlainButtonStyle())
                 }
             }
-            .padding(.horizontal, 16)
+            // 你要求：标题/描述/子任务整体距离列表右边 10pt
+            // - 这里把整体 trailing 从 16 收紧到 10
+            .padding(.leading, 16)
+            .padding(.trailing, 10)
             .padding(.vertical, 12)
         }
         //        .frame(maxWidth: .infinity) // 横向铺满
@@ -349,11 +413,48 @@ struct TDTaskRowView: View , Equatable{
 //                }
             }
         )
-                .onHover { hovering in
-                    // 使用防抖，避免频繁更新
-                    isHovered = hovering
-        
+        .overlay(alignment: .trailing) {
+            // 说明：按钮与整行“垂直居中”对齐（alignment:.trailing 默认是 centerY）
+            // - 只在 hover + 非多选 + 开启专注界面时显示
+            // - 距离右边 10pt（按你截图规范）
+            if isHovered && !mainViewModel.isMultiSelectMode && settingManager.enableTomatoFocus {
+                Button {
+                    // 设置专注关联的任务
+                    mainViewModel.setFocusTask(task)
+                } label: {
+                    Image(systemName: "timer")
+                        .font(.system(size: 12, weight: .semibold))
+                        // 你要求：图标颜色 = 主题颜色“字体颜色”
+                        .foregroundColor(themeManager.titleTextColor)
+                        // 你要求：专注按钮更小，28×28
+                        .frame(width: 28, height: 28)
+                        // 你要求：背景色 = 主题颜色的 1 级背景色（primaryBackground）
+                        .background(themeManager.backgroundColor)
+                        .clipShape(Circle())
+                        // 你要求：加描边（border）
+                        .overlay(
+                            Circle()
+                                .stroke(themeManager.borderColor, lineWidth: 1)
+                        )
                 }
+                .buttonStyle(.plain)
+                .pointingHandCursor()
+                // 说明：与右侧日期对齐，右边距与左侧完成按钮的左边距一致
+                .padding(.trailing, 10)
+                // 你要求：专注按钮要在最上层，允许直接压住右侧日期文字
+                .zIndex(999)
+                // 你要求：显示动画更明显（从左推入，向右推出 / 或放大缩小）
+                .transition(
+                    .asymmetric(
+                        insertion: .move(edge: .leading).combined(with: .opacity).combined(with: .scale(scale: 0.92)),
+                        removal: .move(edge: .trailing).combined(with: .opacity).combined(with: .scale(scale: 0.92))
+                    )
+                )
+                // 兜底：确保 transition 一定会被动画驱动（避免你看到“生硬”）
+                // 你要求：专注按钮动画稍微慢一点（更柔和）
+                .animation(.easeInOut(duration: 0.28), value: isHovered)
+            }
+        }
         .overlay(
             Group {
                 // 底部分割线：
@@ -367,6 +468,15 @@ struct TDTaskRowView: View , Equatable{
                 }
             }
         )
+        // 说明：hover 绑定到“整行最外层”，确保鼠标在 cell 任意位置（包括按钮/右侧日期）都能触发
+        .contentShape(Rectangle())
+        .onHover { hovering in
+            // 说明：每行独立 hover 状态（避免“悬停一行所有行都显示”）
+            // 你要求：悬停时才显示专注按钮 + 背景轻高亮
+            withAnimation(.easeInOut(duration: 0.12)) {
+                isHovered = hovering
+            }
+        }
         .onTapGesture {
             if mainViewModel.isMultiSelectMode {
                 // 多选模式下，点击整行也可以选中/取消选中
@@ -900,11 +1010,26 @@ struct TDTaskRowView: View , Equatable{
         lhs.task.isSubOpen == rhs.task.isSubOpen &&
         lhs.task.subTaskList == rhs.task.subTaskList &&
         lhs.isHovered == rhs.isHovered &&
+        lhs.rightBadgeText == rhs.rightBadgeText &&
+        lhs.rightBadgeColorRole == rhs.rightBadgeColorRole &&
         lhs.mainViewModel.isMultiSelectMode == rhs.mainViewModel.isMultiSelectMode &&
         lhs.mainViewModel.selectedTasks.contains(where: { $0.taskId == lhs.task.taskId }) ==
         rhs.mainViewModel.selectedTasks.contains(where: { $0.taskId == rhs.task.taskId })
     }
     
+}
+
+private extension TDTaskRowView {
+    func rightBadgeColor(_ role: TDTaskRowRightBadgeColorRole) -> Color {
+        switch role {
+        case .themeLevel5:
+            return themeManager.color(level: 5)
+        case .newYearRedLevel5:
+            return themeManager.fixedColor(themeId: "new_year_red", level: 5)
+        case .titleText:
+            return themeManager.titleTextColor
+        }
+    }
 }
 
 #Preview {
