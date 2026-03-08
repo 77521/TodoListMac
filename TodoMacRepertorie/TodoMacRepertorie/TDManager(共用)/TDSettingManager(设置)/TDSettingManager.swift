@@ -736,6 +736,7 @@ class TDSettingManager: ObservableObject {
             let clamped = min(max(newValue, 5), 120) // 限制为 5~120 分钟
             sharedDefaults?.set(clamped, forKey: Keys.focusDuration)
             objectWillChange.send()
+            TDWidgetReloadBridge.reloadFocus()
         }
     }
 
@@ -751,6 +752,8 @@ class TDSettingManager: ObservableObject {
             let clamped = min(max(newValue, 5), 120) // 限制为 5~120 分钟
             sharedDefaults?.set(clamped, forKey: Keys.restDuration)
             objectWillChange.send()
+            TDWidgetReloadBridge.reloadFocus()
+
         }
     }
 

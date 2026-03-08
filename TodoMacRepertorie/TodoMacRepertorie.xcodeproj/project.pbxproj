@@ -92,6 +92,7 @@
 				"TDManager(共用)/TDConfigManager(App配置信息)/TDConfigAPI.swift",
 				"TDManager(共用)/TDConfigManager(App配置信息)/TDConfigManager.swift",
 				"TDManager(共用)/TDDeviceManager(设备信息)/TDDeviceManager.swift",
+				"TDManager(共用)/TDFocusSessionStore(专注和小组件)/TDFocusSessionStore.swift",
 				"TDManager(共用)/TDHoliday(法定节假日)/TDHolidayAPI.swift",
 				"TDManager(共用)/TDHoliday(法定节假日)/TDHolidayManager.swift",
 				"TDManager(共用)/TDModelContainer(swiftData容器共用)/TDModelContainer.swift",

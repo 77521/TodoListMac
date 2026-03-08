@@ -14,5 +14,8 @@ enum TDWidgetKind {
     static let scheduleOverview = "TDMacWidgetScheduleOverview"
     /// 左边日历右边事件
     static let monthDayList = "TDMacWidgetMonthDayList"
+    /// 番茄专注（小型）
+    static let focus = "TDMacWidgetFocus"
 
 }
+

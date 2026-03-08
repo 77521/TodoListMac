@@ -441,3 +441,40 @@ struct TDWidgetMonthDayListSelectDateIntent: AppIntent {
         return .result()
     }
 }
+
+
+// MARK: - 番茄专注小组件：开始/放弃（按钮用法同“列表完成按钮”）
+
+struct TDWidgetFocusToggleIntent: AppIntent {
+    static var title: LocalizedStringResource = "番茄专注：开始/放弃"
+
+    init() {}
+
+    @MainActor
+    func perform() async throws -> some IntentResult {
+        guard let user = TDWidgetUserSession.currentUser() else { return .result() }
+
+        // 让共享的 TDUserManager 在 Widget 进程里也有 token/userId（网络与 SwiftData 依赖它）
+        TDUserManager.shared.currentUser = user
+        TDUserManager.shared.currentUserId = user.userId
+
+        let store = TDFocusSessionStore.shared
+        store.refreshFromDefaults()
+
+        if store.state.phase == .idle {
+            store.start(
+                focusMinutes: TDSettingManager.shared.focusDuration,
+                restMinutes: TDSettingManager.shared.restDuration,
+                taskId: nil,
+                taskContent: nil,
+                owner: .widget
+            )
+        } else {
+            await store.abandon()
+        }
+
+        WidgetCenter.shared.reloadTimelines(ofKind: TDWidgetKind.focus)
+        return .result()
+    }
+}
+
