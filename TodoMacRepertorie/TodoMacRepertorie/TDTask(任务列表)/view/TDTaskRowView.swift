@@ -121,10 +121,11 @@ struct TDTaskRowView: View , Equatable{
             
             // 2. 主要内容区域
             VStack(alignment: .center, spacing: 8) {
-                HStack(alignment: .center, spacing: 12) {
-                    
+                // 标题与右侧日期的间距：最多 10pt
+                // - 右侧日期固定在最右
+                // - 标题尽可能吃满日期左侧剩余空间，只有当间距要小于 10pt 才换行
+                HStack(alignment: .top, spacing: 10) {
                     HStack(alignment: .top, spacing: 12) {
-                        // 完成状态复选框
                         // 完成状态复选框/多选圆圈
                         Button(action: {
                             if mainViewModel.isMultiSelectMode {
@@ -334,30 +335,19 @@ struct TDTaskRowView: View , Equatable{
                             }
                             
                         }
-                        // 关键：让标题/描述这一列“优先占用宽度”，但不能把右侧日期挤没
-                        // - 不使用 maxWidth:.infinity（会把右侧日期压缩到 0 宽导致不显示）
-                        // - 通过 layoutPriority 让标题列比 Spacer 更抗压缩
-                        .layoutPriority(1)
-                        
-                        Spacer()
+                        // 左侧内容占满日期左侧空间（否则会提前换行并留下大空白）
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     
-                        // 右侧日期/角标：必须占布局，不允许压住标题
-                        // 你要求：
-                        // - 日期与完成按钮同一层级
-                        // - 日期不能压住文案
-                        // - 鼠标移到日期上也算在 cell 内（不抢事件）
-                        if let rightBadgeText, let role = rightBadgeColorRole {
-                            Text(rightBadgeText)
-                                .font(.system(size: 12, weight: .medium))
-                                .foregroundColor(rightBadgeColor(role))
-                                // 关键：与完成按钮同高，top 对齐时中心自然对齐
-                                .frame(height: 18, alignment: .center)
-                                // 关键：不要被压缩到 0 宽（否则看起来“消失”）
-                                .fixedSize(horizontal: true, vertical: false)
-                                // 关键：不抢事件，让 hover 不会因为移到文字上而消失
-                                .allowsHitTesting(false)
-                        }
+                    // 右侧日期/角标：固定宽度并贴右
+                    if let rightBadgeText, let role = rightBadgeColorRole {
+                        Text(rightBadgeText)
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundColor(rightBadgeColor(role))
+                            .frame(height: 18, alignment: .center)
+                            .fixedSize(horizontal: true, vertical: false)
+                            .allowsHitTesting(false)
                     }
+                }
                     // 说明：专注按钮不放在 HStack 内，避免出现/消失导致整体布局抖动
                     // 你要求：
                     // 1) 只在“鼠标悬停到当前行”时显示（每行独立，不影响其它行）

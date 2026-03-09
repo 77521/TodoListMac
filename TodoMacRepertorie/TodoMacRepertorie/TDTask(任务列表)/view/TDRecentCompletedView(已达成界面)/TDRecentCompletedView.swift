@@ -47,23 +47,27 @@ struct TDRecentCompletedView: View {
                 emptyState
             } else {
                 ScrollViewReader { proxy in
-                    ScrollView {
-                        LazyVStack(spacing: 0) {
-                            // 你要求：最近已完成“不需要分组头”
-                            // - 但仍需要按日期做“右侧日期标签”显示（与复选框居中对齐、距右 10pt）
-                            ForEach(rows.indices, id: \.self) { idx in
-                                let row = rows[idx]
-                                TDRecentCompletedRow(
-                                    task: row.task,
-                                    category: category,
-                                    showDateBadge: row.showDateBadge,
-                                    dateBadgeTimestamp: row.dayStartTimestamp
-                                )
-                                .id(row.task.taskId)
-                            }
+                    // macOS 上 List 的复用/滚动更稳定，避免 ScrollView + LazyVStack 在到顶回弹时闪烁
+                    List {
+                        ForEach(rows, id: \.task.taskId) { row in
+                            TDRecentCompletedRow(
+                                task: row.task,
+                                category: category,
+                                showDateBadge: row.showDateBadge,
+                                dateBadgeTimestamp: row.dayStartTimestamp
+                            )
+                            .id(row.task.taskId)
+                            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                            .listRowBackground(Color.clear)
+                            .listRowSeparator(.hidden)
                         }
                     }
+                    .listStyle(.plain)
+                    .scrollContentBackground(.hidden)
+                    .background(Color.clear)
                     .scrollIndicators(.hidden)
+                    .environment(\.defaultMinListRowHeight, 44)
+                    .padding(.horizontal, -9)
                     .onAppear {
                         // 说明：保持第二栏列表与第三栏详情联动体验一致（选中任务时自动滚到可见位置）
                         if let id = mainViewModel.selectedTask?.taskId {

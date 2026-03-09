@@ -380,14 +380,13 @@ private struct TDTaskGroupSectionView: View {
                 isExpanded: $isExpanded,
                 content: {
                     LazyVStack(spacing: 0) {
-                        ForEach(tasks.indices, id: \.self) { index in
-                            let task = tasks[index]
+                        ForEach(tasks, id: \.taskId) { task in
                             TDTaskRowView(
                                 task: task,
                                 category: category,
                                 orderNumber: nil,
-                                isFirstRow: index == 0,
-                                isLastRow: index == tasks.count - 1,
+                                isFirstRow: task.taskId == tasks.first?.taskId,
+                                isLastRow: task.taskId == tasks.last?.taskId,
                                 onCopySuccess: onCopySuccess,
                                 onEnterMultiSelect: { }
                             )
