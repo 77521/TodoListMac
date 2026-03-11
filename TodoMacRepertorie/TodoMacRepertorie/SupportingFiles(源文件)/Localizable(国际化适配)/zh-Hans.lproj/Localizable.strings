@@ -217,6 +217,18 @@
 "recent_completed.empty.title" = "最近30天没有已达成事件";
 "recent_completed.empty.subtitle" = "当你勾选完成事件后，会在这里按日期展示。";
 
+// 回收站（第二栏）
+"trash.clear.button" = "清空";
+"trash.clear.confirm.title" = "清空回收站？";
+"trash.clear.action" = "清空";
+"trash.clear.confirm.message" = "此操作会永久删除回收站内的所有事件，无法撤销。";
+"trash.empty.title" = "%@为空";
+"trash.empty.subtitle" = "删除的事件会暂存在这里";
+"trash.action.restore_original" = "移到原日期";
+"trash.action.restore_today" = "移到今天";
+"trash.action.pick_date" = "选择日期";
+"trash.badge.overdue_prefix" = "过期 %@";
+
 
 // 日历导航
 "back_to_today" = "今天";

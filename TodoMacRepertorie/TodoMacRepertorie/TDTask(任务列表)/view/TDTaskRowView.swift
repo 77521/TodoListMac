@@ -7,6 +7,62 @@
 
 import SwiftUI
 import SwiftData
+import AppKit
+
+/// 用于在列表滚动时抑制 hover 触发的按钮显示（全局共享，避免每行重复监听）
+final class TDScrollActivity: ObservableObject {
+    static let shared = TDScrollActivity()
+    
+    @Published private(set) var isScrolling: Bool = false
+    
+    private var endWorkItem: DispatchWorkItem?
+    private var scrollWheelMonitor: Any?
+    private var observers: [NSObjectProtocol] = []
+    
+    private init() {
+        // 1) 监听 NSScrollView 的 live scroll（Trackpad/滚动条拖动）
+        let center = NotificationCenter.default
+        observers.append(center.addObserver(forName: NSScrollView.willStartLiveScrollNotification, object: nil, queue: .main) { [weak self] _ in
+            self?.markScrolling(activeFor: 0.25)
+        })
+        observers.append(center.addObserver(forName: NSScrollView.didLiveScrollNotification, object: nil, queue: .main) { [weak self] _ in
+            self?.markScrolling(activeFor: 0.25)
+        })
+        observers.append(center.addObserver(forName: NSScrollView.didEndLiveScrollNotification, object: nil, queue: .main) { [weak self] _ in
+            // 结束时也稍微延迟一下，覆盖惯性滚动尾巴
+            self?.markScrolling(activeFor: 0.12)
+        })
+        
+        // 2) 兜底：监听滚轮事件（某些情况下通知不稳定）
+        scrollWheelMonitor = NSEvent.addLocalMonitorForEvents(matching: .scrollWheel) { [weak self] event in
+            // 只要发生滚动，就认为“正在滚动”，并做防抖
+            if event.scrollingDeltaX != 0 || event.scrollingDeltaY != 0 {
+                self?.markScrolling(activeFor: 0.20)
+            }
+            return event
+        }
+    }
+    
+    deinit {
+        observers.forEach { NotificationCenter.default.removeObserver($0) }
+        if let scrollWheelMonitor {
+            NSEvent.removeMonitor(scrollWheelMonitor)
+        }
+    }
+    
+    private func markScrolling(activeFor delay: TimeInterval) {
+        if !isScrolling {
+            isScrolling = true
+        }
+        
+        endWorkItem?.cancel()
+        let item = DispatchWorkItem { [weak self] in
+            self?.isScrolling = false
+        }
+        endWorkItem = item
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: item)
+    }
+}
 
 
 
@@ -57,6 +113,8 @@ struct TDTaskRowView: View , Equatable{
         return !isLastRow
     }
     @State private var isHovered: Bool = false
+    /// 全局滚动状态（用于滚动时隐藏 hover 按钮）
+    @ObservedObject private var scrollActivity = TDScrollActivity.shared
     
     // 监听多选模式状态变化
     @ObservedObject private var mainViewModel = TDMainViewModel.shared
@@ -407,7 +465,8 @@ struct TDTaskRowView: View , Equatable{
             // 说明：按钮与整行“垂直居中”对齐（alignment:.trailing 默认是 centerY）
             // - 只在 hover + 非多选 + 开启专注界面时显示
             // - 距离右边 10pt（按你截图规范）
-            if isHovered && !mainViewModel.isMultiSelectMode && settingManager.enableTomatoFocus {
+            // 你要求：列表滚动过程中（即使鼠标在列表上）也不要显示；等滚动结束后再按 hover 显示
+            if isHovered && !scrollActivity.isScrolling && !mainViewModel.isMultiSelectMode && settingManager.enableTomatoFocus {
                 Button {
                     // 设置专注关联的任务
                     mainViewModel.setFocusTask(task)

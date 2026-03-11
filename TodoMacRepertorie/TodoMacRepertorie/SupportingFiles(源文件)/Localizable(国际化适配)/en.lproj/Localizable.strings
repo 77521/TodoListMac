@@ -216,6 +216,18 @@
 "recent_completed.empty.title" = "No completed events in the last 30 days";
 "recent_completed.empty.subtitle" = "When you mark an event as completed, it will appear here grouped by date.";
 
+// Trash (second column)
+"trash.clear.button" = "Empty";
+"trash.clear.confirm.title" = "Empty Trash?";
+"trash.clear.action" = "Empty";
+"trash.clear.confirm.message" = "This will permanently delete all items in Trash. This action cannot be undone.";
+"trash.empty.title" = "%@ is empty";
+"trash.empty.subtitle" = "Deleted items will appear here temporarily";
+"trash.action.restore_original" = "Restore original date";
+"trash.action.restore_today" = "Move to Today";
+"trash.action.pick_date" = "Pick date";
+"trash.badge.overdue_prefix" = "Overdue %@";
+
 // Calendar Navigation
 "back_to_today" = "Today";
 
