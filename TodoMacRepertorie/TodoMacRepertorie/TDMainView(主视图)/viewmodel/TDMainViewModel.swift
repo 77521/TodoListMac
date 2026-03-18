@@ -31,6 +31,10 @@ final class TDMainViewModel: ObservableObject {
     /// 当前选中的标签（用于第二栏展示标签筛选后的本地数据）
     @Published var selectedTagKey: String?
 
+    // MARK: - 搜索（侧边栏输入 -> 第二栏展示）
+    /// 全局搜索关键字（微信式：支持中文/拼音/简写；结果在第二栏显示）
+    @Published var searchText: String = ""
+
     // MARK: - 多选模式相关属性
     
     /// 是否处于多选模式

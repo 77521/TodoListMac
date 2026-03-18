@@ -17,44 +17,44 @@ struct TDMainView: View {
     @Environment(\.modelContext) private var modelContext
     
     @ObservedObject private var dateManager = TDDateManager.shared
-
+    
     // 控制第三列的显示/隐藏
     @State private var columnVisibility = NavigationSplitViewVisibility.all
-//    @State private var selectedTask: TDMacSwiftDataListModel?
+    //    @State private var selectedTask: TDMacSwiftDataListModel?
     
     // 计算最小宽度：基础宽度 + 第三列宽度（如果显示）
     private var minWidth: CGFloat {
         let baseWidth: CGFloat = 260 + 450 // 基础宽度（不包含第三列）
         return mainViewModel.selectedTask != nil ? baseWidth + 414 : baseWidth
     }
-
+    
     var body: some View {
-//        NavigationSplitView(columnVisibility: $columnVisibility) {
-//            // 第一列：分类导航栏
-//            firstColumn
-//            
-//        } content: {
-//            // 第二列：任务列表
-//            secondColumn
-//        } detail: {
-//            // 第三列：任务详情
-//            thirdColumn
-//        }
-//        .frame(minWidth: 1100, minHeight: 700)
-//        .background(Color(.windowBackgroundColor))
-//        .ignoresSafeArea(.container, edges: .all)
-//        .task {
-//            // 针对 macOS 26 强制显示三列
-//            DispatchQueue.main.async {
-//                columnVisibility = .all
-//            }
-//
-//            // 界面加载完成后，立即执行四个初始化请求和同步操作
-//            await mainViewModel.performInitialServerRequests()
-//            // 单独执行同步操作，避免线程优先级冲突
-////            await mainViewModel.performSyncSeparately()
-//
-//        }
+        //        NavigationSplitView(columnVisibility: $columnVisibility) {
+        //            // 第一列：分类导航栏
+        //            firstColumn
+        //
+        //        } content: {
+        //            // 第二列：任务列表
+        //            secondColumn
+        //        } detail: {
+        //            // 第三列：任务详情
+        //            thirdColumn
+        //        }
+        //        .frame(minWidth: 1100, minHeight: 700)
+        //        .background(Color(.windowBackgroundColor))
+        //        .ignoresSafeArea(.container, edges: .all)
+        //        .task {
+        //            // 针对 macOS 26 强制显示三列
+        //            DispatchQueue.main.async {
+        //                columnVisibility = .all
+        //            }
+        //
+        //            // 界面加载完成后，立即执行四个初始化请求和同步操作
+        //            await mainViewModel.performInitialServerRequests()
+        //            // 单独执行同步操作，避免线程优先级冲突
+        ////            await mainViewModel.performSyncSeparately()
+        //
+        //        }
         // 使用 HSplitView 实现三列布局 - 替代 NavigationSplitView
         HSplitView {
             // 第一列：分类导航栏
@@ -63,8 +63,8 @@ struct TDMainView: View {
             // 第二列：任务列表
             secondColumn
             
-//            // 第三列：任务详情
-//            thirdColumn
+            //            // 第三列：任务详情
+            //            thirdColumn
             // 第三列：任务详情 - 根据 selectedTask 显示/隐藏
             // 第三列：任务详情 - 根据 selectedTask 显示/隐藏
             if mainViewModel.selectedTask != nil {
@@ -86,43 +86,43 @@ struct TDMainView: View {
             
             // 预热“日程概览”（避免首次点开 -102 时才初始化导致先空后补的卡顿感）
             _ = TDScheduleOverviewViewModel.shared
-
+            
             // 单独执行同步操作，避免线程优先级冲突
-//            await mainViewModel.performSyncSeparately()
+            //            await mainViewModel.performSyncSeparately()
         }
         
-
-
+        
+        
     }
     
     // MARK: - 第一列：分类导航栏
     private var firstColumn: some View {
         TDSliderBarView()
             .frame(minWidth: 260, idealWidth: 260, maxWidth: 260)
-//            .background(TDVisualEffectView(material: .underWindowBackground))
-//            .toolbar {
-//                ToolbarItemGroup(placement: .automatic) {
-//                    Spacer()
-//                    
-//                    // 更多按钮
-//                    Button(action: {
-//                        // TODO: 更多操作
-//                    }) {
-//                        Image(systemName: "ellipsis.circle")
-//                            .foregroundColor(.secondary)
-//                    }
-//                    .buttonStyle(PlainButtonStyle())
-//                    
-//                    // 设置按钮
-//                    Button(action: {
-//                        // TODO: 设置操作
-//                    }) {
-//                        Image(systemName: "gearshape")
-//                            .foregroundColor(.secondary)
-//                    }
-//                    .buttonStyle(PlainButtonStyle())
-//                }
-//            }
+        //            .background(TDVisualEffectView(material: .underWindowBackground))
+        //            .toolbar {
+        //                ToolbarItemGroup(placement: .automatic) {
+        //                    Spacer()
+        //
+        //                    // 更多按钮
+        //                    Button(action: {
+        //                        // TODO: 更多操作
+        //                    }) {
+        //                        Image(systemName: "ellipsis.circle")
+        //                            .foregroundColor(.secondary)
+        //                    }
+        //                    .buttonStyle(PlainButtonStyle())
+        //
+        //                    // 设置按钮
+        //                    Button(action: {
+        //                        // TODO: 设置操作
+        //                    }) {
+        //                        Image(systemName: "gearshape")
+        //                            .foregroundColor(.secondary)
+        //                    }
+        //                    .buttonStyle(PlainButtonStyle())
+        //                }
+        //            }
     }
     
     // MARK: - 第二列：任务列表
@@ -132,60 +132,62 @@ struct TDMainView: View {
             AnyView(
                 Group {
                     
-                    if let tagKey = mainViewModel.selectedTagKey, !tagKey.isEmpty {
+                    // 搜索模式：只要侧边栏输入非空，第二栏改为搜索结果
+                    if !mainViewModel.searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        TDTaskSearchView()
+                    } else if let tagKey = mainViewModel.selectedTagKey, !tagKey.isEmpty {
                         // 标签模式：复用 TDTaskListView，只是查询条件多一个 tagFilter
                         TDTaskListView(
                             category: TDSliderBarModel(categoryId: -9999, categoryName: tagKey, headerIcon: "tag"),
                             tagFilter: tagKey
                         )
                     } else {
-                    
-                    if let selectedCategory = mainViewModel.selectedCategory {
-                        switch selectedCategory.categoryId {
-                        case -100: // DayTodo
-                            TDDayTodoView(selectedDate: dateManager.selectedDate, category: selectedCategory)
-                        case -101: // 最近待办
-                            TDTaskListView(category: selectedCategory)
-                        case -102: // 日程概览
-                            TDScheduleOverviewView()
-                        case -103: // 待办箱
-                            TDInboxView(category: selectedCategory)
-                        case -107: // 最近已完成
-                            // 说明：最近已完成是独立界面（只展示最近 30 天内、最多 300 条“已达成”事件）
-                            TDRecentCompletedView(category: selectedCategory)
-                        case -108: // 回收站
-                            TDCompletedDeletedView(category: selectedCategory)
-                        case -106: // 数据复盘
-                            TDDataReviewView()
-                        case 0: // 未分类
-                            TDTaskListView(category: selectedCategory)
-                        default: // 用户创建的分类
-                            if selectedCategory.categoryId > 0 {
-                                TDTaskListView(category: selectedCategory)
-                            } else {
-                                // 如果出现未知分类，默认显示DayTodo
+                        
+                        if let selectedCategory = mainViewModel.selectedCategory {
+                            switch selectedCategory.categoryId {
+                            case -100: // DayTodo
                                 TDDayTodoView(selectedDate: dateManager.selectedDate, category: selectedCategory)
+                            case -101: // 最近待办
+                                TDTaskListView(category: selectedCategory)
+                            case -102: // 日程概览
+                                TDScheduleOverviewView()
+                            case -103: // 待办箱
+                                TDInboxView(category: selectedCategory)
+                            case -107: // 最近已完成
+                                TDCompletedDeletedView(category: selectedCategory)
+                            case -108: // 回收站
+                                TDCompletedDeletedView(category: selectedCategory)
+                            case -106: // 数据复盘
+                                TDDataReviewView()
+                            case 0: // 未分类
+                                TDTaskListView(category: selectedCategory)
+                            default: // 用户创建的分类
+                                if selectedCategory.categoryId > 0 {
+                                    TDTaskListView(category: selectedCategory)
+                                } else {
+                                    // 如果出现未知分类，默认显示DayTodo
+                                    TDDayTodoView(selectedDate: dateManager.selectedDate, category: selectedCategory)
+                                }
                             }
+                        } else {
+                            // 如果没有选中分类，默认显示DayTodo
+                            let defaults = TDSliderBarModel.defaultItems(settingManager: settingManager)
+                            TDDayTodoView(selectedDate: dateManager.selectedDate, category: defaults.first(where: { $0.categoryId == -100 }) ?? defaults[0])
                         }
-                    } else {
-                        // 如果没有选中分类，默认显示DayTodo
-                        let defaults = TDSliderBarModel.defaultItems(settingManager: settingManager)
-                        TDDayTodoView(selectedDate: dateManager.selectedDate, category: defaults.first(where: { $0.categoryId == -100 }) ?? defaults[0])
                     }
                 }
-                }
                     .frame(minWidth: 450, idealWidth: 650, maxWidth: .infinity)
-                .background(Color(.windowBackgroundColor))
-                .ignoresSafeArea(.container, edges: .all)
+                    .background(Color(.windowBackgroundColor))
+                    .ignoresSafeArea(.container, edges: .all)
             )
             Spacer(minLength: 0)
             // 专注界面（按设置开关显示）
             if settingManager.enableTomatoFocus {
                 TDFocusView()
             }
-
+            
         }
-
+        
     }
     
     // MARK: - 第三列：任务详情
@@ -219,9 +221,9 @@ struct TDMainView: View {
         }
         .animation(.easeInOut(duration: 0.3), value: mainViewModel.selectedTask != nil)
         .ignoresSafeArea(.container, edges: .all)
-
+        
     }
-
+    
 }
 
 #Preview {

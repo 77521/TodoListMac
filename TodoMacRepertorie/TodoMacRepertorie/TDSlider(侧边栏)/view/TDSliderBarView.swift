@@ -11,6 +11,7 @@ struct TDSliderBarView: View {
     @StateObject private var viewModel = TDSliderBarViewModel.shared
     @ObservedObject private var themeManager = TDThemeManager.shared
     @ObservedObject private var settingManager = TDSettingManager.shared
+    @ObservedObject private var mainViewModel = TDMainViewModel.shared
 
     
     // MARK: - 分类清单拖拽状态
@@ -105,7 +106,7 @@ struct TDSliderBarView: View {
                     .foregroundColor(.secondary)
                     .font(.system(size: 14))
                 
-                TextField("搜索事件", text: .constant(""))
+                TextField("搜索事件", text: $mainViewModel.searchText)
                     .textFieldStyle(PlainTextFieldStyle())
                     .font(.system(size: 14))
                 
