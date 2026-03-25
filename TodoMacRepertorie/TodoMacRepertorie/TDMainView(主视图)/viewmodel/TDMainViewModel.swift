@@ -35,6 +35,11 @@ final class TDMainViewModel: ObservableObject {
     /// 全局搜索关键字（微信式：支持中文/拼音/简写；结果在第二栏显示）
     @Published var searchText: String = ""
 
+    /// 是否处于“搜索界面激活”状态
+    /// - true：第二栏显示搜索界面（即使 searchText 为空也显示空态）
+    /// - false：第二栏按分类/标签正常显示（searchText 保留但不展示搜索界面）
+    @Published var isSearchActive: Bool = false
+
     // MARK: - 多选模式相关属性
     
     /// 是否处于多选模式
@@ -99,6 +104,9 @@ final class TDMainViewModel: ObservableObject {
         os_log(.info, log: logger, "🎯 主视图模型接收到分类选择: \(category.categoryName) (ID: \(category.categoryId))")
         // 使用 Task 来避免在 View 更新过程中修改 @Published 属性
         Task { @MainActor in
+            // 点第一列任何分类：仅隐藏搜索界面（保留 searchText）
+            isSearchActive = false
+
             // 选择分类时：退出“标签模式”
             selectedTagKey = nil
             selectedCategory = category
@@ -118,6 +126,10 @@ final class TDMainViewModel: ObservableObject {
     func selectTag(tagKey: String) {
         os_log(.info, log: logger, "🏷️ 主视图模型接收到标签选择: %@", tagKey)
         Task { @MainActor in
+            
+            // 点第一列任何标签：仅隐藏搜索界面（保留 searchText）
+            isSearchActive = false
+
             selectedCategory = nil
             selectedTagKey = tagKey
             exitMultiSelectMode()

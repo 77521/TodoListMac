@@ -106,10 +106,22 @@ struct TDSliderBarView: View {
                     .foregroundColor(.secondary)
                     .font(.system(size: 14))
                 
-                TextField("搜索事件", text: $mainViewModel.searchText)
+                TextField("搜索事件", text: $mainViewModel.searchText, onEditingChanged: { editing in
+                    if editing {
+                        mainViewModel.isSearchActive = true
+                    }
+                })
                     .textFieldStyle(PlainTextFieldStyle())
                     .font(.system(size: 14))
-                
+                    .onTapGesture {
+                        mainViewModel.isSearchActive = true
+                    }
+                    .onChange(of: mainViewModel.searchText) { _, newValue in
+                        if !newValue.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                            mainViewModel.isSearchActive = true
+                        }
+                    }
+
                 Spacer()
             }
             .padding(.horizontal, 12)

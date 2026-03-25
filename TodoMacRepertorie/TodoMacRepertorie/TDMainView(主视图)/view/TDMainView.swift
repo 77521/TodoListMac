@@ -133,7 +133,7 @@ struct TDMainView: View {
                 Group {
                     
                     // 搜索模式：只要侧边栏输入非空，第二栏改为搜索结果
-                    if !mainViewModel.searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    if mainViewModel.isSearchActive {
                         TDTaskSearchView()
                     } else if let tagKey = mainViewModel.selectedTagKey, !tagKey.isEmpty {
                         // 标签模式：复用 TDTaskListView，只是查询条件多一个 tagFilter
@@ -154,7 +154,7 @@ struct TDMainView: View {
                             case -103: // 待办箱
                                 TDInboxView(category: selectedCategory)
                             case -107: // 最近已完成
-                                TDCompletedDeletedView(category: selectedCategory)
+                                TDRecentCompletedView(category: selectedCategory)
                             case -108: // 回收站
                                 TDCompletedDeletedView(category: selectedCategory)
                             case -106: // 数据复盘

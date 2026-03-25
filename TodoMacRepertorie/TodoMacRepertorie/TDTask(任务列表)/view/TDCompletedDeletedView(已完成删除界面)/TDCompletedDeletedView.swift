@@ -50,7 +50,13 @@ struct TDCompletedDeletedView: View {
                                 dateBadgeColor: dateBadgeColor(for: task),
                                 onRestoreOriginalDate: { restore(task: task, to: task.todoTime) },
                                 onRestoreToday: { restore(task: task, to: Date().startOfDayTimestamp) },
-                                onPickDate: { presentDatePicker(for: task) }
+                                onPickDate: { presentDatePicker(for: task) },
+                                showDatePicker: $showDatePicker,
+                                datePickerTaskId: datePickerTask?.taskId,
+                                selectedDate: $selectedDate,
+                                onDateSelected: { date in
+                                    restore(task: task, to: date.startOfDayTimestamp)
+                                }
                             )
                             
                             Rectangle()
@@ -78,17 +84,6 @@ struct TDCompletedDeletedView: View {
             Button("common.cancel".localized, role: .cancel) { }
         } message: {
             Text("trash.clear.confirm.message".localized)
-        }
-        .popover(isPresented: $showDatePicker) {
-            TDCustomDatePickerView(
-                selectedDate: $selectedDate,
-                isPresented: $showDatePicker,
-                onDateSelected: { date in
-                    guard let task = datePickerTask else { return }
-                    restore(task: task, to: date.startOfDayTimestamp)
-                }
-            )
-            .frame(width: 280, height: 320)
         }
     }
 }
@@ -260,6 +255,22 @@ private struct TDTrashRowView: View {
     let onRestoreToday: () -> Void
     let onPickDate: () -> Void
     
+    // 只让“当前行”的【选择日期】按钮承载 popover（锚点才会贴着按钮）
+    @Binding var showDatePicker: Bool
+    let datePickerTaskId: String?
+    @Binding var selectedDate: Date
+    let onDateSelected: (Date) -> Void
+    
+    private var isRowDatePickerPresented: Binding<Bool> {
+        Binding(
+            get: { showDatePicker && datePickerTaskId == task.taskId },
+            set: { newValue in
+                // 关闭时只需要把总开关关掉即可
+                if !newValue { showDatePicker = false }
+            }
+        )
+    }
+    
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
             VStack(alignment: .leading, spacing: 10) {
@@ -272,6 +283,16 @@ private struct TDTrashRowView: View {
                     TDTrashActionButton(title: "trash.action.restore_original".localized, action: onRestoreOriginalDate)
                     TDTrashActionButton(title: "trash.action.restore_today".localized, action: onRestoreToday)
                     TDTrashActionButton(title: "trash.action.pick_date".localized, action: onPickDate)
+                        .popover(isPresented: isRowDatePickerPresented, arrowEdge: .top) {
+                            TDCustomDatePickerView(
+                                selectedDate: $selectedDate,
+                                isPresented: isRowDatePickerPresented,
+                                onDateSelected: { date in
+                                    onDateSelected(date)
+                                }
+                            )
+                            .frame(width: 280, height: 320)
+                        }
                     Spacer(minLength: 0)
                 }
             }
@@ -323,4 +344,4 @@ private struct TDTrashActionButton: View {
         isSelect: false
     ))
     .environmentObject(TDThemeManager.shared)
-} 
+}

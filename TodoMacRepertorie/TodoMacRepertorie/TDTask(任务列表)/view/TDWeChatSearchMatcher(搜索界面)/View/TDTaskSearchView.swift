@@ -174,13 +174,29 @@ struct TDTaskSearchView: View {
 
     private func topBar(resultCount: Int, keyword: String) -> some View {
         HStack(spacing: 14) {
-            // 日期范围：按 Inbox 顶部菜单样式
+            // 日期范围：使用 Menu（非 Picker），并做“左侧✅单独一列 + 文字左对齐”
             Menu {
                 ForEach(DateRangeFilter.allCases) { opt in
                     Button {
                         dateRange = opt
                     } label: {
-                        Text(opt.title)
+                        // 参考 TDTaskListMoreMenu.sortItem：右侧✅，避免文字因选中态左移
+                        HStack {
+                            if opt == dateRange {
+                                Image(systemName: "checkmark")
+                                    .font(.system(size: TDAppConfig.menuIconSize))
+                                    .foregroundColor(themeManager.color(level: 5))
+                            } else {
+                                Image.fromHexColor("00000000", width: 15, height: 15, cornerRadius: 15 / 2)
+                                    .resizable()
+                                    .frame(width: 15, height: 15)
+
+                            }
+                            Spacer()
+                            Text(opt.title)
+                                .font(.system(size: TDAppConfig.menuFontSize))
+
+                        }
                     }
                 }
             } label: {
@@ -209,14 +225,37 @@ struct TDTaskSearchView: View {
                     categoryFilter = .category(category)
                 }
             )
+            // 顶部入口统一加“背景框 + 圆角8”（与其它菜单一致）
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
+            .background(
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(themeManager.secondaryBackgroundColor.opacity(0.7))
+            )
 
-            // 达成状态：按 Inbox 顶部菜单样式
+            // 达成状态：使用 Menu（非 Picker），并做“左侧✅单独一列 + 文字左对齐”
             Menu {
                 ForEach(CompleteFilter.allCases) { opt in
                     Button {
                         completeFilter = opt
                     } label: {
-                        Text(opt.title)
+                        // 参考 TDTaskListMoreMenu.sortItem：右侧✅，避免文字因选中态左移
+                        HStack {
+                            if opt == completeFilter {
+                                Image(systemName: "checkmark")
+                                    .font(.system(size: TDAppConfig.menuIconSize))
+                                    .foregroundColor(themeManager.color(level: 5))
+                            } else {
+                                Image.fromHexColor("00000000", width: 15, height: 15, cornerRadius: 15 / 2)
+                                    .resizable()
+                                    .frame(width: 15, height: 15)
+
+                            }
+                            Spacer()
+
+                            Text(opt.title)
+                                .font(.system(size: TDAppConfig.menuFontSize))
+                        }
                     }
                 }
             } label: {
@@ -263,19 +302,13 @@ struct TDTaskSearchView: View {
                 .font(.system(size: 10, weight: .semibold))
                 .foregroundColor(themeManager.descriptionTextColor)
         }
+        .contentShape(Rectangle())
         .padding(.horizontal, 10)
         .padding(.vertical, 6)
         .background(
             RoundedRectangle(cornerRadius: 8)
                 .fill(themeManager.secondaryBackgroundColor.opacity(0.7))
         )
-        .overlay(alignment: .leading) {
-            Image(systemName: systemImage)
-                .font(.system(size: 12))
-                .foregroundColor(themeManager.descriptionTextColor)
-                .padding(.leading, -22)
-                .opacity(0) // 仅占位，避免 label 变化导致跳动（与 Inbox 一致）
-        }
     }
 
     private func resetFilters() {
