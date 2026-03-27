@@ -105,7 +105,7 @@ struct TDWeekDatePickerView: View {
                         }
                     }
                 )
-                .frame(width: 280, height: 320)
+                
             }
             
             // 回到今天按钮

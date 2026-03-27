@@ -93,7 +93,6 @@ struct TDTaskDetailDateRow: View {
                             onDateSelected(date)
                         }
                     )
-                    .frame(width: 280, height: 320)
                 }
                                 
                 // 待办箱/无日期按钮

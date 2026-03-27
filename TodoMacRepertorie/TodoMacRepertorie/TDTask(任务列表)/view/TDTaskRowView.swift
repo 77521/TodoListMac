@@ -655,7 +655,6 @@ struct TDTaskRowView: View , Equatable{
                     handleCreateCopy(copyType: .toSpecificDate)
                 }
             )
-            .frame(width: 280, height: 320) // 设置弹窗尺寸，与多选模式保持一致
         }
         
     }

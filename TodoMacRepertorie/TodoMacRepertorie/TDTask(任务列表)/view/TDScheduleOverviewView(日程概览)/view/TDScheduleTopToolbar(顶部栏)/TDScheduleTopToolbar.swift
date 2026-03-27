@@ -102,7 +102,6 @@ struct TDScheduleTopToolbar: View {
                                 viewModel.setMonthAndSelectDate(date)
                             }
                         )
-                        .frame(width: 280, height: 320) // 设置弹窗尺寸
                     }
                     
                     // 右箭头 - 增大点击区域

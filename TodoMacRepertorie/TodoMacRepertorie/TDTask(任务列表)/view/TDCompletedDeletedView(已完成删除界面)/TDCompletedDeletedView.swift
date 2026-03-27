@@ -291,7 +291,6 @@ private struct TDTrashRowView: View {
                                     onDateSelected(date)
                                 }
                             )
-                            .frame(width: 280, height: 320)
                         }
                     Spacer(minLength: 0)
                 }

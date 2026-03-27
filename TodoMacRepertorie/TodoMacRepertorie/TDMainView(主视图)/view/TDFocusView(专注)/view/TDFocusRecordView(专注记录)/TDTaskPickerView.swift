@@ -111,7 +111,6 @@ struct TDTaskPickerView: View {
                         }
                     }
                 )
-                .frame(width: 280, height: 320)
             }
 
             Spacer()
