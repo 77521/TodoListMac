@@ -21,6 +21,10 @@ struct TDCustomDatePickerView: View {
     
     @State private var displayMonth: Date
     
+    @State private var isMonthYearPickerPresented: Bool = false
+    @State private var pickerYear: Int = 0
+    @State private var pickerMonth: Int = 0
+    
     // 预计算后的网格数据：避免在 SwiftUI 重绘里反复做“农历/节假日”重计算导致 CPU 飙升
     @State private var gridCells: [GridCell] = []
     @State private var gridWeekCount: Int = 6
@@ -33,11 +37,11 @@ struct TDCustomDatePickerView: View {
     private let calendar: Calendar = Calendar(identifier: .gregorian)
     
     // 视觉间距：日期格子间距再缩小一半
-    private var gridSpacing: CGFloat { 2 }
+    private var gridSpacing: CGFloat { 4 }
     private var contentHorizontalPadding: CGFloat { 2 }
-    
-    // 日期圆形的直径（阳历+农历一体放入圆形里）
-    private var dateCircleDiameter: CGFloat { 36 }
+
+    // 日期圆形背景固定尺寸（农历+阳历整体居中放入）
+    private var dateCircleDiameter: CGFloat { 30 }
     
     private var gridWidth: CGFloat {
         (dateCircleDiameter * 7) + (gridSpacing * 6)
@@ -100,59 +104,137 @@ struct TDCustomDatePickerView: View {
     // MARK: - Top bar
     
     private var topBar: some View {
-        HStack(spacing: 10) {
-            HStack(spacing: 6) {
-                Button(action: previousYear) {
-                    Text("<<")
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundColor(themeManager.titleTextColor)
-                        .frame(width: 22, height: 22)
-                        .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-                .pointingHandCursor()
-                
-                Button(action: previousMonth) {
-                    Text("<")
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundColor(themeManager.titleTextColor)
-                        .frame(width: 22, height: 22)
-                        .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-                .pointingHandCursor()
+        ZStack {
+            Button {
+                pickerYear = calendar.component(.year, from: displayMonth)
+                pickerMonth = calendar.component(.month, from: displayMonth)
+                isMonthYearPickerPresented = true
+            } label: {
+                Text(monthYearString(from: displayMonth))
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(themeManager.titleTextColor)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .pointingHandCursor()
+            .popover(isPresented: $isMonthYearPickerPresented, arrowEdge: .top) {
+                TDMonthYearPickerPopover(
+                    themeTitleColor: themeManager.titleTextColor,
+                    themeSubColor: themeManager.descriptionTextColor,
+                    year: $pickerYear,
+                    month: $pickerMonth,
+                    onCancel: { isMonthYearPickerPresented = false },
+                    onConfirm: {
+                        let comps = DateComponents(year: pickerYear, month: pickerMonth, day: 1)
+                        guard let newMonth = calendar.date(from: comps) else {
+                            isMonthYearPickerPresented = false
+                            return
+                        }
+                        
+                        displayMonth = newMonth
+                        if !calendar.isDate(selectedDate, equalTo: newMonth, toGranularity: .month) {
+                            selectedDate = newMonth
+                        }
+                        isMonthYearPickerPresented = false
+                    }
+                )
+                .padding(12)
             }
             
-            Spacer(minLength: 0)
-            
-            Text(monthYearString(from: displayMonth))
-                .font(.system(size: 13, weight: .semibold))
-                .foregroundColor(themeManager.titleTextColor)
-                .frame(minWidth: 96, alignment: .center)
-            
-            Spacer(minLength: 0)
-            
-            HStack(spacing: 6) {
-                Button(action: nextMonth) {
-                    Text(">")
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundColor(themeManager.titleTextColor)
-                        .frame(width: 22, height: 22)
-                        .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-                .pointingHandCursor()
+            // 关键：用与星期/日期网格一致的列宽与 spacing 来摆放按钮
+            // 让 “<<” 的中心对齐到周一那一列中心，“>>” 对齐到周日那一列中心
+            HStack(spacing: gridSpacing) {
+                TDTopNavButton(title: "<<", action: previousYear)
+                    .frame(width: dateCircleDiameter, height: 22)
                 
-                Button(action: nextYear) {
-                    Text(">>")
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundColor(themeManager.titleTextColor)
-                        .frame(width: 22, height: 22)
-                        .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-                .pointingHandCursor()
+                TDTopNavButton(title: "<", action: previousMonth)
+                    .frame(width: dateCircleDiameter, height: 22)
+                
+                Spacer(minLength: 0)
+                
+                TDTopNavButton(title: ">", action: nextMonth)
+                    .frame(width: dateCircleDiameter, height: 22)
+                
+                TDTopNavButton(title: ">>", action: nextYear)
+                    .frame(width: dateCircleDiameter, height: 22)
             }
+        }
+        .frame(width: gridWidth, alignment: .center)
+    }
+
+    private struct TDTopNavButton: View {
+        @StateObject private var themeManager = TDThemeManager.shared
+        let title: String
+        let action: () -> Void
+        
+        var body: some View {
+            Button(action: action) {
+                Text(title)
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundColor(themeManager.titleTextColor)
+                    .frame(width: 22, height: 22)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .pointingHandCursor()
+        }
+    }
+    
+    private struct TDMonthYearPickerPopover: View {
+        let themeTitleColor: Color
+        let themeSubColor: Color
+        
+        @Binding var year: Int
+        @Binding var month: Int
+        
+        let onCancel: () -> Void
+        let onConfirm: () -> Void
+        
+        private var years: [Int] {
+            // 给一个足够宽的范围，接近系统滚轮体验
+            Array(1900...2100)
+        }
+        
+        var body: some View {
+            VStack(spacing: 10) {
+                Text("选择年月")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundColor(themeTitleColor)
+                
+                HStack(spacing: 8) {
+                    Picker("", selection: $year) {
+                        ForEach(years, id: \.self) { y in
+                            Text("\(y)年").tag(y)
+                        }
+                    }
+                    .labelsHidden()
+                    .frame(width: 120)
+                    .pickerStyle(.menu)
+                    
+                    Picker("", selection: $month) {
+                        ForEach(1...12, id: \.self) { m in
+                            Text("\(m)月").tag(m)
+                        }
+                    }
+                    .labelsHidden()
+                    .frame(width: 80)
+                    .pickerStyle(.menu)
+                }
+                
+                HStack {
+                    Button("取消", action: onCancel)
+                        .buttonStyle(.plain)
+                        .foregroundColor(themeSubColor)
+                    
+                    Spacer()
+                    
+                    Button("确定", action: onConfirm)
+                        .buttonStyle(.plain)
+                        .foregroundColor(themeTitleColor)
+                }
+            }
+            .frame(width: 240)
         }
     }
     
@@ -225,40 +307,23 @@ struct TDCustomDatePickerView: View {
                 // - 间距 1pt（你要 1~2pt）
                 // - 选中/今天时：圆形背景包住两行
                 // 这里“肯定显示农历”，不跟设置走
-                VStack(spacing: 1) {
-                    // 角标要挂在“阳历文字”的右上角（不是整个日期格子的右上角）
-                    Text("\(cell.day)")
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundColor(solarColor)
-                        .overlay(alignment: .topTrailing) {
-                            if let badge = holidayBadge {
-                                ZStack {
-                                    Circle()
-                                        .fill(badge.isHoliday ? themeManager.color(level: 5) : themeManager.color(level: 2))
-                                    Text(badge.text)
-                                        .font(.system(size: 9, weight: .semibold))
-                                        .foregroundColor(badge.isHoliday ? .white : themeManager.color(level: 7))
-                                }
-                                .frame(width: 14, height: 14)
-                                .offset(x: 10, y: -10)
-                                .allowsHitTesting(false)
-                            }
-                        }
-                    
-                    Text(cell.lunarText)
-                        .font(.system(size: 9, weight: .medium))
-                        .foregroundColor(lunarColor)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.85)
-                }
-                .frame(width: dateCircleDiameter, height: dateCircleDiameter, alignment: .center)
-                .background(
-                    Circle()
-                        .fill(circleBackgroundColor)
+                TDDateCircleContent(
+                    diameter: dateCircleDiameter,
+                    day: cell.day,
+                    lunarText: cell.lunarText,
+                    solarColor: solarColor,
+                    lunarColor: lunarColor,
+                    circleBackgroundColor: circleBackgroundColor,
+                    holidayBadge: holidayBadge,
+                    holidayBadgeFill: { isHoliday in
+                        isHoliday ? themeManager.color(level: 5) : themeManager.color(level: 2)
+                    },
+                    holidayBadgeTextColor: { isHoliday in
+                        isHoliday ? .white : themeManager.color(level: 7)
+                    }
                 )
-                .frame(maxWidth: .infinity)
             }
-            .frame(height: cellHeight)
+            .frame(height: dateCircleDiameter)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -272,9 +337,7 @@ struct TDCustomDatePickerView: View {
         gridWidth + contentHorizontalPadding * 2
     }
     
-    private var cellHeight: CGFloat {
-        44
-    }
+    private var cellHeight: CGFloat { dateCircleDiameter }
     
     private func preferredHeight(weekCount: Int) -> CGFloat {
         // 顶部栏 + 星期栏 + 网格 + padding
@@ -336,6 +399,53 @@ struct TDCustomDatePickerView: View {
         let isCurrentMonth: Bool
         let lunarText: String
         let holidayBadge: HolidayBadge?
+    }
+
+    private struct TDDateCircleContent: View {
+        let diameter: CGFloat
+        let day: Int
+        let lunarText: String
+        let solarColor: Color
+        let lunarColor: Color
+        let circleBackgroundColor: Color
+        let holidayBadge: HolidayBadge?
+        let holidayBadgeFill: (Bool) -> Color
+        let holidayBadgeTextColor: (Bool) -> Color
+
+        var body: some View {
+            ZStack {
+                Circle()
+                    .fill(circleBackgroundColor)
+                    .frame(width: diameter, height: diameter)
+
+                VStack(spacing: 1) { // 阳历/农历之间间距 1pt
+                    Text("\(day)")
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundColor(solarColor)
+                        .overlay(alignment: .topTrailing) {
+                            if let badge = holidayBadge {
+                                ZStack {
+                                    Circle()
+                                        .fill(holidayBadgeFill(badge.isHoliday))
+                                    Text(badge.text)
+                                        .font(.system(size: 7, weight: .regular))
+                                        .foregroundColor(holidayBadgeTextColor(badge.isHoliday))
+                                }
+                                .frame(width: 14, height: 14)
+                                .offset(x: 10, y: -10)
+                                .allowsHitTesting(false)
+                            }
+                        }
+
+                    Text(lunarText)
+                        .font(.system(size: 8, weight: .regular))
+                        .foregroundColor(lunarColor)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.85)
+                }
+                .frame(width: diameter, height: diameter, alignment: .center)
+            }
+        }
     }
     
     // 系统农历（轻量）用于“先出 UI，再慢慢补齐节气/节日 smartDisplay”

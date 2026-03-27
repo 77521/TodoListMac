@@ -13,7 +13,7 @@
 //final class TDAppDelegate: NSObject, NSApplicationDelegate {
 //    func applicationShouldRestoreApplicationState(_ app: NSApplication) -> Bool { false }
 //    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }
-//    
+//
 //    func applicationDidFinishLaunching(_ notification: Notification) {
 //        // 启动时关闭所有窗口的系统恢复能力
 //        NSApp.windows.forEach { $0.isRestorable = false }
@@ -37,7 +37,7 @@
 //
 //    // 跟随系统时记录当前系统深色状态（固定模式不会受系统影响）
 //    @State private var isSystemDark: Bool = false
-//    
+//
 //    /// 期望的颜色模式：跟随设置（系统/白天/夜间）
 //    private var preferredScheme: ColorScheme? {
 //        switch settingManager.themeMode {
@@ -73,7 +73,7 @@
 //        }
 //    }
 //
-//    
+//
 //    /// 获取当前系统深浅色（直接读取系统偏好，避免被 App 级 appearance 干扰）
 //    private func systemIsDark() -> Bool {
 //        if let style = UserDefaults.standard.string(forKey: "AppleInterfaceStyle")?.lowercased() {
@@ -82,7 +82,7 @@
 //        return false
 //    }
 //
-//    
+//
 //    var body: some Scene {
 //        WindowGroup {
 //            Group {
@@ -166,7 +166,7 @@
 //            // 跟随系统：监听系统外观变化，系统切换浅/深色时仅更新状态（避免循环）
 //            .onReceive(NSApp.publisher(for: \.effectiveAppearance)) { _ in
 //                // 仅在“跟随系统”模式下响应，避免固定模式循环触发
-//                
+//
 //                guard settingManager.themeMode == .system else { return }
 //                let nowDark = systemIsDark()
 //                if nowDark != isSystemDark {
@@ -182,8 +182,8 @@
 //        .modelContainer(modelContainer.container)
 //        .windowStyle(.hiddenTitleBar)
 //        .windowResizability(.contentSize)
-//        
-//        
+//
+//
 //        WindowGroup(id: "Settings") {
 //            TDSettingsView()
 //                .environmentObject(themeManager)
@@ -357,14 +357,14 @@
 //// MARK: - 设置窗口追踪
 //final class TDSettingsWindowTracker {
 //    static let shared = TDSettingsWindowTracker()
-//    
+//
 //    private var appTerminateObserver: Any?
 //    private var mainWindowCloseObserver: Any?
 //    private var settingsWindowCloseObserver: Any?
 //
 //    weak var mainWindow: NSWindow?
 //    weak var settingsWindow: NSWindow?
-//    
+//
 //    private init() {
 //        appTerminateObserver = NotificationCenter.default.addObserver(
 //            forName: NSApplication.willTerminateNotification,
@@ -375,7 +375,7 @@
 //        }
 //    }
 //
-//    
+//
 //    func registerMainWindow(_ window: NSWindow?) {
 //        guard let window else { return }
 //        guard window !== mainWindow else { return }
@@ -394,7 +394,7 @@
 //            self?.closeSettingsWindow()
 //        }
 //    }
-//    
+//
 //    func attachSettingsWindow(_ window: NSWindow?) {
 //        guard let window else { return }
 //        settingsWindow = window
@@ -412,7 +412,7 @@
 //        window.collectionBehavior.insert([.fullScreenNone, .moveToActiveSpace])
 //        window.isMovableByWindowBackground = true
 //        window.title = ""
-//        
+//
 //        if let observer = settingsWindowCloseObserver {
 //            NotificationCenter.default.removeObserver(observer)
 //        }
@@ -425,7 +425,7 @@
 //        }
 //
 //    }
-//    
+//
 //    func clearSettingsWindow() {
 //        settingsWindow = nil
 //        if let observer = settingsWindowCloseObserver {
@@ -434,7 +434,7 @@
 //        }
 //
 //    }
-//    
+//
 //    func presentSettingsWindow(using openWindow: OpenWindowAction) {
 //        if let window = settingsWindow {
 //            window.makeKeyAndOrderFront(nil)
@@ -443,7 +443,7 @@
 //            openWindow(id: "Settings")
 //        }
 //    }
-//    
+//
 //    func closeSettingsWindow() {
 //        settingsWindow?.close()
 //        settingsWindow = nil
@@ -453,18 +453,18 @@
 //// MARK: - Window Accessor
 //struct TDWindowAccessor: NSViewRepresentable {
 //    var onResolve: (NSWindow?) -> Void
-//    
+//
 //    func makeNSView(context: Context) -> TDWindowAccessorView {
 //        let view = TDWindowAccessorView()
 //        view.onResolve = onResolve
 //        return view
 //    }
-//    
+//
 //    func updateNSView(_ nsView: TDWindowAccessorView, context: Context) {}
-//    
+//
 //    final class TDWindowAccessorView: NSView {
 //        var onResolve: ((NSWindow?) -> Void)?
-//        
+//
 //        override func viewDidMoveToWindow() {
 //            super.viewDidMoveToWindow()
 //            DispatchQueue.main.async { [weak self] in
@@ -490,17 +490,23 @@ import AppKit
 
 // 禁用系统窗口恢复：即使上次退出前打开了设置窗口，冷启动也不会自动恢复
 final class TDAppDelegate: NSObject, NSApplicationDelegate {
+    private var statusBarController: TDStatusBarController?
+    
     func applicationShouldRestoreApplicationState(_ app: NSApplication) -> Bool { false }
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }
     
     func applicationDidFinishLaunching(_ notification: Notification) {
         // 启动时关闭所有窗口的系统恢复能力
         NSApp.windows.forEach { $0.isRestorable = false }
+        
+        statusBarController = TDStatusBarController()
     }
 }
 
 @main
 struct TodoMacRepertorieApp: App {
+    @NSApplicationDelegateAdaptor(TDAppDelegate.self) private var appDelegate
+    
     @StateObject private var modelContainer = TDModelContainer.shared
     @StateObject private var userManager = TDUserManager.shared
     @StateObject private var themeManager = TDThemeManager.shared
