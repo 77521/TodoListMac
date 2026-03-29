@@ -53,7 +53,13 @@ final class TDHolidayManager: ObservableObject {
     func updateHolidayList(_ holidays: [TDHolidayItem]) {
         os_log(.info, log: logger, "🔄 更新节假日列表，共 %d 个节假日", holidays.count)
         
-        self.holidayList = holidays
+        if Thread.isMainThread {
+            self.holidayList = holidays
+        } else {
+            DispatchQueue.main.async { [weak self] in
+                self?.holidayList = holidays
+            }
+        }
         saveHolidaysToLocal(holidays)
     }
     

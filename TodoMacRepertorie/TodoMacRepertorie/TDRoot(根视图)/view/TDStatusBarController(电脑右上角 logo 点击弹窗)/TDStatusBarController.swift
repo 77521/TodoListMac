@@ -10,32 +10,51 @@ import SwiftUI
 
 final class TDStatusBarController: NSObject {
     private let statusItem: NSStatusItem
-    private let popover: NSPopover
     private let contextMenu: NSMenu
+    private let panelController: TDMenuBarPanelController
     
     override init() {
         self.statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
-        self.popover = NSPopover()
         self.contextMenu = NSMenu()
+        self.panelController = TDMenuBarPanelController(
+            content: TDMenuBarPopoverRootView(),
+            size: CGSize(width: 320, height: 520)
+        )
         super.init()
-        
-        popover.behavior = .transient
-        popover.contentSize = NSSize(width: 360, height: 520)
-        popover.contentViewController = NSHostingController(rootView: TDMenuBarPopoverView())
         
         setupContextMenu()
         
         if let button = statusItem.button {
-            let image = NSImage(
-                systemSymbolName: "checkmark.circle.fill",
-                accessibilityDescription: "TodoMac"
-            )
-            image?.isTemplate = true
-            button.image = image
+            // 优先使用本地 Logo（用户指定：logomars_green），找不到则回退到 mars_green，再回退系统图标
+            let baseImage =
+                NSImage(named: "logomars_green")
+                ?? NSImage(named: "mars_green")
+                ?? NSImage(systemSymbolName: "checkmark.circle.fill", accessibilityDescription: "TodoMac")
+
+            // 状态栏圆形图标（裁切成圆）
+            let iconSize = NSSize(width: 18, height: 18)
+            let image = baseImage.flatMap { Self.circularIcon(from: $0, size: iconSize, inset: 0.5) }
+            image?.isTemplate = false
+            button.image = image ?? baseImage
             button.target = self
             button.action = #selector(handleStatusItemAction(_:))
             button.sendAction(on: [.leftMouseUp, .rightMouseUp])
         }
+    }
+
+    private static func circularIcon(from image: NSImage, size: NSSize, inset: CGFloat) -> NSImage {
+        let out = NSImage(size: size)
+        out.lockFocus()
+        defer { out.unlockFocus() }
+
+        let rect = NSRect(origin: .zero, size: size)
+        let clipRect = rect.insetBy(dx: inset, dy: inset)
+
+        NSGraphicsContext.current?.imageInterpolation = .high
+        NSBezierPath(ovalIn: clipRect).addClip()
+        image.draw(in: clipRect, from: .zero, operation: .sourceOver, fraction: 1.0, respectFlipped: true, hints: nil)
+
+        return out
     }
     
     @objc
@@ -74,7 +93,7 @@ final class TDStatusBarController: NSObject {
     }
     
     private func showContextMenu() {
-        popover.performClose(nil)
+        panelController.close()
         statusItem.menu = contextMenu
         statusItem.button?.performClick(nil)
         statusItem.menu = nil
@@ -101,41 +120,7 @@ final class TDStatusBarController: NSObject {
     
     private func togglePopover(_ sender: Any?) {
         guard let button = statusItem.button else { return }
-        
-        if popover.isShown {
-            popover.performClose(sender)
-        } else {
-            popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
-        }
+        panelController.toggle(relativeTo: button)
+        _ = sender
     }
 }
-
-private struct TDMenuBarPopoverView: View {
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("TodoMac 弹窗（占位）")
-                    .font(.system(size: 16, weight: .semibold))
-                Spacer()
-                Button("退出") { NSApp.terminate(nil) }
-                    .buttonStyle(.borderless)
-            }
-            
-            Divider()
-            
-            Text("这里先随便放一段文案，后续再替换成你图 1 的日历/任务内容。")
-                .font(.system(size: 13))
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
-            
-            Spacer()
-            
-            Text("提示：左键点击右上角图标打开/关闭；右键/双指点按弹出菜单。")
-                .font(.system(size: 11))
-                .foregroundStyle(.tertiary)
-        }
-        .padding(16)
-        .frame(width: 360, height: 520)
-    }
-}
-
