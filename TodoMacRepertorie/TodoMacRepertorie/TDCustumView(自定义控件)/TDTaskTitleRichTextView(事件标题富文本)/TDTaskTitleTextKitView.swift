@@ -370,49 +370,64 @@ final class TDHashtagClickableTextView: NSTextView {
         cursorUpdate(with: event)
     }
 
-    private func isPointingHand(at windowPoint: NSPoint) -> Bool {
+    /// 命中测试（严格）：必须点在“实际 glyph/attachment 的矩形范围”内才算点击到交互元素
+    /// - 修复：标题末尾是标签时，点击标签后面的空白不应触发标签弹窗
+    private func hitTestInteractive(at windowPoint: NSPoint) -> HitKind {
         let p = convert(windowPoint, from: nil)
-        guard let lm = layoutManager, let tc = textContainer, let storage = textStorage else { return false }
+        guard let lm = layoutManager, let tc = textContainer, let storage = textStorage else { return .plain }
         let origin = textContainerOrigin
         let local = CGPoint(x: p.x - origin.x, y: p.y - origin.y)
-        let glyphIndex = lm.glyphIndex(for: local, in: tc)
+
+        // glyphIndex(for:) 在点到“行尾空白”时会回退到最后一个 glyph。
+        // 因此必须额外判断：点击点是否真的落在该 glyph 的 boundingRect 里。
+        var fraction: CGFloat = 0
+        let glyphIndex = lm.glyphIndex(for: local, in: tc, fractionOfDistanceThroughGlyph: &fraction)
+        if glyphIndex >= lm.numberOfGlyphs { return .plain }
+
+        let glyphRect = lm.boundingRect(forGlyphRange: NSRange(location: glyphIndex, length: 1), in: tc)
+        guard glyphRect.contains(local) else {
+            return .plain
+        }
+
         let charIndex = lm.characterIndexForGlyph(at: glyphIndex)
-        if charIndex >= storage.length { return false }
-        if storage.attribute(.attachment, at: charIndex, effectiveRange: nil) != nil { return true }
-        if storage.attribute(.link, at: charIndex, effectiveRange: nil) != nil { return true }
-        return false
+        if charIndex >= storage.length { return .plain }
+
+        // 1) 标签胶囊（attachment）
+        if let att = storage.attribute(.attachment, at: charIndex, effectiveRange: nil) as? TDHashtagAttachment {
+            return .hashtag(att.tagKey)
+        }
+        // 2) 链接（link attribute）
+        if let link = storage.attribute(.link, at: charIndex, effectiveRange: nil) as? URL {
+            return .link(link)
+        }
+        return .plain
+    }
+
+    private enum HitKind {
+        case hashtag(String)
+        case link(URL)
+        case plain
+    }
+
+    private func isPointingHand(at windowPoint: NSPoint) -> Bool {
+        switch hitTestInteractive(at: windowPoint) {
+        case .hashtag, .link:
+            return true
+        case .plain:
+            return false
+        }
     }
 
     override func mouseDown(with event: NSEvent) {
-        // 1) 先把点击点转换到本 view 坐标
-        let p = convert(event.locationInWindow, from: nil)
-        guard let lm = layoutManager, let tc = textContainer else {
-            super.mouseDown(with: event)
-            return
+        // 规则：只有“点到标签胶囊的实际范围”才弹标签弹窗；点其它任何空白/文字区域都交还给整行
+        switch hitTestInteractive(at: event.locationInWindow) {
+        case .hashtag(let key):
+            onTapHashtag?(key)
+        case .link(let url):
+            onTapLink?(url)
+        case .plain:
+            onTapPlain?()
         }
-
-        // 2) 找到点击位置对应的 glyph/character
-        let textContainerOrigin = self.textContainerOrigin
-        let point = CGPoint(x: p.x - textContainerOrigin.x, y: p.y - textContainerOrigin.y)
-        let glyphIndex = lm.glyphIndex(for: point, in: tc)
-        let charIndex = lm.characterIndexForGlyph(at: glyphIndex)
-
-        // 3) 如果点到标签胶囊（attachment），走标签点击
-        if charIndex < (textStorage?.length ?? 0),
-           let att = textStorage?.attribute(.attachment, at: charIndex, effectiveRange: nil) as? TDHashtagAttachment {
-            onTapHashtag?(att.tagKey)
-            return
-        }
-
-        // 4) 如果点到链接（.link attribute），走链接点击
-        if charIndex < (textStorage?.length ?? 0),
-           let link = textStorage?.attribute(.link, at: charIndex, effectiveRange: nil) as? URL {
-            onTapLink?(link)
-            return
-        }
-
-        // 5) 其它区域：把点击交还给“整行”（触发选中/打开第三列详情）
-        onTapPlain?()
     }
 }
 

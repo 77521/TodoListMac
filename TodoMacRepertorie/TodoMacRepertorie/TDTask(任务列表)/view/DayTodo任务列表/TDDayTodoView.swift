@@ -529,6 +529,7 @@ struct TDDayTodoView: View {
     
     var body: some View {
         let items = buildDragRenderItems(allTasks: allTasks)
+        let isDragging = draggedTask != nil
         VStack(spacing: 0) {
             ZStack(alignment: .top) {
                 Color(themeManager.backgroundColor)
@@ -573,7 +574,7 @@ struct TDDayTodoView: View {
                                         }
                                     )
                                     .id(item.id)
-                                    // MARK: - 长按拖拽排序（系统自带）
+                                    // MARK: - macOS 原生拖拽排序（onDrag + onDrop）
                                     .onDrag({
                                         guard !item.isPlaceholder else {
                                             return NSItemProvider()
@@ -656,18 +657,16 @@ struct TDDayTodoView: View {
                             .animation(.easeInOut(duration: 0.15), value: items.map(\.id))
                             // 自动滚动：拖到顶部/底部时，持续把占位行滚入视野
                             .onReceive(Timer.publish(every: 0.06, on: .main, in: .common).autoconnect()) { _ in
-                                guard draggedTask != nil else { return }
+                                guard let draggedTask else { return }
                                 guard dragAutoScrollDirection != 0 else { return }
-                                guard let placeholderId = items.first(where: { $0.isPlaceholder })?.id else { return }
+                                let placeholderId = TDDayTodoDragRender.placeholderId(for: draggedTask)
 
                                 // 先推进占位插入点（允许拖拽时一路滚到更远的位置）
-                                if let draggedTask {
-                                    let baseCount = max(allTasks.filter { $0.taskId != draggedTask.taskId }.count, 0)
-                                    let maxIndex = baseCount
-                                    let nextIndex = min(max((dragPlaceholderIndex ?? 0) + dragAutoScrollDirection, 0), maxIndex)
-                                    if dragPlaceholderIndex != nextIndex {
-                                        dragPlaceholderIndex = nextIndex
-                                    }
+                                let baseCount = max(allTasks.filter { $0.taskId != draggedTask.taskId }.count, 0)
+                                let maxIndex = baseCount
+                                let nextIndex = min(max((dragPlaceholderIndex ?? 0) + dragAutoScrollDirection, 0), maxIndex)
+                                if dragPlaceholderIndex != nextIndex {
+                                    dragPlaceholderIndex = nextIndex
                                 }
 
                                 withAnimation(.easeInOut(duration: 0.1)) {
@@ -681,12 +680,37 @@ struct TDDayTodoView: View {
                                         Color.clear
                                             .frame(height: 44)
                                             .contentShape(Rectangle())
-                                            .onDrop(of: [.text], delegate: TDDayTodoAutoScrollEdgeDropDelegate(direction: -1, autoScrollDirection: $dragAutoScrollDirection))
+                                            .onDrop(of: [.text], delegate: TDDayTodoEdgeDropDelegate(
+                                                direction: -1,
+                                                destinationIndexProvider: { 0 },
+                                                allTasksProvider: { allTasks },
+                                                draggedTask: $draggedTask,
+                                                placeholderIndex: $dragPlaceholderIndex,
+                                                autoScrollDirection: $dragAutoScrollDirection,
+                                                context: modelContext,
+                                                onDenied: { messageKey in
+                                                    TDToastCenter.shared.show(messageKey, type: .info, position: .bottom)
+                                                }
+                                            ))
                                         Spacer(minLength: 0)
                                         Color.clear
                                             .frame(height: 44)
                                             .contentShape(Rectangle())
-                                            .onDrop(of: [.text], delegate: TDDayTodoAutoScrollEdgeDropDelegate(direction: 1, autoScrollDirection: $dragAutoScrollDirection))
+                                            .onDrop(of: [.text], delegate: TDDayTodoEdgeDropDelegate(
+                                                direction: 1,
+                                                destinationIndexProvider: {
+                                                    guard let draggedTask else { return allTasks.count }
+                                                    return allTasks.filter { $0.taskId != draggedTask.taskId }.count
+                                                },
+                                                allTasksProvider: { allTasks },
+                                                draggedTask: $draggedTask,
+                                                placeholderIndex: $dragPlaceholderIndex,
+                                                autoScrollDirection: $dragAutoScrollDirection,
+                                                context: modelContext,
+                                                onDenied: { messageKey in
+                                                    TDToastCenter.shared.show(messageKey, type: .info, position: .bottom)
+                                                }
+                                            ))
                                     }
                                     .allowsHitTesting(true)
                                 }
@@ -755,11 +779,19 @@ private extension TDDayTodoView {
         
         return base.enumerated().map { idx, task in
             if task.taskId == draggedTask.taskId, idx == safeIndex {
-                return TDDragRenderItem(id: "placeholder-\(task.taskId)", task: task, isPlaceholder: true)
+                return TDDragRenderItem(id: TDDayTodoDragRender.placeholderId(for: task), task: task, isPlaceholder: true)
             } else {
                 return TDDragRenderItem(id: task.taskId, task: task, isPlaceholder: false)
             }
         }
+    }
+}
+
+// MARK: - DayTodo：拖拽渲染辅助（与最近待办一致的占位 id 规则）
+
+private enum TDDayTodoDragRender {
+    static func placeholderId(for task: TDMacSwiftDataListModel) -> String {
+        "placeholder-\(task.taskId)"
     }
 }
 
@@ -796,52 +828,73 @@ private struct TDDayTodoTaskDropDelegate: DropDelegate {
     }
 
     func performDrop(info: DropInfo) -> Bool {
+        TDDayTodoDropLogic.performDrop(
+            allTasksProvider: allTasksProvider,
+            draggedTask: &draggedTask,
+            placeholderIndex: &placeholderIndex,
+            autoScrollDirection: &autoScrollDirection,
+            context: context,
+            onDenied: onDenied
+        )
+    }
+}
+
+/// DayTodo：落到“指定 index（头/尾）”的 drop 代理（对齐最近待办：允许拖到最上/最下）
+/// DayTodo：松手写库逻辑（行/头/尾 drop 复用）
+private enum TDDayTodoDropLogic {
+    static func performDrop(
+        allTasksProvider: () -> [TDMacSwiftDataListModel],
+        draggedTask: inout TDMacSwiftDataListModel?,
+        placeholderIndex: inout Int?,
+        autoScrollDirection: inout Int,
+        context: ModelContext,
+        onDenied: (String) -> Void
+    ) -> Bool {
         defer {
             // 松手：结束预览态
             placeholderIndex = nil
             draggedTask = nil
             autoScrollDirection = 0
         }
-        guard let draggedTask else { return true }
+        guard let dragged = draggedTask else { return true }
         
         // 只在松手时做一次性校验/计算/写库/同步
         let allTasks = allTasksProvider()
-        var simulated = allTasks.filter { $0.taskId != draggedTask.taskId }
+        var simulated = allTasks.filter { $0.taskId != dragged.taskId }
         let safeIndex = min(max(placeholderIndex ?? 0, 0), simulated.count)
-        simulated.insert(draggedTask, at: safeIndex)
-        let newIndex = safeIndex
-
+        simulated.insert(dragged, at: safeIndex)
+        
         // DayTodo 规则：
         // - 已完成事件：不能放到任何“未完成”之前（即 next 是未完成时禁止）
         // - 未完成事件：不能放到任何“已完成”之后（即 top 是已完成时禁止）
         if let deniedKey = TDDragSortValidation.deniedMessageKey(
-            draggedComplete: draggedTask.complete,
+            draggedComplete: dragged.complete,
             in: simulated,
-            at: newIndex
+            at: safeIndex
         ) {
             onDenied(deniedKey)
             return true
         }
-
+        
         // 计算移动后的上下相邻 taskSort（只在“同完成状态”内找）
         let (top, next) = TDTaskDragSortHelper.findTopAndNextTaskSort(
             in: simulated,
-            at: newIndex,
-            where: { $0.complete == draggedTask.complete }
+            at: safeIndex,
+            where: { $0.complete == dragged.complete }
         )
-
+        
         var newSort = TDTaskSortCalculator.getMoveCurrentTaskSortValue(
-            currentTaskSort: draggedTask.taskSort,
+            currentTaskSort: dragged.taskSort,
             topTaskSort: top,
             nextTaskSort: next
         )
         if top == nil, next == nil {
             newSort = TDAppConfig.defaultTaskSort
         }
-
-        let updated = draggedTask
+        
+        let updated = dragged
         updated.taskSort = newSort
-
+        
         Task {
             do {
                 _ = try await TDQueryConditionManager.shared.updateLocalTaskWithModel(
@@ -857,13 +910,27 @@ private struct TDDayTodoTaskDropDelegate: DropDelegate {
     }
 }
 
-/// DayTodo：拖拽靠边自动滚动
-private struct TDDayTodoAutoScrollEdgeDropDelegate: DropDelegate {
+/// DayTodo：拖拽靠边自动滚动 + 支持“拖到顶/底直接松手落点”
+private struct TDDayTodoEdgeDropDelegate: DropDelegate {
     let direction: Int
+    let destinationIndexProvider: () -> Int
+    let allTasksProvider: () -> [TDMacSwiftDataListModel]
+    
+    @Binding var draggedTask: TDMacSwiftDataListModel?
+    @Binding var placeholderIndex: Int?
     @Binding var autoScrollDirection: Int
+    let context: ModelContext
+    let onDenied: (String) -> Void
     
     func dropEntered(info: DropInfo) {
         autoScrollDirection = direction
+        if let draggedTask {
+            let baseCount = allTasksProvider().filter { $0.taskId != draggedTask.taskId }.count
+            let stableIndex = min(max(destinationIndexProvider(), 0), baseCount)
+            withAnimation(.easeInOut(duration: 0.12)) {
+                placeholderIndex = stableIndex
+            }
+        }
         _ = info
     }
     
@@ -873,9 +940,15 @@ private struct TDDayTodoAutoScrollEdgeDropDelegate: DropDelegate {
     }
     
     func performDrop(info: DropInfo) -> Bool {
-        autoScrollDirection = 0
         _ = info
-        return true
+        return TDDayTodoDropLogic.performDrop(
+            allTasksProvider: allTasksProvider,
+            draggedTask: &draggedTask,
+            placeholderIndex: &placeholderIndex,
+            autoScrollDirection: &autoScrollDirection,
+            context: context,
+            onDenied: onDenied
+        )
     }
 }
 
