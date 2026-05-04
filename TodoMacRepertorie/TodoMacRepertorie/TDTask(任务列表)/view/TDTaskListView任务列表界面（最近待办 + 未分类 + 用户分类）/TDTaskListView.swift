@@ -177,6 +177,127 @@ struct TDTaskListView: View {
 
         return grouped
     }
+
+    /// 生成“分组列表”的视图树（供 VStack/LazyVStack 复用）
+    /// - 目的：避免在 body 内声明 `@ViewBuilder var ...: some View` 导致编译器无法推断
+    @ViewBuilder
+    private func groupSectionsView(
+        grouped: GroupedTasks,
+        settingManager: TDSettingManager,
+        groupTasksByType: @escaping (TDTaskGroupType) -> [TDMacSwiftDataListModel]
+    ) -> some View {
+        TDTaskListGroupSection(
+            type: .overdueCompleted,
+            title: "overdue_completed".localized,
+            tasks: grouped.overdueCompleted,
+            isVisible: settingManager.expiredRangeCompleted != .hide && !grouped.overdueCompleted.isEmpty,
+            category: category,
+            isExpanded: bindingForGroupExpanded(.overdueCompleted),
+            draggedTask: $draggedTask,
+            placeholderGroup: $placeholderGroup,
+            placeholderIndex: $placeholderIndex,
+            autoScrollDirection: $autoScrollDirection,
+            context: modelContext,
+            groupTasksByType: groupTasksByType,
+            onCopySuccess: { showCopySuccessToast = true }
+        )
+
+        TDTaskListGroupSection(
+            type: .overdueUncompleted,
+            title: "overdue_uncompleted".localized,
+            tasks: grouped.overdueUncompleted,
+            isVisible: settingManager.expiredRangeUncompleted != .hide && !grouped.overdueUncompleted.isEmpty,
+            category: category,
+            isExpanded: bindingForGroupExpanded(.overdueUncompleted),
+            draggedTask: $draggedTask,
+            placeholderGroup: $placeholderGroup,
+            placeholderIndex: $placeholderIndex,
+            autoScrollDirection: $autoScrollDirection,
+            context: modelContext,
+            groupTasksByType: groupTasksByType,
+            onCopySuccess: { showCopySuccessToast = true }
+        )
+
+        TDTaskListGroupSection(
+            type: .today,
+            title: "today".localized,
+            tasks: grouped.today,
+            isVisible: !grouped.today.isEmpty,
+            category: category,
+            isExpanded: bindingForGroupExpanded(.today),
+            draggedTask: $draggedTask,
+            placeholderGroup: $placeholderGroup,
+            placeholderIndex: $placeholderIndex,
+            autoScrollDirection: $autoScrollDirection,
+            context: modelContext,
+            groupTasksByType: groupTasksByType,
+            onCopySuccess: { showCopySuccessToast = true }
+        )
+
+        TDTaskListGroupSection(
+            type: .tomorrow,
+            title: "tomorrow".localized,
+            tasks: grouped.tomorrow,
+            isVisible: !grouped.tomorrow.isEmpty,
+            category: category,
+            isExpanded: bindingForGroupExpanded(.tomorrow),
+            draggedTask: $draggedTask,
+            placeholderGroup: $placeholderGroup,
+            placeholderIndex: $placeholderIndex,
+            autoScrollDirection: $autoScrollDirection,
+            context: modelContext,
+            groupTasksByType: groupTasksByType,
+            onCopySuccess: { showCopySuccessToast = true }
+        )
+
+        TDTaskListGroupSection(
+            type: .dayAfterTomorrow,
+            title: "day_after_tomorrow".localized,
+            tasks: grouped.dayAfterTomorrow,
+            isVisible: !grouped.dayAfterTomorrow.isEmpty,
+            category: category,
+            isExpanded: bindingForGroupExpanded(.dayAfterTomorrow),
+            draggedTask: $draggedTask,
+            placeholderGroup: $placeholderGroup,
+            placeholderIndex: $placeholderIndex,
+            autoScrollDirection: $autoScrollDirection,
+            context: modelContext,
+            groupTasksByType: groupTasksByType,
+            onCopySuccess: { showCopySuccessToast = true }
+        )
+
+        TDTaskListGroupSection(
+            type: .upcomingSchedule,
+            title: "upcoming_schedule".localized,
+            tasks: grouped.futureSchedule,
+            isVisible: !grouped.futureSchedule.isEmpty,
+            category: category,
+            isExpanded: bindingForGroupExpanded(.upcomingSchedule),
+            draggedTask: $draggedTask,
+            placeholderGroup: $placeholderGroup,
+            placeholderIndex: $placeholderIndex,
+            autoScrollDirection: $autoScrollDirection,
+            context: modelContext,
+            groupTasksByType: groupTasksByType,
+            onCopySuccess: { showCopySuccessToast = true }
+        )
+
+        TDTaskListGroupSection(
+            type: .noDate,
+            title: "no_date".localized,
+            tasks: grouped.noDate,
+            isVisible: settingManager.showNoDateEvents && !grouped.noDate.isEmpty,
+            category: category,
+            isExpanded: bindingForGroupExpanded(.noDate),
+            draggedTask: $draggedTask,
+            placeholderGroup: $placeholderGroup,
+            placeholderIndex: $placeholderIndex,
+            autoScrollDirection: $autoScrollDirection,
+            context: modelContext,
+            groupTasksByType: groupTasksByType,
+            onCopySuccess: { showCopySuccessToast = true }
+        )
+    }
     
     var body: some View {
         let grouped = groupTasks(tasks)
@@ -193,6 +314,20 @@ struct TDTaskListView: View {
             case .noDate: return grouped.noDate
             }
         }
+        
+        // 当前页面“可见的分组顺序”（用于自动滚动时跨组推进占位点）
+        // 说明：这就是你界面从上到下的分组顺序；不可见的分组不参与“跨组自动滚动”。
+        let visibleGroups: [TDTaskGroupType] = {
+            var list: [TDTaskGroupType] = []
+            if settingManager.expiredRangeCompleted != .hide, !grouped.overdueCompleted.isEmpty { list.append(.overdueCompleted) }
+            if settingManager.expiredRangeUncompleted != .hide, !grouped.overdueUncompleted.isEmpty { list.append(.overdueUncompleted) }
+            if !grouped.today.isEmpty { list.append(.today) }
+            if !grouped.tomorrow.isEmpty { list.append(.tomorrow) }
+            if !grouped.dayAfterTomorrow.isEmpty { list.append(.dayAfterTomorrow) }
+            if !grouped.futureSchedule.isEmpty { list.append(.upcomingSchedule) }
+            if settingManager.showNoDateEvents, !grouped.noDate.isEmpty { list.append(.noDate) }
+            return list
+        }()
 
         VStack(spacing: 0) {
             // 任务输入框
@@ -221,154 +356,27 @@ struct TDTaskListView: View {
             } else {
                 ScrollViewReader { proxy in
                     ScrollView {
-                        LazyVStack(spacing: 0) {
-                            // 顶部边缘：自动滚动 + 松手提交（按当前占位）
-                            Color.clear
-                                .frame(height: 18)
-                                .id(TDTaskListDragRender.edgeTopId)
-                                .contentShape(Rectangle())
-                                .onDrop(of: [.text], delegate: TDTaskListAutoScrollEdgeDropDelegate(
-                                    direction: -1,
-                                    draggedTask: $draggedTask,
-                                    placeholderGroup: $placeholderGroup,
-                                    placeholderIndex: $placeholderIndex,
-                                    autoScrollDirection: $autoScrollDirection,
-                                    context: modelContext,
-                                    groupTasksByType: groupTasksByType,
-                                    onDenied: { key in
-                                        TDToastCenter.shared.show(key, type: .info, position: .bottom)
-                                    }
-                                ))
-                            
-                            TDTaskListGroupSection(
-                                type: .overdueCompleted,
-                                title: "overdue_completed".localized,
-                                tasks: grouped.overdueCompleted,
-                                isVisible: settingManager.expiredRangeCompleted != .hide && !grouped.overdueCompleted.isEmpty,
-                                category: category,
-                                isExpanded: bindingForGroupExpanded(.overdueCompleted),
-                                draggedTask: $draggedTask,
-                                placeholderGroup: $placeholderGroup,
-                                placeholderIndex: $placeholderIndex,
-                                autoScrollDirection: $autoScrollDirection,
-                                context: modelContext,
-                                groupTasksByType: groupTasksByType,
-                                onCopySuccess: { showCopySuccessToast = true }
-                            )
-                            
-                            TDTaskListGroupSection(
-                                type: .overdueUncompleted,
-                                title: "overdue_uncompleted".localized,
-                                tasks: grouped.overdueUncompleted,
-                                isVisible: settingManager.expiredRangeUncompleted != .hide && !grouped.overdueUncompleted.isEmpty,
-                                category: category,
-                                isExpanded: bindingForGroupExpanded(.overdueUncompleted),
-                                draggedTask: $draggedTask,
-                                placeholderGroup: $placeholderGroup,
-                                placeholderIndex: $placeholderIndex,
-                                autoScrollDirection: $autoScrollDirection,
-                                context: modelContext,
-                                groupTasksByType: groupTasksByType,
-                                onCopySuccess: { showCopySuccessToast = true }
-                            )
-                            
-                            TDTaskListGroupSection(
-                                type: .today,
-                                title: "today".localized,
-                                tasks: grouped.today,
-                                isVisible: !grouped.today.isEmpty,
-                                category: category,
-                                isExpanded: bindingForGroupExpanded(.today),
-                                draggedTask: $draggedTask,
-                                placeholderGroup: $placeholderGroup,
-                                placeholderIndex: $placeholderIndex,
-                                autoScrollDirection: $autoScrollDirection,
-                                context: modelContext,
-                                groupTasksByType: groupTasksByType,
-                                onCopySuccess: { showCopySuccessToast = true }
-                            )
-                            
-                            TDTaskListGroupSection(
-                                type: .tomorrow,
-                                title: "tomorrow".localized,
-                                tasks: grouped.tomorrow,
-                                isVisible: !grouped.tomorrow.isEmpty,
-                                category: category,
-                                isExpanded: bindingForGroupExpanded(.tomorrow),
-                                draggedTask: $draggedTask,
-                                placeholderGroup: $placeholderGroup,
-                                placeholderIndex: $placeholderIndex,
-                                autoScrollDirection: $autoScrollDirection,
-                                context: modelContext,
-                                groupTasksByType: groupTasksByType,
-                                onCopySuccess: { showCopySuccessToast = true }
-                            )
-                            
-                            TDTaskListGroupSection(
-                                type: .dayAfterTomorrow,
-                                title: "day_after_tomorrow".localized,
-                                tasks: grouped.dayAfterTomorrow,
-                                isVisible: !grouped.dayAfterTomorrow.isEmpty,
-                                category: category,
-                                isExpanded: bindingForGroupExpanded(.dayAfterTomorrow),
-                                draggedTask: $draggedTask,
-                                placeholderGroup: $placeholderGroup,
-                                placeholderIndex: $placeholderIndex,
-                                autoScrollDirection: $autoScrollDirection,
-                                context: modelContext,
-                                groupTasksByType: groupTasksByType,
-                                onCopySuccess: { showCopySuccessToast = true }
-                            )
-                            
-                            TDTaskListGroupSection(
-                                type: .upcomingSchedule,
-                                title: "upcoming_schedule".localized,
-                                tasks: grouped.futureSchedule,
-                                isVisible: !grouped.futureSchedule.isEmpty,
-                                category: category,
-                                isExpanded: bindingForGroupExpanded(.upcomingSchedule),
-                                draggedTask: $draggedTask,
-                                placeholderGroup: $placeholderGroup,
-                                placeholderIndex: $placeholderIndex,
-                                autoScrollDirection: $autoScrollDirection,
-                                context: modelContext,
-                                groupTasksByType: groupTasksByType,
-                                onCopySuccess: { showCopySuccessToast = true }
-                            )
-                            
-                            TDTaskListGroupSection(
-                                type: .noDate,
-                                title: "no_date".localized,
-                                tasks: grouped.noDate,
-                                isVisible: settingManager.showNoDateEvents && !grouped.noDate.isEmpty,
-                                category: category,
-                                isExpanded: bindingForGroupExpanded(.noDate),
-                                draggedTask: $draggedTask,
-                                placeholderGroup: $placeholderGroup,
-                                placeholderIndex: $placeholderIndex,
-                                autoScrollDirection: $autoScrollDirection,
-                                context: modelContext,
-                                groupTasksByType: groupTasksByType,
-                                onCopySuccess: { showCopySuccessToast = true }
-                            )
-                            
-                            // 底部边缘：自动滚动 + 松手提交（按当前占位）
-                            Color.clear
-                                .frame(height: 18)
-                                .id(TDTaskListDragRender.edgeBottomId)
-                                .contentShape(Rectangle())
-                                .onDrop(of: [.text], delegate: TDTaskListAutoScrollEdgeDropDelegate(
-                                    direction: 1,
-                                    draggedTask: $draggedTask,
-                                    placeholderGroup: $placeholderGroup,
-                                    placeholderIndex: $placeholderIndex,
-                                    autoScrollDirection: $autoScrollDirection,
-                                    context: modelContext,
-                                    groupTasksByType: groupTasksByType,
-                                    onDenied: { key in
-                                        TDToastCenter.shared.show(key, type: .info, position: .bottom)
-                                    }
-                                ))
+                        Group {
+                            // 关键修复：
+                            // - 拖拽期间如果仍用 LazyVStack，屏幕外分组不会被实例化 → scrollTo 找不到目标 → 卡在当前组尾
+                            // - 拖拽期间临时切换为 VStack（非懒加载），确保“没显示出来的分组”也能被滚出来
+                            if draggedTask != nil {
+                                VStack(spacing: 0) {
+                                    groupSectionsView(
+                                        grouped: grouped,
+                                        settingManager: settingManager,
+                                        groupTasksByType: groupTasksByType
+                                    )
+                                }
+                            } else {
+                                LazyVStack(spacing: 0) {
+                                    groupSectionsView(
+                                        grouped: grouped,
+                                        settingManager: settingManager,
+                                        groupTasksByType: groupTasksByType
+                                    )
+                                }
+                            }
                         }
                         .padding(.bottom, 12)
                     }
@@ -386,19 +394,82 @@ struct TDTaskListView: View {
                         guard let g = placeholderGroup else { return }
                         guard let idx = placeholderIndex else { return }
                         
+                        // 1) 先在“当前分组”内推进占位索引
                         let baseCount = groupTasksByType(g).filter { $0.taskId != draggedTask.taskId }.count
-                        let nextIndex = min(max(idx + autoScrollDirection, 0), baseCount)
+                        var nextGroup = g
+                        var nextIndex = idx + autoScrollDirection
                         
-                        // 只有索引变化时才触发动画，减少抖动
-                        if nextIndex != idx {
-                            placeholderIndex = nextIndex
+                        // 2) 如果到达分组边界仍在继续滚动，则跨到下一个/上一个“可见分组”
+                        if autoScrollDirection > 0, idx >= baseCount, nextIndex > baseCount {
+                            if let cur = visibleGroups.firstIndex(of: g), cur + 1 < visibleGroups.count {
+                                nextGroup = visibleGroups[cur + 1]
+                                nextIndex = 0
+                            } else {
+                                nextIndex = baseCount
+                            }
+                        } else if autoScrollDirection < 0, idx <= 0, nextIndex < 0 {
+                            if let cur = visibleGroups.firstIndex(of: g), cur - 1 >= 0 {
+                                nextGroup = visibleGroups[cur - 1]
+                                let prevCount = groupTasksByType(nextGroup).filter { $0.taskId != draggedTask.taskId }.count
+                                nextIndex = prevCount
+                            } else {
+                                nextIndex = 0
+                            }
+                        } else {
+                            nextIndex = min(max(nextIndex, 0), baseCount)
                         }
-                        withAnimation(.easeInOut(duration: 0.06)) {
+                        
+                        // 3) 只有占位真的变化时才更新并 scrollTo（否则会出现你说的“向上滚动跳动混乱”）
+                        let didChange = (nextGroup != g) || (nextIndex != idx)
+                        guard didChange else { return }
+                        
+                        placeholderGroup = nextGroup
+                        placeholderIndex = nextIndex
+                        
+                        // 滚动：不做过长动画，避免与下一帧定时器叠加导致抖动
+                        withAnimation(.linear(duration: 0.05)) {
                             proxy.scrollTo(
                                 TDTaskListDragRender.placeholderId(for: draggedTask),
                                 anchor: autoScrollDirection < 0 ? .top : .bottom
                             )
                         }
+                    }
+                    // ✅ 顶/底边缘自动滚动命中层（关键修复：不再依赖内容里的空白行，避免“临界点命中丢失”）
+                    .overlay(alignment: .top) {
+                        Color.clear
+                            .frame(height: 44)
+                            .contentShape(Rectangle())
+                            .onDrop(of: [.text], delegate: TDTaskListAutoScrollEdgeDropDelegate(
+                                direction: -1,
+                                draggedTask: $draggedTask,
+                                placeholderGroup: $placeholderGroup,
+                                placeholderIndex: $placeholderIndex,
+                                autoScrollDirection: $autoScrollDirection,
+                                context: modelContext,
+                                groupTasksByType: groupTasksByType,
+                                onDenied: { key in
+                                    TDToastCenter.shared.show(key, type: .info, position: .bottom)
+                                }
+                            ))
+                            .allowsHitTesting(draggedTask != nil)
+                    }
+                    .overlay(alignment: .bottom) {
+                        Color.clear
+                            .frame(height: 44)
+                            .contentShape(Rectangle())
+                            .onDrop(of: [.text], delegate: TDTaskListAutoScrollEdgeDropDelegate(
+                                direction: 1,
+                                draggedTask: $draggedTask,
+                                placeholderGroup: $placeholderGroup,
+                                placeholderIndex: $placeholderIndex,
+                                autoScrollDirection: $autoScrollDirection,
+                                context: modelContext,
+                                groupTasksByType: groupTasksByType,
+                                onDenied: { key in
+                                    TDToastCenter.shared.show(key, type: .info, position: .bottom)
+                                }
+                            ))
+                            .allowsHitTesting(draggedTask != nil)
                     }
                 }
             }
@@ -599,10 +670,69 @@ private struct TDTaskListGroupSection: View {
                                 }
                             ))
                         }
+                        
+                        // ✅ 组尾兜底命中：解决“最后一行下面的空白处”无法跨组的问题
+                        // - 拖到组尾空白=落到本组末尾
+                        Color.clear
+                            .frame(height: 14)
+                            .contentShape(Rectangle())
+                            .onDrop(of: [.text], delegate: TDTaskListGroupAreaDropDelegate(
+                                destinationGroupType: type,
+                                destinationIndexProvider: { tasks.count },
+                                draggedTask: $draggedTask,
+                                placeholderGroup: $placeholderGroup,
+                                placeholderIndex: $placeholderIndex,
+                                autoScrollDirection: $autoScrollDirection,
+                                context: context,
+                                groupTasksByType: groupTasksByType,
+                                onDenied: { key in
+                                    TDToastCenter.shared.show(key, type: .info, position: .bottom)
+                                }
+                            ))
                     }
                 } else {
                     // 收起时保留一个极小间距（不改变你原有布局观感）
-                    Color.clear.frame(height: 2)
+                    Color.clear
+                        .frame(height: 2)
+                        .contentShape(Rectangle())
+                        .onDrop(of: [.text], delegate: TDTaskListGroupAreaDropDelegate(
+                            destinationGroupType: type,
+                            destinationIndexProvider: { tasks.count },
+                            draggedTask: $draggedTask,
+                            placeholderGroup: $placeholderGroup,
+                            placeholderIndex: $placeholderIndex,
+                            autoScrollDirection: $autoScrollDirection,
+                            context: context,
+                            groupTasksByType: groupTasksByType,
+                            onDenied: { key in
+                                TDToastCenter.shared.show(key, type: .info, position: .bottom)
+                            }
+                        ))
+                }
+            }
+            // ✅ 分组整块兜底命中：跨组经过组头/行间空白/边界时也不断档
+            .contentShape(Rectangle())
+            .onDrop(of: [.text], delegate: TDTaskListGroupAreaDropDelegate(
+                destinationGroupType: type,
+                destinationIndexProvider: { tasks.count },
+                draggedTask: $draggedTask,
+                placeholderGroup: $placeholderGroup,
+                placeholderIndex: $placeholderIndex,
+                autoScrollDirection: $autoScrollDirection,
+                context: context,
+                groupTasksByType: groupTasksByType,
+                onDenied: { key in
+                    TDToastCenter.shared.show(key, type: .info, position: .bottom)
+                }
+            ))
+            // ✅ 拖拽进入该组时自动展开（对齐滴答清单：落点在哪个组就打开哪个组）
+            .onChange(of: placeholderGroup) { _, newValue in
+                guard isDragging else { return }
+                guard newValue == type else { return }
+                if !isExpanded {
+                    withAnimation(.easeInOut(duration: 0.15)) {
+                        isExpanded = true
+                    }
                 }
             }
         )
@@ -739,6 +869,66 @@ private struct TDTaskListGroupHeaderDropDelegate: DropDelegate {
         guard let draggedTask else { return }
         _ = info
         
+        if destinationGroupType.isOverdueGroup, !draggedTask.isOverdueTask {
+            return
+        }
+        
+        let baseCount = groupTasksByType(destinationGroupType).filter { $0.taskId != draggedTask.taskId }.count
+        let safeIndex = min(max(destinationIndexProvider(), 0), baseCount)
+        withAnimation(.easeInOut(duration: 0.12)) {
+            placeholderGroup = destinationGroupType
+            placeholderIndex = safeIndex
+        }
+    }
+    
+    func dropUpdated(info: DropInfo) -> DropProposal? {
+        _ = info
+        return DropProposal(operation: .move)
+    }
+    
+    func performDrop(info: DropInfo) -> Bool {
+        _ = info
+        defer {
+            placeholderIndex = nil
+            placeholderGroup = nil
+            draggedTask = nil
+            autoScrollDirection = 0
+        }
+        
+        guard let draggedTask else { return true }
+        let baseCount = groupTasksByType(destinationGroupType).filter { $0.taskId != draggedTask.taskId }.count
+        let destIndex = min(max(destinationIndexProvider(), 0), baseCount)
+        
+        return TDTaskListDropCommitLogic.commit(
+            draggedTask: draggedTask,
+            destinationGroup: destinationGroupType,
+            destinationIndex: destIndex,
+            groupTasksByType: groupTasksByType,
+            context: context,
+            onDenied: onDenied
+        )
+    }
+}
+
+/// 分组列表：整块区域兜底 drop（解决跨分组临界点/空白区域命中断层）
+private struct TDTaskListGroupAreaDropDelegate: DropDelegate {
+    let destinationGroupType: TDTaskGroupType
+    let destinationIndexProvider: () -> Int
+    
+    @Binding var draggedTask: TDMacSwiftDataListModel?
+    @Binding var placeholderGroup: TDTaskGroupType?
+    @Binding var placeholderIndex: Int?
+    @Binding var autoScrollDirection: Int
+    
+    let context: ModelContext
+    let groupTasksByType: (TDTaskGroupType) -> [TDMacSwiftDataListModel]
+    let onDenied: (String) -> Void
+    
+    func dropEntered(info: DropInfo) {
+        guard let draggedTask else { return }
+        _ = info
+        
+        // 禁止把任何任务“移入过期分组”（过期任务可移出）
         if destinationGroupType.isOverdueGroup, !draggedTask.isOverdueTask {
             return
         }

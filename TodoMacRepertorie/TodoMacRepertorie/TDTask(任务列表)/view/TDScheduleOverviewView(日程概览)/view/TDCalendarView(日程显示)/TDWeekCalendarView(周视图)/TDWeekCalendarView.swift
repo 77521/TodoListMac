@@ -45,10 +45,10 @@ struct TDWeekCalendarView: View {
         }
     }
 
-    /// 触发 reload 的 key：日期/分类/排序/完成开关/标签变更都要刷新
+    /// 触发 reload 的 key：日期/分类/排序/完成开关/标签/搜索词变更都要刷新
     private var reloadKey: String {
         let cat = viewModel.selectedCategory?.categoryId ?? 0
-        return "\(viewModel.currentWeekStartDate().startOfDayTimestamp)-\(cat)-\(viewModel.sortType)-\(settingManager.showCompletedTasks)-\(viewModel.tagFilter)"
+        return "\(viewModel.currentWeekStartDate().startOfDayTimestamp)-\(cat)-\(viewModel.sortType)-\(settingManager.showCompletedTasks)-\(viewModel.tagFilter)-\(viewModel.searchText)"
     }
 
     private func makeDateModel(for date: Date) -> TDCalendarDateModel {
@@ -143,9 +143,13 @@ struct TDWeekCalendarView: View {
         do {
             let descriptor = FetchDescriptor<TDMacSwiftDataListModel>(predicate: predicate, sortBy: sortDescriptors)
             let tasks = try modelContext.fetch(descriptor)
-            let filteredTasks = viewModel.tagFilter.isEmpty
+            // 标签筛选 + 关键词搜索均在应用层处理
+            var filteredTasks = viewModel.tagFilter.isEmpty
                 ? tasks
                 : TDCorrectQueryBuilder.filterTasksByTag(tasks, tagFilter: viewModel.tagFilter)
+            if !viewModel.searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                filteredTasks = TDCorrectQueryBuilder.filterTasksBySearchText(filteredTasks, searchText: viewModel.searchText)
+            }
             tasksByDay = Dictionary(grouping: filteredTasks, by: { $0.todoTime })
         } catch {
             tasksByDay = [:]

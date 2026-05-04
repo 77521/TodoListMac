@@ -38,25 +38,41 @@ struct TDScheduleTopToolbar: View {
             )
 
             
-            // 搜索筛选输入框 (带边框)
+            // 搜索筛选输入框 (带边框，高度与筛选按钮/日期导航保持一致)
             HStack(spacing: 8) {
                 Image(systemName: "magnifyingglass")
                     .font(.system(size: 12))
                     .foregroundColor(themeManager.descriptionTextColor)
                 
-                TextField("搜索筛选", text: .constant(""))
+                TextField("搜索筛选", text: $viewModel.searchText)
                     .textFieldStyle(PlainTextFieldStyle())
                     .font(.system(size: 12))
                     .foregroundColor(themeManager.titleTextColor)
+                
+                // 清除按钮：有内容时才显示
+                if !viewModel.searchText.isEmpty {
+                    Button(action: {
+                        viewModel.searchText = ""
+                    }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 12))
+                            .foregroundColor(themeManager.descriptionTextColor)
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    .pointingHandCursor()
+                }
             }
             .padding(.horizontal, 10)
-            .padding(.vertical, 6)
+            .frame(height: 40)
             .background(
                 RoundedRectangle(cornerRadius: 6)
                     .fill(themeManager.backgroundColor)
                     .overlay(
                         RoundedRectangle(cornerRadius: 6)
-                            .stroke(themeManager.borderColor, lineWidth: 1)
+                            .stroke(
+                                viewModel.searchText.isEmpty ? themeManager.borderColor : themeManager.color(level: 5),
+                                lineWidth: viewModel.searchText.isEmpty ? 1 : 1.5
+                            )
                     )
             )
             

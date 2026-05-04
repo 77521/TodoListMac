@@ -30,6 +30,9 @@ struct TDScheduleFilterMenu: View {
     /// 取消筛选回调
     let onClearFilter: () -> Void
     
+    /// 当前用户的标签数据
+    @State private var allTags: [TDTagModel] = []
+    
     /// 分类数据源：使用和 TDCategoryPickerMenu 相同的逻辑
     private var categoryItems: [TDSliderBarModel] {
         // 1) 只取服务器真实数据（含文件夹/分类，id>0）
@@ -50,12 +53,19 @@ struct TDScheduleFilterMenu: View {
         Menu {
             // 分类筛选部分 - 使用和 TDCategoryPickerMenu 相同的逻辑
             Menu("选择分类") {
-                // 全部选项
+                // 全部选项（带勾选状态）
                 Button {
                     onCategorySelected(nil)
                 } label: {
-                    Text("全部")
-                        .font(.system(size: TDAppConfig.menuFontSize))
+                    HStack {
+                        Text("全部")
+                            .font(.system(size: TDAppConfig.menuFontSize))
+                        Spacer()
+                        if viewModel.selectedCategory == nil && viewModel.tagFilter.isEmpty {
+                            Image(systemName: "checkmark")
+                                .font(.system(size: TDAppConfig.menuIconSize))
+                        }
+                    }
                 }
                 
                 // 分割线：把"全部"与分类清单区分开
@@ -69,7 +79,6 @@ struct TDScheduleFilterMenu: View {
                         Menu {
                             ForEach(children) { child in
                                 Button {
-                                    // 子分类：直接返回模型数据
                                     onCategorySelected(child)
                                 } label: {
                                     HStack(spacing: 8) {
@@ -78,12 +87,16 @@ struct TDScheduleFilterMenu: View {
                                             .frame(width: TDAppConfig.menuIconSize, height: TDAppConfig.menuIconSize)
                                         Text(String(child.categoryName.prefix(8)))
                                             .font(.system(size: TDAppConfig.menuFontSize))
+                                        Spacer()
+                                        if viewModel.selectedCategory?.categoryId == child.categoryId {
+                                            Image(systemName: "checkmark")
+                                                .font(.system(size: TDAppConfig.menuIconSize))
+                                        }
                                     }
                                 }
                             }
                         } label: {
                             HStack(spacing: 8) {
-                                // 文件夹图标
                                 if let folderColor = item.categoryColor, !folderColor.isEmpty {
                                     Image.fromSystemName("folder.fill", hexColor: folderColor, size: TDAppConfig.menuIconSize)
                                 } else {
@@ -97,7 +110,6 @@ struct TDScheduleFilterMenu: View {
                         }
                     } else {
                         Button {
-                            // 顶级分类：直接返回模型数据
                             onCategorySelected(item)
                         } label: {
                             HStack(spacing: 8) {
@@ -106,6 +118,11 @@ struct TDScheduleFilterMenu: View {
                                     .frame(width: TDAppConfig.menuIconSize, height: TDAppConfig.menuIconSize)
                                 Text(String(item.categoryName.prefix(8)))
                                     .font(.system(size: TDAppConfig.menuFontSize))
+                                Spacer()
+                                if viewModel.selectedCategory?.categoryId == item.categoryId {
+                                    Image(systemName: "checkmark")
+                                        .font(.system(size: TDAppConfig.menuIconSize))
+                                }
                             }
                         }
                     }
@@ -114,24 +131,43 @@ struct TDScheduleFilterMenu: View {
             
             Divider()
             
-            //            // 标签筛选部分
-            //            Menu("标签筛选") {
-            //                Button("全部") {
-            //                    onTagFiltered("")
-            //                }
-            //
-            //                Divider()
-            //
-            //                // 常用标签（这里可以后续从数据中获取）
-            //                let commonTags = ["紧急", "重要", "工作", "生活", "学习"]
-            //                ForEach(commonTags, id: \.self) { tag in
-            //                    Button(tag) {
-            //                        onTagFiltered(tag)
-            //                    }
-            //                }
-            //            }
-            //
-            //            Divider()
+            // 标签筛选部分（与分类互斥：选标签会清除分类，选分类会清除标签）
+            Menu("标签筛选") {
+                Button {
+                    onTagFiltered("")
+                } label: {
+                    HStack {
+                        Text("全部")
+                            .font(.system(size: TDAppConfig.menuFontSize))
+                        Spacer()
+                        if viewModel.tagFilter.isEmpty {
+                            Image(systemName: "checkmark")
+                                .font(.system(size: TDAppConfig.menuIconSize))
+                        }
+                    }
+                }
+                
+                if !allTags.isEmpty {
+                    Divider()
+                    ForEach(allTags.prefix(30), id: \.persistentModelID) { tag in
+                        Button {
+                            onTagFiltered(tag.key)
+                        } label: {
+                            HStack {
+                                Text(tag.display)
+                                    .font(.system(size: TDAppConfig.menuFontSize))
+                                Spacer()
+                                if viewModel.tagFilter == tag.key {
+                                    Image(systemName: "checkmark")
+                                        .font(.system(size: TDAppConfig.menuIconSize))
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            Divider()
             
             // 排序选项
             Menu("排序方式") {
@@ -240,7 +276,7 @@ struct TDScheduleFilterMenu: View {
                     .font(.system(size: TDAppConfig.menuIconSize))
                     .foregroundColor(themeManager.titleTextColor)
                 
-                // 右下角小圆圈 - 根据选中分类显示颜色
+                // 右下角小圆圈：仅在选中分类时显示分类颜色，选标签时不显示圆点（两者互斥）
                 if let selectedCategory = viewModel.selectedCategory,
                    let categoryColor = selectedCategory.categoryColor {
                     VStack {
@@ -255,12 +291,12 @@ struct TDScheduleFilterMenu: View {
                 }
                 
             }
-            .contentShape(Rectangle()) // 让整个单元格区域都可以点击
+            .contentShape(Rectangle())
         }
         .menuStyle(.button)
         .menuIndicator(.hidden)
         .buttonStyle(PlainButtonStyle())
-        .contentShape(Rectangle()) // 让整个单元格区域都可以点击
+        .contentShape(Rectangle())
         .pointingHandCursor()
         .frame(width: 40, height: 40)
         .background(
@@ -271,6 +307,20 @@ struct TDScheduleFilterMenu: View {
                         .stroke(themeManager.borderColor, lineWidth: 1)
                 )
         )
+        .onAppear {
+            loadTags()
+        }
+    }
+    
+    // MARK: - 私有方法
+    
+    /// 加载当前用户的标签数据
+    private func loadTags() {
+        let userId = TDUserManager.shared.userId
+        let context = TDModelContainer.shared.mainContext
+        // 按使用数量降序，取最多 30 个常用标签
+        allTags = TDTagManager.shared.fetchAllTags(userId: userId, context: context)
+            .sorted { $0.taskCount > $1.taskCount }
     }
 }
 

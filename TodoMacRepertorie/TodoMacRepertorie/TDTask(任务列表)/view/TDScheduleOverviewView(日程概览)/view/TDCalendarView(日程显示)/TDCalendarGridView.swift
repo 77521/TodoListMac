@@ -141,13 +141,19 @@ struct TDCalendarGridView: View {
         // 如缓存不可用（例如刚切换条件），再回退到 SwiftData @Query 的结果。
         let tasksByDay: [Int64: [TDMacSwiftDataListModel]] = {
             if viewModel.hasValidMonthTasksCache {
-                return viewModel.monthTasksByDayFiltered(tagFilter: viewModel.tagFilter)
+                return viewModel.monthTasksByDayFiltered(
+                    tagFilter: viewModel.tagFilter,
+                    searchText: viewModel.searchText
+                )
             }
 
-            // 标签筛选在应用层处理（避免频繁重建 predicate）
-            let filteredTasks = viewModel.tagFilter.isEmpty
-                ? monthTasks
+            // 标签筛选 + 搜索在应用层处理（避免频繁重建 predicate）
+            var filteredTasks = viewModel.tagFilter.isEmpty
+                ? Array(monthTasks)
                 : TDCorrectQueryBuilder.filterTasksByTag(monthTasks, tagFilter: viewModel.tagFilter)
+            if !viewModel.searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                filteredTasks = TDCorrectQueryBuilder.filterTasksBySearchText(filteredTasks, searchText: viewModel.searchText)
+            }
             return Dictionary(grouping: filteredTasks, by: { $0.todoTime })
         }()
 

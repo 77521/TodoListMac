@@ -35,6 +35,9 @@ class TDScheduleOverviewViewModel: ObservableObject {
     /// 标签筛选
     @Published var tagFilter: String = ""
     
+    /// 搜索关键词（在应用层对任务标题/备注进行过滤）
+    @Published var searchText: String = ""
+    
     /// 排序类型 0:默认 1:提醒时间 2:添加时间a-z 3:添加时间z-a 4:工作量a-z 5:工作量z-a
     @Published var sortType: Int = 0
 
@@ -301,20 +304,35 @@ class TDScheduleOverviewViewModel: ObservableObject {
         return calendar.startOfDay(for: start)
     }
 
-    /// 更新选中的分类
-    /// - Parameter category: 分类对象，nil 表示未分类
+    /// 更新选中的分类（同时清除标签筛选，分类与标签互斥）
+    /// - Parameter category: 分类对象，nil 表示全部
     func updateSelectedCategory(_ category: TDSliderBarModel?) {
         selectedCategory = category
+        // 分类与标签互斥：选择分类时清除标签筛选
+        tagFilter = ""
         updateCurrentDate(currentDate)
         preloadMonthTasksIfNeeded(force: true)
-        os_log(.info, log: logger, "🏷️ 更新选中分类: %@", category?.categoryName ?? "未分类")
+        os_log(.info, log: logger, "🏷️ 更新选中分类: %@", category?.categoryName ?? "全部")
     }
-    /// 更新标签筛选
-    /// - Parameter tag: 标签筛选条件
+    
+    /// 更新标签筛选（同时清除分类选择，分类与标签互斥）
+    /// - Parameter tag: 标签筛选条件，为空表示不筛选
     func updateTagFilter(_ tag: String) {
         tagFilter = tag
+        // 分类与标签互斥：选择标签时清除分类选择
+        if !tag.isEmpty {
+            selectedCategory = nil
+        }
         updateCurrentDate(currentDate)
+        preloadMonthTasksIfNeeded(force: true)
         os_log(.info, log: logger, "🏷️ 更新标签筛选: %@", tag)
+    }
+    
+    /// 更新搜索关键词
+    /// - Parameter text: 搜索关键词
+    func updateSearchText(_ text: String) {
+        searchText = text
+        os_log(.info, log: logger, "🔍 更新搜索关键词: %@", text)
     }
     
     /// 更新排序类型
@@ -387,14 +405,19 @@ class TDScheduleOverviewViewModel: ObservableObject {
         monthTasksCacheKey == makeCurrentMonthTasksCacheKey()
     }
 
-    /// 获取（可选标签筛选后的）按天分组任务
-    func monthTasksByDayFiltered(tagFilter: String) -> [Int64: [TDMacSwiftDataListModel]] {
-        guard !tagFilter.isEmpty else { return monthTasksByDay }
+    /// 获取（可选标签筛选 + 搜索关键词过滤后的）按天分组任务
+    func monthTasksByDayFiltered(tagFilter: String, searchText: String = "") -> [Int64: [TDMacSwiftDataListModel]] {
         var result: [Int64: [TDMacSwiftDataListModel]] = [:]
         result.reserveCapacity(monthTasksByDay.count)
         for (k, v) in monthTasksByDay {
-            let filtered = TDCorrectQueryBuilder.filterTasksByTag(v, tagFilter: tagFilter)
-            if !filtered.isEmpty { result[k] = filtered }
+            var tasks = v
+            if !tagFilter.isEmpty {
+                tasks = TDCorrectQueryBuilder.filterTasksByTag(tasks, tagFilter: tagFilter)
+            }
+            if !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                tasks = TDCorrectQueryBuilder.filterTasksBySearchText(tasks, searchText: searchText)
+            }
+            if !tasks.isEmpty { result[k] = tasks }
         }
         return result
     }
