@@ -14,6 +14,9 @@
 		0DA3980B2DCAF25300D208A3 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0DA3980A2DCAF25300D208A3 /* WidgetKit.framework */; };
 		0DA3980D2DCAF25300D208A3 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0DA3980C2DCAF25300D208A3 /* SwiftUI.framework */; };
 		0DA3981B2DCAF25500D208A3 /* TDMacWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 0DA398082DCAF25300D208A3 /* TDMacWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		0DF5F5FB2FB1CB7A00FBAE09 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0DF5F5FA2FB1CB7A00FBAE09 /* StoreKit.framework */; };
+		0DF5F6002FB1CF2B00FBAE09 /* TodoIAPConfig.storekit in Resources */ = {isa = PBXBuildFile; fileRef = 0DF5F5FF2FB1CF2B00FBAE09 /* TodoIAPConfig.storekit */; };
+		0DF5F6012FB1CF2B00FBAE09 /* TodoIAPConfig.storekit in Resources */ = {isa = PBXBuildFile; fileRef = 0DF5F5FF2FB1CF2B00FBAE09 /* TodoIAPConfig.storekit */; };
 		0DFD0A3B2E9F78EA00B06859 /* AAInfographics in Frameworks */ = {isa = PBXBuildFile; productRef = 0DFD0A3A2E9F78EA00B06859 /* AAInfographics */; };
 /* End PBXBuildFile section */
 
@@ -55,6 +58,8 @@
 		0DA398082DCAF25300D208A3 /* TDMacWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TDMacWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		0DA3980A2DCAF25300D208A3 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		0DA3980C2DCAF25300D208A3 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		0DF5F5FA2FB1CB7A00FBAE09 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
+		0DF5F5FF2FB1CF2B00FBAE09 /* TodoIAPConfig.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = TodoIAPConfig.storekit; sourceTree = "<group>"; };
 		AF7D0F1B2D1EC14D00F83EB9 /* TodoMacRepertorie.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TodoMacRepertorie.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -179,6 +184,7 @@
 			files = (
 				0D97A0E92E7025870018C27F /* AlertToast in Frameworks */,
 				0DFD0A3B2E9F78EA00B06859 /* AAInfographics in Frameworks */,
+				0DF5F5FB2FB1CB7A00FBAE09 /* StoreKit.framework in Frameworks */,
 				0D97A0EC2E7026630018C27F /* Qiniu in Frameworks */,
 				0D926C212E81649900859750 /* LunarSwift in Frameworks */,
 			);
@@ -190,6 +196,7 @@
 		0DA398092DCAF25300D208A3 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				0DF5F5FA2FB1CB7A00FBAE09 /* StoreKit.framework */,
 				0DA3980A2DCAF25300D208A3 /* WidgetKit.framework */,
 				0DA3980C2DCAF25300D208A3 /* SwiftUI.framework */,
 			);
@@ -199,6 +206,7 @@
 		AF7D0F122D1EC14D00F83EB9 = {
 			isa = PBXGroup;
 			children = (
+				0DF5F5FF2FB1CF2B00FBAE09 /* TodoIAPConfig.storekit */,
 				AF7D0F1D2D1EC14D00F83EB9 /* TodoMacRepertorie */,
 				0DA3980E2DCAF25300D208A3 /* TDMacWidget */,
 				0DA398092DCAF25300D208A3 /* Frameworks */,
@@ -320,6 +328,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0DF5F6002FB1CF2B00FBAE09 /* TodoIAPConfig.storekit in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -327,6 +336,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0DF5F6012FB1CF2B00FBAE09 /* TodoIAPConfig.storekit in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -569,7 +579,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
-				MARKETING_VERSION = 3.75;
+				MARKETING_VERSION = 10000.00;
 				PRODUCT_BUNDLE_IDENTIFIER = com.eve.todolist4mac;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -605,7 +615,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
-				MARKETING_VERSION = 3.75;
+				MARKETING_VERSION = 10000.00;
 				PRODUCT_BUNDLE_IDENTIFIER = com.eve.todolist4mac;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

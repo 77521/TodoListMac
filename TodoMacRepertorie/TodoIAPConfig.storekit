@@ -1,0 +1,102 @@
+{
+  "appPolicies" : {
+    "eula" : "",
+    "policies" : [
+      {
+        "locale" : "en_US",
+        "policyText" : "",
+        "policyURL" : ""
+      }
+    ]
+  },
+  "identifier" : "F98DA7E6",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+    {
+      "displayPrice" : "40",
+      "familyShareable" : false,
+      "internalID" : "6763330805",
+      "localizations" : [
+        {
+          "description" : "3 个月高级会员，解锁全部专属功能与权益",
+          "displayName" : "Todo清单季度高级账户40",
+          "locale" : "zh_Hans"
+        }
+      ],
+      "productID" : "todolist_mac_vip_quarter40",
+      "referenceName" : "Todo清单季度高级账户40",
+      "type" : "Consumable"
+    },
+    {
+      "displayPrice" : "118",
+      "familyShareable" : false,
+      "internalID" : "6763331285",
+      "localizations" : [
+        {
+          "description" : "1 年高级会员，解锁全部专属功能与权益",
+          "displayName" : "Todo清单年高级账户118",
+          "locale" : "zh_Hans"
+        }
+      ],
+      "productID" : "todolist_mac_vip_year118",
+      "referenceName" : "Todo清单年高级账户118",
+      "type" : "Consumable"
+    },
+    {
+      "displayPrice" : "12",
+      "familyShareable" : false,
+      "internalID" : "6763331200",
+      "localizations" : [
+        {
+          "description" : "畅享全部高级权益，有效期一个月",
+          "displayName" : "Todo清单月高级账户12",
+          "locale" : "zh_Hans"
+        }
+      ],
+      "productID" : "todolist_mac_vip_month12",
+      "referenceName" : "Todo清单月高级账户12",
+      "type" : "Consumable"
+    },
+    {
+      "displayPrice" : "168",
+      "familyShareable" : false,
+      "internalID" : "6763331007",
+      "localizations" : [
+        {
+          "description" : "一次购买永久有效，解锁全部专属功能与权益",
+          "displayName" : "Todo清单永久高级账户168",
+          "locale" : "zh_Hans"
+        }
+      ],
+      "productID" : "todolist_mac_vip_forever168",
+      "referenceName" : "Todo清单永久高级账户168",
+      "type" : "Consumable"
+    }
+  ],
+  "settings" : {
+    "_applicationInternalID" : "6763330150",
+    "_askToBuyEnabled" : false,
+    "_billingGracePeriodEnabled" : false,
+    "_billingIssuesEnabled" : false,
+    "_developerTeamID" : "ARQ4QZ8Q3D",
+    "_disableDialogs" : false,
+    "_failTransactionsEnabled" : false,
+    "_lastSynchronizedDate" : 800185263.054811,
+    "_locale" : "en_US",
+    "_renewalBillingIssuesEnabled" : false,
+    "_storefront" : "CHN",
+    "_storeKitErrors" : [
+
+    ],
+    "_timeRate" : 0
+  },
+  "subscriptionGroups" : [
+
+  ],
+  "version" : {
+    "major" : 5,
+    "minor" : 0
+  }
+}

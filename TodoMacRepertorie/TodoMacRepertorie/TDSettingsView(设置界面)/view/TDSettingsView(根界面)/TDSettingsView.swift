@@ -61,6 +61,8 @@ struct TDSettingsView: View {
         switch selected {
         case .accountSecurity:
             TDAccountSecurityView()
+        case .premium:
+            TDPremiumView()
         case .general:
             TDGeneralSettingsView()
         case .featureModules:
