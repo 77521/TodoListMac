@@ -129,7 +129,6 @@
 				"TDTask(任务列表)/view/TDScheduleOverviewView(日程概览)/model/TDCalendarDateModel.swift",
 				"TDTask(任务列表)/view/TDScheduleOverviewView(日程概览)/view/TDCalendarView(日程显示)/TDCalendarTaskList.swift",
 				"TDTask(任务列表)/view/TDScheduleOverviewView(日程概览)/view/TDCalendarView(日程显示)/TDScheduleWeekdayView.swift",
-				"TDTask(任务列表)/view/TDTaskGroupHeader.swift",
 				"TDTask(任务列表)/viewModel/TDTaskGroupModel.swift",
 				"TDTomatoManager(番茄计时数据)/TDTomatoAPI.swift",
 				"TDTomatoManager(番茄计时数据)/TDTomatoManager.swift",
@@ -557,7 +556,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_ENTITLEMENTS = TodoMacRepertorie/TodoMacRepertorie.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
@@ -571,6 +570,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TodoMacRepertorie/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Todo清单";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSCalendarsUsageDescription = "需要访问日历以添加任务提醒";
 				INFOPLIST_KEY_NSCalendarsWriteOnlyAccessUsageDescription = "需要写入日历以创建任务提醒事件";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
@@ -593,7 +593,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_ENTITLEMENTS = TodoMacRepertorie/TodoMacRepertorie.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
@@ -607,6 +607,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TodoMacRepertorie/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Todo清单";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSCalendarsUsageDescription = "需要访问日历以添加任务提醒";
 				INFOPLIST_KEY_NSCalendarsWriteOnlyAccessUsageDescription = "需要写入日历以创建任务提醒事件";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";

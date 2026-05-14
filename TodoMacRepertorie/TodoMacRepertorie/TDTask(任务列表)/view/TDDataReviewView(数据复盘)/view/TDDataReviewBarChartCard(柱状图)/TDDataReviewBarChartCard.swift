@@ -93,7 +93,7 @@ struct TDAABarChartView: NSViewRepresentable {
     func makeNSView(context: Context) -> AAChartView {
         let chartView = AAChartView()
         chartView.isClearBackgroundColor = true
-        chartView.shouldPrintOptionsJSON = false
+//        chartView.shouldPrintOptionsJSON = false
         return chartView
     }
     
