@@ -60,7 +60,7 @@
 		0DA3980C2DCAF25300D208A3 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		0DF5F5FA2FB1CB7A00FBAE09 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		0DF5F5FF2FB1CF2B00FBAE09 /* TodoIAPConfig.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = TodoIAPConfig.storekit; sourceTree = "<group>"; };
-		AF7D0F1B2D1EC14D00F83EB9 /* TodoMacRepertorie.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TodoMacRepertorie.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AF7D0F1B2D1EC14D00F83EB9 /* Todo清单.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Todo清单.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -216,7 +216,7 @@
 		AF7D0F1C2D1EC14D00F83EB9 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				AF7D0F1B2D1EC14D00F83EB9 /* TodoMacRepertorie.app */,
+				AF7D0F1B2D1EC14D00F83EB9 /* Todo清单.app */,
 				0DA398082DCAF25300D208A3 /* TDMacWidgetExtension.appex */,
 			);
 			name = Products;
@@ -274,7 +274,7 @@
 				0DFD0A3A2E9F78EA00B06859 /* AAInfographics */,
 			);
 			productName = TodoMacRepertorie;
-			productReference = AF7D0F1B2D1EC14D00F83EB9 /* TodoMacRepertorie.app */;
+			productReference = AF7D0F1B2D1EC14D00F83EB9 /* Todo清单.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -562,7 +562,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "\"$(SRCROOT)/TodoMacRepertorie/SupportingFiles(源文件)/Assets.xcassets\"";
 				DEVELOPMENT_TEAM = ARQ4QZ8Q3D;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -581,7 +581,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 10000.00;
 				PRODUCT_BUNDLE_IDENTIFIER = com.eve.todolist4mac;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "Todo清单";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -599,7 +599,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "\"$(SRCROOT)/TodoMacRepertorie/SupportingFiles(源文件)/Assets.xcassets\"";
 				DEVELOPMENT_TEAM = ARQ4QZ8Q3D;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -618,7 +618,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 10000.00;
 				PRODUCT_BUNDLE_IDENTIFIER = com.eve.todolist4mac;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "Todo清单";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;

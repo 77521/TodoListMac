@@ -16,7 +16,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "AF7D0F1A2D1EC14D00F83EB9"
-               BuildableName = "TodoMacRepertorie.app"
+               BuildableName = "Todo&#x6e05;&#x5355;.app"
                BlueprintName = "TodoMacRepertorie"
                ReferencedContainer = "container:TodoMacRepertorie.xcodeproj">
             </BuildableReference>
@@ -45,7 +45,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "AF7D0F1A2D1EC14D00F83EB9"
-            BuildableName = "TodoMacRepertorie.app"
+            BuildableName = "Todo&#x6e05;&#x5355;.app"
             BlueprintName = "TodoMacRepertorie"
             ReferencedContainer = "container:TodoMacRepertorie.xcodeproj">
          </BuildableReference>
@@ -65,7 +65,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "AF7D0F1A2D1EC14D00F83EB9"
-            BuildableName = "TodoMacRepertorie.app"
+            BuildableName = "Todo&#x6e05;&#x5355;.app"
             BlueprintName = "TodoMacRepertorie"
             ReferencedContainer = "container:TodoMacRepertorie.xcodeproj">
          </BuildableReference>
