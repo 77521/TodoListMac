@@ -712,10 +712,9 @@ struct TDLoginView: View {
                         }
                         .padding(.horizontal, 47)
 
-                        Spacer()
                         TDLoginRuleView(viewModel: viewModel)
-                            .padding([.horizontal], 44)
-                        Spacer()
+                            .padding(.horizontal, 44)
+                            .padding(.bottom, 20)
                         
                     }
                 }
