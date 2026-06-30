@@ -680,16 +680,16 @@ struct TDLoginView: View {
                         VStack(spacing: 20) {
                             Picker("", selection: $viewModel.currentType) {
                                 if viewModel.loginState == .login {
-                                    Text("账号登录")
+                                    Text(LocalizedStringKey("login.tab.account"))
                                         .tag(TDLoginViewModel.TDLoginType.account)
-                                    Text("手机号登录")
+                                    Text(LocalizedStringKey("login.tab.phone"))
                                         .tag(TDLoginViewModel.TDLoginType.phone)
-                                    Text("扫一扫登录")
+                                    Text(LocalizedStringKey("login.tab.qrcode"))
                                         .tag(TDLoginViewModel.TDLoginType.qrcode)
                                 } else {
-                                    Text("账号注册")
+                                    Text(LocalizedStringKey("login.tab.account_register"))
                                         .tag(TDLoginViewModel.TDLoginType.account)
-                                    Text("手机号注册")
+                                    Text(LocalizedStringKey("login.tab.phone_register"))
                                         .tag(TDLoginViewModel.TDLoginType.phone)
                                 }
                             }
@@ -1054,45 +1054,183 @@ struct PhoneLoginForm: View {
 }
 
 
-// Views/QRCodeLoginForm.swift
+// MARK: - 扫一扫登录表单
 struct QRCodeLoginForm: View {
     @ObservedObject var viewModel: TDLoginViewModel
-    
+    /// 通过环境获取当前深色/浅色模式，用于主题颜色适配
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
-        VStack(spacing: 20) {
-            // 二维码图片
-//            if let qrCodeImage = viewModel.qrCodeImage {
-//                Image(nsImage: qrCodeImage)
-//                    .resizable()
-//                    .interpolation(.none)
-//                    .scaledToFit()
-//                    .frame(width: 200, height: 160)
-//            } else {
-//                ProgressView()
-//                    .frame(width: 200, height: 160)
-//            }
-            
-            // 状态文本
-//            Text(viewModel.qrCodeStatus.description)
-//                .foregroundColor(.secondary)
-//
-//            // 刷新按钮
-//            if viewModel.qrCodeStatus == .expired {
-//                Button {
-//                    Task {
-//                        //                        await viewModel.refreshQRCode()
-//                    }
-//                } label: {
-//                    Text("刷新二维码")
-//                        .frame(maxWidth: .infinity)
-//                }
-//                .buttonStyle(.bordered)
-//            }
-//        }
-//        .padding(.vertical, 20)
-//        .task {
-//            // 页面加载时获取二维码
-//            //            await viewModel.startQRCodeLogin()
+        VStack(spacing: 0) {
+            // 顶部提示文案
+            Text(LocalizedStringKey("login.qrcode.tip"))
+                .font(.system(size: 12))
+                .foregroundStyle(Color.greyColor6)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.bottom, 12)
+
+            // 二维码主体区域（固定尺寸，避免切换状态时布局跳动）
+            ZStack {
+                switch viewModel.qrCodeViewStatus {
+
+                // ---- 加载中 ----
+                case .loading:
+                    VStack(spacing: 8) {
+                        ProgressView()
+                            .scaleEffect(1.2)
+                        Text(LocalizedStringKey("login.qrcode.status.loading"))
+                            .font(.system(size: 12))
+                            .foregroundStyle(Color.greyColor6)
+                    }
+
+                // ---- 二维码就绪 ----
+                case .ready, .scanned:
+                    ZStack {
+                        // 二维码图片
+                        if let image = viewModel.qrCodeImage {
+                            Image(nsImage: image)
+                                .interpolation(.none)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 130, height: 130)
+                                .clipShape(RoundedRectangle(cornerRadius: 6))
+                        } else {
+                            ProgressView()
+                                .frame(width: 130, height: 130)
+                        }
+
+                        // 已扫码蒙层
+                        if viewModel.qrCodeViewStatus == .scanned {
+                            RoundedRectangle(cornerRadius: 6)
+                                .fill(Color.black.opacity(0.5))
+                                .frame(width: 130, height: 130)
+                            VStack(spacing: 4) {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .font(.system(size: 28))
+                                    .foregroundStyle(.white)
+                                Text(LocalizedStringKey("login.qrcode.status.scanned"))
+                                    .font(.system(size: 12, weight: .medium))
+                                    .foregroundStyle(.white)
+                                    .multilineTextAlignment(.center)
+                            }
+                        }
+                    }
+
+                // ---- 登录成功 ----
+                case .success:
+                    VStack(spacing: 8) {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 36))
+                            .foregroundStyle(TDThemeManager.shared.primaryTintColor())
+                        Text(LocalizedStringKey("login.qrcode.status.success"))
+                            .font(.system(size: 13, weight: .medium))
+                            .foregroundStyle(TDThemeManager.shared.primaryTintColor())
+                    }
+
+                // ---- 二维码过期 / 验证失败 ----
+                case .expired:
+                    VStack(spacing: 10) {
+                        // 模糊的旧二维码作为背景
+                        if let image = viewModel.qrCodeImage {
+                            Image(nsImage: image)
+                                .interpolation(.none)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 130, height: 130)
+                                .clipShape(RoundedRectangle(cornerRadius: 6))
+                                .blur(radius: 2)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 6)
+                                        .fill(Color.black.opacity(0.45))
+                                )
+                                .overlay(
+                                    // 刷新按钮覆盖在蒙层上
+                                    Button {
+                                        viewModel.refreshQRCode()
+                                    } label: {
+                                        VStack(spacing: 6) {
+                                            Image(systemName: "arrow.clockwise")
+                                                .font(.system(size: 22, weight: .medium))
+                                                .foregroundStyle(.white)
+                                            Text(LocalizedStringKey("login.qrcode.refresh"))
+                                                .font(.system(size: 12, weight: .medium))
+                                                .foregroundStyle(.white)
+                                        }
+                                    }
+                                    .buttonStyle(.plain)
+                                    .pointingHandCursor()
+                                )
+                        } else {
+                            // 没有旧图片时单独显示刷新按钮
+                            Button {
+                                viewModel.refreshQRCode()
+                            } label: {
+                                VStack(spacing: 6) {
+                                    Image(systemName: "arrow.clockwise")
+                                        .font(.system(size: 22, weight: .medium))
+                                    Text(LocalizedStringKey("login.qrcode.refresh"))
+                                        .font(.system(size: 12))
+                                }
+                                .frame(width: 130, height: 130)
+                            }
+                            .buttonStyle(.plain)
+                            .pointingHandCursor()
+                        }
+                    }
+
+                // ---- 网络/接口错误 ----
+                case .error(let msg):
+                    VStack(spacing: 10) {
+                        Image(systemName: "wifi.exclamationmark")
+                            .font(.system(size: 26))
+                            .foregroundStyle(Color.redColor6)
+                        Text(msg)
+                            .font(.system(size: 11))
+                            .foregroundStyle(Color.greyColor6)
+                            .multilineTextAlignment(.center)
+                            .lineLimit(2)
+                        Button {
+                            viewModel.refreshQRCode()
+                        } label: {
+                            Text(LocalizedStringKey("login.qrcode.retry"))
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundStyle(TDThemeManager.shared.primaryTintColor())
+                        }
+                        .buttonStyle(.plain)
+                        .pointingHandCursor()
+                    }
+                }
+            }
+            .frame(width: 140, height: 140)
+
+            // 底部状态说明文案（加载中和就绪状态不同）
+            Group {
+                switch viewModel.qrCodeViewStatus {
+                case .ready:
+                    Text(LocalizedStringKey("login.qrcode.status.ready"))
+                        .foregroundStyle(Color.greyColor6)
+                case .expired:
+                    Text(LocalizedStringKey("login.qrcode.status.expired"))
+                        .foregroundStyle(Color.redColor6)
+                case .error:
+                    EmptyView()
+                default:
+                    EmptyView()
+                }
+            }
+            .font(.system(size: 11))
+            .multilineTextAlignment(.center)
+            .padding(.top, 8)
+        }
+        .padding(.vertical, 10)
+        // 切换到扫一扫 Tab 时自动请求二维码
+        .onAppear {
+            viewModel.startQRCodeLogin()
+        }
+        // 离开 Tab 时停止轮询，节省资源
+        .onDisappear {
+            viewModel.stopQRCodeLogin()
         }
     }
 }

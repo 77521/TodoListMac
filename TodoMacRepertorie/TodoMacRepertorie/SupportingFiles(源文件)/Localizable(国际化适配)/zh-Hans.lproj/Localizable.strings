@@ -616,6 +616,35 @@
 
 
 
+// ==================== 登录模块 ====================
+
+// 登录类型切换 Tab
+"login.tab.account" = "账号登录";
+"login.tab.phone" = "手机号登录";
+"login.tab.qrcode" = "扫一扫登录";
+"login.tab.account_register" = "账号注册";
+"login.tab.phone_register" = "手机号注册";
+
+// 扫一扫登录 - 提示文案
+"login.qrcode.tip" = "请使用 Todo清单移动端\n扫描下方二维码";
+
+// 扫一扫登录 - 状态文案
+"login.qrcode.status.loading" = "正在获取二维码…";
+"login.qrcode.status.ready" = "等待扫码";
+"login.qrcode.status.scanned" = "已扫码\n请在手机上确认";
+"login.qrcode.status.success" = "登录成功";
+"login.qrcode.status.expired" = "二维码已失效，请刷新";
+"login.qrcode.status.error" = "获取失败，请重试";
+
+// 扫一扫登录 - 操作按钮
+"login.qrcode.refresh" = "刷新二维码";
+"login.qrcode.retry" = "重新获取";
+
+// 扫一扫登录 - 错误文案
+"login.qrcode.error.no_user" = "登录验证通过但未获取到用户信息，请重试";
+
+// ==================== 登录模块 END ====================
+
 "common.alert.title" = "提示";
 
 //开通 VIP 之前的弹窗

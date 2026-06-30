@@ -615,6 +615,35 @@
 
 
 
+// ==================== Login ====================
+
+// Login type tabs
+"login.tab.account" = "Account";
+"login.tab.phone" = "Phone";
+"login.tab.qrcode" = "Scan QR";
+"login.tab.account_register" = "Register";
+"login.tab.phone_register" = "Phone Register";
+
+// QR code login - hint
+"login.qrcode.tip" = "Scan the QR code below\nwith your Todo app";
+
+// QR code login - status
+"login.qrcode.status.loading" = "Loading QR code…";
+"login.qrcode.status.ready" = "Waiting for scan";
+"login.qrcode.status.scanned" = "Scanned\nPlease confirm on your phone";
+"login.qrcode.status.success" = "Login successful";
+"login.qrcode.status.expired" = "QR code expired, please refresh";
+"login.qrcode.status.error" = "Failed to load, please retry";
+
+// QR code login - actions
+"login.qrcode.refresh" = "Refresh";
+"login.qrcode.retry" = "Retry";
+
+// QR code login - errors
+"login.qrcode.error.no_user" = "Auth passed but no user info returned. Please retry.";
+
+// ==================== Login END ====================
+
 "common.alert.title" = "Notice";
 
 //开通 VIP 之前的弹窗

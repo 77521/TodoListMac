@@ -517,13 +517,17 @@ class TDLoginViewModel: ObservableObject {
     private var countDownTimer: Timer?
     private let countDownDuration = 60  // 固定60秒
     
-//    // 二维码登录
-//    @Published var qrCodeImage: NSImage?
-//    @Published var qrStatus: TDQRCodeStatus = .waiting
-//
-//    private var qrCode: String?
-//    private var statusTimer: Timer?
-//    private let pollingInterval: TimeInterval = 2.0
+    // MARK: - 二维码登录状态
+    /// 当前二维码视图展示状态
+    @Published var qrCodeViewStatus: TDQrCodeViewStatus = .loading
+    /// 本地生成的二维码图片（由 qrCode 字符串渲染）
+    @Published var qrCodeImage: NSImage? = nil
+    /// 从接口获取到的二维码 ID，用于后续轮询
+    private var qrCodeId: Int? = nil
+    /// 从接口获取到的二维码代码串，用于后续轮询与生成图片
+    private var qrCodeStr: String? = nil
+    /// 二维码轮询任务句柄，切换 Tab 时取消
+    private var qrPollingTask: Task<Void, Never>? = nil
 
     
     @Published private var hasSentCode = false  // 添加一个标记，记录是否发送过验证码
@@ -696,78 +700,142 @@ class TDLoginViewModel: ObservableObject {
     
     
     
-//    /// 获取二维码
-//    func startQRCodeLogin() {
-//        Task {
-//            do {
-//                // 1. 获取二维码
-//                qrCode = try await TDLoginAPI.getQRCode()
-//                await MainActor.run {
-//                    // 生成二维码图片
-//                    qrCodeImage = generateQRCode(from: qrCode ?? "")
-//                    // 开始轮询状态
-//                    startPollingStatus()
-//                }
-//            } catch {
-//                await MainActor.run {
-//                    qrCodeError = error.localizedDescription
-//                }
-//            }
-//        }
-//    }
-//
-//    /// 开始检测二维码生效时间
-//    @MainActor
-//    private func startPollingStatus() {
-//        stopPollingStatus()
-//        statusTimer = Timer.scheduledTimer(withTimeInterval: pollingInterval, repeats: true) { [weak self] _ in
-//            Task { @MainActor in
-//                await self?.checkStatus()
-//            }
-//        }
-//    }
-//
-//    /// 检测二维码状态
-//    @MainActor
-//    private func checkStatus() async {
-//        guard let qrCode = qrCode else { return }
-//
-//        do {
-//            let status = try await TDLoginAPI.checkQRCodeStatus(qrCode: qrCode)
-//            self.qrStatus = status
-//
-//            switch status {
-//            case .confirmed:
-//                // 登录成功，停止轮询
-//                stopPollingStatus()
-//                await qrPhoneSureBtnSucess()
-//            case .invalid, .cancelled:
-//                // 二维码失效或取消，停止轮询
-//                stopPollingStatus()
-//            default:
-//                break
-//            }
-//        } catch {
-//            qrCodeError = error.localizedDescription
-//        }
-//    }
-//
-//
-//    /// 手机确认二维码登录成功
-//    private func qrPhoneSureBtnSucess() async{
-//        guard let qrCode = qrCode else { return }
-//        Task {
-//            isLoginLoading = true
-//            do {
-//                let user = try await TDLoginAPI.confirmQRCodeLogin(qrCode: qrCode)
-//                handleLoginSuccess(user)
-//            } catch {
-//                showErrorToast = true
-//                toastMessage = error.localizedDescription
-//            }
-//            isLoginLoading = true
-//        }
-//    }
+    // MARK: - 扫码登录：启动
+
+    /// 切换到扫一扫 Tab 时调用，获取二维码并启动轮询
+    func startQRCodeLogin() {
+        // 取消已有轮询，重置状态
+        stopQRCodeLogin()
+        qrCodeViewStatus = .loading
+        qrCodeImage = nil
+        qrCodeId = nil
+        qrCodeStr = nil
+
+        qrPollingTask = Task {
+            do {
+                // 第一步：请求获取二维码
+                let result = try await TDLoginAPI.shared.getTodoQrCode()
+                guard !Task.isCancelled else { return }
+
+                // 保存二维码标识，用于后续轮询
+                qrCodeId  = result.id
+                qrCodeStr = result.qrCode
+
+                // 生成本地二维码图片
+                if let codeStr = result.qrCode {
+                    qrCodeImage = generateQRCodeImage(from: codeStr)
+                }
+                qrCodeViewStatus = .ready
+
+                // 第二步：持续轮询二维码验证结果（获取结果后等待5秒再轮询）
+                await pollQrVerifyResult()
+
+            } catch {
+                guard !Task.isCancelled else { return }
+                qrCodeViewStatus = .error(error.localizedDescription)
+            }
+        }
+    }
+
+    // MARK: - 扫码登录：停止轮询
+
+    /// 离开扫一扫 Tab 或登录成功时调用，取消后台轮询任务
+    func stopQRCodeLogin() {
+        qrPollingTask?.cancel()
+        qrPollingTask = nil
+    }
+
+    // MARK: - 扫码登录：刷新二维码
+
+    /// 用户主动点击刷新按钮时调用，重新获取二维码
+    func refreshQRCode() {
+        startQRCodeLogin()
+    }
+
+    // MARK: - 私有：轮询验证结果
+
+    /// 每隔5秒（接口返回后）查询一次二维码验证结果
+    private func pollQrVerifyResult() async {
+        guard let qrId = qrCodeId, let qrStr = qrCodeStr else { return }
+
+        while !Task.isCancelled {
+            // 等待5秒再轮询（避免过于频繁请求）
+            try? await Task.sleep(nanoseconds: 5_000_000_000)
+            guard !Task.isCancelled else { return }
+
+            do {
+                let result = try await TDLoginAPI.shared.getQrVerifyResult(
+                    qrCodeId: qrId,
+                    qrCodeStr: qrStr
+                )
+                guard !Task.isCancelled else { return }
+
+                let verifyStatus = result.qrVerify ?? TDQrVerifyStatus.waiting.rawValue
+
+                switch verifyStatus {
+                case TDQrVerifyStatus.waiting.rawValue:
+                    // 判断是否已扫码（scanUserId > 0 表示已被扫描，等待手机确认）
+                    if let scanId = result.scanUserId, scanId > 0 {
+                        qrCodeViewStatus = .scanned
+                    }
+                    // 继续轮询
+
+                case TDQrVerifyStatus.success.rawValue:
+                    // 登录成功
+                    qrCodeViewStatus = .success
+                    if let user = result.okUser {
+                        handleLoginSuccess(user)
+                    } else {
+                        qrCodeViewStatus = .error(String(localized: "login.qrcode.error.no_user"))
+                    }
+                    return // 停止轮询
+
+                case TDQrVerifyStatus.failed.rawValue:
+                    // 验证失败，提示刷新
+                    qrCodeViewStatus = .expired
+                    return // 停止轮询
+
+                default:
+                    break
+                }
+
+            } catch {
+                guard !Task.isCancelled else { return }
+                // 网络错误时不立即停止，继续轮询（可能是临时网络波动）
+                // 如果想要失败即停，将下面注释去掉
+                // qrCodeViewStatus = .error(error.localizedDescription)
+                // return
+            }
+        }
+    }
+
+    // MARK: - 私有：生成二维码图片
+
+    /// 使用 CoreImage 将字符串渲染为 NSImage 二维码图片
+    /// - Parameter string: 需要编码的二维码内容字符串
+    /// - Returns: 生成的 NSImage，失败返回 nil
+    private func generateQRCodeImage(from string: String) -> NSImage? {
+        guard let data = string.data(using: .utf8),
+              let filter = CIFilter(name: "CIQRCodeGenerator") else {
+            return nil
+        }
+        // 设置二维码内容和纠错级别（H=最高，保证小尺寸下也可扫描）
+        filter.setValue(data, forKey: "inputMessage")
+        filter.setValue("H", forKey: "inputCorrectionLevel")
+
+        guard let outputImage = filter.outputImage else { return nil }
+
+        // 放大倍数：避免二维码模糊（每个"格子"放大10倍）
+        let scale: CGFloat = 10
+        let scaledImage = outputImage.transformed(
+            by: CGAffineTransform(scaleX: scale, y: scale)
+        )
+
+        let rep = NSCIImageRep(ciImage: scaledImage)
+        let nsImage = NSImage(size: rep.size)
+        nsImage.addRepresentation(rep)
+        return nsImage
+    }
     
     // MARK: - 退出登录
     func logout() {
@@ -841,7 +909,7 @@ class TDLoginViewModel: ObservableObject {
         clearInputs()
     }
     
-    // 重置登录状态
+    // MARK: - 重置登录状态（退出登录/切换账号时使用）
     private func resetLoginState() {
         currentType = .account
         loginState = .login
@@ -850,20 +918,25 @@ class TDLoginViewModel: ObservableObject {
         phoneError = ""
         smsCodeError = ""
         qrCodeError = ""
-//        stopPollingStatus()
+        // 停止二维码轮询
+        stopQRCodeLogin()
+        qrCodeViewStatus = .loading
+        qrCodeImage = nil
     }
 
+    // MARK: - 清空输入字段（登录成功后清理）
     private func clearInputs() {
         password = ""
         phone = ""
         smsCode = ""
-//        qrCode = nil
-//        qrCodeImage = nil
-//        qrStatus = .waiting
         countDown = 0
         hasSentCode = false
         countDownTimer?.invalidate()
         countDownTimer = nil
+        // 停止二维码轮询并重置图片
+        stopQRCodeLogin()
+        qrCodeImage = nil
+        qrCodeViewStatus = .loading
     }
     
     
@@ -929,10 +1002,10 @@ class TDLoginViewModel: ObservableObject {
 //    }
     
     deinit {
+        // 释放短信验证码倒计时
         countDownTimer?.invalidate()
-        //二维码失效或取消，停止轮询
-//        statusTimer?.invalidate()
-//        statusTimer = nil
+        // 释放二维码轮询任务
+        qrPollingTask?.cancel()
     }
     
     
