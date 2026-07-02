@@ -146,17 +146,6 @@ actor TDNetworkManager {
         }
     }
     
-    // MARK: - 发送验证码示例
-//    @MainActor
-//    func sendVerificationCode(phone: String) async throws {
-//        let parameters = ["phone": phone]
-//        _ = try await request(
-//            endpoint: "sendCode",
-//            parameters: parameters,
-//            responseType: TDEmptyResponse.self
-//        )
-//    }
-//    
     // MARK: - 处理列表数据示例
     @MainActor
     func fetchList<T: Codable>(endpoint: String, parameters: [String: Any] = [:]) async throws -> [T] {

@@ -20,27 +20,31 @@ class TDKeychainManager {
     
     // MARK: - 通用 Keychain 操作
     
-    /// 保存数据到 Keychain
+    /// 保存数据到 Keychain（存在则更新，不存在则新增）
     /// - Parameters:
     ///   - value: 要保存的字符串
     ///   - key: 唯一 key
     /// - Returns: 是否保存成功
+    @discardableResult
     func save(value: String, for key: String) -> Bool {
-        // 将字符串转为 Data
         guard let data = value.data(using: .utf8) else { return false }
-        // 构建查询条件
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword, // 密码类型
-            kSecAttrService as String: service,            // 服务标识
-            kSecAttrAccount as String: key,                // 账号（唯一 key）
-            kSecValueData as String: data                  // 要保存的数据
+        // 搜索条件：只用 class / service / account 定位，不带 value
+        let searchQuery: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service,
+            kSecAttrAccount as String: key
         ]
-        // 先删除旧数据，避免重复
-        SecItemDelete(query as CFDictionary)
-        // 添加新数据
-        let status = SecItemAdd(query as CFDictionary, nil)
-        // 返回是否成功
-        return status == errSecSuccess
+        // 先尝试更新已有条目
+        let updateAttributes: [String: Any] = [kSecValueData as String: data]
+        let updateStatus = SecItemUpdate(searchQuery as CFDictionary, updateAttributes as CFDictionary)
+        if updateStatus == errSecSuccess {
+            return true
+        }
+        // 不存在则新增
+        var addQuery = searchQuery
+        addQuery[kSecValueData as String] = data
+        let addStatus = SecItemAdd(addQuery as CFDictionary, nil)
+        return addStatus == errSecSuccess
     }
     
     /// 从 Keychain 获取数据
@@ -82,31 +86,14 @@ class TDKeychainManager {
         return status == errSecSuccess
     }
     
-    /// 更新 Keychain 数据
+    /// 更新 Keychain 数据（实际调用 save，内部已实现 upsert）
     /// - Parameters:
     ///   - value: 新值
     ///   - key: 唯一 key
     /// - Returns: 是否更新成功
+    @discardableResult
     func update(value: String, for key: String) -> Bool {
-        // 将字符串转为 Data
-        guard let data = value.data(using: .utf8) else { return false }
-        // 构建查询条件
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword, // 密码类型
-            kSecAttrService as String: service,            // 服务标识
-            kSecAttrAccount as String: key                 // 账号（唯一 key）
-        ]
-        // 要更新的内容
-        let attributes: [String: Any] = [
-            kSecValueData as String: data
-        ]
-        // 执行更新
-        let status = SecItemUpdate(query as CFDictionary, attributes as CFDictionary)
-        // 如果不存在则添加
-        if status == errSecItemNotFound {
-            return save(value: value, for: key)
-        }
-        return status == errSecSuccess
+        return save(value: value, for: key)
     }
     
     /// 检查 Keychain 是否存在某个 key
