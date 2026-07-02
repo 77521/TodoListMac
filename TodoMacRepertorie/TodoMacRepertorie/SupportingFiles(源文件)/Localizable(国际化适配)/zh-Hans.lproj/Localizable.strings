@@ -645,6 +645,56 @@
 
 // ==================== 登录模块 END ====================
 
+// ==================== 忘记密码模块 BEGIN ====================
+
+// 入口按钮
+"forget.btn.title" = "忘记密码？";
+
+// 加载中
+"forget.loading" = "正在查询账号信息…";
+
+// 第一步：选择找回方式
+"forget.method.phone.with" = "通过手机号（%@）";
+"forget.method.phone.unavailable" = "通过手机号（未绑定）";
+"forget.method.email.with" = "通过邮箱账号（%@）";
+"forget.method.email.unavailable" = "通过邮箱账号（未绑定或账号并非邮箱）";
+"forget.btn.confirm" = "确定";
+
+// 无法找回时的提示
+"forget.no_recovery.desc" = "账号：%@\n未绑定手机号，也未设置邮箱格式的账号。\n为了保证账号的安全性，您需要通过以下方式找回密码：\n1. 如果该账号已购买会员，请提供充值订单截图，以及充值商户订单号（可在支付宝或微信订单页中复制到）。\n2. 如果该账号暂未购买会员，请提供该账户的账号信息、历史登录设备信息、历史登录地理位置、头像信息、分类清单信息等，尽可能详细的证明所属权。";
+"forget.no_recovery.contact_label" = "将上述内容发送给客服，将在 1-7 个工作日内处理：";
+"forget.email.copied" = "邮箱地址已复制";
+
+// 第二步：表单字段标签
+"forget.field.phone" = "手机号";
+"forget.field.sms_code" = "短信验证码";
+"forget.field.email_account" = "邮箱账号";
+"forget.field.email_code" = "邮箱验证码";
+"forget.field.new_password" = "新密码";
+
+// 第二步：输入框占位文字
+"forget.placeholder.phone" = "请输入手机号";
+"forget.placeholder.phone.masked" = "请在此正确输入 %@ 手机号";
+"forget.placeholder.code" = "输入验证码";
+"forget.placeholder.new_password" = "输入新密码";
+
+// 第二步：按钮
+"forget.btn.send_code" = "获取验证码";
+"forget.btn.resend_countdown" = "%d秒后重试";
+"forget.btn.set_password" = "设置新密码";
+
+// 第二步：成功 & 错误提示
+"forget.code.sent" = "验证码已发送";
+"forget.reset.success" = "设置成功，请使用新密码登录";
+
+// 表单校验错误
+"forget.error.phone.empty" = "请输入手机号";
+"forget.error.phone.invalid" = "请输入正确的11位手机号";
+"forget.error.code.empty" = "请输入验证码";
+"forget.error.password.empty" = "新密码不能为空";
+
+// ==================== 忘记密码模块 END ====================
+
 "common.alert.title" = "提示";
 
 //开通 VIP 之前的弹窗

@@ -639,100 +639,130 @@ struct TDLoginView: View {
     @Environment(\.dismissWindow) private var dismissWindow
 
     var body: some View {
-        ZStack {
-            // 背景图
-            Image(.loginBack)
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .ignoresSafeArea()
-            
-            HStack {
-                Spacer()
-                VStack(spacing: 0) {
-                    // Logo和标题
-                    VStack(spacing: 20) {
-                        HStack(spacing: 8) {
-                            Image(.loginLogo)
-                                .resizable()
-                                .frame(width: 28, height: 28)
-                            
-                            Text("Todo清单")
-                                .font(.title2)
-                                .fontWeight(.medium)
-                        }
-                        Text("深受百万企业管理者与各界精英青睐\n强大的跨平台待办事项软件")
-                            .font(.system(size: 12))
-                            .foregroundStyle(Color.greyColor6)
-                            .multilineTextAlignment(.center)
-                            .lineSpacing(6.0)
-                            .fixedSize(horizontal: false, vertical: true)
+        // 外层 GeometryReader 获取窗口尺寸（含标题栏），用于卡片毛玻璃背景的图像偏移计算
+        GeometryReader { windowGeo in
+            ZStack {
+                // 背景图撑满整个窗口（含标题栏区域）
+                Image(.loginBack)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: windowGeo.size.width, height: windowGeo.size.height)
+                    .clipped()
 
-                    }
-                    .padding(.top, 40)
-
-                    // 登录中
-                    if viewModel.isLoginLoading {// 登录中
-
-                        Spacer()
-                        ProgressView()
-                        Spacer()
-                    } else {// 未登录
+                HStack {
+                    Spacer()
+                    VStack(spacing: 0) {
+                        // Logo和标题
                         VStack(spacing: 20) {
-                            Picker("", selection: $viewModel.currentType) {
-                                if viewModel.loginState == .login {
-                                    Text(LocalizedStringKey("login.tab.account"))
-                                        .tag(TDLoginViewModel.TDLoginType.account)
-                                    Text(LocalizedStringKey("login.tab.phone"))
-                                        .tag(TDLoginViewModel.TDLoginType.phone)
-                                    Text(LocalizedStringKey("login.tab.qrcode"))
-                                        .tag(TDLoginViewModel.TDLoginType.qrcode)
-                                } else {
-                                    Text(LocalizedStringKey("login.tab.account_register"))
-                                        .tag(TDLoginViewModel.TDLoginType.account)
-                                    Text(LocalizedStringKey("login.tab.phone_register"))
-                                        .tag(TDLoginViewModel.TDLoginType.phone)
-                                }
-                            }
-                            .pickerStyle(.segmented)
-                            .padding(.top, 54)
-                            
-                            // 登录表单
-                            Group {
-                                switch viewModel.currentType {
-                                case .account:
-                                    AccountLoginForm(viewModel: viewModel)
-                                case .phone:
-                                    PhoneLoginForm(viewModel: viewModel)
-                                case .qrcode:
-                                    QRCodeLoginForm(viewModel: viewModel)
-                                }
-                            }
-                            .frame(height: 220) // 固定表单区域高度
-                            
-                        }
-                        .padding(.horizontal, 47)
+                            HStack(spacing: 8) {
+                                Image(.loginLogo)
+                                    .resizable()
+                                    .frame(width: 28, height: 28)
 
-                        TDLoginRuleView(viewModel: viewModel)
-                            .padding(.horizontal, 44)
-                            .padding(.bottom, 20)
-                        
+                                Text("Todo清单")
+                                    .font(.title2)
+                                    .fontWeight(.medium)
+                            }
+                            Text("深受百万企业管理者与各界精英青睐\n强大的跨平台待办事项软件")
+                                .font(.system(size: 12))
+                                .foregroundStyle(Color.greyColor6)
+                                .multilineTextAlignment(.center)
+                                .lineSpacing(6.0)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        .padding(.top, 40)
+
+                        // 登录中
+                        if viewModel.isLoginLoading {
+                            Spacer()
+                            ProgressView()
+                            Spacer()
+                        } else {
+                            VStack(spacing: 20) {
+                                Picker("", selection: $viewModel.currentType) {
+                                    if viewModel.loginState == .login {
+                                        Text(LocalizedStringKey("login.tab.account"))
+                                            .tag(TDLoginViewModel.TDLoginType.account)
+                                        Text(LocalizedStringKey("login.tab.phone"))
+                                            .tag(TDLoginViewModel.TDLoginType.phone)
+                                        Text(LocalizedStringKey("login.tab.qrcode"))
+                                            .tag(TDLoginViewModel.TDLoginType.qrcode)
+                                    } else {
+                                        Text(LocalizedStringKey("login.tab.account_register"))
+                                            .tag(TDLoginViewModel.TDLoginType.account)
+                                        Text(LocalizedStringKey("login.tab.phone_register"))
+                                            .tag(TDLoginViewModel.TDLoginType.phone)
+                                    }
+                                }
+                                .pickerStyle(.segmented)
+                                .padding(.top, 54)
+
+                                // 登录表单（固定高度防止切换时布局跳动）
+                                Group {
+                                    switch viewModel.currentType {
+                                    case .account:
+                                        AccountLoginForm(viewModel: viewModel)
+                                    case .phone:
+                                        PhoneLoginForm(viewModel: viewModel)
+                                    case .qrcode:
+                                        QRCodeLoginForm(viewModel: viewModel)
+                                    }
+                                }
+                                .frame(height: 220)
+                            }
+                            .padding(.horizontal, 47)
+
+                            Spacer()
+
+                            TDLoginRuleView()
+                                .padding(.horizontal, 44)
+                                .padding(.bottom, 24)
+                        }
                     }
-                }
-                .frame(width: 375)
-                .background(
-                    BlurView(material: .popover, blendingMode: .withinWindow)
-                        .opacity(0.85)
-                )
-                .clipShape(RoundedRectangle(cornerRadius: 16))
-                .padding([.trailing, .vertical], 44)
+                    .frame(width: 375)
+                    // ── 毛玻璃背景（零闪烁实现）──
+                    // 原理：在卡片背景处复渲同一张背景图，用 GeometryReader 获取卡片全局坐标，
+                    // 对图像做等量偏移，使卡片内看到的图像内容与卡片后面的背景图完全对齐，
+                    // 再加 blur + 白色覆盖层，视觉上与 NSVisualEffectView 毛玻璃一致，
+                    // 但完全不依赖 NSVisualEffectView，无论重渲多少次都不会出现白色闪帧。
+                    .background {
+                        GeometryReader { cardGeo in
+                            let origin = cardGeo.frame(in: .global)
+                            ZStack {
+                                // 同一张背景图，等尺寸渲染后按卡片位置偏移 → 与窗口背景完全对齐
+                                Image(.loginBack)
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(
+                                        width: windowGeo.size.width,
+                                        height: windowGeo.size.height
+                                    )
+                                    .offset(x: -origin.minX, y: -origin.minY)
+                                    // opaque: true 防止 blur 边缘出现透明条纹
+                                    .blur(radius: 24, opaque: true)
+
+                                // 白色磨砂覆盖层，营造毛玻璃质感
+                                Color.white.opacity(0.18)
+                            }
+                        }
+                    }
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                    .overlay(
+                        // 细边框增加卡片层次感
+                        RoundedRectangle(cornerRadius: 16)
+                            .strokeBorder(Color.white.opacity(0.3), lineWidth: 0.5)
+                    )
+                    .padding([.trailing, .vertical], 44)
 //                .tdToastBottomRight(isPresenting: $viewModel.showErrorToast, title: viewModel.toastMessage)
                 // Toast 统一走 TDToastCenter（ViewModel 内部触发）
 //                .toast(isPresenting: $viewModel.showErrorToast) {
 //                    AlertToast(type: .regular, title: viewModel.toastMessage)
 //                }
             }
-        }
-//        .tdToastBottomRight(isPresenting: $viewModel.showErrorToast, title: viewModel.toastMessage)
+        } // ZStack
+        .ignoresSafeArea()  // 背景延伸到标题栏后面，铺满整个窗口
+    } // GeometryReader
+    .ignoresSafeArea()  // GeometryReader 本身也忽略安全区，获取含标题栏的完整尺寸
 
     }
     

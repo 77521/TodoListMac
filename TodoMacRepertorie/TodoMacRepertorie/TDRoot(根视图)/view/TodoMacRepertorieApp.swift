@@ -719,6 +719,21 @@ struct TodoMacRepertorieApp: App {
         // 设置窗口也需要 SwiftData 容器，否则模型查询会缺上下文
         .modelContainer(modelContainer.container)
 
+        // MARK: - 忘记密码窗口
+        // 通过 openWindow(id:value:) 打开，value 为 TDForgetPasswordContext
+        WindowGroup(id: "ForgetPassword", for: TDForgetPasswordContext.self) { $context in
+            TDForgetPasswordView(
+                viewModel: TDForgetPasswordViewModel(context: context)
+            )
+            .environmentObject(themeManager)  // 封装组件需要主题色
+            .preferredColorScheme(preferredScheme)
+        }
+        // 隐藏标题栏，让内容铺满整个窗口（与登录界面风格一致）
+        .windowStyle(.hiddenTitleBar)
+        .windowResizability(.contentSize) // 窗口大小由内容决定，不可拖拽缩放
+        .defaultPosition(.center)
+        .defaultSize(width: 480, height: 560)
+
 //        TDToastCenter.shared.show("专注时长已存在，不能重复添加", type: .error, position: .top)   // 顶部
 //        TDToastCenter.shared.show("保存成功")                                                   // 默认底部
 //        TDToastCenter.shared.show("处理中…", type: .info, position: .center)                   // 中间

@@ -531,8 +531,13 @@ class TDLoginViewModel: ObservableObject {
 
     
     @Published private var hasSentCode = false  // 添加一个标记，记录是否发送过验证码
-    // 底部是否点击同意协议按钮
-    @AppStorage("LoninViewAgreedToTerms") var agreedToTerms = false
+    
+    // MARK: - 协议勾选（直接读 UserDefaults，不持有 @AppStorage）
+    // 注意：agreedToTerms 改由 TDLoginRuleView 自持有 @AppStorage，
+    // 避免勾选时触发 objectWillChange → TDLoginView 全量重渲染 → 背景闪白
+    private var agreedToTerms: Bool {
+        UserDefaults.standard.bool(forKey: "LoninViewAgreedToTerms")
+    }
     
     // 输入字段错误提示
     @Published var accountError = ""

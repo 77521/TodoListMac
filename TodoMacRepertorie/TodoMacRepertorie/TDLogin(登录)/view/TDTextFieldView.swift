@@ -39,6 +39,8 @@ struct TDSecureTextField: View {
     @Binding var text: String
     var placeString : String
     @State private var isSecureTextEntry : Bool = true
+    /// 用于打开忘记密码窗口
+    @Environment(\.openWindow) private var openWindow
     
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
@@ -83,11 +85,15 @@ struct TDSecureTextField: View {
                                 .buttonStyle(.plain)
                                 .pointingHandCursor()
 
+                                // 忘记密码按钮：点击打开找回密码窗口
                                 Button(action: {
-                                    
+                                    let context = TDForgetPasswordContext(
+                                        accountStr: viewModel.userAccount
+                                    )
+                                    openWindow(id: "ForgetPassword", value: context)
                                 }, label: {
                                     Image(systemName: "questionmark.circle.fill" )
-                                        .foregroundStyle(Color.greyColor2)
+                                        .foregroundStyle(Color.greyColor4)
                                         .frame(width: 15, height: 15)
                                 })
                                 .buttonStyle(.plain)

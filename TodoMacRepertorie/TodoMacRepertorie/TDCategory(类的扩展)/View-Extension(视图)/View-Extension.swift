@@ -12,7 +12,7 @@ import SwiftUI
 struct BlurView: NSViewRepresentable {
     let material: NSVisualEffectView.Material
     let blendingMode: NSVisualEffectView.BlendingMode
-    
+
     init(
         material: NSVisualEffectView.Material = .hudWindow,
         blendingMode: NSVisualEffectView.BlendingMode = .behindWindow
@@ -20,18 +20,22 @@ struct BlurView: NSViewRepresentable {
         self.material = material
         self.blendingMode = blendingMode
     }
-    
+
     func makeNSView(context: Context) -> NSVisualEffectView {
         let view = NSVisualEffectView()
         view.material = material
         view.blendingMode = blendingMode
         view.state = .active
+        // 确保 layer 背景为透明，避免初始化时出现白色帧
+        view.wantsLayer = true
+        view.layer?.backgroundColor = NSColor.clear.cgColor
         return view
     }
-    
+
     func updateNSView(_ nsView: NSVisualEffectView, context: Context) {
-        nsView.material = material
-        nsView.blendingMode = blendingMode
+        // 只在值真正变化时才更新，避免无意义的 set 触发 NSVisualEffectView 重绘 → 白色闪帧
+        if nsView.material != material { nsView.material = material }
+        if nsView.blendingMode != blendingMode { nsView.blendingMode = blendingMode }
     }
 }
 // MARK: - View 扩展 - 通用手指光标

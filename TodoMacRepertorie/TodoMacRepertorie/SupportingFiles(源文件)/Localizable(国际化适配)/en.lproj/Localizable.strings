@@ -644,6 +644,56 @@
 
 // ==================== Login END ====================
 
+// ==================== Forgot Password BEGIN ====================
+
+// Entry button
+"forget.btn.title" = "Forgot password?";
+
+// Loading
+"forget.loading" = "Fetching account info…";
+
+// Step 1: select recovery method
+"forget.method.phone.with" = "Recover via phone (%@)";
+"forget.method.phone.unavailable" = "Recover via phone (not bound)";
+"forget.method.email.with" = "Recover via email (%@)";
+"forget.method.email.unavailable" = "Recover via email (not bound or account is not an email)";
+"forget.btn.confirm" = "Continue";
+
+// No recovery available
+"forget.no_recovery.desc" = "Account: %@\nNo phone or email bound to this account.\nTo recover access, please contact support with:\n1. If you purchased a membership, provide your payment receipt and order number.\n2. Otherwise, provide account details, login device history, location history, avatar, and list info to prove ownership.";
+"forget.no_recovery.contact_label" = "Send the above information to our support team, we will respond within 1-7 business days:";
+"forget.email.copied" = "Email address copied";
+
+// Step 2: field labels
+"forget.field.phone" = "Phone number";
+"forget.field.sms_code" = "SMS verification code";
+"forget.field.email_account" = "Email account";
+"forget.field.email_code" = "Email verification code";
+"forget.field.new_password" = "New password";
+
+// Step 2: placeholders
+"forget.placeholder.phone" = "Enter your phone number";
+"forget.placeholder.phone.masked" = "Enter the full number for %@";
+"forget.placeholder.code" = "Enter verification code";
+"forget.placeholder.new_password" = "Enter new password";
+
+// Step 2: buttons
+"forget.btn.send_code" = "Send code";
+"forget.btn.resend_countdown" = "Retry in %ds";
+"forget.btn.set_password" = "Set new password";
+
+// Step 2: success & toast
+"forget.code.sent" = "Verification code sent";
+"forget.reset.success" = "Password updated. Please log in with your new password.";
+
+// Validation errors
+"forget.error.phone.empty" = "Please enter your phone number";
+"forget.error.phone.invalid" = "Please enter a valid 11-digit phone number";
+"forget.error.code.empty" = "Please enter the verification code";
+"forget.error.password.empty" = "New password cannot be empty";
+
+// ==================== Forgot Password END ====================
+
 "common.alert.title" = "Notice";
 
 //开通 VIP 之前的弹窗
