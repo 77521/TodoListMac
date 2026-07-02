@@ -242,7 +242,7 @@ struct TDMoreOptionsButtonView: View {
                 newTask.todoTime = getCopyTodoTime(for: copyType) // 根据类型设置日期
                 
                 // 4. 调用添加本地数据方法（会自动计算 taskSort、version、status 等）
-                let queryManager = TDQueryConditionManager()
+                let queryManager = TDQueryConditionManager.shared
                 let result = try await queryManager.addLocalTask(newTask, context: modelContext)
                 
                 if result == .added {

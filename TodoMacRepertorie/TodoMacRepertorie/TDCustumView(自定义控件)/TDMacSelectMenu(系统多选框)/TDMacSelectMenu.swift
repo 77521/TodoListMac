@@ -116,7 +116,7 @@ struct TDMacSelectMenu: View {
                     }
                     
                     // 更新本地数据
-                    let queryManager = TDQueryConditionManager()
+                    let queryManager = TDQueryConditionManager.shared
                     let result = try await queryManager.updateLocalTaskWithModel(
                         updatedTask: updatedTask,
                         context: modelContext

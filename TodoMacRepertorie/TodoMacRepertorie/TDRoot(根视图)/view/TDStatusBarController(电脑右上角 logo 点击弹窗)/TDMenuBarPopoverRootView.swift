@@ -762,7 +762,7 @@ private struct TDMenuBarTaskRowView: View {
                 let updatedTask = task
                 updatedTask.complete = !task.complete
 
-                let queryManager = TDQueryConditionManager()
+                let queryManager = TDQueryConditionManager.shared
                 let result = try await queryManager.updateLocalTaskWithModel(
                     updatedTask: updatedTask,
                     context: modelContext

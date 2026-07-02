@@ -331,7 +331,7 @@ struct TDCalendarDayCell: View {
                             // 使用 TDQueryConditionManager 根据 taskId 查询任务
                             Task {
                                 do {
-                                    let queryManager = TDQueryConditionManager()
+                                    let queryManager = TDQueryConditionManager.shared
                                     let modelContainer = TDModelContainer.shared
                                     
                                     if let task = try await queryManager.getLocalTaskByTaskId(
@@ -405,7 +405,7 @@ struct TDCalendarDayCell: View {
     ///   - task: 要移动的任务
     ///   - targetDate: 目标日期
     private func moveTaskToDate(task: TDMacSwiftDataListModel, targetDate: Date) async {
-        let queryManager = TDQueryConditionManager()
+        let queryManager = TDQueryConditionManager.shared
         let modelContainer = TDModelContainer.shared
         
         do {

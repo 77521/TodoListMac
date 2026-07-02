@@ -572,7 +572,7 @@ struct TDTaskRowView: View , Equatable{
                 updatedTask.complete = !task.complete // 切换状态
                 
                 // 2. 调用通用更新方法
-                let queryManager = TDQueryConditionManager()
+                let queryManager = TDQueryConditionManager.shared
                 let result = try await queryManager.updateLocalTaskWithModel(
                     updatedTask: updatedTask,
                     context: modelContext
@@ -622,7 +622,7 @@ struct TDTaskRowView: View , Equatable{
                 }
                 
                 // 5. 调用通用更新方法
-                let queryManager = TDQueryConditionManager()
+                let queryManager = TDQueryConditionManager.shared
                 let result = try await queryManager.updateLocalTaskWithModel(
                     updatedTask: updatedTask,
                     context: modelContext
@@ -683,7 +683,7 @@ struct TDTaskRowView: View , Equatable{
                 updatedTask.status = "delete"
                 
                 // 2. 调用通用更新方法
-                let queryManager = TDQueryConditionManager()
+                let queryManager = TDQueryConditionManager.shared
                 let result = try await queryManager.updateLocalTaskWithModel(
                     updatedTask: updatedTask,
                     context: modelContext
@@ -723,7 +723,7 @@ struct TDTaskRowView: View , Equatable{
     private func showRepeatTaskAlertWithCount(isToTop: Bool, repeatId: String) async {
         do {
             // 先获取重复事件数组
-            let queryManager = TDQueryConditionManager()
+            let queryManager = TDQueryConditionManager.shared
             let duplicateTasks = try await queryManager.getDuplicateTasks(
                 standbyStr1: repeatId,
                 onlyUncompleted: false,
@@ -827,7 +827,7 @@ struct TDTaskRowView: View , Equatable{
     ///   - task: 要移动的任务
     ///   - isToTop: true 表示置顶，false 表示置底
     private func moveSingleTask(task: TDMacSwiftDataListModel, isToTop: Bool) async {
-        let queryManager = TDQueryConditionManager()
+        let queryManager = TDQueryConditionManager.shared
         let action = isToTop ? "置顶" : "置底"
         
         do {
@@ -866,7 +866,7 @@ struct TDTaskRowView: View , Equatable{
             let updatedTask = task
             updatedTask.taskSort = newTaskSort
             
-            let queryManager = TDQueryConditionManager()
+            let queryManager = TDQueryConditionManager.shared
             let result = try await queryManager.updateLocalTaskWithModel(
                 updatedTask: updatedTask,
                 context: modelContext
@@ -923,7 +923,7 @@ struct TDTaskRowView: View , Equatable{
                 }
                 
                 // 4. 调用添加本地数据方法（会自动计算 taskSort）
-                let queryManager = TDQueryConditionManager()
+                let queryManager = TDQueryConditionManager.shared
                 let result = try await queryManager.addLocalTask(copiedTask, context: modelContext)
                 
                 if result == .added {

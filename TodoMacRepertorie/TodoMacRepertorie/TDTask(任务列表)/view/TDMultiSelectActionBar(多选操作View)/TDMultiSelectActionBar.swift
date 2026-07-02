@@ -284,7 +284,7 @@
 //                    updatedTask.status = "delete"
 //
 //                    // 2. 调用通用更新方法
-//                    let queryManager = TDQueryConditionManager()
+//                    let queryManager = TDQueryConditionManager.shared
 //                    let result = try await queryManager.updateLocalTaskWithModel(
 //                        updatedTask: updatedTask,
 //                        context: modelContext
@@ -374,7 +374,7 @@
 //                        updatedTask.complete = complete // 设置为指定状态
 //                        
 //                        // 2. 调用通用更新方法
-//                        let queryManager = TDQueryConditionManager()
+//                        let queryManager = TDQueryConditionManager.shared
 //                        let result = try await queryManager.updateLocalTaskWithModel(
 //                            updatedTask: updatedTask,
 //                            context: modelContext
@@ -700,7 +700,7 @@ struct TDMultiSelectActionBar: View {
                     updatedTask.status = "delete"
 
                     // 2. 调用通用更新方法
-                    let queryManager = TDQueryConditionManager()
+                    let queryManager = TDQueryConditionManager.shared
                     let result = try await queryManager.updateLocalTaskWithModel(
                         updatedTask: updatedTask,
                         context: modelContext
@@ -790,7 +790,7 @@ struct TDMultiSelectActionBar: View {
                         updatedTask.complete = complete // 设置为指定状态
                         
                         // 2. 调用通用更新方法
-                        let queryManager = TDQueryConditionManager()
+                        let queryManager = TDQueryConditionManager.shared
                         let result = try await queryManager.updateLocalTaskWithModel(
                             updatedTask: updatedTask,
                             context: modelContext

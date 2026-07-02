@@ -17,24 +17,8 @@ class TDQueryConditionManager {
     
     // MARK: - 单例
     static let shared = TDQueryConditionManager()
-    
-//    private init() {}
-    
-    // MARK: - 根据日期查询任务
-    
-    /// 根据选择的日期查询任务数据
-    /// - Parameters:
-    ///   - selectedDate: 选择的日期
-    ///   - context: SwiftData 上下文
-    /// - Returns: 任务列表
-    func getTasksByDate(selectedDate: Date, context: ModelContext) async throws -> [TDMacSwiftDataListModel] {
-        let (predicate, sortDescriptors) = TDCorrectQueryBuilder.getDayTodoQuery(selectedDate: selectedDate)
-        let descriptor = FetchDescriptor<TDMacSwiftDataListModel>(
-            predicate: predicate,
-            sortBy: sortDescriptors
-        )
-        return try context.fetch(descriptor)
-    }
+    /// 单例模式，禁止外部直接初始化
+    private init() {}
 
     // MARK: - 获取本地最大 version 值
     
@@ -164,12 +148,14 @@ class TDQueryConditionManager {
             print("同步进度：\(String(format: "%.1f", progress))% (\(endIndex)/\(totalCount))")
         }
         
-        let endTime = Date()
-        let duration = endTime.timeIntervalSince(startTime)
-        
+        let duration = Date().timeIntervalSince(startTime)
+
         print("同步完成，耗时：\(String(format: "%.2f", duration))秒")
         print("统计结果：插入 \(insertCount) 条，更新 \(updateCount) 条，跳过 \(skipCount) 条，错误 \(errorCount) 条")
-        
+
+        // 全部批次完成后统一通知小组件刷新（避免批次内逐条刷新，减少 IPC 开销）
+        TDWidgetReloadBridge.reloadListMode()
+
         return SyncResult(
             insertCount: insertCount,
             updateCount: updateCount,
@@ -234,83 +220,62 @@ class TDQueryConditionManager {
         serverTask: TDMacSwiftDataListModel,
         context: ModelContext
     ) async throws -> SyncAction {
-        
-        // 1. 根据 taskId 查询本地数据
-        let localTask = try await getLocalTaskByTaskId(taskId: serverTask.taskId, context: context)
-        
-        // 2. 判断处理方式
-        if localTask == nil {
-            // 本地没有数据，直接插入
-            context.insert(serverTask)
-            // 同步时顺便建立/更新标签索引（不在这里 save，由批次末尾统一 save）
-            try TDTagIndexService.shared.indexTask(serverTask, context: context)
 
+        // 根据 taskId 查询本地是否存在
+        guard let localTask = try await getLocalTaskByTaskId(taskId: serverTask.taskId, context: context) else {
+            // 本地不存在：直接插入，顺便建立标签索引（由批次末尾统一 save）
+            context.insert(serverTask)
+            try TDTagIndexService.shared.indexTask(serverTask, context: context)
             return .inserted
-            
+        }
+
+        // 本地存在：比较 syncTime，服务器更新时间更晚才覆盖
+        if serverTask.syncTime > localTask.syncTime {
+            try updateLocalTaskWithServerData(localTask: localTask, serverTask: serverTask, context: context)
+            return .updated
         } else {
-            // 本地有数据，比较 syncTime
-            guard let localTask = localTask else {
-                throw SyncError.noLocalTaskFound
-            }
-            
-            if serverTask.syncTime > localTask.syncTime {
-                // 服务器数据更新，更新本地数据
-                try updateLocalTaskWithServerData(localTask: localTask, serverTask: serverTask, context: context)
-                return .updated
-                
-            } else {
-                // 本地数据更新，跳过
-                return .skipped
-            }
+            return .skipped
         }
     }
     
-    /// 用服务器数据更新本地任务
-    /// - Parameters:
-    ///   - localTask: 本地任务
-    ///   - serverTask: 服务器任务（已经是 TDMacSwiftDataListModel 类型）
+    /// 用服务器数据覆盖本地任务字段
+    /// - 注意：不在此处调用 context.save()，由外层批次循环统一保存，避免逐条 save 性能损耗
     private func updateLocalTaskWithServerData(
         localTask: TDMacSwiftDataListModel,
         serverTask: TDMacSwiftDataListModel,
         context: ModelContext
     ) throws {
-        // 更新所有服务器字段
-        localTask.taskContent = serverTask.taskContent
-        localTask.taskDescribe = serverTask.taskDescribe
-        localTask.complete = serverTask.complete
-        localTask.createTime = serverTask.createTime
-        localTask.delete = serverTask.delete
-        localTask.reminderTime = serverTask.reminderTime
-        localTask.snowAdd = serverTask.snowAdd
-        localTask.snowAssess = serverTask.snowAssess
-        localTask.standbyInt1 = serverTask.standbyInt1
-        localTask.standbyStr1 = serverTask.standbyStr1
-        localTask.standbyStr2 = serverTask.standbyStr2
-        localTask.standbyStr3 = serverTask.standbyStr3
-        localTask.standbyStr4 = serverTask.standbyStr4
-        localTask.syncTime = serverTask.syncTime
-        localTask.taskSort = serverTask.taskSort
-        localTask.todoTime = serverTask.todoTime
-        localTask.userId = serverTask.userId
-        localTask.version = serverTask.version
-        
-        // 更新本地字段（保持本地设置）
-        localTask.status = "sync"
-        // 注意：number 字段不更新，这是本地显示用的排列字段
-        localTask.isSubOpen = serverTask.isSubOpen
-        localTask.standbyIntColor = serverTask.standbyIntColor
-        localTask.standbyIntName = serverTask.standbyIntName
+        // 覆盖服务器下发的所有业务字段
+        localTask.taskContent       = serverTask.taskContent
+        localTask.taskDescribe      = serverTask.taskDescribe
+        localTask.complete          = serverTask.complete
+        localTask.createTime        = serverTask.createTime
+        localTask.delete            = serverTask.delete
+        localTask.reminderTime      = serverTask.reminderTime
+        localTask.snowAdd           = serverTask.snowAdd
+        localTask.snowAssess        = serverTask.snowAssess
+        localTask.standbyInt1       = serverTask.standbyInt1
+        localTask.standbyStr1       = serverTask.standbyStr1
+        localTask.standbyStr2       = serverTask.standbyStr2
+        localTask.standbyStr3       = serverTask.standbyStr3
+        localTask.standbyStr4       = serverTask.standbyStr4
+        localTask.syncTime          = serverTask.syncTime
+        localTask.taskSort          = serverTask.taskSort
+        localTask.todoTime          = serverTask.todoTime
+        localTask.userId            = serverTask.userId
+        localTask.version           = serverTask.version
+        localTask.isSubOpen         = serverTask.isSubOpen
+        localTask.standbyIntColor   = serverTask.standbyIntColor
+        localTask.standbyIntName    = serverTask.standbyIntName
         localTask.reminderTimeString = serverTask.reminderTimeString
-        localTask.subTaskList = serverTask.subTaskList
-        localTask.attachmentList = serverTask.attachmentList
-        
-        // 同步更新标签索引（在 save 前写入同一个 context）
+        localTask.subTaskList       = serverTask.subTaskList
+        localTask.attachmentList    = serverTask.attachmentList
+
+        // 标记为已同步（number 字段不覆盖，该字段为本地排列专用）
+        localTask.status = "sync"
+
+        // 同步更新标签索引（与数据变更在同一 context，批次末尾统一 save）
         try TDTagIndexService.shared.indexTask(localTask, context: context)
-
-        // 保存到数据库
-        try context.save()
-        TDWidgetReloadBridge.reloadListMode()
-
     }
     
     /// 检查是否需要显示同步进度
@@ -339,22 +304,12 @@ class TDQueryConditionManager {
     
     
     // MARK: - 获取数据的方法
-    
+
     /// 获取指定日期的任务数据数组
-    /// 查询条件：userid = 本地登录用户 id，delete = false，todoTime = 传入的日期时间戳
-    /// 根据设置是否显示已完成事件，不显示的话添加 complete = false 条件
-    /// - Parameters:
-    ///   - selectedDate: 选择的日期
-    ///   - context: SwiftData 上下文
-    /// - Returns: 指定日期的任务数据数组
-    func getDayTasks(
-        selectedDate: Date,
-        context: ModelContext
-    ) async throws -> [TDMacSwiftDataListModel] {
+    /// 条件：userId + !delete + todoTime = 指定日期时间戳，按设置决定是否过滤已完成
+    func getDayTasks(selectedDate: Date, context: ModelContext) async throws -> [TDMacSwiftDataListModel] {
         let (predicate, sortDescriptors) = TDCorrectQueryBuilder.getDayTodoQuery(selectedDate: selectedDate)
-        let fetchDescriptor = FetchDescriptor(predicate: predicate, sortBy: sortDescriptors)
-        
-        return try context.fetch(fetchDescriptor)
+        return try context.fetch(FetchDescriptor(predicate: predicate, sortBy: sortDescriptors))
     }
     
     // MARK: - 获取未同步数据并转换成 JSON
@@ -471,8 +426,6 @@ enum LocalDataError: Error {
     case contextSaveFailed
     case versionConflict
 }
-
-// MARK: - 本地数据操作方法
 
 // MARK: - 本地数据操作方法
 

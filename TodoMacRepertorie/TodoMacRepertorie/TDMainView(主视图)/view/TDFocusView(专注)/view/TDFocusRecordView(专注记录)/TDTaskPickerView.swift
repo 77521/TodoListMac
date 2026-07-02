@@ -220,7 +220,7 @@ struct TDTaskPickerView: View {
 
         do {
             let context = TDModelContainer.shared.mainContext
-            let taskModels = try await TDQueryConditionManager.shared.getTasksByDate(
+            let taskModels = try await TDQueryConditionManager.shared.getDayTasks(
                 selectedDate: selectedDate,
                 context: context
             )
