@@ -68,6 +68,8 @@ struct TDMainView: View {
 //
 //        }
         // 使用 HSplitView 实现三列布局 - 替代 NavigationSplitView
+        // macOS 26 会对 HSplitView 自动注入侧边栏切换等工具栏按钮；
+        // 通过 .toolbar(.hidden) 将整个窗口工具栏隐藏，保持设计图的纯净标题栏。
         HSplitView {
             // 第一列：分类导航栏（固定宽度）
             firstColumn
@@ -93,6 +95,8 @@ struct TDMainView: View {
         .frame(minWidth: windowMinWidth, idealWidth: windowMinWidth + 120, minHeight: 700)
         .background(TDVisualEffectView(material: .underWindowBackground))
         .ignoresSafeArea(.container, edges: .all)
+        // 注意：不在这里使用 .toolbar(.hidden)，否则会在顶部留下空白占位区域。
+        // 工具栏按钮的移除改为通过 TodoMacRepertorieApp 里的 TDWindowAccessor 用 NSWindow 处理。
         .task {
             // 界面加载完成后，立即执行四个初始化请求和同步操作
             await mainViewModel.performInitialServerRequests()

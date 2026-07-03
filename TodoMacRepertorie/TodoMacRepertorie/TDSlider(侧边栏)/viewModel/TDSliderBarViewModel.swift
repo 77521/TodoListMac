@@ -42,6 +42,10 @@ class TDSliderBarViewModel: ObservableObject {
     @Published var items: [TDSliderBarModel] = [] {
         didSet {
             validateSelectedCategory()
+            // 同步更新分类清单过滤缓存，避免 View 渲染时重复 filter
+            filteredCategoryListItems = items.filter {
+                $0.categoryId >= -1 && $0.categoryId != -2000 && $0.categoryId != -2001
+            }
         }
     }
     
@@ -72,8 +76,10 @@ class TDSliderBarViewModel: ObservableObject {
     
     /// 标签组是否展开
     @Published var isTagGroupExpanded = true
-    /// 标签排序方式（默认：按时间）
-    @Published var tagSortOption: TDTagSortOption = .time
+    /// 标签排序方式（默认：按时间，切换时自动重建排序缓存）
+    @Published var tagSortOption: TDTagSortOption = .time {
+        didSet { rebuildSortedTags() }
+    }
     
 
     /// 是否显示添加分类或设置 Sheet
@@ -95,39 +101,22 @@ class TDSliderBarViewModel: ObservableObject {
     /// 是否显示标签筛选 Sheet
     @Published var showTagFilter = false
     
-    /// 标签数组
-    @Published var tagsArr: [TDSliderBarModel] = []
+    /// 标签原始数组（变化时自动重建排序缓存）
+    @Published var tagsArr: [TDSliderBarModel] = [] {
+        didSet { rebuildSortedTags() }
+    }
     /// 当前选中的标签（仅针对具体标签；“所有标签”不参与选中态）
     @Published var selectedTagKey: String? = nil
 
+    // MARK: - 渲染层缓存（避免每次 View 渲染都重复 sort/filter）
 
-    /// 标签排序后的数组（仅做展示层排序，不改变原数组）
-    var sortedTagsArr: [TDSliderBarModel] {
-        // “所有标签”永远排第一（不受排序影响）
-        let all = tagsArr.first(where: { $0.categoryId == TDSliderBarModel.allTags.categoryId })
-        let others = tagsArr.filter { $0.categoryId != TDSliderBarModel.allTags.categoryId }
+    /// 排序后的标签数组（@Published 缓存，避免每帧重新排序）
+    /// 由 tagsArr / tagSortOption 变化时统一重建，View 直接绑定此属性
+    @Published private(set) var sortedTagsArr: [TDSliderBarModel] = []
 
-        switch tagSortOption {
-        case .time:
-            let sorted = others.sorted {
-                let t1 = $0.createTime ?? 0
-                let t2 = $1.createTime ?? 0
-                if t1 != t2 { return t1 > t2 } // 新的在前
-                return $0.categoryName < $1.categoryName
-            }
-            if let all { return [all] + sorted }
-            return sorted
-        case .count:
-            let sorted = others.sorted {
-                let c1 = $0.unfinishedCount ?? 0
-                let c2 = $1.unfinishedCount ?? 0
-                if c1 != c2 { return c1 > c2 } // 多的在前
-                return $0.categoryName < $1.categoryName
-            }
-            if let all { return [all] + sorted }
-            return sorted
-        }
-    }
+    /// 分类清单展示项缓存（过滤掉 -2000/-2001 特殊占位项）
+    /// 由 items 变化时统一重建
+    @Published private(set) var filteredCategoryListItems: [TDSliderBarModel] = []
 
     /// 文件夹展开状态字典（key: folderId, value: 是否展开）
     @Published var folderExpandedStates: [Int: Bool] = [:]
@@ -155,8 +144,39 @@ class TDSliderBarViewModel: ObservableObject {
         logger.info("📱 侧边栏ViewModel初始化完成")
     }
 
+    // MARK: - 渲染缓存重建
+
+    /// 重建标签排序缓存
+    /// 仅在 tagsArr / tagSortOption 变化时调用，避免每帧重复排序
+    private func rebuildSortedTags() {
+        // "所有标签"项永远排第一，不参与排序
+        let allItem = tagsArr.first(where: { $0.categoryId == TDSliderBarModel.allTags.categoryId })
+        let others = tagsArr.filter { $0.categoryId != TDSliderBarModel.allTags.categoryId }
+
+        let sorted: [TDSliderBarModel]
+        switch tagSortOption {
+        case .time:
+            // 按创建时间倒序，时间相同则按名称升序
+            sorted = others.sorted {
+                let t1 = $0.createTime ?? 0
+                let t2 = $1.createTime ?? 0
+                if t1 != t2 { return t1 > t2 }
+                return $0.categoryName < $1.categoryName
+            }
+        case .count:
+            // 按未完成数量倒序，数量相同则按名称升序
+            sorted = others.sorted {
+                let c1 = $0.unfinishedCount ?? 0
+                let c2 = $1.unfinishedCount ?? 0
+                if c1 != c2 { return c1 > c2 }
+                return $0.categoryName < $1.categoryName
+            }
+        }
+        sortedTagsArr = allItem.map { [$0] + sorted } ?? sorted
+    }
+
     // MARK: - 公共方法
-    
+
     /// 选择分类 - 极简版本
     func selectCategory(_ category: TDSliderBarModel) {
         logger.info("🎯 用户选择分类: \(category.categoryName) (ID: \(category.categoryId))")        

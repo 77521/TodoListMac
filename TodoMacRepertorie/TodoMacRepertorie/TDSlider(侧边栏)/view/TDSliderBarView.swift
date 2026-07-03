@@ -11,7 +11,9 @@ struct TDSliderBarView: View {
     @StateObject private var viewModel = TDSliderBarViewModel.shared
     @ObservedObject private var themeManager = TDThemeManager.shared
     @ObservedObject private var settingManager = TDSettingManager.shared
-    @ObservedObject private var mainViewModel = TDMainViewModel.shared
+    // 注意：不在此处观察 mainViewModel。
+    // 搜索框已抽离为 TDSidebarSearchBar，由它自己订阅 mainViewModel，
+    // 避免任务选择/日期切换等高频事件触发整个侧边栏重绘。
 
     
     // MARK: - 分类清单拖拽状态
@@ -33,8 +35,18 @@ struct TDSliderBarView: View {
     private let sidebarDisclosureFontSize: CGFloat = 11
     private let sidebarDisclosureFrameSide: CGFloat = 20
 
+    /// macOS 26 Liquid Glass 标题栏高度（约 36pt），用于按钮浮层 frame
+    /// 使按钮中心 = frame/2 ≈ 18pt，与 traffic lights 垂直居中对齐
+    private let titleBarHeight: CGFloat = 36
+    /// 侧边栏内容顶部间距（头像区域距顶部的距离）
+    private let contentTopSpacing: CGFloat = 0
+
     var body: some View {
         VStack(spacing: 0) {
+            // macOS 26 hiddenTitleBar：内容从 y=0 开始渲染，
+            // 预留 20pt 顶部空白让 traffic lights 区域不被内容覆盖
+            Color.clear.frame(height: contentTopSpacing)
+
             // 顶部固定区域（不滚动）
             topFixedArea
             
@@ -57,6 +69,32 @@ struct TDSliderBarView: View {
             // 底部同步状态（不滚动）
             syncStatusView
             
+        }
+        // 整体使用毛玻璃背景，透出主窗口内容，产生侧滑栏「磨砂玻璃」半透明效果
+        .background(.ultraThinMaterial)
+        // ⊙ ⚙ 按钮浮层：不用系统 .toolbar{}，避免 macOS 26 Liquid Glass 强制注入玻璃背景。
+        // 直接 overlay 在 VStack 右上角，绕过工具栏渲染管线，按钮纯图标无背景。
+        // ignoresSafeArea：突破 macOS 安全区顶部内缩，令按钮与 traffic lights 同行对齐（y=0）
+        .overlay(alignment: .topTrailing) {
+            HStack(spacing: 10) {
+                // ⊙ 更多选项（设计稿要求）
+                Button {
+                } label: {
+                    Image(systemName: "ellipsis.circle")
+                        .font(.system(size: 14, weight: .regular))
+                        .foregroundStyle(.primary)
+                }
+                .buttonStyle(.plain)
+                .help("更多选项")
+
+                // ⚙ 设置菜单
+                TDSidebarSettingsMenu()
+            }
+            .frame(height: titleBarHeight)
+            // 设计稿：按钮靠右，右侧留 8pt 边距
+            .padding(.trailing, 8)
+            // 突破顶部安全区（macOS title bar safe area），对齐 traffic lights 所在行
+            .ignoresSafeArea(.container, edges: .top)
         }
         .sheet(isPresented: $viewModel.showSheet) {
             TDNewCategorySheet(isPresented: $viewModel.showSheet)
@@ -100,36 +138,10 @@ struct TDSliderBarView: View {
                 .padding(.top, 8)
                 .padding(.bottom, 16)
             
-            // 搜索框
-            HStack {
-                Image(systemName: "magnifyingglass")
-                    .foregroundColor(.secondary)
-                    .font(.system(size: 14))
-                
-                TextField("搜索事件", text: $mainViewModel.searchText, onEditingChanged: { editing in
-                    if editing {
-                        mainViewModel.isSearchActive = true
-                    }
-                })
-                    .textFieldStyle(PlainTextFieldStyle())
-                    .font(.system(size: 14))
-                    .onTapGesture {
-                        mainViewModel.isSearchActive = true
-                    }
-                    .onChange(of: mainViewModel.searchText) { _, newValue in
-                        if !newValue.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                            mainViewModel.isSearchActive = true
-                        }
-                    }
-
-                Spacer()
-            }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
-            .background(Color.gray.opacity(0.1))
-            .cornerRadius(8)
-            .padding(.horizontal, 16)
-            .padding(.bottom, 16)
+            // 搜索框（独立子视图，订阅 mainViewModel，不污染侧边栏主视图的渲染树）
+            TDSidebarSearchBar()
+                .padding(.horizontal, 16)
+                .padding(.bottom, 16)
             
             // 分割线
             Divider()
@@ -187,8 +199,8 @@ struct TDSliderBarView: View {
                 .listRowSeparator(.hidden)
 
             if viewModel.isCategoryGroupExpanded {
-                // 用户分类列表（排除新建和管理）
-                ForEach(viewModel.items.filter { $0.categoryId >= -1 && $0.categoryId != -2000 && $0.categoryId != -2001 }) { category in
+                // 使用 ViewModel 缓存好的过滤数组，避免每次渲染重复 filter
+                ForEach(viewModel.filteredCategoryListItems) { category in
                     if category.isFolder {
                         // 文件夹：自定义展开（避免 DisclosureGroup 自带缩进导致不对齐）
                         let expanded = viewModel.isFolderExpanded(folderId: category.categoryId)
@@ -388,55 +400,46 @@ struct TDSliderBarView: View {
         ))
     }
     
-    // MARK: - 同步状态视图
+    // MARK: - 同步状态视图（设计图：扁平底部条，顶部分隔线 + 全宽内容行）
     private var syncStatusView: some View {
         VStack(spacing: 0) {
-            // 分割线
+            // 顶部分隔线（与列表区域划分）
             Divider()
-                .padding(.horizontal, 16)
-            
-            // 同步状态内容
-            HStack {
-                Image(systemName: viewModel.isSyncing ? "arrow.triangle.2.circlepath" : "checkmark.circle")
-                    .foregroundColor(viewModel.isSyncing ? .orange : .green)
+
+            // 同步状态内容行
+            HStack(spacing: 8) {
+                // 图标：同步中用旋转箭头，已同步用绿色圆形勾选（匹配设计图）
+                Image(systemName: viewModel.isSyncing ? "arrow.triangle.2.circlepath" : "checkmark.circle.fill")
+                    .foregroundColor(viewModel.isSyncing ? .secondary : .green)
                     .font(.system(size: 14))
-                
-                Text(viewModel.isSyncing ? "同步中..." : "已同步")
+
+                // 同步状态文字
+                Text(viewModel.isSyncing ? "sidebar.sync.syncing".localized : "sidebar.sync.synced".localized)
                     .font(.system(size: 12))
                     .foregroundColor(themeManager.descriptionTextColor)
-                
+
                 Spacer()
-                
+
+                // 右侧：同步中显示 spinner，已同步显示手动刷新按钮
                 if viewModel.isSyncing {
                     ProgressView()
                         .scaleEffect(0.6)
                         .frame(width: 16, height: 16)
                 } else {
                     Button(action: {
-                        Task {
-                            await TDMainViewModel.shared.performSyncSeparately()
-                        }
+                        Task { await TDMainViewModel.shared.performSyncSeparately() }
                     }) {
                         Image(systemName: "arrow.clockwise")
                             .foregroundColor(.secondary)
-                            .font(.system(size: 12))
+                            .font(.system(size: 13))
                     }
                     .buttonStyle(PlainButtonStyle())
                     .pointingHandCursor()
-
                 }
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
-            .background(
-                RoundedRectangle(cornerRadius: 6)
-                    .fill(themeManager.secondaryBackgroundColor.opacity(0.8))
-            )
-            .padding(.horizontal, 16)
-            .padding(.vertical, 8)
         }
-//        .ignoresSafeArea(.container, edges: .all)
-        .background(Color(.clear))
     }
 
 }
@@ -568,8 +571,9 @@ private struct SidebarFolderRowView: View {
 
     var body: some View {
         HStack(spacing: interItemSpacing) {
+            // 文件夹图标：有自定义颜色则用对应颜色，否则用次要灰色
             Image(systemName: "folder.fill")
-                .foregroundColor(folder.categoryColor.flatMap { Color.fromHex($0) } ?? themeManager.color(level: 5))
+                .foregroundColor(folder.categoryColor.flatMap { Color.fromHex($0) } ?? Color.secondary)
                 .font(.system(size: iconFontSize))
                 .frame(width: iconFrameSide, height: iconFrameSide, alignment: .center)
 
@@ -579,27 +583,26 @@ private struct SidebarFolderRowView: View {
 
             Spacer()
 
+            // 文件夹 badge：常驻显示
             if let count = folder.unfinishedCount, count > 0 {
                 Text("\(count)")
-                    .font(.system(size: 11, weight: .medium))
+                    .font(.system(size: 11, weight: .semibold))
                     .foregroundColor(themeManager.color(level: 5))
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
-                    .background(
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(themeManager.color(level: 1))
-                    )
-                    .opacity(isHovered ? 1 : 0)
+                    .background(Capsule().fill(themeManager.color(level: 1)))
                     .allowsHitTesting(false)
             }
 
-            HStack(alignment: .center, spacing: 10) {
+            HStack(alignment: .center, spacing: 6) {
+                // hover 时展示子分类数量
                 Text("\(childCategoryCount)")
-                    .font(.system(size: 12))
+                    .font(.system(size: 11))
                     .foregroundColor(themeManager.descriptionTextColor)
                     .opacity(isHovered ? 1 : 0)
                     .allowsHitTesting(false)
 
+                // chevron 始终显示（用户可以感知文件夹是否可展开）
                 Button(action: onToggle) {
                     Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
                         .foregroundColor(themeManager.descriptionTextColor)
@@ -608,8 +611,6 @@ private struct SidebarFolderRowView: View {
                 }
                 .buttonStyle(.plain)
                 .pointingHandCursor()
-                .opacity(isHovered ? 1 : 0)
-                .allowsHitTesting(isHovered)
             }
         }
         .padding(.vertical, 8)
@@ -654,92 +655,157 @@ private struct SidebarCategoryRowView: View {
 
     @State private var isHovered: Bool = false
 
+    // MARK: - 是否处于选中状态
+    private var isSelected: Bool { category.isSelect ?? false }
+
+    // MARK: - 图标/文字颜色（系统分类选中时变白，未选中用次要灰；用户分类彩色圆点不走此逻辑）
+    private var iconColor: Color {
+        guard category.categoryId < 0 else { return .clear } // 用户分类用彩色圆点，不用此颜色
+        return isSelected ? .white : .secondary
+    }
+
+    private var textColor: Color {
+        isSelected ? .white : themeManager.titleTextColor
+    }
+
+    // MARK: - badge 颜色（选中时用半透明白，否则用主题浅底色）
+    private var badgeForeground: Color {
+        isSelected ? .white : themeManager.color(level: 5)
+    }
+    private var badgeBackground: Color {
+        isSelected ? Color.white.opacity(0.25) : themeManager.color(level: 1)
+    }
+
+    // MARK: - 行背景色
+    /// 系统分类（categoryId < 0）选中时用主题实色；用户分类选中时用其分类色 30% 透明度
+    private var backgroundColor: Color {
+        if isSelected {
+            if category.categoryId >= 0, let hex = category.categoryColor {
+                return Color.fromHex(hex).opacity(0.3)
+            }
+            return themeManager.color(level: 5) // 系统分类：实色背景
+        }
+        if isHovered {
+            if category.categoryId >= 0, let hex = category.categoryColor {
+                return Color.fromHex(hex).opacity(0.2)
+            }
+            return themeManager.color(level: 5).opacity(0.15)
+        }
+        return .clear
+    }
+
     var body: some View {
         HStack(spacing: interItemSpacing) {
+            // 子分类缩进占位
             if leadingIndent > 0 {
                 Color.clear.frame(width: leadingIndent)
             }
 
+            // 图标
             iconView
 
+            // 名称
             Text(category.categoryName)
                 .font(.system(size: 13))
-                .foregroundColor(themeManager.titleTextColor)
+                .foregroundColor(textColor)
+                .lineLimit(1)
 
-            Spacer()
+            Spacer(minLength: 4)
 
+            // badge：事件数量，始终显示（设计稿中常驻，不依赖 hover 状态）
             if let count = category.unfinishedCount, count > 0 {
                 Text("\(count)")
-                    .font(.system(size: 11, weight: .medium))
-                    .foregroundColor(themeManager.color(level: 5))
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundColor(badgeForeground)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
-                    .background(
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(themeManager.color(level: 1))
-                    )
-                    .opacity(isHovered ? 1 : 0)
+                    .background(Capsule().fill(badgeBackground))
                     .allowsHitTesting(false)
             }
         }
-        .padding(.vertical, 8)
+        .padding(.vertical, 7)
         .padding(.leading, rowLeadingPadding)
         .padding(.trailing, rowTrailingPadding)
-        .background(
-            RoundedRectangle(cornerRadius: 6)
-                .fill(backgroundColor)
-        )
+        .background(RoundedRectangle(cornerRadius: 6).fill(backgroundColor))
         .contentShape(Rectangle())
         .onTapGesture { onTap() }
         .onHover { hovering in
-            withAnimation(.easeInOut(duration: 0.2)) {
-                isHovered = hovering
-            }
+            withAnimation(.easeInOut(duration: 0.15)) { isHovered = hovering }
         }
     }
 
-    private var isSelected: Bool { category.isSelect ?? false }
-
+    // MARK: - 图标视图
+    /// 优先级：自定义图片资源 > 用户分类彩色圆点 > 未分类空心圆 > SF Symbol
+    @ViewBuilder
     private var iconView: some View {
-        Group {
-            if category.categoryId == 0 {
-                Circle()
-                    .stroke(themeManager.color(level: 6), lineWidth: 1)
-                    .frame(width: iconFontSize, height: iconFontSize)
-                    .frame(width: iconFrameSide, height: iconFrameSide, alignment: .center)
-            } else if category.categoryId > 0, let categoryColor = category.categoryColor {
-                Circle()
-                    .fill(Color.fromHex(categoryColor))
-                    .frame(width: iconFontSize, height: iconFontSize)
-                    .frame(width: iconFrameSide, height: iconFrameSide, alignment: .center)
-            } else {
-                Image(systemName: category.headerIcon ?? "circle")
-                    .foregroundColor(themeManager.color(level: 5))
-                    .font(.system(size: iconFontSize))
-                    .frame(width: iconFrameSide, height: iconFrameSide, alignment: .center)
-            }
+        if category.isCustomIcon == true, let name = category.headerIcon {
+            // 自定义图片资源：将图片放入 Assets.xcassets，名称与 headerIcon 保持一致
+            // 使用 .template 渲染模式，支持用 foregroundColor 着色（单色矢量图标）
+            Image(name)
+                .renderingMode(.template)
+                .resizable()
+                .scaledToFit()
+                .foregroundColor(iconColor)
+                .frame(width: iconFontSize, height: iconFontSize)
+                .frame(width: iconFrameSide, height: iconFrameSide, alignment: .center)
+        } else if category.categoryId == 0 {
+            // 未分类：空心圆
+            Circle()
+                .stroke(isSelected ? Color.white : themeManager.color(level: 6), lineWidth: 1.2)
+                .frame(width: iconFontSize - 2, height: iconFontSize - 2)
+                .frame(width: iconFrameSide, height: iconFrameSide, alignment: .center)
+        } else if category.categoryId > 0, let hex = category.categoryColor {
+            // 用户创建的分类：彩色实心圆（始终保持分类颜色，不随选中变白）
+            Circle()
+                .fill(Color.fromHex(hex))
+                .frame(width: iconFontSize - 2, height: iconFontSize - 2)
+                .frame(width: iconFrameSide, height: iconFrameSide, alignment: .center)
+        } else {
+            // 系统分类：SF Symbol（选中时变白）
+            Image(systemName: category.headerIcon ?? "circle")
+                .foregroundColor(iconColor)
+                .font(.system(size: iconFontSize))
+                .frame(width: iconFrameSide, height: iconFrameSide, alignment: .center)
         }
-    }
-
-    private var backgroundColor: Color {
-        if isSelected {
-            if category.categoryId >= 0, let categoryColor = category.categoryColor {
-                return Color.fromHex(categoryColor).opacity(0.3)
-            }
-            return themeManager.color(level: 5).opacity(0.3)
-        }
-
-        if isHovered {
-            if category.categoryId >= 0, let categoryColor = category.categoryColor {
-                return Color.fromHex(categoryColor).opacity(0.2)
-            }
-            return themeManager.color(level: 5).opacity(0.2)
-        }
-
-        return .clear
     }
 }
 
+
+// MARK: - 搜索框独立子视图
+/// 将搜索框抽离为独立 View，自行订阅 TDMainViewModel。
+/// 这样 mainViewModel 的高频事件（任务选中、日期切换等）只会触发此子视图重绘，
+/// 而不会导致整个 TDSliderBarView 及其所有子行重新渲染，显著降低 CPU 开销。
+private struct TDSidebarSearchBar: View {
+    @ObservedObject private var mainViewModel = TDMainViewModel.shared
+
+    var body: some View {
+        HStack {
+            Image(systemName: "magnifyingglass")
+                .foregroundColor(.secondary)
+                .font(.system(size: 14))
+
+            TextField("sidebar.search.placeholder".localized, text: $mainViewModel.searchText, onEditingChanged: { editing in
+                if editing { mainViewModel.isSearchActive = true }
+            })
+            .textFieldStyle(PlainTextFieldStyle())
+            .font(.system(size: 14))
+            .onTapGesture {
+                mainViewModel.isSearchActive = true
+            }
+            .onChange(of: mainViewModel.searchText) { _, newValue in
+                if !newValue.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    mainViewModel.isSearchActive = true
+                }
+            }
+
+            Spacer()
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .background(Color.gray.opacity(0.1))
+        .cornerRadius(8)
+    }
+}
 
 #Preview {
     TDSliderBarView()

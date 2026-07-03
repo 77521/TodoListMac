@@ -379,6 +379,9 @@ private struct TDMainWindowRootView: View {
                     .background(
                         TDWindowAccessor { window in
                             TDSettingsWindowTracker.shared.registerMainWindow(window)
+                            // 注：不再强制移除 NSToolbar。
+                            // 工具栏按钮（⚙ 设置等）通过 TDSliderBarView 的 .toolbar{} 添加，
+                            // 放在标题栏区域，符合设计稿。
                         }
                     )
 
@@ -516,5 +519,14 @@ struct TDWindowAccessor: NSViewRepresentable {
                 self?.onResolve?(self?.window)
             }
         }
+    }
+}
+
+// MARK: - NSWindow 工具栏移除辅助
+/// 用独立方法包装 toolbar = nil，避免在 SwiftUI ViewBuilder 上下文中
+/// 与 SwiftUI 的 .toolbar(_:) 视图修饰符产生命名歧义导致编译错误。
+private extension NSWindow {
+    func removeWindowToolbar() {
+        toolbar = nil
     }
 }

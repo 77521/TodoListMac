@@ -703,4 +703,10 @@
 "settings.vip.modal.subtitle.add_folder" = "Creating folders is a Premium feature. Please upgrade to continue.";
 "settings.vip.modal.subtitle.category_limit" = "Free users can add up to 3 categories. Upgrade to Premium for unlimited categories.";
 
+// ==================== Sidebar ====================
+"sidebar.category.list" = "Lists";
+"sidebar.search.placeholder" = "Search";
+"sidebar.sync.syncing" = "Syncing...";
+"sidebar.sync.synced" = "Synced";
+
 // ==================== FocusSetting (legacy fallback) ====================

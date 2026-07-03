@@ -706,4 +706,10 @@
 
 //
 
+// ==================== 侧边栏 ====================
+"sidebar.category.list" = "分类清单";
+"sidebar.search.placeholder" = "搜索事件";
+"sidebar.sync.syncing" = "同步中...";
+"sidebar.sync.synced" = "已同步";
+
 // ==================== FocusSetting 数据漏翻（旧版本兜底） ====================

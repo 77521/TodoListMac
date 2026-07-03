@@ -27,47 +27,45 @@ struct TDCategoryListGroupHeaderView: View {
 
     var body: some View {
         HStack(spacing: sidebarInterItemSpacing) {
-//            Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
-//                .foregroundColor(themeManager.descriptionTextColor)
-//                .font(.system(size: 11, weight: .semibold))
-//                .frame(width: sidebarDisclosureSide, height: sidebarDisclosureSide, alignment: .center)
-
+            // 分类清单图标（次要灰色，未选中状态）
             Image(systemName: "scroll")
-                .foregroundColor(themeManager.color(level: 5))
+                .foregroundColor(.secondary)
                 .font(.system(size: sidebarIconFontSize))
                 .frame(width: sidebarIconFrameSide, height: sidebarIconFrameSide, alignment: .center)
 
-            Text("分类清单")
+            // 分类清单标题（国际化）
+            Text("sidebar.category.list".localized)
                 .font(.system(size: 13))
                 .foregroundColor(themeManager.titleTextColor)
 
             Spacer()
 
-            HStack{
-                Button(action: onAdd) {
-                    Image(systemName: "plus.circle.fill")
-                        .font(.system(size: 15))
-                        .foregroundColor(themeManager.color(level: 5))
+            HStack(spacing: 6) {
+                // 新建分类按钮（hover 才显示）
+                if isHovered {
+                    Button(action: onAdd) {
+                        Image(systemName: "plus.circle.fill")
+                            .font(.system(size: 14))
+                            .foregroundColor(themeManager.color(level: 5))
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    .pointingHandCursor()
+                    .transition(.opacity.combined(with: .scale(scale: 0.8)))
                 }
-                .buttonStyle(PlainButtonStyle())
-                
+
+                // chevron 始终可见（用户可感知展开/收起状态）
                 Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
                     .foregroundColor(themeManager.descriptionTextColor)
                     .font(.system(size: sidebarDisclosureFontSize, weight: .semibold))
                     .frame(width: sidebarDisclosureFrameSide, height: sidebarDisclosureFrameSide, alignment: .center)
             }
-            // 悬停才显示
-            .opacity(isHovered ? 1 : 0)
-            .allowsHitTesting(isHovered)
-
-            
         }
         .padding(.vertical, 8)
         .padding(.leading, sidebarRowLeadingPadding)
         .padding(.trailing, sidebarRowTrailingPadding)
         .contentShape(Rectangle())
         .onHover { hovering in
-            withAnimation(.easeInOut(duration: 0.2)) {
+            withAnimation(.easeInOut(duration: 0.18)) {
                 isHovered = hovering
             }
         }

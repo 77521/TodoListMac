@@ -26,11 +26,18 @@ struct TDSliderBarModel: Identifiable, Codable, Equatable {
     var folderId: Int?           // 父文件夹ID，0表示顶级分类
 
     // MARK: - 本地使用的字段
-    var headerIcon: String?      // 系统图标名称
-    var unfinishedCount: Int?  // 未完成数量
-    var isSelect: Bool?   // 是否选中
+    /// 图标名称：SF Symbol 名称 或 自定义图片资源名称
+    var headerIcon: String?
+    /// 是否使用自定义图片资源（true = Image(headerIcon)，false/nil = Image(systemName: headerIcon)）
+    /// 将自定义图标放入 Assets.xcassets 后，将对应 model 的 isCustomIcon 设为 true 即可替换
+    var isCustomIcon: Bool?
+    /// 未完成任务数量（侧边栏 badge 显示）
+    var unfinishedCount: Int?
+    /// 是否处于选中状态
+    var isSelect: Bool?
+    /// 子分类列表（文件夹展开时使用）
     var children: [TDSliderBarModel]?
-    /// 标签专用：用于唯一标识（避免 UI 使用 categoryId 产生冲突/误合并）
+    /// 标签专用唯一 key，避免与 categoryId 产生哈希冲突
     var tagKey: String?
 
     var id: Int { categoryId }
@@ -38,34 +45,34 @@ struct TDSliderBarModel: Identifiable, Codable, Equatable {
     init(categoryId: Int,
          categoryName: String,
          headerIcon: String?,
+         isCustomIcon: Bool? = nil,
          categoryColor: String? = nil,
          createTime: Int64? = nil,
          delete: Bool? = nil,
          listSort: Double? = nil,
          userId: Int? = nil,
-         unfinishedCount: Int?,
+         unfinishedCount: Int? = nil,
          isSelect: Bool? = false,
          isExpanded: Bool? = false,
          children: [TDSliderBarModel]? = nil,
          folderIs: Bool? = nil,
          folderId: Int? = nil,
          tagKey: String? = nil) {
-        
-        self.categoryId = categoryId
-        self.categoryName = categoryName
-        self.headerIcon = headerIcon
+        self.categoryId    = categoryId
+        self.categoryName  = categoryName
+        self.headerIcon    = headerIcon
+        self.isCustomIcon  = isCustomIcon
         self.categoryColor = categoryColor
-        self.createTime = createTime
-        self.delete = delete
-        self.listSort = listSort
-        self.userId = userId
+        self.createTime    = createTime
+        self.delete        = delete
+        self.listSort      = listSort
+        self.userId        = userId
         self.unfinishedCount = unfinishedCount
-        self.isSelect = isSelect
-        self.children = children
-        self.folderIs = folderIs
-        self.folderId = folderId
-        self.tagKey = tagKey
-
+        self.isSelect      = isSelect
+        self.children      = children
+        self.folderIs      = folderIs
+        self.folderId      = folderId
+        self.tagKey        = tagKey
     }
 
     
@@ -112,13 +119,13 @@ struct TDSliderBarModel: Identifiable, Codable, Equatable {
 
     // MARK: - 初始化方法
     
-    /// 创建系统默认项目
-    init(categoryId: Int, categoryName: String, headerIcon: String) {
-        self.categoryId = categoryId
+    /// 创建系统默认项目（SF Symbol 图标，isCustomIcon 默认 nil = false）
+    init(categoryId: Int, categoryName: String, headerIcon: String, isCustomIcon: Bool? = nil) {
+        self.categoryId   = categoryId
         self.categoryName = categoryName
-        self.headerIcon = headerIcon
-        self.tagKey = nil
-
+        self.headerIcon   = headerIcon
+        self.isCustomIcon = isCustomIcon
+        self.tagKey       = nil
     }
     
     /// 创建未分类项目
