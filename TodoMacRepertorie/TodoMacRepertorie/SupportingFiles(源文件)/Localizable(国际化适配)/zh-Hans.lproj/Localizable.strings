@@ -103,6 +103,9 @@
 "user.menu.logout" = "退出登录";
 // 侧滑栏 列表
 "category.manage" = "管理";
+"category.manage.title" = "分类清单管理";
+"category.manage.drop.into.folder" = "拖入此文件夹";
+"common.close" = "关闭";
 "tag.manage.group.title" = "标签管理";
 "tag.manage.sort.by_time" = "按时间排序";
 "tag.manage.sort.by_count" = "按数量排序";

@@ -247,8 +247,18 @@ final class TDIAPManager: ObservableObject {
 
         } catch {
             // 5-4. 服务端校验失败：不结束交易（下次启动重试），提示用户
+            // 注意：服务端返回 500 时响应体为非 JSON，会走到此分支
+            // 此时交易已在苹果侧完成，不应 finish()；下次启动 Transaction.updates 会重试
             let msg: String
-            if let netErr = error as? TDNetworkError {
+            let errDesc = error.localizedDescription.lowercased()
+            if errDesc.contains("500")
+                || errDesc.contains("internal server error")
+                || errDesc.contains("parse")
+                || errDesc.contains("json") {
+                // 服务端崩溃（500）或返回非 JSON 内容时，给用户友好提示
+                // 购买凭证仍保留在 StoreKit，重启 App 后 Transaction.updates 会自动重试
+                msg = "服务器繁忙，购买已记录，请重启 App 后自动恢复"
+            } else if let netErr = error as? TDNetworkError {
                 msg = netErr.errorMessage
             } else {
                 msg = error.localizedDescription

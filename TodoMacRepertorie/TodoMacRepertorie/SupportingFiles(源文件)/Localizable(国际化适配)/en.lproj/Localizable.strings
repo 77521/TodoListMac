@@ -101,6 +101,9 @@
 
 // 侧滑栏 列表
 "category.manage" = "Manage";
+"category.manage.title" = "Manage Categories";
+"category.manage.drop.into.folder" = "Drop into this folder";
+"common.close" = "Close";
 "tag.manage.group.title" = "Tag management";
 "tag.manage.sort.by_time" = "Sort by time";
 "tag.manage.sort.by_count" = "Sort by count";

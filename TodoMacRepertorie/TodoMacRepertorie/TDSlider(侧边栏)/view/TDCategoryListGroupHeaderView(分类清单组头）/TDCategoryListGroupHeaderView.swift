@@ -21,7 +21,10 @@ struct TDCategoryListGroupHeaderView: View {
     let sidebarRowLeadingPadding: CGFloat
     let sidebarRowTrailingPadding: CGFloat
 
+    /// 新建分类回调
     let onAdd: () -> Void
+    /// 管理分类回调（点击 ⚙ 按钮触发）
+    let onManage: () -> Void
 
     @State private var isHovered: Bool = false
 
@@ -41,8 +44,9 @@ struct TDCategoryListGroupHeaderView: View {
             Spacer()
 
             HStack(spacing: 6) {
-                // 新建分类按钮（hover 才显示）
+                // hover 时显示：新建分类(+) 和 管理分类(⚙)
                 if isHovered {
+                    // + 新建分类
                     Button(action: onAdd) {
                         Image(systemName: "plus.circle.fill")
                             .font(.system(size: 14))
@@ -50,6 +54,18 @@ struct TDCategoryListGroupHeaderView: View {
                     }
                     .buttonStyle(PlainButtonStyle())
                     .pointingHandCursor()
+                    .help("sidebar.add.category".localized)
+                    .transition(.opacity.combined(with: .scale(scale: 0.8)))
+
+                    // ⚙ 管理分类
+                    Button(action: onManage) {
+                        Image(systemName: "gearshape")
+                            .font(.system(size: 13))
+                            .foregroundColor(.secondary)
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    .pointingHandCursor()
+                    .help("category.manage".localized)
                     .transition(.opacity.combined(with: .scale(scale: 0.8)))
                 }
 

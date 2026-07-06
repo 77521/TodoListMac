@@ -15,6 +15,9 @@ struct TDSliderBarView: View {
     // 搜索框已抽离为 TDSidebarSearchBar，由它自己订阅 mainViewModel，
     // 避免任务选择/日期切换等高频事件触发整个侧边栏重绘。
 
+    /// 打开独立窗口的 action（用于分类管理窗口等）
+    @Environment(\.openWindow) private var openWindow
+
     
     // MARK: - 分类清单拖拽状态
     @State private var draggedCategoryListItemId: Int? = nil
@@ -96,8 +99,14 @@ struct TDSliderBarView: View {
             // 突破顶部安全区（macOS title bar safe area），对齐 traffic lights 所在行
             .ignoresSafeArea(.container, edges: .top)
         }
+        // 新建分类 Sheet（点击 + 按钮触发）
         .sheet(isPresented: $viewModel.showSheet) {
             TDNewCategorySheet(isPresented: $viewModel.showSheet)
+                .environmentObject(themeManager)
+        }
+        // 分类管理 Sheet（点击 ⚙ 按钮触发，与新建 Sheet 样式一致）
+        .sheet(isPresented: $viewModel.showManageCategorySheet) {
+            TDCategoryManageView()
                 .environmentObject(themeManager)
         }
         .sheet(item: $viewModel.editingCategory) { item in
@@ -192,7 +201,9 @@ struct TDSliderBarView: View {
                 sidebarIconFrameSide: sidebarIconFrameSide,
                 sidebarRowLeadingPadding: sidebarRowLeadingPadding,
                 sidebarRowTrailingPadding: sidebarRowTrailingPadding,
-                onAdd: { viewModel.showSheet = true }
+                onAdd: { viewModel.showSheet = true },
+                // 管理分类：以 Sheet 弹出（与新建 Sheet 风格一致）
+                onManage: { viewModel.showManageCategorySheet = true }
             )
             .listRowInsets(EdgeInsets())
                 .listRowBackground(Color.clear)
@@ -583,14 +594,14 @@ private struct SidebarFolderRowView: View {
 
             Spacer()
 
-            // 文件夹 badge：常驻显示
+            // 文件夹 badge：常驻显示，主题色背景+白字
             if let count = folder.unfinishedCount, count > 0 {
                 Text("\(count)")
                     .font(.system(size: 11, weight: .semibold))
-                    .foregroundColor(themeManager.color(level: 5))
+                    .foregroundColor(.white)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
-                    .background(Capsule().fill(themeManager.color(level: 1)))
+                    .background(Capsule().fill(themeManager.color(level: 5)))
                     .allowsHitTesting(false)
             }
 
@@ -668,12 +679,12 @@ private struct SidebarCategoryRowView: View {
         isSelected ? .white : themeManager.titleTextColor
     }
 
-    // MARK: - badge 颜色（选中时用半透明白，否则用主题浅底色）
-    private var badgeForeground: Color {
-        isSelected ? .white : themeManager.color(level: 5)
-    }
+    // MARK: - badge 颜色（文字始终白色；选中时背景用半透明白，未选中用主题实色）
+    private var badgeForeground: Color { .white }
     private var badgeBackground: Color {
-        isSelected ? Color.white.opacity(0.25) : themeManager.color(level: 1)
+        // 选中行：主题色背景已饱和，badge 用半透明白避免对比度过高
+        // 未选中行：直接用主题色实色背景，白字对比明显
+        isSelected ? Color.white.opacity(0.3) : themeManager.color(level: 5)
     }
 
     // MARK: - 行背景色

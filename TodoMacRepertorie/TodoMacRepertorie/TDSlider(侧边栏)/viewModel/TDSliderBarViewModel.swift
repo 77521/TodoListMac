@@ -82,8 +82,10 @@ class TDSliderBarViewModel: ObservableObject {
     }
     
 
-    /// 是否显示添加分类或设置 Sheet
+    /// 是否显示添加分类 Sheet（点击 + 按钮）
     @Published var showSheet = false
+    /// 是否显示分类管理 Sheet（点击 ⚙ 按钮）
+    @Published var showManageCategorySheet = false
     // MARK: - 分类清单：新增/编辑/删除（把业务逻辑集中在 ViewModel）
     /// 当前正在编辑的分类/文件夹（用于 sheet(item:)）
     @Published var editingCategory: TDSliderBarModel?
@@ -489,7 +491,7 @@ class TDSliderBarViewModel: ObservableObject {
 
 
     /// 更新分类列表数据
-    private func updateCategoryItems(_ categories: [TDSliderBarModel]) {
+    func updateCategoryItems(_ categories: [TDSliderBarModel]) {
         logger.debug("🔄 更新分类列表数据")
         // 仅保留服务器真实数据（正数 id）；避免本地加载失败回退 defaultItems 时污染
         categorySource = categories.filter { $0.categoryId > 0 }
@@ -669,6 +671,58 @@ class TDSliderBarViewModel: ObservableObject {
 
     
     // MARK: - 分类清单：拖拽排序/归属变更
+
+    /// 分类管理 Sheet 打开时：默认展开所有文件夹
+    func expandAllCategoryFolders() {
+        let folderIds = categorySource.filter { $0.isFolder }.map(\.categoryId)
+        for fid in folderIds {
+            folderExpandedStates[fid] = true
+        }
+        // 重建 items 以反映展开状态
+        updateCategoryItems(categorySource)
+    }
+
+    /// 将拖拽项移动到顶级列表末尾（用于管理页底部 drop 区）
+    /// hoverMoveCategoryListItem 只能插入到目标"之前"，无法到达末尾，故单独提供此方法
+    func moveCategoryListItemToEnd(draggedId: Int) {
+        guard draggedId > 0 else { return }
+        guard let dragged = categorySource.first(where: { $0.categoryId == draggedId }) else { return }
+
+        var updated = categorySource
+        let folderIds = Set(updated.filter { $0.isFolder }.map(\.categoryId))
+        guard let draggedIndex = updated.firstIndex(where: { $0.categoryId == draggedId }) else { return }
+
+        // 更新 folderId → 0（移到顶级）
+        var newDragged = updated[draggedIndex]
+        if !newDragged.isFolder { newDragged.folderId = 0 }
+        updated[draggedIndex] = newDragged
+
+        // 构建顶级 id 序列（按 listSort 排序）
+        var topIds = updated
+            .filter { item in
+                if item.isFolder { return true }
+                let fid = item.folderId ?? 0
+                return fid == 0 || !folderIds.contains(fid)
+            }
+            .sorted { ($0.listSort ?? 0) < ($1.listSort ?? 0) }
+            .map(\.categoryId)
+
+        // 从原位置移除，插到末尾
+        topIds.removeAll { $0 == draggedId }
+        topIds.append(draggedId)
+
+        // 计算末尾的 listSort：上一项 + 100
+        let prevId = topIds.count >= 2 ? topIds[topIds.count - 2] : nil
+        let prevSort = prevId.flatMap { id in updated.first { $0.categoryId == id }?.listSort } ?? 0
+        if let i = updated.firstIndex(where: { $0.categoryId == draggedId }) {
+            updated[i].listSort = prevSort + 100.0
+        }
+
+        withAnimation(.easeInOut(duration: 0.12)) {
+            categorySource = updated
+            updateCategoryItems(updated)
+        }
+    }
 
     /// 开始一次分类清单拖拽（只会记录一次 baseline）
     func beginCategoryListDragIfNeeded() {
