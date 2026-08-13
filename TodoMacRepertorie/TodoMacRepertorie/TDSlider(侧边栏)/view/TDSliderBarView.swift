@@ -53,21 +53,29 @@ struct TDSliderBarView: View {
             // 顶部固定区域（不滚动）
             topFixedArea
             
-            // 可滚动的列表区域
-            List {
-                // 主要分类
-                mainCategoriesSection
-                
-                // 分类清单组
-                categoryListSection
-                // 标签管理组（在分类清单下面）
-                tagManageSection
+            // 可滚动的列表区域：ScrollView + VStack（不用 List）
+            // 原因跟分类管理弹窗一样——List 对"行插入/移除时的高度变化"动画支持很不稳定，
+            // 文件夹展开/收起、分类清单组整体展开/收起都是 if 条件直接控制视图有无，
+            // 这种动画在 ScrollView + VStack 里由 .transition + withAnimation 驱动最稳。
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 0) {
+                    // 主要分类
+                    mainCategoriesSection
 
-                // 工具选项
-                utilitySection
+                    // 分类清单组
+                    categoryListSection
+                    // 标签管理组（在分类清单下面）
+                    tagManageSection
+
+                    // 工具选项
+                    utilitySection
+                }
+                .padding(.vertical, 4)
+                // 补上原来 List(.sidebar) 自带的左右安全边距——即使每行都清零了
+                // listRowInsets，sidebar 样式依旧会给整体内容留白，不让选中背景色块贴边。
+                // 换成 ScrollView 后这层边距不会自动出现，要手动补回来。
+                .padding(.horizontal, 14)
             }
-            .listStyle(.sidebar)
-            .scrollContentBackground(.hidden)
             
             // 底部同步状态（不滚动）
             syncStatusView
@@ -161,7 +169,7 @@ struct TDSliderBarView: View {
     
     // MARK: - 主要分类区域
     private var mainCategoriesSection: some View {
-        Group {
+        VStack(spacing: 0) {
             // DayTodo
             if let dayTodo = viewModel.items.first(where: { $0.categoryId == -100 }) {
                 categoryRowView(dayTodo)
@@ -182,14 +190,11 @@ struct TDSliderBarView: View {
                 categoryRowView(inbox)
             }
         }
-        .listRowInsets(EdgeInsets())
-        .listRowBackground(Color.clear)
-        .listRowSeparator(.hidden)
     }
     
     // MARK: - 分类清单组
     private var categoryListSection: some View {
-        Group {
+        VStack(spacing: 0) {
             // 自定义组头（避免 DisclosureGroup 自带箭头/缩进影响对齐）
             TDCategoryListGroupHeaderView(
                 themeManager: themeManager,
@@ -205,63 +210,63 @@ struct TDSliderBarView: View {
                 // 管理分类：以 Sheet 弹出（与新建 Sheet 风格一致）
                 onManage: { viewModel.showManageCategorySheet = true }
             )
-            .listRowInsets(EdgeInsets())
-                .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
 
+            // 分类清单组整体展开/收起：if 条件控制视图有无 + .transition + .clipped，
+            // 配合 TDCategoryListGroupHeaderView 里 onTapGesture 的 withAnimation 驱动动画。
+            // 不能再用 .move(edge:) transition——会导致内容整体带位移，短暂盖住上面的组头
+            // （分类管理弹窗踩过的坑，这里同理只用 .opacity）。
             if viewModel.isCategoryGroupExpanded {
-                // 使用 ViewModel 缓存好的过滤数组，避免每次渲染重复 filter
-                ForEach(viewModel.filteredCategoryListItems) { category in
-                    if category.isFolder {
-                        // 文件夹：自定义展开（避免 DisclosureGroup 自带缩进导致不对齐）
-                        let expanded = viewModel.isFolderExpanded(folderId: category.categoryId)
+                VStack(spacing: 0) {
+                    // 使用 ViewModel 缓存好的过滤数组，避免每次渲染重复 filter
+                    ForEach(viewModel.filteredCategoryListItems) { category in
+                        if category.isFolder {
+                            // 文件夹：自定义展开（避免 DisclosureGroup 自带缩进导致不对齐）
+                            let expanded = viewModel.isFolderExpanded(folderId: category.categoryId)
 
-                        folderRowView(category, isExpanded: expanded) {
-                            viewModel.toggleFolderExpanded(folderId: category.categoryId)
-                        }
-                        .onDrag {
-                            // 长按/拖拽文件夹：如果当前是展开状态，先关闭（避免拖拽时 children 抖动/误触）
-                            viewModel.collapseFolderIfExpanded(folderId: category.categoryId)
-                            viewModel.beginCategoryListDragIfNeeded()
-                            draggedCategoryListItemId = category.categoryId
-                            return NSItemProvider(object: "\(category.categoryId)" as NSString)
-                        }
-                        .onDrop(of: [.text], delegate: SidebarCategoryListDropDelegate(
-                            destinationId: category.categoryId,
-                            destinationIsFolder: true,
-                            viewModel: viewModel,
-                            draggedId: $draggedCategoryListItemId,
-                            highlightedFolderId: $highlightedFolderId
-                        ))
-                        .listRowInsets(EdgeInsets())
-                        .listRowBackground(Color.clear)
-                        .listRowSeparator(.hidden)
+                            VStack(spacing: 0) {
+                                folderRowView(category, isExpanded: expanded) {
+                                    viewModel.toggleFolderExpanded(folderId: category.categoryId)
+                                }
+                                .onDrag {
+                                    // 长按/拖拽文件夹：如果当前是展开状态，先关闭（避免拖拽时 children 抖动/误触）
+                                    viewModel.collapseFolderIfExpanded(folderId: category.categoryId)
+                                    viewModel.beginCategoryListDragIfNeeded()
+                                    draggedCategoryListItemId = category.categoryId
+                                    return NSItemProvider(object: "\(category.categoryId)" as NSString)
+                                }
+                                .onDrop(of: [.text], delegate: SidebarCategoryListDropDelegate(
+                                    destinationId: category.categoryId,
+                                    destinationIsFolder: true,
+                                    viewModel: viewModel,
+                                    draggedId: $draggedCategoryListItemId,
+                                    highlightedFolderId: $highlightedFolderId
+                                ))
 
-                        if expanded, let children = category.children, !children.isEmpty {
-                            ForEach(children) { child in
-                                categoryRowView(child, leadingIndent: sidebarChildIndent, enableCategoryListReorder: true)
-                                    .listRowInsets(EdgeInsets())
-                                    .listRowBackground(Color.clear)
-                                    .listRowSeparator(.hidden)
+                                if expanded, let children = category.children, !children.isEmpty {
+                                    VStack(spacing: 0) {
+                                        ForEach(children) { child in
+                                            categoryRowView(child, leadingIndent: sidebarChildIndent, enableCategoryListReorder: true)
+                                        }
+                                    }
+                                    .transition(.opacity)
+                                }
                             }
+                            .clipped()
+                        } else {
+                            // 普通分类或顶级分类
+                            categoryRowView(category, enableCategoryListReorder: true)
                         }
-                    } else {
-                        // 普通分类或顶级分类
-                        categoryRowView(category, enableCategoryListReorder: true)
-                            .listRowInsets(EdgeInsets())
-                            .listRowBackground(Color.clear)
-                            .listRowSeparator(.hidden)
                     }
                 }
-                // 仅在拖拽分类清单时启用平滑移动动画（避免影响普通选中/数量刷新）
-                .animation(draggedCategoryListItemId == nil ? nil : .easeInOut(duration: 0.12), value: viewModel.items)
+                .transition(.opacity)
+                .clipped()
             }
         }
     }
     
     // MARK: - 标签管理组
     private var tagManageSection: some View {
-        Group {
+        VStack(spacing: 0) {
             TDTagManageGroupHeaderView(
                 themeManager: themeManager,
                 isExpanded: $viewModel.isTagGroupExpanded,
@@ -274,10 +279,7 @@ struct TDSliderBarView: View {
                 sidebarRowLeadingPadding: sidebarRowLeadingPadding,
                 sidebarRowTrailingPadding: sidebarRowTrailingPadding
             )
-            .listRowInsets(EdgeInsets())
-            .listRowBackground(Color.clear)
-            .listRowSeparator(.hidden)
-            
+
             if viewModel.isTagGroupExpanded {
                 // 标签列表（第一个永远是“所有标签”）
                 TDTagFlowLayout(spacing: 6, lineSpacing: 6) {
@@ -308,18 +310,15 @@ struct TDSliderBarView: View {
                 .padding(.leading, sidebarIconFrameSide + sidebarInterItemSpacing)
                 .padding(.trailing, sidebarRowTrailingPadding)
                 .padding(.vertical, 6)
-                .listRowInsets(EdgeInsets())
-                .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
+                .transition(.opacity)
             }
-
-
         }
+        .clipped()
     }
 
     // MARK: - 工具选项区域
     private var utilitySection: some View {
-        Group {
+        VStack(spacing: 0) {
             // 数据统计
             if let stats = viewModel.items.first(where: { $0.categoryId == -106 }) {
                 categoryRowView(stats)
@@ -335,9 +334,6 @@ struct TDSliderBarView: View {
                 categoryRowView(trash)
             }
         }
-        .listRowInsets(EdgeInsets())
-        .listRowBackground(Color.clear)
-        .listRowSeparator(.hidden)
     }
     
     // MARK: - 文件夹行视图（点击只展开/关闭，不选中）
@@ -474,14 +470,18 @@ private struct SidebarCategoryListDropDelegate: DropDelegate {
                 highlightedFolderId = destinationId
                 return
             }
-            // 拖拽的是文件夹：按顶级排序实时移动
+            // 拖拽的是文件夹：按顶级排序实时移动（就地 withAnimation，替代原先 List 上的 value:items 动画）
             highlightedFolderId = nil
-            viewModel.hoverMoveCategoryListItem(draggedId: draggedId, destinationId: destinationId)
+            withAnimation(.easeInOut(duration: 0.12)) {
+                viewModel.hoverMoveCategoryListItem(draggedId: draggedId, destinationId: destinationId)
+            }
             return
         }
 
         highlightedFolderId = nil
-        viewModel.hoverMoveCategoryListItem(draggedId: draggedId, destinationId: destinationId)
+        withAnimation(.easeInOut(duration: 0.12)) {
+            viewModel.hoverMoveCategoryListItem(draggedId: draggedId, destinationId: destinationId)
+        }
     }
 
     func dropUpdated(info: DropInfo) -> DropProposal? {
