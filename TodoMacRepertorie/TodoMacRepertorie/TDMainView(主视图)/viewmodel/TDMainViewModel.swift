@@ -31,6 +31,9 @@ final class TDMainViewModel: ObservableObject {
     /// 当前选中的标签（用于第二栏展示标签筛选后的本地数据）
     @Published var selectedTagKey: String?
 
+    /// 每次点侧边栏 +1，第二栏按首次进入重建 @Query
+    @Published var sidebarOpenGeneration: Int = 0
+
     // MARK: - 搜索（侧边栏输入 -> 第二栏展示）
     /// 全局搜索关键字（微信式：支持中文/拼音/简写；结果在第二栏显示）
     @Published var searchText: String = ""
@@ -107,9 +110,13 @@ final class TDMainViewModel: ObservableObject {
             // 点第一列任何分类：仅隐藏搜索界面（保留 searchText）
             isSearchActive = false
 
-            // 选择分类时：退出“标签模式”
+            // 只有真正切换分类/退出标签模式才重新查询；再点当前项不重建
+            let switched = selectedTagKey != nil || selectedCategory?.categoryId != category.categoryId
             selectedTagKey = nil
             selectedCategory = category
+            if switched {
+                sidebarOpenGeneration += 1
+            }
             // 切换分类时退出多选模式
             exitMultiSelectMode()
             // 深链打开任务时：不要在“切换分类”的异步里把选中任务又清空（否则会出现你说的：切到 DayTodo 但不选中/不出详情）
@@ -130,8 +137,12 @@ final class TDMainViewModel: ObservableObject {
             // 点第一列任何标签：仅隐藏搜索界面（保留 searchText）
             isSearchActive = false
 
+            let switched = selectedCategory != nil || selectedTagKey != tagKey
             selectedCategory = nil
             selectedTagKey = tagKey
+            if switched {
+                sidebarOpenGeneration += 1
+            }
             exitMultiSelectMode()
             if pendingDeepLinkTaskId == nil {
                 selectedTask = nil

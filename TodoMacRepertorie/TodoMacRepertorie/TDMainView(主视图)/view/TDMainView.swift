@@ -146,58 +146,11 @@ struct TDMainView: View {
     private var secondColumn: some View {
         VStack(spacing: 0) {
             // 主要内容区域
-            AnyView(
-                Group {
-                    
-                    // 搜索模式：只要侧边栏输入非空，第二栏改为搜索结果
-                    if mainViewModel.isSearchActive {
-                        TDTaskSearchView()
-                    } else
-                    if let tagKey = mainViewModel.selectedTagKey, !tagKey.isEmpty {
-                        // 标签模式：复用 TDTaskListView，只是查询条件多一个 tagFilter
-                        TDTaskListView(
-                            category: TDSliderBarModel(categoryId: -9999, categoryName: tagKey, headerIcon: "tag"),
-                            tagFilter: tagKey
-                        )
-                    } else {
-                    
-                    if let selectedCategory = mainViewModel.selectedCategory {
-                        switch selectedCategory.categoryId {
-                        case -100: // DayTodo
-                            TDDayTodoView(selectedDate: dateManager.selectedDate, category: selectedCategory)
-                        case -101: // 最近待办
-                            TDTaskListView(category: selectedCategory)
-                        case -102: // 日程概览
-                            TDScheduleOverviewView()
-                        case -103: // 待办箱
-                            TDInboxView(category: selectedCategory)
-                        case -107: // 最近已完成
-                            TDRecentCompletedView(category: selectedCategory)
-                        case -108: // 回收站
-                            TDCompletedDeletedView(category: selectedCategory)
-                        case -106: // 数据复盘
-                            TDDataReviewView()
-                        case 0: // 未分类
-                            TDTaskListView(category: selectedCategory)
-                        default: // 用户创建的分类
-                            if selectedCategory.categoryId > 0 {
-                                TDTaskListView(category: selectedCategory)
-                            } else {
-                                // 如果出现未知分类，默认显示DayTodo
-                                TDDayTodoView(selectedDate: dateManager.selectedDate, category: selectedCategory)
-                            }
-                        }
-                    } else {
-                        // 如果没有选中分类，默认显示DayTodo
-                        let defaults = TDSliderBarModel.defaultItems(settingManager: settingManager)
-                        TDDayTodoView(selectedDate: dateManager.selectedDate, category: defaults.first(where: { $0.categoryId == -100 }) ?? defaults[0])
-                    }
-                }
-                }
-                    // 宽度由 HSplitView 的 secondColumn 包裹层统一控制，这里不再重复约束
-                .background(Color(.windowBackgroundColor))
-                .ignoresSafeArea(.container, edges: .all)
-            )
+            ZStack {
+                secondColumnCurrentPage
+            }
+            .background(Color(.windowBackgroundColor))
+            .ignoresSafeArea(.container, edges: .all)
             Spacer(minLength: 0)
             // 专注界面（按设置开关显示）
             if settingManager.enableTomatoFocus {
@@ -206,6 +159,60 @@ struct TDMainView: View {
 
         }
 
+    }
+
+    @ViewBuilder
+    private var secondColumnCurrentPage: some View {
+        if mainViewModel.isSearchActive {
+            TDTaskSearchView()
+        } else if let tagKey = mainViewModel.selectedTagKey, !tagKey.isEmpty {
+            TDTaskListView(
+                category: TDSliderBarModel(categoryId: -9999, categoryName: tagKey, headerIcon: "tag"),
+                tagFilter: tagKey
+            )
+            .id(taskListQueryIdentity(categoryId: -9999, tagFilter: tagKey))
+        } else if let selectedCategory = mainViewModel.selectedCategory {
+            switch selectedCategory.categoryId {
+            case -100:
+                TDDayTodoView(selectedDate: dateManager.selectedDate, category: selectedCategory)
+                    .id("\(dateManager.selectedDate.startOfDayTimestamp)|\(mainViewModel.sidebarOpenGeneration)")
+            case -101:
+                TDTaskListView(category: selectedCategory)
+                    .id(taskListQueryIdentity(categoryId: selectedCategory.categoryId))
+            case -102:
+                TDScheduleOverviewView()
+                    .id(mainViewModel.sidebarOpenGeneration)
+            case -103:
+                TDInboxView(category: selectedCategory)
+                    .id(mainViewModel.sidebarOpenGeneration)
+            case -107:
+                TDRecentCompletedView(category: selectedCategory)
+                    .id(mainViewModel.sidebarOpenGeneration)
+            case -108:
+                TDCompletedDeletedView(category: selectedCategory)
+                    .id(mainViewModel.sidebarOpenGeneration)
+            case -106:
+                TDDataReviewView()
+            case 0:
+                TDTaskListView(category: selectedCategory)
+                    .id(taskListQueryIdentity(categoryId: selectedCategory.categoryId))
+            default:
+                if selectedCategory.categoryId > 0 {
+                    TDTaskListView(category: selectedCategory)
+                        .id(taskListQueryIdentity(categoryId: selectedCategory.categoryId))
+                } else {
+                    TDDayTodoView(selectedDate: dateManager.selectedDate, category: selectedCategory)
+                        .id("\(dateManager.selectedDate.startOfDayTimestamp)|\(mainViewModel.sidebarOpenGeneration)")
+                }
+            }
+        } else {
+            let defaults = TDSliderBarModel.defaultItems(settingManager: settingManager)
+            TDDayTodoView(
+                selectedDate: dateManager.selectedDate,
+                category: defaults.first(where: { $0.categoryId == -100 }) ?? defaults[0]
+            )
+            .id(dateManager.selectedDate.startOfDayTimestamp)
+        }
     }
     
     // MARK: - 第三列：任务详情
@@ -238,6 +245,11 @@ struct TDMainView: View {
         }
         .ignoresSafeArea(.container, edges: .all)
 
+    }
+
+    /// 设置/分类变化时重建 TDTaskListView，让 @Query 谓词真正重新求值
+    private func taskListQueryIdentity(categoryId: Int, tagFilter: String = "") -> String {
+        "\(categoryId)|\(tagFilter)|\(mainViewModel.sidebarOpenGeneration)|\(settingManager.expiredRangeCompleted.rawValue)|\(settingManager.expiredRangeUncompleted.rawValue)|\(settingManager.futureDateRange.rawValue)|\(settingManager.showNoDateEvents)|\(settingManager.taskListSortType)|\(settingManager.showCompletedTasks)|\(settingManager.showCompletedNoDateEvents)"
     }
 
 }

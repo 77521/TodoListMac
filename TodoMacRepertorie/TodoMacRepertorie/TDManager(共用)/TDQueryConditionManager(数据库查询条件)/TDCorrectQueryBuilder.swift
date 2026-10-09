@@ -175,6 +175,8 @@ struct TDCorrectQueryBuilder {
         let completedDaysLimit = settingManager.expiredRangeCompleted.rawValue
         let uncompletedDaysLimit = settingManager.expiredRangeUncompleted.rawValue
         let futureScheduleDaysLimit = settingManager.futureDateRange.rawValue
+        // 界面上任何分组都不会出现已完成时，把过滤下推到 SwiftData，少拉一批本地行
+        let hideAllCompleted = !settingManager.showCompletedTasks && !settingManager.showCompletedNoDateEvents
 
         let today = Date()
         let todayTimestamp = today.startOfDayTimestamp
@@ -203,6 +205,7 @@ struct TDCorrectQueryBuilder {
             && (!task.delete)
             && (!hasTagFilter || task.taskContent.localizedStandardContains(tagFilter))
             && (!shouldFilterByCategory || task.standbyInt1 == standbyFilterValue)
+            && (!hideAllCompleted || !task.complete)
             && ((showNoDate && task.todoTime == 0) || (task.todoTime >= startLowerBound && task.todoTime <= futureUpperBound))
         }
 

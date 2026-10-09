@@ -10,7 +10,16 @@ import SwiftData
 
 // MARK: - DayTodo 主视图
 
-/// DayTodo 界面 - 显示今天的任务（使用 SwiftUI List / NSTableView 后端，丝滑滚动无卡顿）
+/// DayTodo 界面 - 显示今天的任务（List / NSTableView 虚拟化，大量数据只渲染可见行）
+///
+/// 拖拽排序跟分类清单同一套 begin → hoverMove → commit：
+/// - 维护一份当前顺序 `taskDragOrder`（角色等同 categorySource）
+/// - hover 只改内存顺序，松手才写 taskSort + 同步
+/// - DayTodo 是扁平列表，没有文件夹
+///
+/// 向下移动必须用 Array.move 的标准偏移：`to > from ? to + 1 : to`。
+/// 若先 remove 再按「删除后」的 destination 下标 insert，拖到下一行会插回原位
+/// （两条数据时表现为只能往上拖、往下拖不动）。
 struct TDDayTodoView: View {
     @EnvironmentObject private var themeManager: TDThemeManager
     @Environment(\.modelContext) private var modelContext
@@ -18,131 +27,114 @@ struct TDDayTodoView: View {
 
     @Query private var allTasks: [TDMacSwiftDataListModel]
 
-    @State private var draggedTask:          TDMacSwiftDataListModel?
-    @State private var dragPlaceholderIndex: Int?
+    @State private var draggedTask: TDMacSwiftDataListModel?
     @State private var dragAutoScrollDirection: Int = 0
 
-    private let selectedDate:     Date
+    /// 拖拽期间实际渲染用的顺序，角色等同分类清单的 categorySource
+    @State private var taskDragOrder: [TDMacSwiftDataListModel] = []
+
+    private let selectedDate: Date
     private let selectedCategory: TDSliderBarModel
 
     init(selectedDate: Date, category: TDSliderBarModel) {
-        self.selectedDate     = selectedDate
+        self.selectedDate = selectedDate
         self.selectedCategory = category
         let (predicate, sortDescriptors) = TDCorrectQueryBuilder.getDayTodoQuery(selectedDate: selectedDate)
         _allTasks = Query(filter: predicate, sort: sortDescriptors)
     }
 
-    // MARK: - 拖拽渲染数据
-    // 使用稳定 id（taskId）避免 List 行因 id 变化而闪烁
+    /// 列表实际展示的数据：拖拽中用内存顺序；未拖且缓存还没铺上时先用 @Query 结果
+    private var displayTasks: [TDMacSwiftDataListModel] {
+        taskDragOrder.isEmpty ? allTasks : taskDragOrder
+    }
 
-    private var dragRenderItems: [TDDayDragItem] {
-        guard !allTasks.isEmpty else { return [] }
-        guard let dragged = draggedTask else {
-            return allTasks.map { TDDayDragItem(id: $0.taskId, task: $0, isPlaceholder: false) }
-        }
-        var base = allTasks.filter { $0.taskId != dragged.taskId }
-        let safeIdx = min(max(dragPlaceholderIndex ?? 0, 0), base.count)
-        base.insert(dragged, at: safeIdx)
-        return base.enumerated().map { idx, task in
-            let isHolder = task.taskId == dragged.taskId && idx == safeIdx
-            return TDDayDragItem(id: task.taskId, task: task, isPlaceholder: isHolder)
-        }
+    /// 把 taskDragOrder 跟 allTasks 对齐；拖拽过程中不能被打断
+    private func syncTaskDragOrder() {
+        guard draggedTask == nil else { return }
+        guard taskDragOrder.map(\.taskId) != allTasks.map(\.taskId) else { return }
+        taskDragOrder = allTasks
     }
 
     var body: some View {
-        let isMultiSelect  = mainViewModel.isMultiSelectMode
-        let selectedTasks  = mainViewModel.selectedTasks
+        let isMultiSelect = mainViewModel.isMultiSelectMode
+        let selectedTasks = mainViewModel.selectedTasks
         let selectedTaskId = mainViewModel.selectedTask?.taskId
+        let selectedTaskIds = Set(selectedTasks.map(\.taskId))
 
         VStack(spacing: 0) {
-            ZStack(alignment: .top) {
-                Color(themeManager.backgroundColor)
-                    .ignoresSafeArea(.container, edges: .all)
+            TDWeekDatePickerView()
+                .padding(.horizontal, 16)
+                .frame(height: 50)
+                .background(Color(themeManager.backgroundColor))
+                .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 1)
 
-                listContentView(
-                    isMultiSelect:  isMultiSelect,
-                    selectedTaskId: selectedTaskId,
-                    selectedTasks:  selectedTasks
-                )
-                .padding(.top, 50)
+            TDTaskInputView(todoTimeOverride: selectedDate.startOfDayTimestamp)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 1)
 
-                // 顶部日期选择器（固定在列表上方）
-                TDWeekDatePickerView()
-                    .padding(.horizontal, 16)
-                    .frame(height: 50)
-                    .background(Color(themeManager.backgroundColor))
-                    .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 1)
+            listContentView(
+                isMultiSelect: isMultiSelect,
+                selectedTaskId: selectedTaskId,
+                selectedTaskIds: selectedTaskIds
+            )
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-                // 悬浮任务输入框
-                TDTaskInputView()
-                    .padding(.horizontal, 16)
-                    .padding(.top, 80)
-                    .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 1)
-            }
-            // 多选操作栏
             if isMultiSelect {
                 TDMultiSelectActionBar(allTasks: allTasks)
                     .frame(maxWidth: .infinity)
             }
         }
+        .background(Color(themeManager.backgroundColor).ignoresSafeArea(.container, edges: .all))
     }
 
     // MARK: - 列表内容
 
     @ViewBuilder
     private func listContentView(
-        isMultiSelect:  Bool,
+        isMultiSelect: Bool,
         selectedTaskId: String?,
-        selectedTasks:  [TDMacSwiftDataListModel]
+        selectedTaskIds: Set<String>
     ) -> some View {
         if allTasks.isEmpty {
             TDEmptyStateView(
-                icon:     "checkmark.circle",
-                title:    "今天没有任务",
+                icon: "checkmark.circle",
+                title: "今天没有任务",
                 subtitle: "点击上方输入框添加新任务"
             )
         } else {
-            let items = dragRenderItems
+            let items = displayTasks
             ScrollViewReader { proxy in
                 List {
-                    ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
+                    ForEach(Array(items.enumerated()), id: \.element.taskId) { index, task in
                         TDTaskRowView(
-                            task:             item.task,
-                            category:         selectedCategory,
-                            orderNumber:      index + 1,
-                            isFirstRow:       index == 0,
-                            isLastRow:        index == items.count - 1,
+                            task: task,
+                            category: selectedCategory,
+                            orderNumber: index + 1,
+                            isFirstRow: index == 0,
+                            isLastRow: index == items.count - 1,
                             isMultiSelectMode: isMultiSelect,
-                            isSelectedTask:   selectedTaskId == item.task.taskId,
-                            isMultiSelected:  selectedTasks.contains(where: { $0.taskId == item.task.taskId }),
+                            isSelectedTask: selectedTaskId == task.taskId,
+                            isMultiSelected: selectedTaskIds.contains(task.taskId),
                             onCopySuccess: {
                                 TDToastCenter.shared.show(
                                     "copy_success_simple", type: .success, position: .bottom
                                 )
                             }
                         )
-                        .equatable()   // props 完全一致时跳过 body 重执行
-                        .id(item.id)
-                        // 占位行外观（拖拽时）
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                                .stroke(themeManager.color(level: 5), lineWidth: 1.4)
-                                .opacity(item.isPlaceholder ? 1 : 0)
-                        )
-                        .opacity(item.isPlaceholder ? 0.55 : 1)
-                        // 拖拽启动
+                        .equatable()
+                        .id(task.taskId)
+                        .contentShape(Rectangle())
                         .onDrag({
-                            guard !item.isPlaceholder else { return NSItemProvider() }
-                            draggedTask          = item.task
-                            dragPlaceholderIndex = allTasks.firstIndex(where: { $0.taskId == item.task.taskId }) ?? 0
-                            return NSItemProvider(object: item.task.taskId as NSString)
+                            beginDayTodoDrag(task)
+                            return NSItemProvider(object: task.taskId as NSString)
                         }, preview: {
                             TDTaskRowView(
-                                task:        item.task,
-                                category:    selectedCategory,
+                                task: task,
+                                category: selectedCategory,
                                 orderNumber: nil,
-                                isFirstRow:  false,
-                                isLastRow:   false,
+                                isFirstRow: false,
+                                isLastRow: false,
                                 onCopySuccess: {}
                             )
                             .padding(.horizontal, 4).padding(.vertical, 2)
@@ -153,17 +145,13 @@ struct TDDayTodoView: View {
                                     .stroke(themeManager.color(level: 5), lineWidth: 1.5)
                             )
                         })
-                        // 拖拽落点
                         .onDrop(of: [.text], delegate: TDDayTodoTaskDropDelegate(
-                            destinationTask:      item.task,
-                            allTasksProvider:     { allTasks },
-                            draggedTask:          $draggedTask,
-                            placeholderIndex:     $dragPlaceholderIndex,
-                            autoScrollDirection:  $dragAutoScrollDirection,
-                            context:              modelContext,
-                            onDenied: { key in
-                                TDToastCenter.shared.show(key, type: .info, position: .bottom)
-                            }
+                            destinationTaskId: task.taskId,
+                            draggedTask: $draggedTask,
+                            onHoverMove: { draggedId, destinationId in
+                                hoverMoveDayTodoTask(draggedId: draggedId, destinationId: destinationId)
+                            },
+                            onCommit: { commitDayTodoDrag() }
                         ))
                         .listRowInsets(EdgeInsets())
                         .listRowBackground(Color.clear)
@@ -176,12 +164,13 @@ struct TDDayTodoView: View {
                 .scrollIndicators(.hidden)
                 .environment(\.defaultMinListRowHeight, 44)
                 .padding(.horizontal, -9)
-                // 占位行过渡动画
-                .animation(.easeInOut(duration: 0.15), value: dragPlaceholderIndex)
-                // 初次加载时将已选中任务滚动至可见区域
-                .onAppear { scrollToSelectedTask(proxy: proxy) }
-                // 新任务添加后自动选中并滚动到可见区域
+                .animation(.easeInOut(duration: 0.15), value: items.map(\.taskId))
+                .onAppear {
+                    syncTaskDragOrder()
+                    scrollToSelectedTask(proxy: proxy)
+                }
                 .onChange(of: allTasks) { oldTasks, newTasks in
+                    syncTaskDragOrder()
                     guard newTasks.count > oldTasks.count else { return }
                     let oldIds = Set(oldTasks.map { $0.taskId })
                     guard let newTask = newTasks.first(where: { !oldIds.contains($0.taskId) }) else { return }
@@ -192,16 +181,84 @@ struct TDDayTodoView: View {
                         }
                     }
                 }
-                // 边缘自动滚动（guard 保证只在拖拽时执行）
                 .onReceive(Timer.publish(every: 0.06, on: .main, in: .common).autoconnect()) { _ in
                     guard draggedTask != nil, dragAutoScrollDirection != 0 else { return }
-                    advancePlaceholder(proxy: proxy)
+                    advanceDraggedTaskOneStep(direction: dragAutoScrollDirection, proxy: proxy)
                 }
                 .overlay {
                     if draggedTask != nil {
-                        edgeScrollOverlay(proxy: proxy)
+                        edgeScrollOverlay()
                     }
                 }
+            }
+        }
+    }
+
+    // MARK: - 拖拽生命周期（begin / hoverMove / commit）
+
+    private func beginDayTodoDrag(_ task: TDMacSwiftDataListModel) {
+        if taskDragOrder.map(\.taskId) != allTasks.map(\.taskId) {
+            taskDragOrder = allTasks
+        }
+        draggedTask = task
+    }
+
+    /// 悬停重排：下标一律按「当前数组、删除前」计算，向下时 toOffset = to + 1
+    private func hoverMoveDayTodoTask(draggedId: String, destinationId: String) {
+        guard draggedId != destinationId else { return }
+        guard let from = taskDragOrder.firstIndex(where: { $0.taskId == draggedId }),
+              let to = taskDragOrder.firstIndex(where: { $0.taskId == destinationId }) else { return }
+        var updated = taskDragOrder
+        updated.move(fromOffsets: IndexSet(integer: from), toOffset: to > from ? to + 1 : to)
+        taskDragOrder = updated
+    }
+
+    private func moveDraggedTask(to targetIndex: Int) {
+        guard let dragged = draggedTask,
+              let from = taskDragOrder.firstIndex(where: { $0.taskId == dragged.taskId }) else { return }
+        let to = min(max(targetIndex, 0), taskDragOrder.count - 1)
+        guard to != from else { return }
+        var updated = taskDragOrder
+        updated.move(fromOffsets: IndexSet(integer: from), toOffset: to > from ? to + 1 : to)
+        taskDragOrder = updated
+    }
+
+    private func commitDayTodoDrag() {
+        defer {
+            draggedTask = nil
+            dragAutoScrollDirection = 0
+        }
+        guard let dragged = draggedTask else { return }
+        guard let idx = taskDragOrder.firstIndex(where: { $0.taskId == dragged.taskId }) else { return }
+
+        if let deniedKey = TDDragSortValidation.deniedMessageKey(
+            draggedComplete: dragged.complete, in: taskDragOrder, at: idx
+        ) {
+            TDToastCenter.shared.show(deniedKey, type: .info, position: .bottom)
+            taskDragOrder = allTasks
+            return
+        }
+
+        let (top, next) = TDTaskDragSortHelper.findTopAndNextTaskSort(
+            in: taskDragOrder, at: idx, where: { $0.complete == dragged.complete }
+        )
+        var newSort = TDTaskSortCalculator.getMoveCurrentTaskSortValue(
+            currentTaskSort: dragged.taskSort, topTaskSort: top, nextTaskSort: next
+        )
+        if top == nil, next == nil { newSort = TDAppConfig.defaultTaskSort }
+
+        let updated = dragged
+        updated.taskSort = newSort
+
+        let context = modelContext
+        Task {
+            do {
+                _ = try await TDQueryConditionManager.shared.updateLocalTaskWithModel(
+                    updatedTask: updated, context: context
+                )
+                await TDMainViewModel.shared.performSyncSeparately()
+            } catch {
+                print("❌ DayTodo 拖拽排序更新失败: \(error)")
             }
         }
     }
@@ -217,31 +274,27 @@ struct TDDayTodoView: View {
         }
     }
 
-    private func advancePlaceholder(proxy: ScrollViewProxy) {
-        guard let dragged = draggedTask else { return }
-        let baseCount = max(allTasks.filter { $0.taskId != dragged.taskId }.count, 0)
-        let next = min(max((dragPlaceholderIndex ?? 0) + dragAutoScrollDirection, 0), baseCount)
-        if dragPlaceholderIndex != next { dragPlaceholderIndex = next }
+    private func advanceDraggedTaskOneStep(direction: Int, proxy: ScrollViewProxy) {
+        guard let dragged = draggedTask,
+              let idx = taskDragOrder.firstIndex(where: { $0.taskId == dragged.taskId }) else { return }
         withAnimation(.easeInOut(duration: 0.1)) {
-            proxy.scrollTo(dragged.taskId, anchor: dragAutoScrollDirection < 0 ? .top : .bottom)
+            moveDraggedTask(to: idx + direction)
+            proxy.scrollTo(dragged.taskId, anchor: direction < 0 ? .top : .bottom)
         }
     }
 
     @ViewBuilder
-    private func edgeScrollOverlay(proxy: ScrollViewProxy) -> some View {
+    private func edgeScrollOverlay() -> some View {
         VStack(spacing: 0) {
             Color.clear
                 .frame(height: 44)
                 .contentShape(Rectangle())
                 .onDrop(of: [.text], delegate: TDDayTodoEdgeDropDelegate(
                     direction: -1,
-                    destinationIndexProvider: { 0 },
-                    allTasksProvider:    { allTasks },
-                    draggedTask:         $draggedTask,
-                    placeholderIndex:    $dragPlaceholderIndex,
+                    draggedTask: $draggedTask,
                     autoScrollDirection: $dragAutoScrollDirection,
-                    context:             modelContext,
-                    onDenied: { key in TDToastCenter.shared.show(key, type: .info, position: .bottom) }
+                    onEnterEdge: { moveDraggedTask(to: 0) },
+                    onCommit: { commitDayTodoDrag() }
                 ))
             Spacer(minLength: 0)
             Color.clear
@@ -249,150 +302,60 @@ struct TDDayTodoView: View {
                 .contentShape(Rectangle())
                 .onDrop(of: [.text], delegate: TDDayTodoEdgeDropDelegate(
                     direction: 1,
-                    destinationIndexProvider: {
-                        guard let d = draggedTask else { return allTasks.count }
-                        return allTasks.filter { $0.taskId != d.taskId }.count
-                    },
-                    allTasksProvider:    { allTasks },
-                    draggedTask:         $draggedTask,
-                    placeholderIndex:    $dragPlaceholderIndex,
+                    draggedTask: $draggedTask,
                     autoScrollDirection: $dragAutoScrollDirection,
-                    context:             modelContext,
-                    onDenied: { key in TDToastCenter.shared.show(key, type: .info, position: .bottom) }
+                    onEnterEdge: { moveDraggedTask(to: taskDragOrder.count - 1) },
+                    onCommit: { commitDayTodoDrag() }
                 ))
         }
         .allowsHitTesting(true)
     }
 }
 
-// MARK: - 拖拽数据模型
-
-private struct TDDayDragItem: Identifiable {
-    let id: String
-    let task: TDMacSwiftDataListModel
-    let isPlaceholder: Bool
-}
-
 // MARK: - DropDelegate：行
 
 private struct TDDayTodoTaskDropDelegate: DropDelegate {
-    let destinationTask:  TDMacSwiftDataListModel
-    let allTasksProvider: () -> [TDMacSwiftDataListModel]
-
-    @Binding var draggedTask:         TDMacSwiftDataListModel?
-    @Binding var placeholderIndex:    Int?
-    @Binding var autoScrollDirection: Int
-    let context:  ModelContext
-    let onDenied: (String) -> Void
+    let destinationTaskId: String
+    @Binding var draggedTask: TDMacSwiftDataListModel?
+    let onHoverMove: (_ draggedId: String, _ destinationId: String) -> Void
+    let onCommit: () -> Void
 
     func dropEntered(info: DropInfo) {
-        guard let dragged = draggedTask, dragged.taskId != destinationTask.taskId else { return }
-        let base = allTasksProvider().filter { $0.taskId != dragged.taskId }
-        let idx  = base.firstIndex(where: { $0.taskId == destinationTask.taskId }) ?? base.count
+        guard let dragged = draggedTask, dragged.taskId != destinationTaskId else { return }
         withAnimation(.easeInOut(duration: 0.15)) {
-            if placeholderIndex != idx { placeholderIndex = idx }
+            onHoverMove(dragged.taskId, destinationTaskId)
         }
     }
 
     func dropUpdated(info: DropInfo) -> DropProposal? { DropProposal(operation: .move) }
 
     func performDrop(info: DropInfo) -> Bool {
-        TDDayTodoDropLogic.performDrop(
-            allTasksProvider:   allTasksProvider,
-            draggedTask:        &draggedTask,
-            placeholderIndex:   &placeholderIndex,
-            autoScrollDirection: &autoScrollDirection,
-            context:            context,
-            onDenied:           onDenied
-        )
+        onCommit()
+        return true
     }
 }
 
 // MARK: - DropDelegate：边缘区域
 
 private struct TDDayTodoEdgeDropDelegate: DropDelegate {
-    let direction:                  Int
-    let destinationIndexProvider:   () -> Int
-    let allTasksProvider:           () -> [TDMacSwiftDataListModel]
-
-    @Binding var draggedTask:         TDMacSwiftDataListModel?
-    @Binding var placeholderIndex:    Int?
+    let direction: Int
+    @Binding var draggedTask: TDMacSwiftDataListModel?
     @Binding var autoScrollDirection: Int
-    let context:  ModelContext
-    let onDenied: (String) -> Void
+    let onEnterEdge: () -> Void
+    let onCommit: () -> Void
 
     func dropEntered(info: DropInfo) {
         autoScrollDirection = direction
-        guard let dragged = draggedTask else { return }
-        let baseCount = allTasksProvider().filter { $0.taskId != dragged.taskId }.count
-        let idx = min(max(destinationIndexProvider(), 0), baseCount)
-        withAnimation(.easeInOut(duration: 0.12)) { placeholderIndex = idx }
+        guard draggedTask != nil else { return }
+        withAnimation(.easeInOut(duration: 0.12)) {
+            onEnterEdge()
+        }
     }
 
     func dropExited(info: DropInfo) { autoScrollDirection = 0 }
 
     func performDrop(info: DropInfo) -> Bool {
-        TDDayTodoDropLogic.performDrop(
-            allTasksProvider:   allTasksProvider,
-            draggedTask:        &draggedTask,
-            placeholderIndex:   &placeholderIndex,
-            autoScrollDirection: &autoScrollDirection,
-            context:            context,
-            onDenied:           onDenied
-        )
-    }
-}
-
-// MARK: - 松手写库逻辑（行/边缘复用）
-
-private enum TDDayTodoDropLogic {
-    static func performDrop(
-        allTasksProvider:   () -> [TDMacSwiftDataListModel],
-        draggedTask:        inout TDMacSwiftDataListModel?,
-        placeholderIndex:   inout Int?,
-        autoScrollDirection: inout Int,
-        context:            ModelContext,
-        onDenied:           (String) -> Void
-    ) -> Bool {
-        defer {
-            placeholderIndex    = nil
-            draggedTask         = nil
-            autoScrollDirection = 0
-        }
-        guard let dragged = draggedTask else { return true }
-
-        let allTasks = allTasksProvider()
-        var simulated = allTasks.filter { $0.taskId != dragged.taskId }
-        let safeIdx = min(max(placeholderIndex ?? 0, 0), simulated.count)
-        simulated.insert(dragged, at: safeIdx)
-
-        if let deniedKey = TDDragSortValidation.deniedMessageKey(
-            draggedComplete: dragged.complete, in: simulated, at: safeIdx
-        ) {
-            onDenied(deniedKey); return true
-        }
-
-        let (top, next) = TDTaskDragSortHelper.findTopAndNextTaskSort(
-            in: simulated, at: safeIdx, where: { $0.complete == dragged.complete }
-        )
-        var newSort = TDTaskSortCalculator.getMoveCurrentTaskSortValue(
-            currentTaskSort: dragged.taskSort, topTaskSort: top, nextTaskSort: next
-        )
-        if top == nil, next == nil { newSort = TDAppConfig.defaultTaskSort }
-
-        let updated = dragged
-        updated.taskSort = newSort
-
-        Task {
-            do {
-                _ = try await TDQueryConditionManager.shared.updateLocalTaskWithModel(
-                    updatedTask: updated, context: context
-                )
-                await TDMainViewModel.shared.performSyncSeparately()
-            } catch {
-                print("❌ DayTodo 拖拽排序更新失败: \(error)")
-            }
-        }
+        onCommit()
         return true
     }
 }
@@ -402,13 +365,13 @@ private enum TDDayTodoDropLogic {
 private enum TDDragSortValidation {
     static func deniedMessageKey(
         draggedComplete: Bool,
-        in moved:        [TDMacSwiftDataListModel],
-        at index:        Int
+        in moved: [TDMacSwiftDataListModel],
+        at index: Int
     ) -> String? {
-        let top  = index > 0               ? moved[index - 1] : nil
+        let top = index > 0 ? moved[index - 1] : nil
         let next = index < moved.count - 1 ? moved[index + 1] : nil
-        if draggedComplete,  let next, !next.complete { return "task.drag.denied.to_uncompleted" }
-        if !draggedComplete, let top, top.complete    { return "task.drag.denied.to_completed" }
+        if draggedComplete, let next, !next.complete { return "task.drag.denied.to_uncompleted" }
+        if !draggedComplete, let top, top.complete { return "task.drag.denied.to_completed" }
         return nil
     }
 }

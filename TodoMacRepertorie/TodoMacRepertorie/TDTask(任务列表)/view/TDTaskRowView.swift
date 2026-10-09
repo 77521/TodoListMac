@@ -120,6 +120,8 @@ struct TDTaskRowView: View , Equatable{
     let isMultiSelected: Bool
 
     @State private var isHovered: Bool = false
+    /// 右键菜单弹出时，用主题色圆角框替代系统默认的直角蓝框
+    @State private var isContextMenuHighlighted: Bool = false
 
     /// 监听设置变化，确保列表样式能实时刷新（描述开关/行数/已完成删除线等）
     @ObservedObject private var settingManager = TDSettingManager.shared
@@ -175,7 +177,7 @@ struct TDTaskRowView: View , Equatable{
     }
     
     var body: some View {
-        HStack(spacing: 0) {
+        HStack(alignment: .top, spacing: 0) {
             
             // 1. 难度指示条（左边）
             RoundedRectangle(cornerRadius: 1.5)
@@ -416,6 +418,20 @@ struct TDTaskRowView: View , Equatable{
                 }
             }
         )
+        .overlay {
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .stroke(themeManager.color(level: 5), lineWidth: 1.5)
+                .padding(1)
+                .opacity(isContextMenuHighlighted ? 1 : 0)
+                .allowsHitTesting(false)
+        }
+        .focusEffectDisabled()
+        .background {
+            // 只在 hover 时挂监听：滚动复用行时不要每行都 addLocalMonitor，否则滑动必卡
+            if isHovered {
+                TDTaskRowContextMenuFocusMonitor(isHighlighted: $isContextMenuHighlighted)
+            }
+        }
         // 说明：hover 绑定到“整行最外层”，确保鼠标在 cell 任意位置（包括按钮/右侧日期）都能触发
         .contentShape(Rectangle())
         .onHover { hovering in
@@ -1107,6 +1123,83 @@ private struct TDRowFocusButton: View {
                     removal: .move(edge: .trailing).combined(with: .opacity).combined(with: .scale(scale: 0.92))
                 )
             )
+        }
+    }
+}
+
+/// 监听本行右键：关掉 List/NSTableView 自带的直角焦点环，并在菜单弹出期间通知 SwiftUI 画主题色圆角框
+private struct TDTaskRowContextMenuFocusMonitor: NSViewRepresentable {
+    @Binding var isHighlighted: Bool
+
+    func makeNSView(context: Context) -> TDTaskRowContextMenuFocusMonitorView {
+        let view = TDTaskRowContextMenuFocusMonitorView()
+        view.onHighlightChange = { isHighlighted = $0 }
+        return view
+    }
+
+    func updateNSView(_ nsView: TDTaskRowContextMenuFocusMonitorView, context: Context) {
+        nsView.onHighlightChange = { isHighlighted = $0 }
+    }
+}
+
+private final class TDTaskRowContextMenuFocusMonitorView: NSView {
+    var onHighlightChange: ((Bool) -> Void)?
+    private var rightMouseMonitor: Any?
+    private var menuEndObserver: NSObjectProtocol?
+
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        disableEnclosingTableFocusRing()
+        guard window != nil else {
+            tearDownMonitors()
+            return
+        }
+        guard rightMouseMonitor == nil else { return }
+
+        rightMouseMonitor = NSEvent.addLocalMonitorForEvents(matching: .rightMouseDown) { [weak self] event in
+            guard let self, self.containsEvent(event) else { return event }
+            DispatchQueue.main.async { self.onHighlightChange?(true) }
+            return event
+        }
+        menuEndObserver = NotificationCenter.default.addObserver(
+            forName: NSMenu.didEndTrackingNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.onHighlightChange?(false)
+        }
+    }
+
+    deinit {
+        tearDownMonitors()
+    }
+
+    private func tearDownMonitors() {
+        if let rightMouseMonitor {
+            NSEvent.removeMonitor(rightMouseMonitor)
+            self.rightMouseMonitor = nil
+        }
+        if let menuEndObserver {
+            NotificationCenter.default.removeObserver(menuEndObserver)
+            self.menuEndObserver = nil
+        }
+    }
+
+    private func containsEvent(_ event: NSEvent) -> Bool {
+        guard let window, event.window == window else { return false }
+        let location = convert(event.locationInWindow, from: nil)
+        return bounds.contains(location)
+    }
+
+    private func disableEnclosingTableFocusRing() {
+        var current: NSView? = self
+        while let view = current {
+            view.focusRingType = .none
+            if let table = view as? NSTableView {
+                table.focusRingType = .none
+                break
+            }
+            current = view.superview
         }
     }
 }

@@ -18,7 +18,7 @@ enum TDTaskGroupTitleColorType {
 }
 
 /// 任务分组类型枚举
-enum TDTaskGroupType: Int, CaseIterable, Comparable {
+enum TDTaskGroupType: Int, CaseIterable, Comparable, Hashable {
     case overdueCompleted = 0      // 过期已达成
     case overdueUncompleted = 1    // 过期未达成
     case today = 2                 // 今天

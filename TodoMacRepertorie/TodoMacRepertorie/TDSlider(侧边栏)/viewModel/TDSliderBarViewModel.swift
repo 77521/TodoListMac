@@ -186,7 +186,6 @@ class TDSliderBarViewModel: ObservableObject {
         Task { @MainActor in
             // 点分类：退出标签模式
             selectedTagKey = nil
-
             selectedCategory = category
         }
     }

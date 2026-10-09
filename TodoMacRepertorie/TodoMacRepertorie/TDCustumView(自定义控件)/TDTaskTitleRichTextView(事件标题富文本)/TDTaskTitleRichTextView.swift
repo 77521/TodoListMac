@@ -31,6 +31,25 @@ struct TDTaskTitleRichTextView: View {
     @State private var measuredHeight: CGFloat = 0
 
     var body: some View {
+        // 绝大多数标题没有 #标签 / 链接。这时走 SwiftUI Text，避免 List 滚动时
+        // 每行都创建 NSTextView（Apple 文档里的 Long Platform View Updates，正是滑动卡顿主因）。
+        if TDTaskTitleParser.needsRichRendering(rawTitle) {
+            richTitle
+        } else {
+            Text(rawTitle)
+                .font(.system(size: fontSize))
+                .foregroundColor(baseTextColor)
+                .strikethrough(isStrikethrough)
+                .lineLimit(lineLimit)
+                .truncationMode(.tail)
+                .opacity(opacity)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(Rectangle())
+                .onTapGesture(perform: onTapPlain)
+        }
+    }
+
+    private var richTitle: some View {
         // 目标：按「图1」逻辑显示（并且“显示不完时自动 ...”）
         // - 保持原文顺序：#标签/链接 出现在标题哪里，就在哪里变色/变胶囊
         // - 链接仅变色（千草蓝 5 级），不强制下划线
@@ -39,7 +58,7 @@ struct TDTaskTitleRichTextView: View {
         let segments = TDTaskTitleParser.parseSegments(from: rawTitle)
 
         // 关键：由 TextKit 承担排版（lineLimit + truncation + 省略号）
-        TDTaskTitleTextKitView(
+        return TDTaskTitleTextKitView(
             segments: segments,
             baseTextColor: NSColor(baseTextColor),
             linkColor: NSColor(themeManager.fixedColor(themeId: "grass_blue", level: 5)),
@@ -63,7 +82,7 @@ struct TDTaskTitleRichTextView: View {
             }
         )
         // 关键：给 NSViewRepresentable 一个“确定的高度”，才能稳定显示 2 行（否则 SwiftUI 有时只给 1 行高度）
-        .frame(height: measuredHeight > 0 ? measuredHeight : nil)
+        .frame(height: measuredHeight > 0 ? measuredHeight : CGFloat(max(lineLimit, 1)) * (fontSize * 1.25))
         .opacity(opacity)
         // 6) 弹窗：点击“查看”进入标签筛选（第二栏切到“标签模式”，侧栏也会同步选中）
         .alert("tag.alert.view_title".localized, isPresented: $isShowingTagAlert) {
@@ -91,6 +110,11 @@ enum TDTaskTitleParser {
         case plain(String)
         case hashtag(String)              // "#按时"
         case link(displayText: String, url: URL)
+    }
+
+    /// 快路径：没有标签/链接就不要走 NSDataDetector + NSTextView
+    static func needsRichRendering(_ raw: String) -> Bool {
+        raw.contains("#") || raw.localizedCaseInsensitiveContains("http") || raw.localizedCaseInsensitiveContains("www.")
     }
 
     /// 把标题解析成片段数组（按原文顺序输出），用于图1样式的“就地渲染”
